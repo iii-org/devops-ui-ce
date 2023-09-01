@@ -8,6 +8,50 @@ stages:
 - build
 - deploy
 - test
+
+Copy Code From EE:
+  stage: initial
+  variables:
+    iiidevops: copy-code
+  image:
+    name: iiiorg/iiidevops-cli:0.0.7
+  before_script:
+    # Set default commit username and email
+    - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
+    - git config --global user.name "GitLab CI"
+  script:
+    # Clone the project from full
+    - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git Mono
+    
+    # Do some stuff
+    - |
+      cp Mono/Dockerfile.lite ./Dockerfile
+      cp Mono/app/yarn.lock ./app/yarn.lock
+      cp Mono/app/lerna.json ./app/lerna.json
+      cp Mono/app/entrypoint.sh ./app/entrypoint.sh
+      cp Mono/app/package_ce.json ./app/package.json
+      cp Mono/app/postcss.config.js ./app/postcss.config.js
+      cp -r Mono/app/apps/lite ./app/apps/lite
+      cp -r Mono/app/apps/shared ./app/apps/shared
+      cp -r Mono/iiidevops ./iiidevops
+
+    # Clean up
+    - rm -rf Mono
+
+    # Commit new changes
+    - git add -A
+    - git commit -m "Sync from full by bot"
+
+    # Push back to the ce repo
+    - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git" HEAD:$CI_DEFAULT_BRANCH
+    - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git" --tags
+
+    - echo "同步成功，故意拋出錯誤以暫停後續任務執行"
+    - exit 10
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'trigger'
+
 Test--SonarQube source code scan:
   variables:
     iiidevops: sonarqube
