@@ -1,385 +1,84 @@
-stages:
-- initial
-- scan
-- build
-- scan-image
-- deploy
-- test
 include:
-- project: iiidevops-templates/ci-template
-  file: ci/template.gitlab-ci.yml
+  - project: 'iiidevops-templates/ci-template'
+    ref: 'v2.0.0'
+    file: 'ci/template.gitlab-ci.yml'
+
+stages:
+  - initial
+  - scan
+  - build
+  - deploy
+  - test
+
+
 Test--SonarQube source code scan:
   variables:
     iiidevops: sonarqube
-    CHART_TYPE: nomal
+    CHART_TYPE: normal
   only:
-  - 103liteapi
-  - develop
-  - master
+    - master
+
 Test--Checkmarx source code scan:
   variables:
     iiidevops: checkmarx
   only:
-  - master
-.Build image:
-  variables:
-    iiidevops: deployed-environments
-    DOCKERFILE_PATH: Dockerfile
-  only:
-  - 103liteapi
-  - develop
-Build image --sso:
-  stage: build
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
-  inherit:
-    default: false
-  variables:
-    iiidevops: deployed-environments
-    DOCKERFILE_PATH: Dockerfile.sso
-  script:
-  - mkdir -p /kaniko/.docker
-  - mkdir -p .kaniko/cache
-  - echo "{\"auths\":{\"${HARBOR_URL}\":{\"auth\":\"$(echo -n ${HARBOR_ROBOT}:${HARBOR_ROBOT_SECRET}
-    | base64)\"}}}" > /kaniko/.docker/config.json
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/${DOCKERFILE_PATH}"
-    --registry-mirror ${HARBOR_URL} --cache=true --cache-dir .kaniko/cache --destination
-    "${HARBOR_URL}/${CI_PROJECT_NAME}/${CI_COMMIT_BRANCH}:${CI_COMMIT_SHORT_SHA}-sso"
-  cache:
-    key: ${CI_JOB_NAME}
-    paths:
-    - .kaniko/cache
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Build image --lite:
-  stage: build
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint:
-    - ''
-  inherit:
-    default: false
-  variables:
-    iiidevops: deployed-environments
-    DOCKERFILE_PATH: Dockerfile.lite
-  script:
-  - mkdir -p /kaniko/.docker
-  - mkdir -p .kaniko/cache
-  - echo "{\"auths\":{\"${HARBOR_URL}\":{\"auth\":\"$(echo -n ${HARBOR_ROBOT}:${HARBOR_ROBOT_SECRET}
-    | base64)\"}}}" > /kaniko/.docker/config.json
-  - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/${DOCKERFILE_PATH}"
-    --registry-mirror ${HARBOR_URL} --cache=true --cache-dir .kaniko/cache --destination
-    "${HARBOR_URL}/${CI_PROJECT_NAME}/${CI_COMMIT_BRANCH}:${CI_COMMIT_SHORT_SHA}-lite"
-  cache:
-    key: ${CI_JOB_NAME}
-    paths:
-    - .kaniko/cache
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-.Build--Scan docker image:
-  stage: scan-image
-  variables:
-    iiidevops: deployed-environments
-  only:
-  - 103liteapi
-  - develop
-Build--Scan docker image --sso:
-  stage: scan-image
-  image:
-    name: alpine:3.17
-    entrypoint:
-    - ''
-  variables:
-    iiidevops: deployed-environments
-  needs:
-  - Build image --sso
-  before_script:
-  - apk add --update curl
-  script:
-  - curl -s -L -X POST "${IIIDEV_URL}/v2/harbor/${CI_PROJECT_NAME}/scan" -F branch=${CI_COMMIT_BRANCH}
-    -F commit_id=${CI_COMMIT_SHORT_SHA}-sso
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Build--Scan docker image --lite:
-  stage: scan-image
-  image:
-    name: alpine:3.17
-    entrypoint:
-    - ''
-  variables:
-    iiidevops: deployed-environments
-  needs:
-  - Build image --lite
-  before_script:
-  - apk add --update curl
-  script:
-  - curl -s -L -X POST "${IIIDEV_URL}/v2/harbor/${CI_PROJECT_NAME}/scan" -F branch=${CI_COMMIT_BRANCH}
-    -F commit_id=${CI_COMMIT_SHORT_SHA}-lite
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Build--Copy Image --sso:
-  stage: scan-image
-  image:
-    name: iiiorg/iiidevops-cli:0.0.7
-  allow_failure: true
-  variables:
-    iiidevops: image-copy
-  needs:
-  - Build image --sso
-  script:
-  - export DATARAW=$(printf '{"username":"%s","password":"%s"}' "${BOT_USERNAME}"
-    "${BOT_PASSWORD}") && curl --location --request POST ${IIIDEV_URL}/user/login
-    --header "Content-Type:application/json" --data-raw "$DATARAW" | jq -r '.data.token'
-    > token.txt && export APITOKEN=$(cat token.txt) && pwd
-  - echo "$DATARAW"
-  - echo "$APITOKEN"
-  - echo "${CI_COMMIT_BRANCH} ${CI_PROJECT_NAME} ${CI_COMMIT_SHORT_SHA} {IIIDEV_URL}"
-  - curl --location --request POST ${IIIDEV_URL}/harbor/handle_image --header "Authorization:Bearer
-    $APITOKEN" --form project_name=${CI_PROJECT_NAME} --form from_repo_name=${CI_COMMIT_BRANCH}
-    --form from_tag=${CI_COMMIT_SHORT_SHA}-sso --form dest_repo_name=${CI_PROJECT_NAME}
-    --form dest_tag=${CI_COMMIT_BRANCH}
-  only:
-  - develop
-  - master
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Build--Copy Image --lite:
-  stage: scan-image
-  image:
-    name: iiiorg/iiidevops-cli:0.0.7
-  allow_failure: true
-  variables:
-    iiidevops: image-copy
-  needs:
-  - Build image --lite
-  script:
-  - export DATARAW=$(printf '{"username":"%s","password":"%s"}' "${BOT_USERNAME}"
-    "${BOT_PASSWORD}") && curl --location --request POST ${IIIDEV_URL}/user/login
-    --header "Content-Type:application/json" --data-raw "$DATARAW" | jq -r '.data.token'
-    > token.txt && export APITOKEN=$(cat token.txt) && pwd
-  - echo "$DATARAW"
-  - echo "$APITOKEN"
-  - echo "${CI_COMMIT_BRANCH} ${CI_PROJECT_NAME} ${CI_COMMIT_SHORT_SHA} {IIIDEV_URL}"
-  - curl --location --request POST ${IIIDEV_URL}/harbor/handle_image --header "Authorization:Bearer
-    $APITOKEN" --form project_name=${CI_PROJECT_NAME} --form from_repo_name=${CI_COMMIT_BRANCH}
-    --form from_tag=${CI_COMMIT_SHORT_SHA}-lite --form dest_repo_name=${CI_PROJECT_NAME}
-    --form dest_tag="lite"
-  - curl --location --request POST ${IIIDEV_URL}/harbor/handle_image --header "Authorization:Bearer
-    $APITOKEN" --form project_name=${CI_PROJECT_NAME} --form from_repo_name=${CI_COMMIT_BRANCH}
-    --form from_tag=${CI_COMMIT_SHORT_SHA}-lite --form dest_repo_name="devops-lite-ui"
-    --form dest_tag=${CI_COMMIT_BRANCH}
-  only:
-  - develop
-  - master
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-.Deploy--Set environment and wait deployment:
-  variables:
-    iiidevops: deployed-environments
-  only:
-  - 103liteapi
-  - develop
-Deploy--Set environment and wait deployment --sso:
-  stage: deploy
-  image:
-    name: iiiorg/iiidevops-cli:0.0.7
-    entrypoint:
-    - ''
-  variables:
-    iiidevops: deployed-environments
-    max_wait: 128
-    namespace: ${CI_PROJECT_NAME}
-    CI_COMMIT_BRANCH: ${CI_COMMIT_BRANCH}-sso
-    deploy_name: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-serv-dpy
-  script:
-  - kubectl delete configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    --ignore-not-found=true
-  - chk-app-env.pl
-  - kubectl create configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    --from-env-file=iiidevops/app.env
-  - 'kubectl annotate configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    iiidevops.org/project_name=${CICD_GIT_REPO_NAME} iiidevops.org/branch=${CI_COMMIT_BRANCH}
-    iiidevops.org/commit_id=${CI_COMMIT_SHORT_SHA} iiidevops.org/type=appenv
+    - skip
 
-    '
-  - 'kubectl create secret docker-registry harbor-local -n ${CI_PROJECT_NAME} --docker-server=${HARBOR_URL}
-    --docker-username=${HARBOR_ROBOT} --docker-password=${HARBOR_ROBOT_SECRET} ||
-    true
-
-    '
-  - deploy-wait.pl
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Deploy--Set environment and wait deployment --lite:
-  stage: deploy
-  image:
-    name: iiiorg/iiidevops-cli:0.0.7
-    entrypoint:
-    - ''
+Build image:
   variables:
     iiidevops: deployed-environments
-    max_wait: 128
-    namespace: ${CI_PROJECT_NAME}
-    CI_COMMIT_BRANCH: ${CI_COMMIT_BRANCH}-lite
-    deploy_name: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-serv-dpy
-  script:
-  - kubectl delete configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    --ignore-not-found=true
-  - chk-app-env.pl
-  - kubectl create configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    --from-env-file=iiidevops/app.env
-  - 'kubectl annotate configmap -n ${CI_PROJECT_NAME} ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-env
-    iiidevops.org/project_name=${CICD_GIT_REPO_NAME} iiidevops.org/branch=${CI_COMMIT_BRANCH}
-    iiidevops.org/commit_id=${CI_COMMIT_SHORT_SHA} iiidevops.org/type=appenv
-
-    '
-  - 'kubectl create secret docker-registry harbor-local -n ${CI_PROJECT_NAME} --docker-server=${HARBOR_URL}
-    --docker-username=${HARBOR_ROBOT} --docker-password=${HARBOR_ROBOT_SECRET} ||
-    true
-
-    '
-  - deploy-wait.pl
   only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-.Deploy--Web:
+    - skip
+
+Build--Scan docker image:
+  variables:
+    iiidevops: deployed-environments
+  only:
+    - skip
+
+Deploy--Set environment and wait deployment:
+  variables:
+    iiidevops: deployed-environments
+  only:
+    - skip
+
+Deploy--Web:
   variables:
     iiidevops: deployed-environments
     CHART_WEB_PORT: 80
     CHART_PROXY_BODY_SIZE: 1m
   only:
-  - 103liteapi
-  - develop
-Deploy--Web --sso:
-  stage: deploy
-  variables:
-    iiidevops: deployed-environments
-    CHART_WEB_PORT: 80
-    CHART_PROXY_BODY_SIZE: 1m
-    CHART_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-sso-serv
-    CHART_DB_NAME: db_name
-    CHART_DB_USERNAME: db_username
-    CHART_DB_PASSWORD: db_passwd
-    CHART_DB_SERVER: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-db
-    CHART_VERSION: 0.5.16
-  script:
-  - helm delete -n ${CI_PROJECT_NAME} ${CHART_NAME} || exit_code=$?
-  - helm install -n ${CI_PROJECT_NAME} ${CHART_NAME} -f common.yaml ${HARBOR_CHART_REGISTRY}/web
-    --set git.branch=${CI_COMMIT_BRANCH}-sso --set imagePullSecrets[0].name=harbor-local
-    --set web.imageTag=${CI_PROJECT_NAME}/${CI_COMMIT_BRANCH}:${CI_COMMIT_SHORT_SHA}-sso
-    --set web.port=${CHART_WEB_PORT} --set db.name=${CHART_DB_NAME} --set db.username=${CHART_DB_USERNAME}
-    --set db.password=${CHART_DB_PASSWORD} --set db.releaseName=${CHART_DB_SERVER}
-    --set kube.ingress.base_domain=${IIIDEV_ING} --set kube.ingress.proxy_body_size=${CHART_PROXY_BODY_SIZE}
-    --version ${CHART_VERSION}
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
-Deploy--Web --lite:
-  stage: deploy
-  variables:
-    iiidevops: deployed-environments
-    CHART_WEB_PORT: 80
-    CHART_PROXY_BODY_SIZE: 1m
-    CHART_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-lite-serv
-    CHART_DB_NAME: db_name
-    CHART_DB_USERNAME: db_username
-    CHART_DB_PASSWORD: db_passwd
-    CHART_DB_SERVER: ${CI_PROJECT_NAME}-${CI_COMMIT_BRANCH}-db
-    CHART_VERSION: 0.5.16
-  script:
-  - helm delete -n ${CI_PROJECT_NAME} ${CHART_NAME} || exit_code=$?
-  - helm install -n ${CI_PROJECT_NAME} ${CHART_NAME} -f common.yaml ${HARBOR_CHART_REGISTRY}/web
-    --set git.branch=${CI_COMMIT_BRANCH}-lite --set imagePullSecrets[0].name=harbor-local
-    --set web.imageTag=${CI_PROJECT_NAME}/${CI_COMMIT_BRANCH}:${CI_COMMIT_SHORT_SHA}-lite
-    --set web.port=${CHART_WEB_PORT} --set db.name=${CHART_DB_NAME} --set db.username=${CHART_DB_USERNAME}
-    --set db.password=${CHART_DB_PASSWORD} --set db.releaseName=${CHART_DB_SERVER}
-    --set kube.ingress.base_domain=${IIIDEV_ING} --set kube.ingress.proxy_body_size=${CHART_PROXY_BODY_SIZE}
-    --version ${CHART_VERSION}
-  only:
-  - 103liteapi
-  - develop
-  - master
-  - issuelistboard
-  - deviceverify
-  except:
-    variables:
-    - $CI_COMMIT_MESSAGE =~ /.*\(store\)$/
+    - skip
+
 Test--Anchore SBOM:
   variables:
     iiidevops: anchore
   only:
-  - master
+   - skip
+
 Test--ZAP:
   variables:
     iiidevops: zap
     CHART_WEB_PORT: 80
   only:
-  - master
+   - skip
+
 Test--WebInspect:
   variables:
     iiidevops: webinspect
   only:
-  - skip
+    - skip
+
 Test--Postman:
   variables:
     iiidevops: postman
     CHART_WEB_PORT: 80
   only:
-  - master
+   - skip
+
 Test--Sideex:
   variables:
     iiidevops: sideex
     CHART_WEB_PORT: 80
   only:
-  - master
+   - skip
