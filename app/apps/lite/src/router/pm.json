@@ -1,0 +1,388 @@
+[
+  {
+    "path": "/",
+    "name": "LandingPage",
+    "redirect": {
+      "name": "MyWork"
+    },
+    "meta": {
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "hidden": true
+  },
+  {
+    "path": "/project-lists",
+    "name": "ProjectLists",
+    "component": "layout",
+    "redirect": {
+      "name": "ProjectList"
+    },
+    "meta": {
+      "icon": "list",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "/project-list",
+        "name": "ProjectList",
+        "component": "views/Overview/ProjectList/ProjectListPM",
+        "meta": {
+          "title": "ProjectList",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/project",
+    "component": "layout",
+    "name": "Works",
+    "redirect": {
+      "name": "Overview"
+    },
+    "meta": {
+      "title": "Works",
+      "icon": "el-icon-s-cooperation",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "overview/:projectName?",
+        "name": "Overview",
+        "component": "views/Plan/Overview",
+        "meta": {
+          "title": "ProjectOverview",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "my-work",
+        "name": "MyWork",
+        "component": "views/MyWork",
+        "meta": {
+          "title": "MyWork",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "milestone/:projectName?",
+        "name": "Milestone",
+        "component": "views/Plan/Milestone",
+        "meta": {
+          "title": "Milestone",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "issue-boards/:projectName?",
+        "name": "IssueBoards",
+        "component": "views/Project/List",
+        "meta": {
+          "title": "Kanban",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "issues",
+        "name": "IssueLists",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "IssueList"
+        },
+        "meta": {
+          "title": "IssueList",
+          "roles": [
+            "Project Manager"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "IssueList",
+            "hidden": true,
+            "component": "views/Project/IssueList",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          },
+          {
+            "path": ":issueId",
+            "name": "IssueDetail",
+            "hidden": true,
+            "component": "views/Project/IssueDetail",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "projectSettings/:projectName?",
+        "name": "ProjectSettings",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "ProjectSetting"
+        },
+        "meta": {
+          "title": "ProjectSettings",
+          "roles": [
+              "Project Manager"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "ProjectSetting",
+            "hidden": true,
+            "component": "views/Plan/Settings/index",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          },
+          {
+            "path": "participateProject/:userId",
+            "name": "ParticipateProject",
+            "hidden": true,
+            "component": "views/SystemSettings/AccountManage/components/ParticipateProject",
+            "meta": {
+              "title": "ParticipateProject",
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          },
+          {
+            "path": "advanceBranchSettings",
+            "name": "AdvanceBranchSettings",
+            "hidden": true,
+            "component": "views/Plan/Settings/components/AdvanceBranchSettings",
+            "meta": {
+              "title": "AdvanceBranchSettings",
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          },
+          {
+            "path": "issueTransfer/:userId",
+            "name": "IssueTransfer",
+            "hidden": true,
+            "component": "views/Plan/Settings/ProjectIssueTransfer",
+            "meta": {
+              "title": "IssueTransfer",
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/progress/:projectName?",
+    "component": "layout",
+    "name": "Progress",
+    "redirect": {
+      "name": "DevBranch"
+    },
+    "meta": {
+      "title": "DevProgress",
+      "icon": "el-icon-odometer",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "dev-branch",
+        "name": "DevBranch",
+        "component": "views/Progress/DevBranch",
+        "meta": {
+          "title": "DevBranch",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "pipeline",
+        "name": "Pipeline",
+        "component": "views/Progress/Pipelines",
+        "meta": {
+          "title": "Pipelines",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/scan/:projectName?",
+    "component": "layout",
+    "name": "Scan",
+    "redirect": {
+      "name": "Sonarqube"
+    },
+    "meta": {
+      "title": "AutoTesting",
+      "icon": "el-icon-circle-check",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "sonarqube",
+        "name": "Sonarqube",
+        "component": "views/Scan/SonarQube",
+        "meta": {
+          "title": "SonarQube",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/activities/:projectName?",
+    "component": "layout",
+    "name": "Activities",
+    "redirect": {
+      "name": "ProjectActivities"
+    },
+    "meta": {
+      "icon": "el-icon-s-order",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "project-activities",
+        "name": "ProjectActivities",
+        "component": "views/Activities/ProjectActivities",
+        "meta": {
+          "title": "ProjectActivities",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/profile",
+    "component": "layout",
+    "name": "UserProfile",
+    "redirect": {
+      "name": "Profile"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/Profile",
+        "name": "Profile",
+        "meta": {
+          "title": "Profile",
+          "icon": "user",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/system-version",
+    "component": "layout",
+    "name": "SystemVersions",
+    "redirect": {
+      "name": "SystemVersion"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/SystemVersion",
+        "name": "SystemVersion",
+        "meta": {
+          "title": "SystemVersion",
+          "icon": "user",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/test-report",
+    "name": "TestReports",
+    "component": "layout",
+    "redirect": {
+      "name": "TestReport"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": ":projectId/:commitBranch/:commitId",
+        "component": "views/Progress/Pipelines/components/TestReport",
+        "name": "TestReport",
+        "meta": {
+          "title": "TestReport",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "*",
+    "name": "ErrorPage",
+    "redirect": "/404",
+    "hidden": true
+  }
+]

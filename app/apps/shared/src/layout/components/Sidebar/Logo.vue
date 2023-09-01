@@ -1,0 +1,101 @@
+<template>
+  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+    <transition name="sidebarLogoFade">
+      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
+        <img src="../../../assets/logo_2.png" class="sidebar-logo" alt="">
+      </router-link>
+      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
+        <div style="text-align: center;"><img src="../../../assets/logo_2.png" class="sidebar-logo" alt=""></div>
+        <div style="text-align: center;"><h1 class="sidebar-title" :class="isLite ? 'lite' : ''">{{ defaultSettings.title }} </h1></div>
+      </router-link>
+    </transition>
+  </div>
+</template>
+
+<script>
+import defaultSettings from '@/settings'
+
+export default {
+  name: 'SidebarLogo',
+  props: {
+    collapse: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data() {
+    return {
+      defaultSettings
+      // logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
+    }
+  },
+  computed: {
+    isLite() {
+      return this.defaultSettings.type === 'LITE'
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Audiowide&family=Kumar+One&family=Michroma&display=swap');
+.sidebarLogoFade-enter-active {
+  transition: opacity 1.5s;
+}
+
+.sidebarLogoFade-enter,
+.sidebarLogoFade-leave-to {
+  opacity: 0;
+}
+
+.sidebar-logo-container {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  // line-height: 40px;
+  background: $sideBarTitleBg;
+  text-align: left;
+  padding: 14px 12px 0 12px;
+  overflow: hidden;
+  //margin-bottom: 10px;
+  border-radius: 0 0 15px 15px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
+  z-index: 1;
+
+  & .sidebar-logo-link {
+    height: 100%;
+    width: 100%;
+
+    & .sidebar-logo {
+      width: 30px;
+      height: 30px;
+      vertical-align: middle;
+      // margin-right: 12px;
+    }
+
+    & .sidebar-title {
+      display: inline-block;
+      margin: 0;
+      color: #e9e9e9;
+      font-weight: 100;
+      line-height: 34px;
+      font-size: 16px;
+      vertical-align: middle;
+      font-family: 'Kumar One', cursive;
+      font-family: 'Michroma', sans-serif;
+      font-family: 'Audiowide', cursive;
+    }
+  }
+
+  &.collapse {
+    .sidebar-logo {
+      margin-right: 0px;
+    }
+  }
+}
+.lite {
+  font-family: 'Poiret One', cursive !important;
+  font-weight: 600 !important;
+}
+</style>

@@ -1,0 +1,513 @@
+@import 'themePath/index.scss';
+
+// el-table
+.el-table {
+  font-size: 14px !important;
+}
+
+.el-table .el-button {
+  color: #989898 !important;
+  border: 1px solid #989898;
+  background: none !important;
+  transition: all 0.6s ease;
+  margin: 0 4px;
+  i {
+    transition: all 0.6s ease;
+  }
+}
+
+.el-table .el-button--primary {
+  i {
+    color: $primary !important;
+  }
+  &:hover {
+    color: #ffffff !important;
+    border: 1px solid $primary !important;
+    background: $primary !important;
+    i {
+      color: #fff;
+    }
+  }
+}
+
+.el-table .el-button--success {
+  i {
+    color: $success !important;
+  }
+  &:hover {
+    color: #ffffff !important;
+    border: 1px solid $success !important;
+    background: $success !important;
+    i {
+      color: #fff;
+    }
+  }
+}
+
+.el-table .el-button--danger {
+  i {
+    color: $danger !important;
+  }
+  &:hover {
+    color: #ffffff !important;
+    border: 1px solid $danger !important;
+    background: $danger !important;
+    i {
+      color: #fff;
+    }
+  }
+}
+
+.el-table th > .cell {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.el-table .cell {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.el-table__row {
+  > .el-table__cell {
+    padding: 1px 0px !important;
+    line-height: 45px;
+    height: 45px;
+  }
+  .el-link--inner {
+    font-size: 14px;
+  }
+}
+
+.el-table--border td:first-child .cell,
+.el-table--border th:first-child .cell {
+  padding-left: 22px;
+}
+
+// el-form
+.el-form--label-top .el-form-item__label {
+  padding-bottom: 0;
+}
+
+//.el-form-item__content {
+//  line-height: 100%;
+//}
+
+.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:before,
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
+  content: '' !important;
+}
+
+.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:after,
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:after {
+  content: '*';
+  color: $danger;
+  font-size: 14px;
+  margin-left: 4px;
+  transform: translateY(4px);
+  display: inline-block;
+}
+
+.clearfix .newBtn {
+  float: left !important;
+}
+
+// el-tag--circle
+.el-tag--circle {
+  color: #ffffff;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  border-radius: 100px !important;
+  text-transform: capitalize !important;
+  display: inline-block !important;
+  &.el-tag--big {
+    width: 90px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  &.el-tag--danger {
+    background: $danger !important;
+    border: $danger !important;
+  }
+  &.el-tag--warning {
+    background: $warning !important;
+    border: $warning !important;
+  }
+  &.el-tag--slow {
+    background: $slow !important;
+    border: $slow !important;
+  }
+  &.el-tag--success {
+    background: $success !important;
+    border: $success !important;
+  }
+  &.el-tag--none {
+    color: #989898 !important;
+    border: none;
+    background: none;
+  }
+  &.el-tag--active {
+    background: $active !important;
+    border: $active !important;
+  }
+  &.el-tag--assigned {
+    background: $assigned !important;
+    border: $assigned !important;
+  }
+  &.el-tag--solved {
+    background: $solved !important;
+    border: $solved !important;
+  }
+  &.el-tag--finish {
+    background: $finished !important;
+    border: $finished !important;
+  }
+  &.el-tag--inProgress {
+    background: $inProgress !important;
+    border: $inProgress !important;
+  }
+  &.el-tag--close {
+    background: $closed !important;
+    border: $closed !important;
+  }
+}
+
+.el-card__body {
+  h4 {
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    justify-content: space-between;
+    display: flex;
+  }
+  .el-divider--horizontal {
+    width: calc(100% + 40px);
+    margin-top: 20px !important;
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+  }
+  .el-tag {
+    border-radius: 2px;
+  }
+}
+
+.el-tooltip__popper.is-dark {
+  background: $sideBarTitleBg !important;
+}
+
+.project-dialog-loading {
+  .el-loading-spinner {
+    i {
+      font-size: 30px;
+      color: $linkTextColor !important;
+    }
+    .el-loading-text {
+      font-size: 30px;
+      color: $linkTextColor !important;
+    }
+  }
+}
+
+.project-dialog-template-loading {
+  .el-loading-spinner {
+    i {
+      font-size: 15px !important;
+    }
+    .el-loading-text {
+      font-size: 15px !important;
+    }
+  }
+}
+
+.text- {
+  &success {
+    color: $success !important;
+  }
+  &danger {
+    color: $danger !important;
+  }
+  &info {
+    color: $info !important;
+  }
+}
+
+// VersionChecker tooltip
+.update-tooltip.is-dark {
+  background: #56b1e8;
+  width: 150px;
+  font-size: 14px;
+  text-align: center;
+  letter-spacing: 1.5px;
+  > .popper__arrow {
+    border-bottom-color: #56b1e8;
+    &:after {
+      border-bottom-color: #56b1e8;
+    }
+  }
+}
+
+// theme global settings
+@import 'src/styles/theme/variables.scss';
+.el-pagination.is-background .el-pager li:not(.disabled) {
+  &.active {
+    background-color: $linkTextColor !important;
+    color: #FFF;
+    &:hover {
+      color: #FFF;
+    }
+  }
+  &:hover {
+    color: $linkTextColor !important;
+  }
+}
+.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: $linkTextColor !important;
+  border-color: $linkTextColor !important;
+}
+.el-checkbox__inner:hover {
+  border-color: $linkTextColor !important;
+}
+.el-checkbox__input.is-focus .el-checkbox__inner{
+  border-color: $linkTextColor !important;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label {
+  color: $linkTextColor !important;
+}
+.el-radio-button__inner:hover {
+  color: $linkTextColor !important;
+}
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  color: #FFF;
+  background-color: $linkTextColor !important;
+  border-color: $linkTextColor !important;
+  box-shadow: -1px 0 0 0 $linkTextColor !important;
+}
+.el-switch__label.is-active {
+  color: $linkTextColor !important;
+}
+.el-switch .el-switch__core {
+  border-color: gray !important;
+  background-color: gray !important;
+}
+.el-switch.is-checked .el-switch__core {
+  border-color: $switchActiveColor !important;
+  background-color: $switchActiveColor !important;
+}
+.el-tabs--border-card>.el-tabs__header .el-tabs__item {
+  &:hover {
+    color: $linkTextColor !important;
+  }
+  &.is-active{
+    color: $linkTextColor !important;
+  }
+}
+
+.el-tabs__item {
+  &:hover {
+    color: $linkTextColor !important;
+  }
+  &.is-active{
+    color: $linkTextColor !important;
+  }
+}
+
+.el-tabs__active-bar {
+  background-color: $linkTextColor !important;
+}
+
+.el-loading-spinner {
+  .path{
+    stroke: $linkTextColor !important;
+  }
+  .el-loading-text {
+    color: $linkTextColor !important;
+  }
+}
+.el-upload-dragger:hover {
+  border-color: $linkTextColor !important;
+}
+.el-input.is-active .el-input__inner, .el-input__inner:focus {
+  border-color: $linkTextColor !important;
+  outline: 0;
+}
+.el-select .el-input.is-focus .el-input__inner {
+  border-color: $linkTextColor !important;
+}
+.el-textarea__inner:focus {
+  outline: 0;
+  border-color: $linkTextColor !important;
+}
+.el-input-number__decrease:hover, .el-input-number__increase:hover {
+  color: $linkTextColor !important;
+}
+.el-input-number__decrease:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled), .el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
+  border-color: $linkTextColor !important;
+}
+.el-dialog__headerbtn:focus .el-dialog__close, .el-dialog__headerbtn:hover .el-dialog__close {
+  color: $linkTextColor !important;
+}
+.el-slider__bar {
+  background-color: $linkTextColor !important;
+}
+.el-slider__button {
+  border: 2px solid $linkTextColor !important;
+}
+.el-progress-bar__inner {
+  background-color: $linkTextColor !important;
+}
+.account-manage-table>.el-table--enable-row-hover .el-table__body tr:hover>td:not(:last-child) {
+  cursor: pointer !important;
+}
+.el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+  background-color: $linkTextBackground !important;
+  color: $linkTextColor !important;
+}
+.el-select-dropdown__item.selected {
+  color: $linkTextColor !important;
+}
+.el-select .el-input__inner:focus {
+  border-color: $linkTextColor !important;
+}
+.el-backtop {
+  color: $linkTextColor !important;
+}
+.el-link.el-link--primary {
+  color: $linkTextColor !important;
+  &:hover {
+    color: $linkTextColor !important;
+  }
+}
+.el-date-table td.today span {
+  color: $linkTextColor !important;
+}
+.el-date-table td.current:not(.disabled) span {
+  background-color: $linkTextColor !important;
+}
+.el-date-table td.available:hover {
+  color: $linkTextColor !important;
+}
+.el-picker-panel__icon-btn:hover {
+  color: $linkTextColor !important;
+}
+.el-date-picker__header-label.active, .el-date-picker__header-label:hover {
+  color: $linkTextColor !important;
+}
+.el-month-table td.current:not(.disabled) .cell {
+  color: $linkTextColor !important;
+}
+.el-month-table td .cell:hover {
+  color: $linkTextColor !important;
+}
+.el-year-table td.today .cell {
+  color: $linkTextColor !important;
+}
+.el-year-table td .cell:hover, .el-year-table td.current:not(.disabled) .cell {
+  color: $linkTextColor !important;
+}
+.el-range-editor.is-active, .el-range-editor.is-active:hover {
+  border-color: $linkTextColor !important;
+}
+.el-date-table td.end-date span, .el-date-table td.start-date span {
+  background-color: $linkTextColor !important;
+}
+.el-table__body {
+  tr.current-row {
+    > .el-table__cell {
+      background-color: #d1dfe8 !important;
+      color: $linkTextColor !important;
+    }
+  }
+  .el-table__row.imageList {
+    cursor: pointer !important;
+  }
+}
+
+/*
+* table operate button
+* search icon with keyword: 'ri' or 'el'
+* https://icon-sets.iconify.design
+*/
+.operate-button {
+  font-size: medium;
+  font-weight: bolder;
+  margin-right: 5px;
+  color: $info;
+  cursor: pointer;
+  &.active {
+    color: $active;
+  }
+  &.danger {
+    color: $danger;
+  }
+  &.finished {
+    color: $finished;
+  }
+  &.inProgress {
+    color: $inProgress;
+  }
+  &.info {
+    color: $info;
+  }
+  &.help {
+    cursor: help;
+  }
+  &.disabled {
+    pointer-events: none;
+  }
+  &:hover {
+    color: $feature;
+  }
+}
+
+.el-divider--horizontal {
+  margin: 10px 0px !important;
+}
+.el-dialog__header {
+  > .container-name {
+    text-align: left;
+  }
+}
+
+.el-popover.danger .el-popconfirm .el-popconfirm__main .el-popconfirm__icon {
+    color: $danger !important;
+}
+.el-popover.warning .el-popconfirm .el-popconfirm__main .el-popconfirm__icon {
+  color: $warning !important;
+}
+.el-popover.success .el-popconfirm .el-popconfirm__main .el-popconfirm__icon {
+  color: $success !important;
+}
+
+/*
+* toast-ui editor css
+*/
+.toastui-editor-popup-add-link .toastui-editor-popup-body,
+.toastui-editor-popup-add-image .toastui-editor-popup-body {
+  padding: 0 20px 10px !important;
+}
+.toastui-editor-popup-add-image .toastui-editor-tabs {
+  margin: 5px 0 !important;
+}
+.toastui-editor-popup-add-image .toastui-editor-tabs .tab-item {
+  width: 50px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+}
+.toastui-editor-popup-body label {
+  margin: 5px 0 !important;
+}
+.toastui-editor-popup-body .toastui-editor-button-container {
+  margin-top: 10px !important;
+}
+
+.notification {
+  padding: 8px 16px !important;
+  background-color: $noticeBackgroundColor !important;
+  border-radius: 4px !important;
+  border-left: 5px solid $switchActiveColor !important;
+  margin: 10px 0;
+  font-size: 13px !important;
+  color: #515357 !important;
+  width: 100% !important;
+  text-align: left !important;
+}
