@@ -1,3 +1,0 @@
-KEY_ENTER: 1111
-password: Pm123456
-pm-account: momo_pm, demo_pm, devops-pm
