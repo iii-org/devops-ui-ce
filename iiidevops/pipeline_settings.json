@@ -1,0 +1,6 @@
+{
+  "name": "Vue.js-Element Ui",
+  "description": "nodejs 12 / nginx 1.19 <a class='el-link el-link--primary' href='https://github.com/iiidevops-templates/vuejs-app-template1/blob/master/README.md' target='_blank'>simple web 範本說明</a><hr /><ul><li><strong>v2.0</strong>:更新CI自動化腳本</li></ul>",
+  "arguments": [
+  ]
+}
