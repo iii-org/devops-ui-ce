@@ -86,9 +86,6 @@ export default {
   },
   methods: {
     ...mapActions('projects', ['getListQuery', 'setListQuery']),
-    async onPagination(listQuery) {
-      this.listQuery = listQuery
-    },
     async getStoredListQuery() {
       if (!this.storageName) return
       const key = this.storageName
@@ -99,17 +96,20 @@ export default {
       }
       return Promise.resolve()
     },
-    async handleCurrentChange(val) {
-      this.listQuery.offset = val.limit * val.page - val.limit
-      this.listQuery.limit = val.limit
-      this.listQuery.page = val.page
+    async onPagination(pageInfo) {
+      const { limit, page } = pageInfo
+      this.listQuery.offset = limit * page - limit
+      this.listQuery.limit = limit
+      this.listQuery.page = page
+      await this.storeListQuery()
+    },
+    async handleCurrentChange(pageInfo) {
+      const { limit, page } = pageInfo
+      this.listQuery.offset = limit * page - limit
+      this.listQuery.limit = limit
+      this.listQuery.page = page
       await this.loadData()
-      if (this.storageName) {
-        const key = this.storageName
-        const storeListQuery = await this.getListQuery()
-        storeListQuery[key] = this.listQuery
-        await this.setListQuery(storeListQuery)
-      }
+      await this.storeListQuery()
     },
     setNewListQuery(pageInfo) {
       const { offset, limit, current, total, pages } = pageInfo
@@ -122,13 +122,15 @@ export default {
     async resetListQuery() {
       this.listQuery.offset = 0
       this.listQuery.page = 1
-      if (this.storageName) {
-        const key = this.storageName
-        const storeListQuery = await this.getListQuery()
-        storeListQuery[key] = this.listQuery
-        await this.setListQuery(storeListQuery)
-      }
+      await this.storeListQuery()
       await this.loadData()
+    },
+    async storeListQuery() {
+      const key = this.storageName
+      if (!key) return
+      const storeListQuery = await this.getListQuery()
+      storeListQuery[key] = this.listQuery
+      await this.setListQuery(storeListQuery)
     }
   }
 }

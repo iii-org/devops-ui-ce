@@ -50,7 +50,7 @@
                 </el-popconfirm>
               </div>
             </div>
-            <div class="bg-gray-200 flex justify-center rounded-lg">
+            <div class="bg-gray-100 flex justify-center rounded-xl px-2 mt-2">
               <el-form
                 v-if="filter.isShowForm"
                 label-position="top"
@@ -528,8 +528,7 @@ export default {
 .filter-list {
   max-height: 80vh;
   overflow-x: hidden;
-  overflow-y: scroll;
-  overflow-y: overlay;
+  overflow-y: auto;
   &-name {
     @apply font-medium text-base truncate w-3/5 cursor-pointer;
   }

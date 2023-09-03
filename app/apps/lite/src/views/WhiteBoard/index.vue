@@ -9,7 +9,9 @@
           :disabled="!isAlive"
           @click="handleCreate"
         >
-          <span v-if="!isMobile">{{ $t('Excalidraw.CreateBoard') }}</span>
+          <span v-if="!isMobile">
+            {{ $t('Excalidraw.CreateBoard') }}
+          </span>
         </el-button>
         <span
           v-if="!isAlive"
@@ -20,7 +22,37 @@
           {{ $t('Notify.ExcalidrawAliveWarning') }}
         </span>
       </div>
-      <SearchFilter :keyword.sync="keyword" />
+      <div>
+        <el-input
+          v-if="searchVisible"
+          v-model="keyword"
+          style="width: 250px"
+          :placeholder="$t('general.Search')"
+          prefix-icon="el-icon-search"
+          clearable
+          @blur="searchVisible =! searchVisible"
+        />
+        <el-button
+          v-else
+          type="text"
+          icon="el-icon-search"
+          class="headerTextColor"
+          @click="searchVisible =! searchVisible"
+        >
+          {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
+        </el-button>
+        <template v-if="isFilterChanged">
+          <el-divider direction="vertical" />
+          <el-button
+            size="small"
+            icon="el-icon-close"
+            class="buttonSecondaryReverse"
+            @click="cleanFilter"
+          >
+            {{ $t('Issue.CleanFilter') }}
+          </el-button>
+        </template>
+      </div>
     </ProjectListSelector>
     <el-divider />
     <ElTableResponsive
@@ -31,13 +63,12 @@
       fit
     >
       <template v-slot:name="{row}">
-        <el-link
-          type="primary"
-          style="font-size: 16px"
+        <span
+          class="text linkTextColor"
           @click="handleEdit(row)"
         >
           {{ row.name }}
-        </el-link>
+        </span>
         <ShareButton
           :row="row"
           :assigned-to="assigned_to"
@@ -107,7 +138,7 @@
       </template>
     </ElTableResponsive>
     <Pagination
-      :total="filteredData.length"
+      :total="listQuery.total"
       :page="listQuery.page"
       :limit="listQuery.limit"
       :layout="paginationLayout"
@@ -138,7 +169,6 @@ import { getServerStatus } from '@/api_v2/monitoring'
 import { BasicData, Pagination, SearchBar } from '@/mixins'
 import { ElTableResponsive, ProjectListSelector } from '@shared/components'
 import {
-  SearchFilter,
   CreateBoardDialog,
   RestoreBoardDialog,
   ShareButton
@@ -149,7 +179,6 @@ export default {
   components: {
     ProjectListSelector,
     ElTableResponsive,
-    SearchFilter,
     CreateBoardDialog,
     RestoreBoardDialog,
     ShareButton
@@ -157,8 +186,11 @@ export default {
   mixins: [BasicData, Pagination, SearchBar],
   data() {
     return {
+      storageName: 'whiteboardList',
+      storageType: ['SearchBar', 'Pagination'],
       searchKeys: ['name'],
       isAlive: true,
+      searchVisible: false,
       CreateBoardDialogVisible: false,
       RestoreBoardDialogVisible: false,
       row: {},
@@ -181,7 +213,6 @@ export default {
         {
           label: this.$t('general.Index'),
           prop: 'index',
-          type: 'index',
           width: 70,
           align: 'center'
         },
@@ -220,6 +251,21 @@ export default {
           slot: 'actions'
         }
       ]
+    },
+    isFilterChanged() {
+      return !!this.keyword
+    }
+  },
+  watch: {
+    keyword(val) {
+      if (val !== null) this.resetListQuery()
+    },
+    filteredData(val) {
+      this.setNewListQuery({
+        ...this.listQuery,
+        current: this.listQuery.page,
+        total: val.length
+      })
     }
   },
   methods: {
@@ -229,7 +275,7 @@ export default {
         if (!this.isAlive) return []
         await this.getAssignedTo()
         const res = await getExcalidraw({ project_id: this.selectedProjectId })
-        return res.data
+        return res.data.map((item, index) => ({ ...item, index: index + 1 }))
       } catch (error) {
         console.error(error)
         this.handleError()
@@ -277,6 +323,9 @@ export default {
     enterDetail(issueId) {
       this.$router.push({ name: 'IssueDetail', params: { issueId }})
     },
+    cleanFilter() {
+      this.keyword = ''
+    },
     showSuccessMessage(message) {
       this.$message({
         title: this.$t('general.Success'),
@@ -287,6 +336,7 @@ export default {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .el-tag {
   cursor: pointer;

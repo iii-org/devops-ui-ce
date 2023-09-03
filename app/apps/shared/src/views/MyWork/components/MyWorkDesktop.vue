@@ -288,11 +288,12 @@ export default {
   margin: 0;
   .el-tabs__item.is-active {
     background: #e4ecf7;
-    color: #3e3f41;
+    color: #138ea2;
     border-top: 5px solid #3e3f41;
     border-bottom-color: #e4ecf7 ;
     height: 45px;
     font-size: 16px;
+    font-weight: bold;
   }
   .el-tabs__nav {
     border: none;
@@ -300,7 +301,7 @@ export default {
   .el-tabs__item {
     padding: 0 0 0 20px;
     background: #3e3f41;
-    color: #e4ecf7 ;
+    color: #b0b1b3;
     border-radius: 5px;
     width: 70%;
     &:hover {

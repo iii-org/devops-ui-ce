@@ -159,5 +159,3 @@ export default {
   EXCEL,
   PDF
 }
-
-console.log('keycloak_url:', process.env.VUE_APP_KC_URL)

@@ -8,8 +8,12 @@
     "init": "yarn && yarn clean && yarn refresh",
     "clean": "lerna clean --yes && lerna exec --rm -rf dist",
     "refresh": "yarn && lerna bootstrap",
-    "dev": "lerna run dev --stream --scope=@iiidevops/lite-ui",
+    "dev:lite": "lerna run dev --stream --scope=@iiidevops/lite-ui",
+    "dev:full": "lerna run dev --stream --scope=@iiidevops/full-ui",
+    "dev:sso": "lerna run dev --stream --scope=@iiidevops/sso-ui",
     "build:lite": "lerna run build:prod --stream --scope=@iiidevops/lite-ui",
+    "build:full": "lerna run build:prod --stream --scope=@iiidevops/full-ui",
+    "build:sso": "lerna run build:prod --stream --scope=@iiidevops/sso-ui",
     "build": "lerna run build"
   },
   "devDependencies": {

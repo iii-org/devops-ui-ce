@@ -31,9 +31,9 @@ Copy Code From EE:
       cp Mono/app/entrypoint.sh ./app/entrypoint.sh
       cp Mono/app/package_ce.json ./app/package.json
       cp Mono/app/postcss.config.js ./app/postcss.config.js
-      cp -r Mono/app/apps/lite ./app/apps/lite
-      cp -r Mono/app/apps/shared ./app/apps/shared
-      cp -r Mono/iiidevops ./iiidevops
+      cp -r Mono/app/apps/lite ./app/apps
+      cp -r Mono/app/apps/shared ./app/apps
+      cp -r Mono/iiidevops ./
 
     # Clean up
     - rm -rf Mono
