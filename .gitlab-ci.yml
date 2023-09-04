@@ -22,7 +22,7 @@ Copy Code From EE:
   script:
     # Clone the project from full
     - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git Mono
-    
+
     # Do some stuff
     - |
       cp Mono/Dockerfile.lite ./Dockerfile
@@ -37,6 +37,10 @@ Copy Code From EE:
 
     # Clean up
     - rm -rf Mono
+    - |
+      if [ -f common.yaml ]; then
+        rm common.yaml
+      fi
 
     # Commit new changes
     - git add -A
