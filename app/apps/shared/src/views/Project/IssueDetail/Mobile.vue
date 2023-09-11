@@ -265,6 +265,10 @@ export default {
       type: Number,
       default: null
     },
+    issueName: {
+      type: String,
+      default: ''
+    },
     originForm: {
       type: Object,
       default: () => ({})

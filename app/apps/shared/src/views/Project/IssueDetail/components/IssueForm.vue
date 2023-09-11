@@ -46,14 +46,22 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <Tags
-              ref="tags"
-              :issue-id="issueId"
-              :loading.sync="isLoading"
-              :form.sync="form"
-              :is-direct-save="true"
-              @update="$emit('update')"
-            />
+            <el-tooltip
+              :value="dataLoaded"
+              :disabled="form.tags && form.tags.length > 0"
+              :enterable="false"
+              content="可以直接在這打字以新增標籤"
+              placement="bottom"
+            >
+              <Tags
+                ref="tags"
+                :issue-id="issueId"
+                :loading.sync="isLoading"
+                :form.sync="form"
+                :is-direct-save="true"
+                @update="$emit('update')"
+              />
+            </el-tooltip>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
             <el-form-item
@@ -479,6 +487,10 @@ export default {
       })
     },
     isFromBoard: {
+      type: Boolean,
+      default: false
+    },
+    dataLoaded: {
       type: Boolean,
       default: false
     }

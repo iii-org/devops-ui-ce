@@ -211,19 +211,21 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     if (this.hasUnsavedChanges()) {
-      this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-        confirmButtonText: this.$t('general.Confirm'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'warning'
-      })
-        .then(() => {
-          this.$route.meta.subject = null
-          document.title = getPageTitle(this.$route.meta)
-          next()
+      setTimeout(() => {
+        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
+          confirmButtonText: this.$t('general.Confirm'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'warning'
         })
-        .catch(() => {
-          next(false)
-        })
+          .then(() => {
+            this.$route.meta.subject = null
+            document.title = getPageTitle(this.$route.meta)
+            next()
+          })
+          .catch(() => {
+            next(false)
+          })
+      }, 1)
     } else {
       this.$route.meta.subject = null
       document.title = getPageTitle(this.$route.meta)
@@ -651,7 +653,11 @@ export default {
       this.listLoading = false
     },
     hasUnsavedChanges() {
-      return this.isFormDataChanged()
+      return this.isDescriptionOrNoteChanged() || this.isFormDataChanged()
+    },
+    isDescriptionOrNoteChanged() {
+      return this.form.description !== this.originForm.description ||
+        this.form.notes !== this.originForm.notes
     },
     isFormDataChanged() {
       if (Object.keys(this.originForm).length === 0) return false

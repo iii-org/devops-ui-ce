@@ -141,23 +141,6 @@
                 />
               </el-col>
             </el-collapse-transition>
-            <span class="flex items-center float-right w-1/4">
-              <el-link
-                icon="el-icon-zoom-out"
-                :underline="false"
-                @click="zoomOut()"
-              />
-              <el-slider
-                v-model="zoomSize"
-                class="inline-block w-3/4 px-3"
-                @change="zoom()"
-              />
-              <el-link
-                icon="el-icon-zoom-in"
-                :underline="false"
-                @click="zoomIn()"
-              />
-            </span>
             <el-col :span="24">
               <IssueDescription
                 ref="IssueDescription"
@@ -170,7 +153,6 @@
                 :issue-form-width="issueFormWidth"
                 :data-loaded="dataLoaded"
                 @filterImage="$parent.filterImage"
-                @zoom="zoom()"
                 @update="$parent.historyUpdate"
               />
             </el-col>
@@ -236,6 +218,7 @@
                     :issue-id="issueId"
                     :issue-project="issueProject"
                     :is-from-board="isFromBoard"
+                    :data-loaded="dataLoaded"
                     :form.sync="form"
                     :parent="parent"
                     :children-issue="children"
@@ -330,6 +313,7 @@
             :issue="issue"
             :issue-id="issueId"
             :issue-project="issueProject"
+            :data-loaded="dataLoaded"
             :form.sync="form"
             :parent="parent"
             :children-issue="children"
@@ -634,7 +618,6 @@ export default {
   data() {
     return {
       relationVisible: 0,
-      zoomSize: 0,
       isIssueFormOpened: !this.isFromBoard,
       issueFormWidth: 80,
       mode: 'view',
@@ -663,22 +646,6 @@ export default {
     }
   },
   methods: {
-    zoomIn() {
-      this.zoomSize += 10
-      this.zoom()
-    },
-    zoomOut() {
-      this.zoomSize -= 10
-      this.zoom()
-    },
-    zoom() {
-      if (this.zoomSize > 100) this.zoomSize = 100
-      else if (this.zoomSize < 0) this.zoomSize = 0
-      const descriptionViewerObj = document.getElementById('descriptionViewer')
-      const descriptionEditorObj = document.getElementsByClassName('ProseMirror toastui-editor-contents')[0]
-      if (descriptionViewerObj) descriptionViewerObj.style.zoom = 100 + this.zoomSize + '%'
-      if (descriptionEditorObj) descriptionEditorObj.style.zoom = 100 + this.zoomSize + '%'
-    },
     detectEditorHeight(event) {
       const [IssueDescription, IssueNotesEditor] = [this.$refs.IssueDescription, this.$refs.IssueNotesEditor]
       const { movementY } = event

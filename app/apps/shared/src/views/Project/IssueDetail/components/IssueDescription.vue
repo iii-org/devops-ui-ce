@@ -2,44 +2,77 @@
   <el-row>
     <el-row v-loading="isLoading">
       <el-row
-        class="text-sm font-bold items-center"
+        class="flex justify-between"
         :class="device === 'mobile' ? 'pb-1' : 'py-3'"
         :type="device === 'mobile' ? 'flex' : ''"
         :justify="device === 'mobile' ? 'space-between' : 'start'"
       >
-        <span :class="device === 'mobile' ? 'flex' : ''">
-          <em v-if="device === 'mobile'" class="ri-file-info-fill mr-1" />
-          {{ $t('Issue.Description') }}
-        </span>
-        <el-tooltip
-          v-if="!edit"
-          :value="dataLoaded && value === ''"
-          :enterable="false"
-          :content="$t('Issue.ClickToEdit')"
-          placement="right"
+        <span
+          class="flex items-center"
+          :style="{ 'flex-basis': isShowZoom ? '75%' : '100%' }"
         >
-          <el-button
-            class="edit-btn p-0 text-xl
+          <span
+            :class="device === 'mobile' ? 'flex' : ''"
+            class="text-sm font-bold"
+          >
+            <em
+              v-if="device === 'mobile'"
+              class="ri-file-info-fill mr-1"
+            />
+            {{ $t('Issue.Description') }}
+          </span>
+          <span class="ml-1">
+            <el-tooltip
+              v-if="!edit"
+              :value="dataLoaded && value === ''"
+              :enterable="false"
+              :content="$t('Issue.ClickToEdit')"
+              placement="right"
+            >
+              <el-button
+                class="edit-btn p-0 text-xl
               el-icon-edit-outline
               cursor-pointer
               align-middle"
-            @click="enableEditor"
+                @click="enableEditor"
+              />
+            </el-tooltip>
+            <span v-else-if="edit && device === 'desktop'">
+              <el-button
+                class="action"
+                type="success"
+                size="mini"
+                icon="el-icon-check"
+                @click="updateDescription"
+              />
+              <el-button
+                class="action"
+                type="danger"
+                size="mini"
+                icon="el-icon-close"
+                @click="checkCancelInput"
+              />
+            </span>
+          </span>
+        </span>
+        <span
+          v-if="isShowZoom"
+          class="flex w-1/4"
+        >
+          <el-link
+            icon="el-icon-zoom-out"
+            :underline="false"
+            @click="zoomOut()"
           />
-        </el-tooltip>
-        <span v-else-if="edit && device === 'desktop'">
-          <el-button
-            class="action"
-            type="success"
-            size="mini"
-            icon="el-icon-check"
-            @click="updateDescription"
+          <el-slider
+            v-model="zoomSize"
+            class="inline-block w-3/4 px-3"
+            @change="zoom()"
           />
-          <el-button
-            class="action"
-            type="danger"
-            size="mini"
-            icon="el-icon-close"
-            @click="checkCancelInput"
+          <el-link
+            icon="el-icon-zoom-in"
+            :underline="false"
+            @click="zoomIn()"
           />
         </span>
       </el-row>
@@ -218,13 +251,17 @@ export default {
       ellipsisStatus: false,
       isViewerFolded: true,
       toggleDrawer: false,
-      keyStatus: {}
+      keyStatus: {},
+      zoomSize: 0
     }
   },
   computed: {
     ...mapGetters(['language', 'device']),
     isLite() {
       return process.env.VUE_APP_PROJECT === 'LITE'
+    },
+    isShowZoom() {
+      return this.device === 'desktop' && !this.edit && this.value !== ''
     },
     editorValue() {
       return this.value.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
@@ -271,6 +308,26 @@ export default {
     // }
   },
   methods: {
+    initZoom() {
+      this.zoomSize = 0
+      this.$nextTick(() => { this.zoom() })
+    },
+    zoomIn() {
+      this.zoomSize += 10
+      this.zoom()
+    },
+    zoomOut() {
+      this.zoomSize -= 10
+      this.zoom()
+    },
+    zoom() {
+      if (this.zoomSize > 100) this.zoomSize = 100
+      else if (this.zoomSize < 0) this.zoomSize = 0
+      const descriptionViewerObj = document.getElementById('descriptionViewer')
+      const descriptionEditorObj = document.getElementsByClassName('ProseMirror toastui-editor-contents')[0]
+      if (descriptionViewerObj) descriptionViewerObj.style.zoom = 100 + this.zoomSize + '%'
+      if (descriptionEditorObj) descriptionEditorObj.style.zoom = 100 + this.zoomSize + '%'
+    },
     addLinkTarget() {
       const links = document.querySelectorAll('.toastui-editor-contents a')
       for (let i = 0; i < links.length; i++) { links[i].target = '_blank' }
@@ -370,6 +427,7 @@ export default {
         if (!this.isLite) {
           this.sendMentionMessage(this.mentionList)
         }
+        this.initZoom()
         this.initTagList()
         this.isLoading = false
       } else {
@@ -398,9 +456,6 @@ export default {
       this.isChanged = false
       this.toggleDrawer = false
       this.initZoom()
-    },
-    initZoom() {
-      this.$nextTick(() => { this.$emit('zoom') })
     },
     async sendMentionMessage(mentionList) {
       mentionList = [...new Set(mentionList)]
