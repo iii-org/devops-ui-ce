@@ -65,7 +65,7 @@
           >
             <em
               v-permission="['Administrator','QA']"
-              class="ri-file-list-2-line active operate-button"
+              class="ri-file-list-2-line primary operate-button"
               @click="handleParticipateDialog(row.id)"
             />
           </el-tooltip>
@@ -75,7 +75,7 @@
           >
             <em
               v-permission="['Administrator','Project Manager', 'QA']"
-              class="ri-file-copy-2-line active operate-button"
+              class="ri-file-copy-2-line primary operate-button"
               @click="handleIssueClick(row)"
             />
           </el-tooltip>

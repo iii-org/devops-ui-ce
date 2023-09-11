@@ -251,8 +251,9 @@ export default {
       await this.fetchData()
     },
     async getStoredListQuery() {
-      const [storeQuery, storeSort] = await Promise.all([this.getListQuery(), this.getSort()])
-      const storedQuery = storeQuery[this.storageName]
+      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const [storeListQuery, storeSort] = res.map((item) => item.value)
+      const storedQuery = storeListQuery[this.storageName]
       const storedSort = storeSort[this.storageName]
       if (storedQuery !== undefined) this.listQuery = JSON.parse(JSON.stringify(storedQuery))
       if (storedSort !== undefined) this.sort = storedSort

@@ -6,7 +6,8 @@
         :key="tab.id"
         :name="tab.id"
       >
-        <span slot="label">
+        <span slot="label" class="tab-header">
+          <em class="tab-icon" :class="tabIcon(tab.id)" />
           <span>{{ $t(`MyWork.${tab.name}`) }}</span>
           <span class="font-bold">
             ({{ tab.count !== '-' ? tab.count : 0 }})
@@ -217,14 +218,21 @@ export default {
       })
     },
     async fetchStoredData() {
-      let storedFilterValue, storedKeyword, storedDisplayClosed
-      await Promise.all([this.getIssueFilter(), this.getKeyword(), this.getDisplayClosed()]).then((res) => {
-        const [filterValue, keyword, displayClosed] = res
-        storedFilterValue = filterValue
-        storedKeyword = keyword
-        storedDisplayClosed = displayClosed
-      })
-      return { storedFilterValue, storedKeyword, storedDisplayClosed }
+      const res = await Promise.allSettled([
+        this.getIssueFilter(),
+        this.getKeyword(),
+        this.getDisplayClosed()
+      ])
+      const [
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed
+      ] = res.map((item) => item.value)
+      return {
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed
+      }
     },
     clearFilter() {
       this.clearKeyword()
@@ -276,54 +284,61 @@ export default {
         }
       })
       this.$emit('list-data', listData)
+    },
+    tabIcon(id) {
+      switch (id) {
+        case 'assigned_to_id':
+          return 'ri-list-check-3'
+        case 'author_id':
+          return 'ri-draft-line'
+        case 'watcher_id':
+          return 'ri-cast-line'
+        default:
+          return ''
+      }
     }
+
   }
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-
-::v-deep .el-tabs__header {
-  margin: 0;
-  .el-tabs__item.is-active {
-    background: #e4ecf7;
-    color: #138ea2;
-    border-top: 5px solid #3e3f41;
-    border-bottom-color: #e4ecf7 ;
-    height: 45px;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .el-tabs__nav {
-    border: none;
-  }
-  .el-tabs__item {
-    padding: 0 0 0 20px;
-    background: #3e3f41;
-    color: #b0b1b3;
-    border-radius: 5px;
-    width: 70%;
-    &:hover {
-      color: $linkTextColor;
+::v-deep {
+  .el-tabs {
+    background-color: white;
+    border-radius: 10px;
+    .el-tabs__header {
+      padding: 10px 14px;
+      margin: 0 0 18px;
+      .tab-icon {
+        margin-right: 4px;
+      }
     }
-    &.is-top:nth-child(2) {
-      padding: 0 0 0 20px;
+    .el-tabs__item {
+      padding: 0 12px;
+      .tab-header {
+        padding: 8px;
+      }
+      &.is-active {
+        .tab-header {
+          .tab-icon {
+            background-color: $primary;
+            color: white;
+            padding: 6px;
+            border-radius: 15px;
+          }
+        }
+      }
+    }
+    .el-tabs__active-bar {
+      height: 3px;
+      border-radius: 4px;
+      margin-top: 1px;
+    }
+    .el-pagination {
+      padding: 2px 14px;
     }
   }
-}
-
-::v-deep .el-tabs__active-bar {
-  display: none;
-}
-
-::v-deep .el-tabs__content {
-  background: #e4ecf7 ;
-  border-radius: 3px;
-}
-
-::v-deep .el-tab-pane {
-  margin: 15px;
-  background: #e4ecf7 ;
 }
 </style>

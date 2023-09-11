@@ -221,14 +221,21 @@ export default {
       })
     },
     async fetchStoredData() {
-      let storedFilterValue, storedKeyword, storedDisplayClosed
-      await Promise.all([this.getIssueFilter(), this.getKeyword(), this.getDisplayClosed()]).then((res) => {
-        const [filterValue, keyword, displayClosed] = res
-        storedFilterValue = filterValue
-        storedKeyword = keyword
-        storedDisplayClosed = displayClosed
-      })
-      return { storedFilterValue, storedKeyword, storedDisplayClosed }
+      const res = await Promise.allSettled([
+        this.getIssueFilter(),
+        this.getKeyword(),
+        this.getDisplayClosed()
+      ])
+      const [
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed
+      ] = res.map((item) => item.value)
+      return {
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed
+      }
     },
     clearFilter() {
       this.clearKeyword()

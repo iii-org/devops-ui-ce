@@ -43,6 +43,7 @@
       :is-button-disabled="isButtonDisabled"
       :form-project-id="formProjectId"
       :is-has-white-board="isHasWhiteBoard"
+      :data-loaded="dataLoaded"
     />
     <Mobile
       v-else
@@ -91,7 +92,6 @@ import {
   getIssueFamily
 } from '@/api/issue'
 import { getTestFileByTestPlan, putTestPlanWithTestFile } from '@/api/qa'
-import { createMessage } from '@/api_v2/monitoring'
 import { getLocalTime, getRelativeTime } from '@shared/utils/handleTime'
 import { atob } from '@shared/utils/base64'
 import getPageTitle from '@shared/utils/getPageTitle'
@@ -350,7 +350,6 @@ export default {
           this.initIssueDetails(data, true)
         }
       } catch (e) {
-        console.log(e)
         this.handleBackPage()
         // this.$message({
         //   message: this.$t('Issue.RemovedIssue'),
@@ -362,6 +361,7 @@ export default {
     },
     async setRelationsIssue(data) {
       const res_api = []
+      let relation_issue = []
       for (const item of data.relations) {
         let getIssueId
         if (data.id === item.issue_id) {
@@ -371,7 +371,10 @@ export default {
         }
         res_api.push(await getIssue(getIssueId))
       }
-      const relation_issue = await Promise.all(res_api)
+      await Promise.allSettled(res_api).then((res) => {
+        const [resData] = res.map((item) => item.value)
+        relation_issue = resData
+      })
       relation_issue.forEach((item, idx) => {
         this.$set(data.relations, idx, {
           relation_id: data.relations[idx].id,
@@ -573,33 +576,20 @@ export default {
     filterImage(object) {
       const [value, sendForm, checkDuplicate] = object
       let [array, fileArray, file] = [[], [], '']
-      array = value.split(/!\[(.+?)\)/g).filter((item) => (/(.+?)\]\(data:.+/g).test(item))
+      array = value.split(/!\[(.+?)\)/g).filter((item) =>
+        (/(.+?)\]\(data:.+/g).test(item)
+      )
       if (array.length === 0) return
       array.forEach((item) => {
         fileArray = item.split('](')
         file = this.dataURLtoFile(fileArray[0], fileArray[1])
-        const hasSameFile = this.files.some((element) => file.name === element.filename && file.size === element.filesize)
+        const hasSameFile = this.files.some((element) =>
+          file.name === element.filename &&
+          file.size === element.filesize
+        )
         if (checkDuplicate && hasSameFile) return
         sendForm.append('upload_files', file)
       })
-    },
-    async sendMentionMessage(mentionList) {
-      mentionList = [...new Set(mentionList)]
-      if (mentionList.length === 0) return
-      const { protocol, host } = location
-      const url = `${protocol}//${host}/#/project/issues/${this.issue.id}`
-      const link = `<a href="${url}" target="_blank">${url}</a>`
-      const data = {
-        title: this.$t('Inbox.MentionMessage', {
-          name: this.userName,
-          issue: `#${this.issueId} - ${this.issueName}`
-        }),
-        message: link,
-        type_parameters: JSON.stringify({ user_ids: mentionList }),
-        type_ids: '[3]',
-        alert_level: '1'
-      }
-      await createMessage(data)
     },
     handleErrorAlert(key) {
       const { title, content } = this[key]
@@ -613,7 +603,10 @@ export default {
       const h = this.$createElement
       if (!this.showAlert) {
         this.showAlert = true
-        this.$msgbox({ message: h('ul', errorMsg), title: this.$t('Kanban.ChangeIssueError') }).then(() => {
+        this.$msgbox({
+          message: h('ul', errorMsg),
+          title: this.$t('Kanban.ChangeIssueError')
+        }).then(() => {
           this.showAlert = false
         })
       }

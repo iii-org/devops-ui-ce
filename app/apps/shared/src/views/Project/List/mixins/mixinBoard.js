@@ -185,9 +185,9 @@ export default {
       return { CancelToken, config }
     },
     async setIssueList(getIssueList) {
-      await Promise.all(getIssueList)
+      await Promise.allSettled(getIssueList)
         .then((res) => {
-          const issueList = res.map((item) => item.data)
+          const issueList = res.map((item) => item.value.data)
           const list = [].concat.apply([], issueList)
           this.$set(this.$data, 'projectIssueList', list)
         })

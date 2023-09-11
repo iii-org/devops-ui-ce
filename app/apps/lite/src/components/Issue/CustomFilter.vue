@@ -26,12 +26,7 @@
                 <span :class="filter.isApplying ? 'text-success' : ''">{{ filter.name }}</span>
               </div>
               <div>
-                <el-button
-                  icon="el-icon-edit"
-                  size="mini"
-                  circle
-                  @click="onEditClick(filter.id)"
-                />
+                <em class="ri-file-edit-line warning operate-button" @click="onEditClick(filter.id)" />
                 <el-popconfirm
                   :confirm-button-text="$t('general.Remove')"
                   :cancel-button-text="$t('general.Cancel')"
@@ -40,13 +35,7 @@
                   :title="$t('Issue.RemoveCustomFilter')"
                   @confirm="removeFilter(filter.id)"
                 >
-                  <el-button
-                    slot="reference"
-                    type="danger"
-                    icon="el-icon-delete"
-                    size="mini"
-                    circle
-                  />
+                  <em slot="reference" class="ri-delete-bin-2-line danger operate-button" />
                 </el-popconfirm>
               </div>
             </div>

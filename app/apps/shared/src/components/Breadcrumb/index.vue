@@ -79,7 +79,7 @@ export default {
   }
 
   .no-redirect {
-    color: $secondary;
+    color: $primary;
     cursor: text;
   }
 }

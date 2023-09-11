@@ -350,7 +350,8 @@ export default {
       return res.data.issue_list
     },
     async getStoredListQuery() {
-      const [storeListQuery, storeSort] = await Promise.all([this.getListQuery(), this.getSort()])
+      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const [storeListQuery, storeSort] = res.map((item) => item.value)
       const storedTabQuery = storeListQuery[this.storageName]
       const storedSort = storeSort[this.storageName]
       if (storedTabQuery !== undefined) this.listQuery = storedTabQuery

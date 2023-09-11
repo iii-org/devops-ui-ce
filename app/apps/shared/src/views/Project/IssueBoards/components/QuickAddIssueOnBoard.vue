@@ -199,8 +199,8 @@ export default {
   },
   methods: {
     async fetchSelection() {
-      await Promise.all([getProjectAssignable(this.projectId)]).then((res) => {
-        const [assigned_to] = res.map((item) => item.data)
+      await Promise.allSettled([getProjectAssignable(this.projectId)]).then((res) => {
+        const [assigned_to] = res.map((item) => item.value.data)
         this.assigned_to = [
           {
             name: this.$t('Issue.me'),

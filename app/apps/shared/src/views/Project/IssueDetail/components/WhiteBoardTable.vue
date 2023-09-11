@@ -48,20 +48,23 @@
         width="240"
       >
         <template slot-scope="scope">
-          <el-tooltip
-            :content="$t('Issue.Unlink')"
-            effect="dark"
-            placement="bottom"
+          <el-popconfirm
+            :title="$t('Notify.confirmUnlink')"
+            :confirm-button-text="$t('Issue.Unlink')"
+            :cancel-button-text="$t('general.Cancel')"
+            popper-class="warning"
+            icon="el-icon-info"
+            @confirm="handleUnlink(scope.row)"
           >
-            <el-button
-              circle
-              size="mini"
-              type="primary"
-              icon="el-icon-close"
-              class="buttonPrimaryReverse"
-              @click="handleUnlink(scope.row)"
-            />
-          </el-tooltip>
+            <el-tooltip
+              slot="reference"
+              :content="$t('Issue.Unlink')"
+              effect="dark"
+              placement="bottom"
+            >
+              <em class="ri-link-unlink-m warning operate-button" />
+            </el-tooltip>
+          </el-popconfirm>
           <el-popconfirm
             :title="$t('Notify.confirmDelete')"
             :confirm-button-text="$t('general.Delete')"
@@ -76,12 +79,7 @@
               effect="dark"
               placement="bottom"
             >
-              <el-button
-                circle
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-              />
+              <em class="ri-delete-bin-2-line danger operate-button" />
             </el-tooltip>
           </el-popconfirm>
         </template>

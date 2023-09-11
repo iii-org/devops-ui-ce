@@ -315,6 +315,7 @@ export default {
     FileNameLimit: '檔名不可包含特殊字元。',
     LoadFail: '讀取失敗，請洽您的系統管理員。',
     UnSavedChanges: '您編輯的內容尚未儲存，確定離開嗎？',
+    confirmUnlink: '確定@:(Issue.Unlink)嗎？',
     confirmDelete: '確定@:(general.Delete)嗎？',
     confirmClose: '確定@:(general.Close)嗎？',
     confirmDeleteSth: '確定@:(general.Delete)「{name}」嗎？',
@@ -673,7 +674,9 @@ export default {
     AddToCalendar: '將添加到日曆',
     Watch: '關注',
     Unwatch: '取消關注',
-    WatcherList: '關注者清單'
+    WatcherList: '關注者清單',
+    ClickToEdit: '點擊進入編輯',
+    DoubleClickToEdit: '點擊兩下進入編輯'
   },
   Milestone: {
     Saving: '儲存中',

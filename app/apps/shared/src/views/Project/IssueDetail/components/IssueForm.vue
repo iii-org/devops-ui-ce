@@ -630,7 +630,7 @@ export default {
       this.isLoading = true
       const projectId = pId || this.form.project_id
       if (projectId) {
-        await Promise.all([
+        await Promise.allSettled([
           getProjectAssignable(projectId)
         ]).then(res => {
           this.getAssignedTo(res)
@@ -645,7 +645,7 @@ export default {
       this.isLoading = false
     },
     getAssignedTo(res) {
-      const [assigned_to] = res.map(item => item.data)
+      const [assigned_to] = res.map(item => item.value.data)
       this.assigned_to = [
         {
           name: this.$t('Issue.me'),

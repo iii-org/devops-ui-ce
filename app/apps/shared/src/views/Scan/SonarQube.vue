@@ -4,12 +4,12 @@
       <el-button
         slot="button"
         class="buttonSecondary"
-        icon="ri-external-link-line"
+        icon="ri-external-link-fill"
         :size="isMobile ? 'small' : 'medium'"
         :disabled="selectedProjectId === -1"
         @click="openSonarQube"
       >
-        <span v-if="!isMobile">{{ $t('SonarQube.ViewReport') }}</span>
+        <span v-if="!isMobile" class="ml-1">{{ $t('SonarQube.ViewReport') }}</span>
       </el-button>
       <ScanLogButton v-if="platform !== 'LITE'" slot="button" />
       <el-input
@@ -31,7 +31,7 @@
       :columns="tableColumns"
     >
       <template v-slot:commit_id="{ row }">
-        <el-link class="linkTextColor" target="_blank" style="font-size: 16px" :href="row.issue_link">
+        <el-link type="primary" target="_blank" style="font-size: 16px" :href="row.issue_link">
           <svg-icon v-if="row.commit_id" class="mr-1" icon-class="ion-git-commit-outline" />
           <span>{{ row.commit_id }}</span>
         </el-link>

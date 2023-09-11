@@ -75,6 +75,13 @@ export default {
         )
         return item.options.length > 0
       })
+    },
+    showNoProjectWarning() {
+      this.$message({
+        title: this.$t('general.Warning'),
+        message: this.$t('Notify.NoProject'),
+        type: 'warning'
+      })
     }
   }
 }

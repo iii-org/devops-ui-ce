@@ -199,7 +199,7 @@
               :content="$t('general.Transfer')"
             >
               <em
-                class="ri-file-transfer-line finished operate-button"
+                class="ri-file-transfer-line success operate-button"
                 @click="onTransferClick(scope.row.id)"
               />
             </el-tooltip>

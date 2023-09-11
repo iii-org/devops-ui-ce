@@ -18,8 +18,8 @@
         :name="stage.name"
         :disabled="!stage.state"
       >
-        <div slot="label" class="flex justify-between items-center">
-          <span class="text-right">{{ index + 1 }} {{ stage.name }}</span>
+        <div slot="label" class="flex justify-between items-center tab-name">
+          <span class="text-right name">{{ index + 1 }} {{ stage.name }}</span>
           <el-tag
             v-if="stage.state"
             class="el-tag ml-2"
@@ -34,7 +34,7 @@
         <el-card
           :body-style="{
             color: '#000',
-            background: '#DADADA',
+            background: '#ececef',
             lineHeight: 2
           }"
         >
@@ -51,14 +51,21 @@
               color: '#fff',
               background: '#222',
               lineHeight: 1,
-              fontSize: '14px',
-              height: '45vh',
+              fontSize: '13px',
+              height: isMobile ? '90vh' : '50vh',
               overflow: 'auto',
               'scroll-behavior': 'smooth'
             }"
             shadow="never"
           >
-            <pre v-html="stage.message" />
+            <pre>
+              <div v-for="(msg, idx) in stage.message" :key="idx" v-html="msg" />
+            </pre>
+            <div v-if="stage.isLoading" class="loader-animation pt-2 pl-2">
+              <div class="dot" />
+              <div class="dot" />
+              <div class="dot" />
+            </div>
           </el-card>
         </el-card>
       </el-tab-pane>
@@ -170,16 +177,22 @@ export default {
       }
     },
     setLogMessage(index, data) {
-      if (data === undefined) return
+      if (data === undefined || data === '') return
       const ansiUp = new AnsiUp()
-      const html = ansiUp.ansi_to_html(data.replaceAll('&gt;', '>'))
+      let logs = data.split(/[\r\n]+/)
+      for (const msg of logs) {
+        if (msg === '') continue
+        logs[logs.indexOf(msg)] = ansiUp.ansi_to_html(msg.replaceAll('&gt;', '>'))
+      }
+      if (logs[logs.length - 1] === '') logs.pop()
+      logs = logs.filter(a => !a.match(/section_end|section_start/g))
       const target = this.stages[index].message
-      const isHistoryMessage = target === data || target === 'Loading...'
+      const isHistoryMessage = target.length === logs.length || target[0] === 'Loading...'
       if (isHistoryMessage) {
-        this.stages[index].message = html
+        this.stages[index].message = logs
       } else {
-        if (target.includes(data)) return
-        this.stages[index].message = this.stages[index].message.concat(html)
+        if (logs.every(r => target.includes(r))) return
+        this.stages[index].message = [...this.stages[index].message, ...logs]
       }
     },
     changeFocusTab(index, timeout = 0) {
@@ -193,7 +206,7 @@ export default {
       try {
         const res = await getPipelinesConfig(this.selectedRepositoryId, { pipelines_exec_run: this.pipelineInfos.id })
         this.stages = res.data.map((stage) => {
-          stage.message = 'Loading...'
+          stage.message = ['Loading...']
           stage.isLoading = true
           return stage
         })
@@ -283,6 +296,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
 .mobile {
   ::v-deep .el-tabs--left, ::v-deep .el-tabs__header.is-left {
     float: none;
@@ -301,6 +315,48 @@ export default {
   }
   ::v-deep .el-tabs__nav-wrap::after {
       background: none;
+  }
+  .tab-name {
+    text-align-last: left;
+    .name {
+      width: 50%;
+    }
+  }
+}
+.loader-animation {
+  position: relative;
+  white-space: initial;
+  .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: auto auto 12px;
+    border-radius: 50%;
+    animation: blinking-dot 1s linear infinite;
+    background: #fff;
+    &:nth-child(2) {
+      animation-delay: 0.33s
+    }
+    &:nth-child(3) {
+      animation-delay: 0.66s
+    }
+  }
+}
+pre {
+  margin: 0;
+  counter-reset: line;
+  font-family: 'JetBrains Mono', monospace;
+  div {
+    min-height: 1.25rem;
+  }
+  div:before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    padding: 0 .5em;
+    margin-right: .5em;
+    color: #888;
+    min-width: 40px;
   }
 }
 </style>

@@ -158,12 +158,10 @@ export default {
               formatter: '{b}\n\n{c}',
               fontSize: '1em'
             },
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
             },
             bottom: '5%'
           }

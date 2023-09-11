@@ -50,18 +50,22 @@
                     style="width: 95%; color: #606266;"
                   >
                     <div class="ellipsis">
-                      <span
-                        class="linkTextColor hover-underline cursor-pointer"
-                        @click.stop="toGitlab(commit.gitlab_url)"
+                      <el-link
+                        type="primary"
+                        target="_blank"
+                        :href="commit.gitlab_url"
                       >
-                        <svg-icon icon-class="ion-git-commit-outline" />
+                        <svg-icon
+                          class="mr-1"
+                          icon-class="ion-git-commit-outline"
+                        />
                         {{ commit.commit_short_id }}
-                      </span>
+                      </el-link>
                       <span>@ {{ commit.author_name }} -</span>
                       <span
                         v-for="id in commit.issue_id"
                         :key="id"
-                        :class="commit.issue_hook[id.split('#')[1]] ? 'text-success hover-underline' : 'text-info'"
+                        :class="commit.issue_hook[id.split('#')[1]] ? 'text-primary hover-underline' : 'text-info'"
                         @click.stop="toIssueDetail(id)"
                       >
                         {{ id }}
@@ -95,7 +99,7 @@
                     @click="toIssueDetail(issue.id)"
                   >
                     <li v-show="issue" class="cursor-pointer ellipsis">
-                      <span class="text-success">
+                      <span class="text-primary">
                         #{{ issue.id }}
                       </span>
                       <Status
@@ -123,7 +127,7 @@
               </el-collapse-item>
             </el-collapse>
           </el-timeline-item>
-          <div class="flex justify-center" :class="isMobile ? 'mt-2' : ' w-75'">
+          <div class="flex justify-center mt-2" :class="isMobile ? '' : ' w-75'">
             <el-button
               round
               size="small"
@@ -137,7 +141,7 @@
       </template>
       <template v-slot:commit="{row}">
         <el-link
-          class="linkTextColor"
+          type="primary"
           target="_blank"
           style="font-size: 16px"
           :href="row.commit_url"

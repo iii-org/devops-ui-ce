@@ -164,11 +164,12 @@
                 v-model="form.description"
                 :old-value="originForm.description"
                 :issue-id="issueId"
+                :issue-name="issueName"
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
                 :issue-form-width="issueFormWidth"
+                :data-loaded="dataLoaded"
                 @filterImage="$parent.filterImage"
-                @sendMentionMessage="$parent.sendMentionMessage"
                 @zoom="zoom()"
                 @update="$parent.historyUpdate"
               />
@@ -253,10 +254,10 @@
                 ref="IssueNotesEditor"
                 v-model="form.notes"
                 :issue-id="issueId"
+                :issue-name="issueName"
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
                 @filterImage="$parent.filterImage"
-                @sendMentionMessage="$parent.sendMentionMessage"
                 @update="$parent.historyUpdate"
               />
             </el-col>
@@ -417,7 +418,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { Status, Tracker, IssueExpand } from '@/components/Issue'
 import {
   IssueForm,
@@ -623,6 +623,10 @@ export default {
       default: null
     },
     isHasWhiteBoard: {
+      type: Boolean,
+      default: false
+    },
+    dataLoaded: {
       type: Boolean,
       default: false
     }

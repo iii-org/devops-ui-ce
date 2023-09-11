@@ -31,10 +31,10 @@
                 v-model="form.description"
                 :old-value="originForm.description"
                 :issue-id="issueId"
+                :issue-name="issueName"
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
                 @filterImage="$parent.filterImage"
-                @sendMentionMessage="$parent.sendMentionMessage"
                 @update="$parent.getData"
               />
             </el-card>
@@ -178,11 +178,11 @@
             ref="IssueNotesEditor"
             v-model="form.notes"
             :issue-id="issueId"
+            :issue-name="issueName"
             :is-button-disabled="isButtonDisabled"
             :assigned-to="assignedTo"
             :is-drawer="true"
             @filterImage="$parent.filterImage"
-            @sendMentionMessage="$parent.sendMentionMessage"
             @update="$parent.historyUpdate"
           />
         </el-card>

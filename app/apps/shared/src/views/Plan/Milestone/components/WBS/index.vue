@@ -481,9 +481,11 @@ export default {
       this.initInfiniteScrollQuery()
       this.listData = []
       this.listData = await this.fetchData()
-      this.$set(this.$refs['WBS'].resizeState, 'height', 0)
-      this.$set(this.$refs['WBS'], 'isGroup', true)
-      this.$set(this.$refs['WBS'], 'isGroup', false)
+      this.$nextTick(() => {
+        this.$set(this.$refs['WBS'].resizeState, 'height', 0)
+        this.$set(this.$refs['WBS'], 'isGroup', true)
+        this.$set(this.$refs['WBS'], 'isGroup', false)
+      })
 
       if (this.issueMatrixDialog.row.id) {
         const issue = await getIssue(this.issueMatrixDialog.row.id)
@@ -1060,7 +1062,7 @@ export default {
             updateApi.push(updateIssue(item, removeFormData))
           })
         }
-        await Promise.all(updateApi)
+        await Promise.allSettled(updateApi)
         this.toggleRelationDialog(getSettingRelationIssue.target)
         this.$message({
           title: this.$t('general.Success'),

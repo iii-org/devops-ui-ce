@@ -3,7 +3,7 @@
     <ProjectListSelector>
       <div slot="button">
         <el-button
-          class="buttonSecondary"
+          class="buttonPrimary"
           icon="el-icon-plus"
           :size="isMobile ? 'mini' : 'medium'"
           :disabled="!isAlive"
@@ -91,14 +91,7 @@
           :content="$t('general.Edit')"
           placement="bottom"
         >
-          <el-button
-            circle
-            size="mini"
-            class="buttonPrimaryReverse"
-            type="primary"
-            icon="el-icon-edit"
-            @click="handleEdit(row, true)"
-          />
+          <em class="ri-file-edit-line warning operate-button" @click="handleEdit(row, true)" />
         </el-tooltip>
         <el-popconfirm
           :title="$t('Notify.confirmDelete')"
@@ -113,25 +106,16 @@
             :content="$t('general.Delete')"
             placement="bottom"
           >
-            <el-button
-              circle
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-            />
+            <em class="ri-delete-bin-2-line danger operate-button" />
           </el-tooltip>
         </el-popconfirm>
         <el-tooltip
           :content="$t('Excalidraw.HistoricalRecord')"
           placement="bottom"
         >
-          <el-button
+          <em
             v-if="isProjectOwnerOrAdministrator"
-            circle
-            size="mini"
-            class="buttonSecondaryReverse"
-            type="success"
-            icon="el-icon-time"
+            class="el-icon-time primary operate-button"
             @click="handleRestore(row)"
           />
         </el-tooltip>

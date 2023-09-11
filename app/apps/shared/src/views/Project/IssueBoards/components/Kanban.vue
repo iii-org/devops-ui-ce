@@ -131,7 +131,7 @@
                       class="text"
                       style="
                       font-size: 14px;
-                      max-width: 70px;
+                      max-width: 120px;
                       display: inline-block;
                     "
                     >

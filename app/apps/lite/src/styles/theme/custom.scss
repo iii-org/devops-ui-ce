@@ -428,25 +428,50 @@
 * https://icon-sets.iconify.design
 */
 .operate-button {
-  font-size: medium;
-  font-weight: bolder;
-  margin-right: 5px;
+  font-size: 16px;
   color: $info;
   cursor: pointer;
-  &.active {
-    color: $active;
+  border: 1px solid transparent;
+  padding: 2px;
+  border-radius: 15px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  &.primary {
+    color: $primary;
+    &:hover {
+      background-color: $primary;
+      border-color: $primary;
+    }
+  }
+  &.success {
+    color: $success;
+    &:hover {
+      background-color: $success;
+      border-color: $success;
+    }
+  }
+  &.warning {
+    color: $warning;
+    &:hover {
+      background-color: $warning;
+      border-color: $warning;
+    }
   }
   &.danger {
     color: $danger;
-  }
-  &.finished {
-    color: $finished;
-  }
-  &.inProgress {
-    color: $inProgress;
+    &:hover {
+      background-color: $danger;
+      border-color: $danger;
+    }
   }
   &.info {
     color: $info;
+    &:hover {
+      background-color: $info;
+      border-color: $info;
+    }
   }
   &.help {
     cursor: help;
@@ -455,7 +480,11 @@
     pointer-events: none;
   }
   &:hover {
-    color: $success;
+    color: white;
+    font-weight: normal;
+    background-color: $info;
+    font-size: 14px;
+    padding: 3px;
   }
 }
 

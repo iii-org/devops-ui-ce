@@ -311,7 +311,7 @@ export default {
     isMobile: {
       handler(val) {
         if (val) {
-          this.issueView = 'List'
+          this.issueView = 'Board'
         }
       },
       immediate: true

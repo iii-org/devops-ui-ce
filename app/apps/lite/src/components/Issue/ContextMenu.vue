@@ -513,7 +513,7 @@ export default {
             updateApi.push(updateIssue(item, removeFormData))
           })
         }
-        await Promise.all(updateApi)
+        await Promise.allSettled(updateApi)
         this.toggleRelationDialog(getSettingRelationIssue.target)
         this.$message({
           title: this.$t('general.Success'),

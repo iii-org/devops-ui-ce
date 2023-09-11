@@ -663,7 +663,6 @@ export default {
       this.optionsDownload.maxRows = 1000
       this.isDownload = true
       this.isExportGantt = false
-      console.log(this.optionsDownload, this.options)
     },
     async exportPdf() {
       this.isExportGantt = true

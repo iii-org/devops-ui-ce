@@ -98,10 +98,15 @@ export default {
     ...mapGetters(['name'])
   },
   mounted() {
-    Promise.all([getIssueMonthStatistics(), getIssueWeekStatistics(), getIssueOpenStatistics()]).then(res => {
-      this.issueMonthStatistics = res[0].data
-      this.issueWeekStatistics = res[1].data
-      this.issueNotFinishStatistics = res[2].data.active_issue_number
+    Promise.allSettled([
+      getIssueMonthStatistics(),
+      getIssueWeekStatistics(),
+      getIssueOpenStatistics()]
+    ).then(res => {
+      const [monthData, weekData, openData] = res.data((item) => item.value.data)
+      this.issueMonthStatistics = monthData
+      this.issueWeekStatistics = weekData
+      this.issueNotFinishStatistics = openData.active_issue_number
     })
   },
   methods: {

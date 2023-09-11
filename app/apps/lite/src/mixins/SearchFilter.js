@@ -259,31 +259,36 @@ export default {
       this.$set(this.originFilterValue, 'fixed_version', version[0].id)
     },
     async fetchStoredData() {
-      let storedFilterValue, storedKeyword, storedDisplayClosed, storedVersionClosed, storedGroupBy
-      await Promise.all([
+      const res = await Promise.allSettled([
         this.getIssueFilter(),
         this.getKeyword(),
         this.getDisplayClosed(),
         this.getFixedVersionShowClosed(),
         this.getGroupBy()
-      ]).then((res) => {
-        const [filterValue, keyword, displayClosed, fixedVersionClosed, groupBy] = res.map((item) => item)
-        storedFilterValue = filterValue
-        storedKeyword = keyword
-        storedDisplayClosed = displayClosed
-        storedVersionClosed = fixedVersionClosed
-        storedGroupBy = groupBy
-      })
-      return { storedFilterValue, storedKeyword, storedDisplayClosed, storedVersionClosed, storedGroupBy }
+      ])
+      const [
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed,
+        storedVersionClosed,
+        storedGroupBy
+      ] = res.map((item) => item.value)
+      return {
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed,
+        storedVersionClosed,
+        storedGroupBy
+      }
     },
     async loadSelectionList() {
       if (this.selectedProjectId === -1) return
-      await Promise.all([
+      await Promise.allSettled([
         getProjectUserList(this.mainSelectedProjectId),
         getTagsByProject(this.mainSelectedProjectId)
       ]).then(
         (res) => {
-          const [assigneeList, tagsList] = res.map((item) => item.data)
+          const [assigneeList, tagsList] = res.map((item) => item.value.data)
           this.tags = tagsList.tags
           this.assigned_to = [
             { name: this.$t('Issue.Unassigned'), id: 'null' },

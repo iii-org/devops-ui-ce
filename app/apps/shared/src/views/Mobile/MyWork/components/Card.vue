@@ -133,7 +133,8 @@ export default {
   methods: {
     ...mapActions('projects', ['setFixedVersionShowClosed', 'getListQuery', 'setListQuery', 'getSort', 'setSort']),
     async getStoredListQuery() {
-      const [storeListQuery, storeSort] = await Promise.all([this.getListQuery(), this.getSort()])
+      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const [storeListQuery, storeSort] = res.map((item) => item.value)
       const storedTabQuery = storeListQuery[`MyWork_${this.from}`]
       const storedSort = storeSort[`MyWork_${this.from}`]
       if (storedTabQuery !== undefined) this.listQuery = storedTabQuery
@@ -159,7 +160,6 @@ export default {
           this.$emit('list-data')
         })
         .catch(() => {
-          // console.log(err)
           this.listLoading = false
         })
     },

@@ -176,7 +176,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::v-deep input.el-input__inner {
-  text-align: center;
+::v-deep {
+  .el-table {
+    padding: 0 !important;
+  }
+  input.el-input__inner {
+    text-align: center;
+  }
 }
 </style>

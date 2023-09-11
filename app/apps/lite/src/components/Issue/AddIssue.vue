@@ -15,7 +15,7 @@
         placement="bottom"
       >
         <em
-          class="el-icon-document-copy finished operate-button"
+          class="el-icon-document-copy success operate-button"
           @click="$emit('import')"
         />
       </el-tooltip>
@@ -444,11 +444,11 @@ export default {
     async fetchData() {
       this.isLoading = true
       if (this.projectId) {
-        await Promise.all([
+        await Promise.allSettled([
           getProjectAssignable(this.projectId),
           getProjectVersion(this.projectId, { status: 'open,locked' })
         ]).then((res) => {
-          const [assigned_to, fixed_version] = res.map((item) => item.data)
+          const [assigned_to, fixed_version] = res.map((item) => item.value.data)
           this.assigned_to = [
             {
               name: this.$t('Issue.me'),

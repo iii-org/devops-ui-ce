@@ -72,22 +72,6 @@ export default {
       })
     }
   },
-  watch: {
-    data: {
-      immediate: true,
-      deep: true,
-      handler() {
-        // this.$nextTick(() => {
-        //   this.$refs['dialog'].$el.scrollTop = this.$refs['dialog'].$el.scrollHeight
-        // })
-      }
-    }
-  },
-  mounted() {
-    // this.$nextTick(() => {
-    //   this.$refs['dialog'].$el.scrollTop = this.$refs['dialog'].$el.scrollHeight
-    // })
-  },
   methods: {
     filterObject(note) {
       try {

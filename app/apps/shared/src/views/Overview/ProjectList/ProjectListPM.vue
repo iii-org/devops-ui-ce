@@ -154,7 +154,7 @@
         i18n-key="Project"
         :label="$t('Project.IssueStatus')"
         location="projectListPM"
-        min-width="120"
+        min-width="130"
       />
       <el-table-column
         align="center"
@@ -189,6 +189,7 @@
       <el-table-column
         align="center"
         :label="$t('ProjectSettings.Status')"
+        min-width="100px"
       >
         <template slot-scope="scope">
           <el-tooltip
@@ -209,7 +210,7 @@
         :label="$t('general.Actions')"
         header-align="center"
         align="center"
-        min-width="100"
+        min-width="120"
       >
         <template slot-scope="scope">
           <el-tooltip
@@ -217,7 +218,7 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-file-edit-line finished operate-button" @click="handleEdit(scope.row)" />
+            <em class="ri-file-edit-line warning operate-button" @click="handleEdit(scope.row)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
@@ -246,7 +247,7 @@
             placement="bottom"
             :content="$t('general.Fix')"
           >
-            <em class="ri-refresh-line active operate-button" @click="handleFix(scope.row.id)" />
+            <em class="ri-refresh-line primary operate-button" @click="handleFix(scope.row.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
@@ -256,7 +257,7 @@
             <em
               :disabled="permission(scope.row)"
               :class="scope.row.disabled
-                ? 'ri-play-circle-line finished operate-button'
+                ? 'ri-play-circle-line success operate-button'
                 : 'ri-pause-circle-line danger operate-button'"
               @click="handleToggle(scope.row)"
             />

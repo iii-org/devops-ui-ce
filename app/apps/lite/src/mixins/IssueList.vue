@@ -194,12 +194,12 @@ export default {
     // },
     // async loadSelectionList() {
     //   if (this.selectedProjectId === -1) return
-    //   await Promise.all([
+    //   await Promise.allSettled([
     //     getProjectUserList(this.filterValue.project || this.selectedProjectId),
     //     getTagsByProject(this.filterValue.project || this.selectedProjectId)
     //   ]).then(
     //     (res) => {
-    //       const [assigneeList, tagsList] = res.map((item) => item.data)
+    //       const [assigneeList, tagsList] = res.map((item) => item.value.data)
     //       this.tags = tagsList.tags
     //       this.assigned_to = [
     //         { name: this.$t('Issue.Unassigned'), id: 'null' },

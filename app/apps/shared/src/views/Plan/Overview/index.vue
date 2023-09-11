@@ -164,17 +164,17 @@ export default {
         param.due_date_status = this.searchData.selectedExpiredStatus
       }
       this.isLoading = true
-      const res = await Promise.all([
+      const res = await Promise.allSettled([
         getProjectIssueProgress(this.selectedProjectId, param),
         getProjectIssueStatistics(this.selectedProjectId, param),
         this.getProjectUserList(this.selectedProjectId),
         getProjectTest(this.selectedProjectId)
       ])
-      const [progressObj, statisticsObj, userList, projectTestObj] = res
-      this.progressObj = progressObj.data
-      this.statisticsObj = statisticsObj.data
-      this.userList = userList.data.user_list
-      this.projectTestObj = projectTestObj.data.test_results
+      const [progressObj, statisticsObj, userList, projectTestObj] = res.map((item) => item.value.data)
+      this.progressObj = progressObj
+      this.statisticsObj = statisticsObj
+      this.userList = userList.user_list
+      this.projectTestObj = projectTestObj.test_results
       this.isLoading = false
     },
     async fetchVersionList() {

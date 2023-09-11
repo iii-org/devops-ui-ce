@@ -35,7 +35,7 @@
           :content="$t('general.Participate')"
         >
           <em
-            class="ri-file-edit-line finished operate-button"
+            class="ri-file-edit-line warning operate-button"
             @click="handleParticipateDialog(row.id)"
           />
         </el-tooltip>

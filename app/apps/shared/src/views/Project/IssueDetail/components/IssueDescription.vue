@@ -1,11 +1,6 @@
 <template>
   <el-row>
-    <el-row
-      v-loading="isLoading"
-      :class="!edit ? 'description' : ''"
-      :style="{ cursor: isButtonDisabled ? 'not-allowed' : 'text' }"
-      @dblclick.native.capture="enableEditor"
-    >
+    <el-row v-loading="isLoading">
       <el-row
         class="text-sm font-bold items-center"
         :class="device === 'mobile' ? 'pb-1' : 'py-3'"
@@ -16,11 +11,21 @@
           <em v-if="device === 'mobile'" class="ri-file-info-fill mr-1" />
           {{ $t('Issue.Description') }}
         </span>
-        <em
+        <el-tooltip
           v-if="!edit"
-          class="el-icon-edit-outline cursor-pointer align-middle text-xl"
-          @click="enableEditor"
-        />
+          :value="dataLoaded && value === ''"
+          :enterable="false"
+          :content="$t('Issue.ClickToEdit')"
+          placement="right"
+        >
+          <el-button
+            class="edit-btn p-0 text-xl
+              el-icon-edit-outline
+              cursor-pointer
+              align-middle"
+            @click="enableEditor"
+          />
+        </el-tooltip>
         <span v-else-if="edit && device === 'desktop'">
           <el-button
             class="action"
@@ -34,46 +39,24 @@
             type="danger"
             size="mini"
             icon="el-icon-close"
-            @click="cancelInput"
+            @click="checkCancelInput"
           />
         </span>
       </el-row>
       <el-divider v-if="device === 'mobile'" />
       <el-col v-if="edit && device === 'desktop'">
-        <el-popover
-          v-model="tagListVisible"
-          :trigger="tagListVisible ? 'focus' : 'manual'"
-          placement="top"
-          width="auto"
-          popper-class="p-0"
-        >
-          <ul
-            class="my-0 py-3"
-            style="overflow-y: auto; max-height: 6rem;"
-            @scroll="tagListVisible = true"
-          >
-            <li
-              v-for="(user, index) in assignedTo"
-              :key="user.id"
-              :class="{ 'mt-2': index !== 0}"
-              class="cursor-pointer"
-              @click="addTag"
-            >
-              {{ user.name }}
-            </li>
-          </ul>
-          <Editor
-            id="descriptionEditor"
-            slot="reference"
-            ref="mdEditor"
-            initial-edit-type="wysiwyg"
-            :initial-value="editorValue"
-            :options="editorOptions"
-            height="15rem"
-            @change="onChange"
-            @keydown.native="onKeydown"
-          />
-        </el-popover>
+        <Editor
+          id="descriptionEditor"
+          ref="mdEditor"
+          height="15rem"
+          preview-style="tab"
+          initial-edit-type="wysiwyg"
+          :initial-value="editorValue"
+          :options="editorOptions"
+          @change="onChange"
+          @keyup.native="onKeyEvent"
+          @keydown.native="onKeyEvent"
+        />
         <hr
           class="move-bar flex justify-center rounded-b-md w-1/4 mt-0"
           @mousedown="isMoving = true"
@@ -116,54 +99,42 @@
             </span>
           </el-row>
         </div>
-        <el-popover
-          v-model="tagListVisible"
-          :trigger="tagListVisible ? 'focus' : 'manual'"
-          placement="top"
-          width="auto"
-          popper-class="p-0"
-        >
-          <ul
-            class="my-0 py-3"
-            style="overflow-y: auto; max-height: 6rem;"
-            @scroll="cancelInput"
-          >
-            <li
-              v-for="(user, index) in assignedTo"
-              :key="user.id"
-              :class="{ 'mt-2': index !== 0}"
-              class="cursor-pointer"
-              @click="addTag"
-            >
-              {{ user.name }}
-            </li>
-          </ul>
-          <Editor
-            id="descriptionEditor"
-            slot="reference"
-            ref="mdEditor"
-            initial-edit-type="wysiwyg"
-            :initial-value="editorValue"
-            :options="editorOptions"
-            height="auto"
-            @change="onChange"
-            @keydown.native="onKeydown"
-          />
-        </el-popover>
+        <Editor
+          id="descriptionEditor"
+          ref="mdEditor"
+          height="auto"
+          preview-style="tab"
+          initial-edit-type="wysiwyg"
+          :initial-value="editorValue"
+          :options="editorOptions"
+          @change="onChange"
+          @keyup.native="onKeyEvent"
+          @keydown.native="onKeyEvent"
+        />
       </el-drawer>
       <el-col
-        v-else-if="value && value !== '<p><br></p>'"
-        :class="device === 'mobile' ? 'border-solid border-2 border-grey-500 rounded' : ''"
+        v-else-if="value !== ''"
+        :class="device === 'mobile' ?
+          'border-solid border-2 border-grey-500 rounded' :
+          !edit ? 'description' : ''"
+        :style="{ cursor: isButtonDisabled ? 'not-allowed' : 'text' }"
+        @dblclick.native.capture="enableEditor"
       >
-        <Viewer
-          id="descriptionViewer"
-          ref="mdViewer"
-          :key="componentKey"
-          :initial-value="editorValue"
-          class="px-1"
-          :class="ellipsisStatus ? 'ellipsis' : null"
-          @load="addLinkTarget(); isFolded()"
-        />
+        <el-tooltip
+          :enterable="false"
+          :content="$t('Issue.DoubleClickToEdit')"
+          placement="top"
+        >
+          <Viewer
+            id="descriptionViewer"
+            ref="mdViewer"
+            :key="componentKey"
+            :initial-value="editorValue"
+            class="px-1"
+            :class="ellipsisStatus ? 'ellipsis' : null"
+            @load="addLinkTarget(); isFolded()"
+          />
+        </el-tooltip>
       </el-col>
       <div
         v-if="device === 'mobile' && value === ''"
@@ -190,10 +161,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import { updateIssue } from '@/api/issue'
+import { createMessage } from '@/api_v2/monitoring'
 import '@toast-ui/editor/dist/toastui-editor.css'
 import '@toast-ui/editor/dist/toastui-editor-viewer.css'
 import '@toast-ui/editor/dist/i18n/zh-tw'
 import { Editor, Viewer } from '@toast-ui/vue-editor'
+import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'IssueDescription',
@@ -211,6 +184,10 @@ export default {
       type: [String, Number],
       default: null
     },
+    issueName: {
+      type: String,
+      default: ''
+    },
     isButtonDisabled: {
       type: Boolean,
       default: false
@@ -222,21 +199,26 @@ export default {
     issueFormWidth: {
       type: Number,
       default: 80
+    },
+    dataLoaded: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
       isLoading: false,
+      isChanged: false,
+      isMoving: false,
       edit: false,
       componentKey: 0,
       editorType: 'wysiwyg',
       mentionList: [],
       tagList: [],
-      tagListVisible: false,
       ellipsisStatus: false,
       isViewerFolded: true,
-      isMoving: false,
-      toggleDrawer: false
+      toggleDrawer: false,
+      keyStatus: {}
     }
   },
   computed: {
@@ -245,13 +227,12 @@ export default {
       return process.env.VUE_APP_PROJECT === 'LITE'
     },
     editorValue() {
-      return this.value.replaceAll(/\$\$widget\d+\s/g, '').replaceAll(/\s\$\$/g, '')
+      return this.value.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
     },
     editorOptions() {
       const options = {
         minHeight: '100px',
         language: this.language,
-        hideModeSwitch: true,
         toolbarItems: [
           ['heading', 'bold', 'italic', 'strike'],
           ['hr', 'quote'],
@@ -264,11 +245,11 @@ export default {
       if (!this.isLite) {
         options.widgetRules = [
           {
-            rule: /@[\u4e00-\u9fa5~`!@#$%^&*()_\-+=\w\s]*\s/,
+            rule: /@[^@$][\u4e00-\u9fa5~`!#$%^&*()_=+-\w\s]+\(#\w+\)/,
             toDOM(text) {
               const span = document.createElement('span')
-              span.style.color = '#4b96e6'
               span.innerHTML = text
+              span.style.color = colorVariables.active
               return span
             }
           }
@@ -306,53 +287,11 @@ export default {
     },
     onChange(editorType) {
       this.editorType = editorType
+      this.isChanged = true
       const description = this.$refs.mdEditor.invoke('getMarkdown')
       this.tagList = this.tagList.filter((tag) => description.includes(tag.name))
       this.mentionList = this.tagList.map((tag) => tag.id)
       this.$emit('input', description)
-    },
-    onKeydown(event) {
-      if (this.isLite) return
-      const { code, shiftKey } = event
-      if (code === 'Digit2' && shiftKey) this.tagListVisible = true
-      else this.tagListVisible = false
-    },
-    addTag(event) {
-      const editor = this.$refs.mdEditor.editor
-      const text = event.target.outerText
-      const outputText = `@${text} `
-      const [start, end] = editor.getSelection()
-      if (!this.tagList.includes(outputText)) {
-        this.tagList.push({
-          id: this.assignedTo.find((user) => user.name === text).id,
-          name: outputText
-        })
-      }
-      this.tagListVisible = false
-      if (this.editorType === 'wysiwyg') {
-        editor.replaceSelection(outputText, start - 1, end)
-      } else {
-        editor.replaceSelection(outputText, [start[0], start[1] - 1], end)
-      }
-    },
-    async updateDescription() {
-      this.isLoading = true
-      const sendForm = new FormData()
-      const value = this.editorValue
-      this.$emit('filterImage', [value, sendForm, true])
-      sendForm.append('description', value)
-      await updateIssue(this.issueId, sendForm).then(() => {
-        this.$emit('update')
-        this.edit = false
-        this.toggleDrawer = false
-      })
-      if (!this.isLite) this.$emit('sendMentionMessage', this.mentionList)
-      this.initTagList()
-      this.isLoading = false
-    },
-    initTagList() {
-      this.mentionList = []
-      this.tagList = []
     },
     enableEditor(event) {
       if (event.target.href) return
@@ -362,14 +301,124 @@ export default {
         this.toggleDrawer = true
       }
     },
+    onKeyEvent(event) {
+      if (this.isLite) return
+      if (event.type === 'keydown') {
+        const { code, shiftKey } = event
+        this.keyStatus = { code, shiftKey }
+      } else {
+        const { code, shiftKey } = this.keyStatus
+        if (code === 'Digit2' && shiftKey) {
+          const ul = document.createElement('ul')
+          ul.addEventListener('mousedown', this.addTag)
+          ul.setAttribute('class', 'cursor-pointer')
+          ul.setAttribute('style', `
+            z-index: 20;
+            list-style: none;
+            max-height: 5rem;
+            overflow-y: auto;
+            padding: 0.5rem;
+            font-size: 14px;
+            line-height: 1.2;
+            border-radius: 4px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,.3);
+          `)
+          this.assignedTo.forEach((user, index) => {
+            const li = document.createElement('li')
+            if (index !== 0) li.setAttribute('class', 'mt-2')
+            li.innerHTML = `${user.name}(#${user.login})`
+            ul.appendChild(li)
+          })
+          this.$refs.mdEditor.editor.addWidget(ul, 'top')
+        }
+      }
+    },
+    addTag(event) {
+      const editor = this.$refs.mdEditor.editor
+      const text = event.target.textContent
+      const [start, end] = editor.getSelection()
+      if (!this.tagList.includes(text)) {
+        const user = this.assignedTo.find((user) =>
+          text === `${user.name}(#${user.login})`
+        )
+        this.tagList.push({ id: user.id, name: text })
+      }
+      editor.replaceSelection(`@${text}`,
+        this.editorType === 'wysiwyg'
+          ? start - 1
+          : [start[0], start[1] - 1],
+        end
+      )
+    },
+    initTagList() {
+      this.mentionList = []
+      this.tagList = []
+    },
+    async updateDescription() {
+      if (this.isChanged) {
+        this.isLoading = true
+        const sendForm = new FormData()
+        const description = this.editorValue
+        this.$emit('filterImage', [description, sendForm, true])
+        sendForm.append('description', description)
+        await updateIssue(this.issueId, sendForm).then(() => {
+          this.$emit('update')
+          this.edit = false
+          this.toggleDrawer = false
+        })
+        if (!this.isLite) {
+          this.sendMentionMessage(this.mentionList)
+        }
+        this.initTagList()
+        this.isLoading = false
+      } else {
+        this.cancelInput()
+      }
+    },
+    checkCancelInput() {
+      if (this.isChanged) {
+        this.$confirm(this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'), {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          })
+          .then(() => {
+            this.cancelInput()
+          })
+          .catch()
+      } else {
+        this.cancelInput()
+      }
+    },
     cancelInput() {
       this.$emit('input', this.oldValue)
       this.edit = !this.issueId
+      this.isChanged = false
       this.toggleDrawer = false
       this.initZoom()
     },
     initZoom() {
       this.$nextTick(() => { this.$emit('zoom') })
+    },
+    async sendMentionMessage(mentionList) {
+      mentionList = [...new Set(mentionList)]
+      if (mentionList.length === 0) return
+      const { protocol, host } = location
+      const url = `${protocol}//${host}/#/project/issues/${this.issueId}`
+      const link = `<a href="${url}" target="_blank">${url}</a>`
+      const data = {
+        title: this.$t('Inbox.MentionMessage', {
+          name: this.userName,
+          issue: `#${this.issueId} - ${this.issueName}`
+        }),
+        message: link,
+        type_parameters: JSON.stringify({ user_ids: mentionList }),
+        type_ids: '[3]',
+        alert_level: '1'
+      }
+      await createMessage(data)
     }
   }
 }
@@ -377,10 +426,24 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+
+.description:hover {
+  @apply bg-gray-100 rounded;
+}
+
+.edit-btn {
+  border: none;
+  background-color: transparent;
+}
+
+.edit-btn:hover {
+  background-color: transparent;
+}
+
 .move-bar {
   height: 6px;
   cursor: row-resize;
-  background-color: gray;
+  background-color: $info;
 }
 
 .el-button--success{

@@ -128,7 +128,7 @@
               :content="$t('general.Edit')"
             >
               <em
-                class="ri-file-edit-line finished operate-button"
+                class="ri-file-edit-line warning operate-button"
                 @click="handleEdit(row)"
               />
             </el-tooltip>
@@ -154,7 +154,7 @@
               :content="$t('general.ok')"
             >
               <em
-                class="ri-checkbox-circle-line active operate-button"
+                class="ri-checkbox-circle-line primary operate-button"
                 @click="handleSaveFile(row)"
               />
             </el-tooltip>

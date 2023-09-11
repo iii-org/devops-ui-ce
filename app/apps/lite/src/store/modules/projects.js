@@ -136,10 +136,14 @@ const actions = {
     }
   },
   async getSelectionOptions({ commit, dispatch }) {
-    const selections = await Promise.all([getIssueTracker(), getIssueStatus(), getIssuePriority()])
+    const selections = await Promise.allSettled([
+      getIssueTracker(),
+      getIssueStatus(),
+      getIssuePriority()
+    ])
     commit(
       'SET_SELECTION_OPTIONS',
-      selections.map((item) => item.data)
+      selections.map((item) => item.value.data)
     )
   },
   async getIssueStrictTracker({ commit }) {

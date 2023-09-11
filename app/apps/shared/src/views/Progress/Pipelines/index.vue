@@ -66,7 +66,7 @@
             {{ row.commit_branch }}
           </div>
           <el-link
-            class="linkTextColor"
+            type="primary"
             target="_blank"
             style="font-size: 16px"
             :href="row.commit_url"
@@ -88,7 +88,7 @@
             placement="bottom"
           >
             <em
-              class="ri-terminal-box-line active operate-button"
+              class="ri-terminal-box-line primary operate-button"
               @click="onDetailsClick(row)"
             />
           </el-tooltip>
@@ -98,7 +98,7 @@
             placement="bottom"
           >
             <em
-              class="ri-stop-circle-line inProgress operate-button"
+              class="ri-stop-circle-line warning operate-button"
               @click="onActionClick(row, 'stop')"
             />
           </el-tooltip>
@@ -108,7 +108,7 @@
             placement="bottom"
           >
             <em
-              class="ri-refresh-line finished operate-button"
+              class="ri-refresh-line success operate-button"
               @click="onActionClick(row, 'rerun')"
             />
           </el-tooltip>
@@ -118,7 +118,7 @@
             placement="bottom"
           >
             <em
-              class="ri-file-list-2-line active operate-button"
+              class="ri-file-list-2-line primary operate-button"
               @click="handleToTestReport(row)"
             />
           </el-tooltip>

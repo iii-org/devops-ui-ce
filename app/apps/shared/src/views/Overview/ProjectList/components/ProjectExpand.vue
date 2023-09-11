@@ -151,7 +151,7 @@
             :content="$t('general.Edit')"
           >
             <em
-              class="ri-file-edit-line finished operate-button"
+              class="ri-file-edit-line warning operate-button"
               @click.stop="$emit('handleEdit', data)"
             />
           </el-tooltip>
@@ -182,7 +182,7 @@
             placement="bottom"
             :content="$t('general.Fix')"
           >
-            <em class="ri-refresh-line active operate-button" @click.stop="$emit('handleFix', data.id)" />
+            <em class="ri-refresh-line primary operate-button" @click.stop="$emit('handleFix', data.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock !== true"
@@ -192,7 +192,7 @@
             <em
               :disabled="permission(data)"
               :class="data.disabled
-                ? 'ri-play-circle-line finished operate-button'
+                ? 'ri-play-circle-line success operate-button'
                 : 'ri-pause-circle-line danger operate-button'"
               @click.stop="$emit('handleToggle', data)"
             />

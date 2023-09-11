@@ -487,8 +487,8 @@ export default {
         this.accessedIssueId.push(issue.id)
         return getIssueFamily(issue.id)
       })
-      const response = await Promise.all(getIssueFamilyAPI)
-      return Promise.resolve(response.map((res) => res.data))
+      const response = await Promise.allSettled(getIssueFamilyAPI)
+      return Promise.resolve(response.map((res) => res.value.data))
     },
     combineFamilyList(issue, family) {
       const bug = this.tracker.find((item) => item.name === 'Bug').id

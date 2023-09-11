@@ -560,20 +560,24 @@ export default {
       }
     },
     async fetchStoredData() {
-      let storedFilterValue, storedKeyword, storedDisplayClosed, storedVersionClosed
-      await Promise.all([
+      const res = await Promise.allSettled([
         this.getIssueFilter(),
         this.getKeyword(),
         this.getDisplayClosed(),
         this.getFixedVersionShowClosed()
-      ]).then((res) => {
-        const [filterValue, keyword, displayClosed, fixedVersionClosed] = res.map((item) => item)
-        storedFilterValue = filterValue
-        storedKeyword = keyword
-        storedDisplayClosed = displayClosed
-        storedVersionClosed = fixedVersionClosed
-      })
-      return { storedFilterValue, storedKeyword, storedDisplayClosed, storedVersionClosed }
+      ])
+      const [
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed,
+        storedVersionClosed
+      ] = res.map((item) => item.value)
+      return {
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed,
+        storedVersionClosed
+      }
     },
     /**
      * if clicked to show closed issues, fetch the whole issues by tree in project
@@ -651,9 +655,9 @@ export default {
       return { CancelToken, config }
     },
     async setIssueList(getIssueList) {
-      await Promise.all(getIssueList)
+      await Promise.allSettled(getIssueList)
         .then((res) => {
-          const issueList = res.map((item) => item.data)
+          const issueList = res.map((item) => item.value.data)
           const list = [].concat.apply([], issueList)
           this.$set(this.$data, 'projectIssueList', list)
         })
@@ -692,13 +696,14 @@ export default {
     },
     async loadSelectionList() {
       if (this.projectId === -1) return
-      await Promise.all([getProjectUserList(this.projectId), getTagsByProject(this.projectId)]).then(
-        (res) => {
-          const [assigneeList, tagsList] = res.map((item) => item.data)
-          this.setAssignedToData(assigneeList)
-          this.tags = tagsList.tags
-        }
-      )
+      await Promise.allSettled([
+        getProjectUserList(this.projectId),
+        getTagsByProject(this.projectId)
+      ]).then((res) => {
+        const [assigneeList, tagsList] = res.map((item) => item.value.data)
+        this.setAssignedToData(assigneeList)
+        this.tags = tagsList.tags
+      })
       await this.loadVersionList(this.fixed_version_closed)
     },
     setAssignedToData(list) {

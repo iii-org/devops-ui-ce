@@ -243,7 +243,14 @@ export default {
       }
     }
   },
+  mounted() {
+    this.addLinkTarget()
+  },
   methods: {
+    addLinkTarget() {
+      const links = document.querySelectorAll('.toastui-editor-contents a')
+      for (let i = 0; i < links.length; i++) { links[i].target = '_blank' }
+    },
     filterValueName(value) {
       const valueName = this.getValueName(value)
       return (this.$te('Issue.' + valueName)) ? this.$t('Issue.' + valueName) : valueName
