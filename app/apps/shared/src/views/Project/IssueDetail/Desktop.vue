@@ -152,6 +152,7 @@
                 :assigned-to="assignedTo"
                 :issue-form-width="issueFormWidth"
                 :data-loaded="dataLoaded"
+                :is-issue-edited="isIssueEdited"
                 @filterImage="$parent.filterImage"
                 @update="$parent.historyUpdate"
               />
@@ -222,6 +223,7 @@
                     :form.sync="form"
                     :parent="parent"
                     :children-issue="children"
+                    :is-issue-edited="isIssueEdited"
                     @update="$parent.historyUpdate"
                   />
                 </el-collapse-item>
@@ -240,6 +242,7 @@
                 :issue-name="issueName"
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
+                :is-issue-edited="isIssueEdited"
                 @filterImage="$parent.filterImage"
                 @update="$parent.historyUpdate"
               />
@@ -317,6 +320,7 @@
             :form.sync="form"
             :parent="parent"
             :children-issue="children"
+            :is-issue-edited="isIssueEdited"
             @update="$parent.historyUpdate"
           />
         </el-col>
@@ -610,6 +614,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
+    },
     dataLoaded: {
       type: Boolean,
       default: false
@@ -642,6 +650,13 @@ export default {
         this.editorHeight = '100px'
       } else {
         this.editorHeight = '390px'
+      }
+    },
+    dataLoaded(value) {
+      if (value) {
+        setInterval(() => {
+          this.$emit('update:dataLoaded', false)
+        }, 5000)
       }
     }
   },

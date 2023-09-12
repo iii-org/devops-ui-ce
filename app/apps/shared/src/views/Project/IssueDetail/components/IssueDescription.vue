@@ -31,10 +31,10 @@
             >
               <el-button
                 class="edit-btn p-0 text-xl
-              el-icon-edit-outline
-              cursor-pointer
-              align-middle"
-                @click="enableEditor"
+                  el-icon-edit-outline
+                  cursor-pointer
+                  align-middle"
+                @click="checkEnableEditor"
               />
             </el-tooltip>
             <span v-else-if="edit && device === 'desktop'">
@@ -151,7 +151,7 @@
           'border-solid border-2 border-grey-500 rounded' :
           !edit ? 'description' : ''"
         :style="{ cursor: isButtonDisabled ? 'not-allowed' : 'text' }"
-        @dblclick.native.capture="enableEditor"
+        @dblclick.native.capture="checkEnableEditor"
       >
         <el-tooltip
           :enterable="false"
@@ -236,6 +236,10 @@ export default {
     dataLoaded: {
       type: Boolean,
       default: false
+    },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
@@ -243,7 +247,6 @@ export default {
       isLoading: false,
       isChanged: false,
       isMoving: false,
-      edit: false,
       componentKey: 0,
       editorType: 'wysiwyg',
       mentionList: [],
@@ -265,6 +268,9 @@ export default {
     },
     editorValue() {
       return this.value.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
+    },
+    edit() {
+      return this.isIssueEdited.description
     },
     editorOptions() {
       const options = {
@@ -342,6 +348,31 @@ export default {
         }
       })
     },
+    checkEnableEditor(event) {
+      if (event.target.href) return
+      if (this.isIssueEdited.notes) {
+        this.$confirm(this.$t('Notify.UnSavedNotes'),
+          this.$t('general.Warning'), {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          })
+          .then(() => {
+            this.isIssueEdited.notes = false
+            this.enableEditor()
+          })
+          .catch()
+      } else {
+        this.enableEditor()
+      }
+    },
+    enableEditor() {
+      this.isIssueEdited.description = !this.isButtonDisabled
+      this.initZoom()
+      if (this.device === 'mobile') {
+        this.toggleDrawer = true
+      }
+    },
     onChange(editorType) {
       this.editorType = editorType
       this.isChanged = true
@@ -349,14 +380,6 @@ export default {
       this.tagList = this.tagList.filter((tag) => description.includes(tag.name))
       this.mentionList = this.tagList.map((tag) => tag.id)
       this.$emit('input', description)
-    },
-    enableEditor(event) {
-      if (event.target.href) return
-      this.edit = !this.isButtonDisabled
-      this.initZoom()
-      if (this.device === 'mobile') {
-        this.toggleDrawer = true
-      }
     },
     onKeyEvent(event) {
       if (this.isLite) return
@@ -421,7 +444,7 @@ export default {
         sendForm.append('description', description)
         await updateIssue(this.issueId, sendForm).then(() => {
           this.$emit('update')
-          this.edit = false
+          this.isIssueEdited.description = false
           this.toggleDrawer = false
         })
         if (!this.isLite) {
@@ -436,7 +459,7 @@ export default {
     },
     checkCancelInput() {
       if (this.isChanged) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'),
+        this.$confirm(this.$t('Notify.UnSavedDescription'),
           this.$t('general.Warning'), {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
@@ -452,7 +475,7 @@ export default {
     },
     cancelInput() {
       this.$emit('input', this.oldValue)
-      this.edit = !this.issueId
+      this.isIssueEdited.description = !this.issueId
       this.isChanged = false
       this.toggleDrawer = false
       this.initZoom()

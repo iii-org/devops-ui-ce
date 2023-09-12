@@ -43,7 +43,8 @@
       :is-button-disabled="isButtonDisabled"
       :form-project-id="formProjectId"
       :is-has-white-board="isHasWhiteBoard"
-      :data-loaded="dataLoaded"
+      :is-issue-edited="isIssueEdited"
+      :data-loaded.sync="dataLoaded"
     />
     <Mobile
       v-else
@@ -67,6 +68,7 @@
       :files.sync="files"
       :journals.sync="journals"
       :history-loading.sync="historyLoading"
+      :is-issue-edited="isIssueEdited"
     />
     <ContextMenu
       ref="contextmenu"
@@ -193,7 +195,14 @@ export default {
       isAddSubIssue: false,
       historyLoading: false,
       assigned_to: [],
-      dataLoaded: false
+      dataLoaded: false,
+      isIssueEdited: {
+        description: false,
+        notes: false,
+        tags: false,
+        estimated_hours: false,
+        done_ratio: false
+      }
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -266,6 +275,10 @@ export default {
     isHasWhiteBoard() {
       return this.issue.excalidraw && this.issue.excalidraw.length > 0
     }
+    // copyIssueEdited() {
+    //   // for watch
+    //   return JSON.parse(JSON.stringify(this.isIssueEdited))
+    // }
   },
   watch: {
     propsIssueId(val) {
@@ -292,6 +305,38 @@ export default {
       elCollapseItemHeader[elCollapseItemHeader.length - 1]
         .style['justify-content'] = val === 'top' ? '' : 'center'
     }
+    // copyIssueEdited: {
+    //   deep: true,
+    //   handler(val, oldVal) {
+    //     console.log('val', val)
+    //     console.log('oldVal', oldVal)
+    //     if (Object.keys(oldVal).every((key) => !oldVal[key])) return
+    //     let newKey = ''
+    //     let oldKey = ''
+    //     Object.keys(oldVal).forEach((key) => { if (oldVal[key]) oldKey = key })
+    //     Object.keys(val).forEach((key) => { if (val[key] && key !== oldKey) newKey = key })
+    //     console.log(newKey, oldKey)
+    //     if (newKey !== oldKey) {
+    //       this.isIssueEdited[oldKey] = true
+    //       this.isIssueEdited[newKey] = false
+    //       this.$confirm(this.$t('Notify.UnSavedChanges'),
+    //         this.$t('general.Warning'), {
+    //           confirmButtonText: this.$t('general.Confirm'),
+    //           cancelButtonText: this.$t('general.Cancel'),
+    //           type: 'warning'
+    //         })
+    //         .then(() => {
+    //           this.isIssueEdited[oldKey] = false
+    //           this.isIssueEdited[newKey] = true
+    //         })
+    //         .catch(() => {
+    //           Object.keys(oldVal).forEach((key) => {
+    //             this.isIssueEdited[key] = oldVal[key]
+    //           })
+    //         })
+    //     }
+    //   }
+    // }
   },
   async mounted() {
     await this.fetchIssueLink()
@@ -653,30 +698,9 @@ export default {
       this.listLoading = false
     },
     hasUnsavedChanges() {
-      return this.isDescriptionOrNoteChanged() || this.isFormDataChanged()
-    },
-    isDescriptionOrNoteChanged() {
-      return this.form.description !== this.originForm.description ||
-        this.form.notes !== this.originForm.notes
-    },
-    isFormDataChanged() {
-      if (Object.keys(this.originForm).length === 0) return false
-      for (const key in this.form) {
-        if (this.originForm[key] === null) {
-          this.originForm[key] = 0
-        }
-        if (this.form[key] === null) {
-          this.form[key] = 0
-        }
-        if (
-          key === 'relation_ids'
-            ? this.originForm[key].length !== this.form[key].length
-            : this.originForm[key] !== this.form[key]
-        ) {
-          return true
-        }
-      }
-      return false
+      return Object.keys(this.isIssueEdited).some((key) =>
+        this.isIssueEdited[key]
+      )
     },
     handleRelationDelete() {
       this.handleUpdated()

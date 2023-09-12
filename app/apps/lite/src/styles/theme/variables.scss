@@ -1,4 +1,4 @@
-@import 'themePath/index.scss';
+@import '@theme/index.scss';
 
 $danger_border: #5b1111;
 $danger_text: #ffffff;
@@ -28,17 +28,33 @@ $info-9: mix(#000000, #ffffff, 90%);
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
 :export {
+  loginBackground: $loginBackground;
   menuText: $menuText;
   menuActiveText: $menuActiveText;
   subMenuActiveText: $subMenuActiveText;
-  buttonPrimary: $buttonPrimary;
   menuBg: $menuBg;
   menuHover: $menuHover;
   subMenuBg: $subMenuBg;
   subMenuHover: $subMenuHover;
+  subMenuText: $subMenuText;
+  sideBarWidth: $sideBarWidth;
+  sideBarTitleBg: $sideBarTitleBg;
+  appMainBg: $appMainBg;
+  navbarBg: $navbarBg;
+  navbarHover: $navbarHover;
+  navbarRightText: $navbarRightText;
+  breadcrumpText: $breadcrumpText;
+  breadcrumpTextHover: $breadcrumpTextHover;
+  linkTextBackground: $linkTextBackground;
+  buttonPrimary: $buttonPrimary;
+  buttonSecondary: $buttonSecondary;
+  buttonTertiary: $buttonTertiary;
+  buttonBorderColor: $buttonBorderColor;
+  buttonFocusBorderColor: $buttonFocusBorderColor;
+  headerTextColor: $headerTextColor;
+  linkTextColor: $linkTextColor;
   switchActiveColor: $switchActiveColor;
   noticeBackgroundColor: $noticeBackgroundColor;
-  sideBarWidth: $sideBarWidth;
   success: $success;
   danger: $danger;
   warning: $warning;
@@ -49,11 +65,11 @@ $info-9: mix(#000000, #ffffff, 90%);
   secondary: $secondary;
   active: $active;
   assigned: $assigned;
-  closed: $closed;
-  solved: $solved;
   inProgress: $inProgress;
-  finished: $finished;
+  solved: $solved;
   verified: $verified;
+  closed: $closed;
+  finished: $finished;
   document: $document;
   research: $research;
   epic: $epic;

@@ -6,23 +6,38 @@
   }
 }
 
-@mixin scrollBar {
-  &::-webkit-scrollbar-track-piece {
-    background: #d3dce6;
-  }
+@mixin background-border-color($backgroundColor, $borderColor) {
+  background-color: $backgroundColor !important;
+  border-color: $borderColor !important;
+}
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #99a9bf;
-    border-radius: 20px;
+@mixin button($mainColor) {
+  background-color: $mainColor !important;
+  color: white !important;
+  &:hover, &:active, &:focus {
+    @include background-border-color($mainColor, $mainColor);
+    color:white !important;
   }
 }
 
-@mixin relative {
-  position: relative;
-  width: 100%;
-  height: 100%;
+@mixin button-reverse($mainColor) {
+  border-color: $buttonBorderColor;
+  color: $mainColor !important;
+  background-color: white !important;
+  &:focus {
+    border-color: $buttonFocusBorderColor;
+    color: $mainColor !important;
+    background-color: white !important;
+  }
+  &:hover, &:active {
+    background-color: $mainColor !important;
+    border-color: $mainColor !important;
+    color:white !important;
+  }
+}
+
+@mixin flexbox-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

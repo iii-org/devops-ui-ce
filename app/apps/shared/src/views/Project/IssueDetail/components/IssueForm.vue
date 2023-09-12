@@ -12,9 +12,7 @@
       >
         <el-row :gutter="10">
           <el-col v-if="hasRelations" :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Project.Project')"
-            >
+            <el-form-item :label="$t('Project.Project')">
               <el-select
                 v-model="form.project_id"
                 style="width: 100%"
@@ -46,22 +44,16 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-tooltip
-              :value="dataLoaded"
-              :disabled="form.tags && form.tags.length > 0"
-              :enterable="false"
-              content="可以直接在這打字以新增標籤"
-              placement="bottom"
-            >
-              <Tags
-                ref="tags"
-                :issue-id="issueId"
-                :loading.sync="isLoading"
-                :form.sync="form"
-                :is-direct-save="true"
-                @update="$emit('update')"
-              />
-            </el-tooltip>
+            <Tags
+              ref="tags"
+              :issue-id="issueId"
+              :loading.sync="isLoading"
+              :form.sync="form"
+              :is-direct-save="true"
+              :data-loaded="dataLoaded"
+              :edit.sync="isIssueEdited.tags"
+              @update="$emit('update')"
+            />
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
             <el-form-item
@@ -493,6 +485,10 @@ export default {
     dataLoaded: {
       type: Boolean,
       default: false
+    },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
@@ -765,7 +761,8 @@ export default {
       return !(!project.id || !project.display || !project.name)
     },
     isIssueStatusChange(type) {
-      return this.form[type] !== this.originForm[type]
+      this.isIssueEdited[type] = this.form[type] !== this.originForm[type]
+      return this.isIssueEdited[type]
     },
     validateParentId() {
       const { parent_id, tracker_id } = this.form

@@ -58,7 +58,7 @@ module.exports = {
       alias: {
         '@': resolve('src'),
         '@shared': sharedSrc,
-        'themePath': resolve('src/styles/theme/', theme)
+        '@theme': resolve('src/styles/theme/', theme)
       }
     }
   },

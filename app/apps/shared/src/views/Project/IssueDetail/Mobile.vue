@@ -34,6 +34,7 @@
                 :issue-name="issueName"
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
+                :is-issue-edited="isIssueEdited"
                 @filterImage="$parent.filterImage"
                 @update="$parent.getData"
               />
@@ -49,6 +50,7 @@
               :form.sync="form"
               :parent="parent"
               :children-issue="children"
+              :is-issue-edited="isIssueEdited"
               @update="$parent.historyUpdate"
             />
           </div>
@@ -316,6 +318,10 @@ export default {
     historyLoading: {
       type: Boolean,
       default: false
+    },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {

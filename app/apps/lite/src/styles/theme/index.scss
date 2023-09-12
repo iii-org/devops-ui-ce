@@ -4,9 +4,8 @@
 @import './element-ui.scss';
 @import './sidebar.scss';
 @import './custom.scss';
-@import '~element-ui/lib/theme-chalk/display.css';
-@import './theme.scss';
 @import './table.scss';
+@import '~element-ui/lib/theme-chalk/display.css';
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&family=Open+Sans&display=swap');
 
 body {
@@ -55,17 +54,6 @@ div:focus {
   outline: none;
 }
 
-.clearfix {
-  &:after {
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: ' ';
-    clear: both;
-    height: 0;
-  }
-}
-
 // Containers global css
 .app-container {
   height: 100%;
@@ -86,8 +74,4 @@ div:focus {
 .dashboard-container {
   height: 100%;
   overflow: auto;
-}
-
-.role-Page {
-  height: inherit;
 }

@@ -315,6 +315,8 @@ export default {
     FileNameLimit: '檔名不可包含特殊字元。',
     LoadFail: '讀取失敗，請洽您的系統管理員。',
     UnSavedChanges: '您編輯的內容尚未儲存，確定離開嗎？',
+    UnSavedDescription: '您編輯的議題描述尚未儲存，確定結束編輯嗎？',
+    UnSavedNotes: '您編輯的處理紀錄/訊息回覆尚未儲存，確定結束編輯嗎？',
     confirmUnlink: '確定@:(Issue.Unlink)嗎？',
     confirmDelete: '確定@:(general.Delete)嗎？',
     confirmClose: '確定@:(general.Close)嗎？',
@@ -676,7 +678,8 @@ export default {
     Unwatch: '取消關注',
     WatcherList: '關注者清單',
     ClickToEdit: '點擊進入編輯',
-    DoubleClickToEdit: '點擊兩下進入編輯'
+    DoubleClickToEdit: '點擊兩下進入編輯',
+    TypeToAddTags: '可以直接在這打字以新增標籤'
   },
   Milestone: {
     Saving: '儲存中',

@@ -315,6 +315,8 @@ export default {
     FileNameLimit: 'A filename cannot contain any of the special characters.',
     LoadFail: 'Something went wrong, please contact your system administrator.',
     UnSavedChanges: 'Do you really want to leave? you have unsaved changes!',
+    UnSavedDescription: 'The changes you made to the issue description have not been saved. Are you sure you want to exit without saving?',
+    UnSavedNotes: 'The notes you are editing has not been saved. Are you sure you want to exit without saving?',
     confirmUnlink: 'Are you sure to @:(Issue.Unlink)?',
     confirmDelete: 'Are you sure to @:(general.Delete)?',
     confirmClose: 'Are you sure to @:(general.Close)?',
@@ -683,7 +685,8 @@ export default {
     Unwatch: 'Unwatch',
     WatcherList: 'Watcher List',
     ClickToEdit: 'Click to enter edit mode',
-    DoubleClickToEdit: 'Double-click to enter edit mode'
+    DoubleClickToEdit: 'Double-click to enter edit mode',
+    TypeToAddTags: 'You can type here to add tags directly.'
   },
   Milestone: {
     Saving: 'Saving',

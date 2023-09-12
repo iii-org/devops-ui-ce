@@ -48,7 +48,7 @@
           class="p-3 mr-1"
           :class="isButtonDisabled ? 'cursor-not-allowed' : 'cursor-text notes'"
           :placeholder="$t('general.Input', { item: $t('Issue.Notes') })"
-          @click.native="edit = !isButtonDisabled"
+          @click.native="checkEnableEditor"
         />
       </el-tooltip>
     </el-col>
@@ -87,6 +87,10 @@ export default {
     isDrawer: {
       type: Boolean,
       default: false
+    },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
     }
   },
   data () {
@@ -94,7 +98,6 @@ export default {
       isLoading: false,
       isChanged: false,
       isMoving: false,
-      edit: false,
       editorType: 'wysiwyg',
       mentionList: [],
       tagList: []
@@ -114,6 +117,9 @@ export default {
         : ''
       notes = notes.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
       return notes
+    },
+    edit() {
+      return this.isIssueEdited.notes
     },
     editorOptions() {
       const options = {
@@ -145,6 +151,26 @@ export default {
     }
   },
   methods: {
+    checkEnableEditor() {
+      if (this.isIssueEdited.description) {
+        this.$confirm(this.$t('Notify.UnSavedDescription'),
+          this.$t('general.Warning'), {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          })
+          .then(() => {
+            this.isIssueEdited.description = false
+            this.enableEditor()
+          })
+          .catch()
+      } else {
+        this.enableEditor()
+      }
+    },
+    enableEditor() {
+      this.isIssueEdited.notes = !this.isButtonDisabled
+    },
     onChange(editorType) {
       this.editorType = editorType
       this.isChanged = true
@@ -210,7 +236,7 @@ export default {
         sendForm.append('notes', this.notes)
         await updateIssue(this.issueId, sendForm).then(() => {
           this.$emit('update')
-          this.edit = false
+          this.isIssueEdited.notes = false
         })
         if (!this.isLite) {
           this.sendMentionMessage(this.mentionList)
@@ -222,7 +248,7 @@ export default {
     },
     checkCancelInput() {
       if (this.isChanged) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'),
+        this.$confirm(this.$t('Notify.UnSavedNotes'),
           this.$t('general.Warning'), {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
@@ -238,7 +264,7 @@ export default {
     },
     cancelInput() {
       this.$refs.mdEditor.invoke('reset')
-      this.edit = !this.issueId
+      this.isIssueEdited.notes = !this.issueId
       this.isChanged = false
     },
     async sendMentionMessage(mentionList) {

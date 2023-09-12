@@ -68,12 +68,8 @@
       :content="$t('general.Share')"
       placement="bottom"
     >
-      <el-button
-        size="mini"
-        type="info"
-        icon="el-icon-share"
-        class="p-0"
-        style="border: none;"
+      <em
+        class="el-icon-share info operate-button"
         @click="$emit('loadData')"
       />
     </el-tooltip>

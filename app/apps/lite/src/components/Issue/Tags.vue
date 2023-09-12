@@ -19,42 +19,50 @@
         />
       </span>
     </template>
-    <el-select
-      v-model="form.tags"
-      style="width: 100%"
-      clearable
-      filterable
-      remote
-      multiple
-      value-key="tags"
-      :placeholder="tagsList && tagsList.length > 0 ? $t('RuleMsg.PleaseSelect') : $t('Issue.NoTag')"
-      :loading="isLoading"
-      :remote-method="getSearchTags"
-      @focus="getSearchTags()"
+    <el-tooltip
+      :value="dataLoaded"
+      :disabled="form.tags && form.tags.length > 0"
+      :enterable="false"
+      :content="$t('Issue.TypeToAddTags')"
+      placement="top"
     >
-      <template v-if="tagsList && tagsList.length > 0">
-        <el-option-group
-          v-for="group in tagsList"
-          :key="group.name"
-          :label="group.name"
-        >
+      <el-select
+        v-model="form.tags"
+        style="width: 100%"
+        clearable
+        filterable
+        remote
+        multiple
+        value-key="tags"
+        :placeholder="form.tags && form.tags.length > 0 ? $t('RuleMsg.PleaseSelect') : $t('Issue.NoTag')"
+        :loading="isLoading"
+        :remote-method="getSearchTags"
+        @focus="getSearchTags()"
+      >
+        <template v-if="tagsList && tagsList.length > 0">
+          <el-option-group
+            v-for="group in tagsList"
+            :key="group.name"
+            :label="group.name"
+          >
+            <el-option
+              v-for="item in group.options"
+              :key="item.id"
+              :value="item.id"
+              :label="item.name"
+            />
+          </el-option-group>
+        </template>
+        <template v-else>
           <el-option
-            v-for="item in group.options"
-            :key="item.id"
-            :value="item.id"
-            :label="item.name"
+            v-for="item in []"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
           />
-        </el-option-group>
-      </template>
-      <template v-else>
-        <el-option
-          v-for="item in []"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </template>
-    </el-select>
+        </template>
+      </el-select>
+    </el-tooltip>
   </el-form-item>
 </template>
 
@@ -82,6 +90,14 @@ export default {
     isDirectSave: {
       type: Boolean,
       default: false
+    },
+    dataLoaded: {
+      type: Boolean,
+      default: false
+    },
+    edit: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -91,21 +107,28 @@ export default {
       tagsList: [],
       isRepeated: false,
       cancelToken: null,
-      originTags: []
+      originTags: [],
+      isProjectHasTags: false
     }
   },
   computed: {
     ...mapGetters(['selectedProjectId']),
-    formProjectId() {
-      return this.form.project_id || this.selectedProjectId
+    projectId() {
+      return this.form.project_id && this.form.project_id !== 0
+        ? this.form.project_id
+        : this.selectedProjectId
     },
     isTagsChange() {
-      if (!this.form.tags) return false
-      if (this.form.tags.length !== this.originTags.length) return true
-      return !this.originTags.every((item) => this.form.tags.includes(item))
+      let isTagsChange = false
+      if (!this.form.tags) isTagsChange = false
+      if (this.form.tags.length !== this.originTags.length) isTagsChange = true
+      else isTagsChange = !this.originTags.every((item) => this.form.tags.includes(item))
+      this.$emit('update:edit', isTagsChange)
+      return this.edit
     }
   },
   mounted() {
+    this.checkProjectTags()
     this.getSearchTags()
     const unwatch = this.$watch('form', () => {
       this.setOriginTags()
@@ -113,6 +136,10 @@ export default {
     }, { deep: true })
   },
   methods: {
+    async checkProjectTags() {
+      const res = await getTagsByProject(this.projectId)
+      this.isProjectHasTags = res.data.tags.length > 0
+    },
     checkToken() {
       if (this.cancelToken) this.cancelToken.cancel()
       const CancelToken = axios.CancelToken.source()
@@ -126,12 +153,11 @@ export default {
       this.getTagsList(this.tag_name, tags, query)
     },
     async fetchTagsData(tag_name) {
-      this.isLoading = true
-      const pId = this.form.project_id && this.form.project_id !== 0 ? this.form.project_id : this.selectedProjectId
+      if (this.isProjectHasTags) this.isLoading = true
       const cancelToken = this.checkToken()
-      const params = { project_id: pId, tag_name }
+      const params = { project_id: this.projectId, tag_name }
       const res = tag_name === null
-        ? await getTagsByProject(pId)
+        ? await getTagsByProject(this.projectId)
         : await getTagsByName(params, { cancelToken })
       const tags = res.data.tags
       this.isLoading = false
@@ -209,26 +235,22 @@ export default {
       })
     },
     tagsArrayToString(tags, tagsLength) {
-      this.tagsString = tags.length > 0 ? tags.join() : null
-      if (this.tagsString === null) {
-        this.form.tags = ''
-      } else {
-        this.form.tags = this.tagsString
-      }
-      if (tags.length === tagsLength) this.updateTags()
+      const tagsString = tags.length > 0 ? tags.join() : ''
+      this.form.tags = tagsString === '' ? [] : tags
+      if (tags.length === tagsLength) this.updateTags(tagsString)
     },
     getAddTagsFormData(tag) {
       const formData = new FormData()
       formData.delete('name')
       formData.delete('project_id')
       formData.append('name', tag)
-      formData.append('project_id', this.formProjectId)
+      formData.append('project_id', this.projectId)
       return formData
     },
-    async updateTags() {
+    async updateTags(tagsString) {
       this.$emit('update:loading', true)
       const sendForm = new FormData()
-      sendForm.append('tags', this.form.tags)
+      sendForm.append('tags', tagsString)
       await updateIssue(this.issueId, sendForm).then(() => {
         this.$emit('update')
         this.setOriginTags()
@@ -236,12 +258,7 @@ export default {
       this.$emit('update:loading', false)
     },
     setOriginTags() {
-      const tags = JSON.parse(JSON.stringify(this.form.tags))
-      if (typeof tags === 'string') {
-        this.originTags = tags.split(',')
-      } else {
-        this.originTags = JSON.parse(JSON.stringify(this.form.tags))
-      }
+      this.originTags = JSON.parse(JSON.stringify(this.form.tags))
     },
     cancelInput() {
       this.form.tags = JSON.parse(JSON.stringify(this.originTags))
