@@ -117,7 +117,7 @@
             </span>
             <span>
               <el-button
-                class="action buttonSecondary align-middle rounded-md"
+                class="action button-secondary align-middle rounded-md"
                 size="small"
                 @click="updateDescription"
               >
@@ -164,7 +164,7 @@
             :key="componentKey"
             :initial-value="editorValue"
             class="px-1"
-            :class="ellipsisStatus ? 'ellipsis' : null"
+            :class="ellipsisStatus ? 'ellipsis no-wrap' : null"
             @load="addLinkTarget(); isFolded()"
           />
         </el-tooltip>
@@ -504,6 +504,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 .description:hover {
   @apply bg-gray-100 rounded;
@@ -525,11 +526,10 @@ export default {
 }
 
 .el-button--success{
+  @include css-prefix(transition, all .6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -538,11 +538,10 @@ export default {
 }
 
 .el-button--danger{
+  @include css-prefix(transition, all .6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $danger;
@@ -600,7 +599,7 @@ export default {
     padding: 0 6px;
   }
 }
-@media only screen and (max-width: 768px) {
+@include tablet {
   ::v-deep .toastui-editor-popup {
     max-width: 250px;
     margin-left: -60px;
@@ -617,11 +616,9 @@ export default {
   }
 }
 .ellipsis {
-  @apply whitespace-normal overflow-hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
   font-size: 1rem;
   line-height: 1.5rem;
   height: auto;

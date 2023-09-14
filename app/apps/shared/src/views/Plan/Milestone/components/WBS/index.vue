@@ -263,10 +263,10 @@
               </span>
             </el-col>
             <el-col :xs="24" :md="8" class="text-right">
-              <el-button class="buttonPrimary" @click="onSaveCheckRelationIssue">
+              <el-button class="button-primary" @click="onSaveCheckRelationIssue">
                 {{ $t('general.Save') }}
               </el-button>
-              <el-button class="buttonSecondaryReverse" @click="toggleRelationDialog(relationDialog.target)">
+              <el-button class="button-secondary-reverse" @click="toggleRelationDialog(relationDialog.target)">
                 {{ $t('general.Close') }}
               </el-button>
             </el-col>
@@ -1148,6 +1148,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 $light-gray: #9ca3af;
 $deep-gray: #333333;
 
@@ -1188,6 +1190,7 @@ $deep-gray: #333333;
   margin-top: 6px;
 	position: relative;
 	&::before {
+    @include css-prefix(animation, wheel 2s infinite);
 		content: '';
 		width: 10px;
 		height: 10px;
@@ -1198,8 +1201,6 @@ $deep-gray: #333333;
 		background-color: $deep-gray;
 		border-radius: 50%;
 		opacity: 1;
-		animation: wheel 2s infinite;
-		-webkit-animation: wheel 2s infinite;
 	}
 }
 

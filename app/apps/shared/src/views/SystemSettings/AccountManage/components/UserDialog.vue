@@ -71,8 +71,8 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button class="buttonSecondaryReverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
-      <el-button class="buttonPrimary" @click="submitForm">{{ $t('general.Confirm') }}</el-button>
+      <el-button class="button-secondary-reverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
+      <el-button class="button-primary" @click="submitForm">{{ $t('general.Confirm') }}</el-button>
     </span>
   </el-dialog>
 </template>

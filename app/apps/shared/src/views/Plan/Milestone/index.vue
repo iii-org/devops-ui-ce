@@ -6,7 +6,7 @@
           <el-button
             icon="el-icon-plus"
             :size="isMobile ? 'small' : 'medium'"
-            class="buttonPrimary"
+            class="button-primary"
             @click="handleQuickAddClose"
           >
             <span v-if="!isMobile">{{ $t('Issue.AddIssue') }}</span>
@@ -17,7 +17,7 @@
             :content="$t('general.Reload')"
           >
             <el-button
-              class="ml-2 buttonPrimaryReverse"
+              class="ml-2 button-primary-reverse"
               icon="el-icon-refresh"
               circle
               @click="onChangeFilter"
@@ -55,7 +55,7 @@
             <el-form-item>
               <el-button
                 :loading="downloadLock.is_lock"
-                class="buttonPrimary"
+                class="button-primary"
                 @click="generateReport"
               >
                 {{ $t('general.GenerateExcel') }}
@@ -66,7 +66,7 @@
               <el-form-item>
                 <el-button
                   :loading="downloadLock.is_lock"
-                  class="buttonSecondary"
+                  class="button-secondary"
                   @click="downloadReport"
                 >
                   {{ $t('general.DownloadExcel') }}
@@ -81,7 +81,7 @@
             v-if="activeTab === 'WBS' || activeTab === 'Gantt'"
             slot="reference"
             icon="el-icon-download"
-            class="buttonPrimaryReverse"
+            class="button-primary-reverse"
             size="small"
             :disabled="selectedProjectId === -1"
           >
@@ -102,13 +102,12 @@
                 filterable
                 @change="onChangeGroupByDimension($event)"
               >
-                <template v-for="item in groupByOptions">
-                  <el-option
-                    :key="item.id"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </template>
+                <el-option
+                  v-for="item in groupByOptions"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -157,7 +156,7 @@
             v-if="activeTab === 'Board'"
             slot="reference"
             :loading="listLoading"
-            class="headerTextColor"
+            class="header-text-color"
             type="text"
           >
             <i18n path="Issue.GroupBy">
@@ -257,7 +256,7 @@
         </el-tab-pane>
       </el-tabs>
       <transition name="slide-fade">
-        <div v-show="issueDetail.visible" class="rightPanel">
+        <div v-if="issueDetail.visible" class="rightPanel">
           <div
             class="handle-button"
             :style="{'background-color':'#85c1e9'}"

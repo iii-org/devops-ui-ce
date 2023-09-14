@@ -1,3 +1,5 @@
+@import './mixin.scss';
+
 $border-color: #cad9ea;
 $color: #666666;
 $th-background-color: #cce8eb;
@@ -32,7 +34,7 @@ table.test-report {
   }
 }
 
-@media (max-width: 768px) {
+@include tablet {
   table.test-report {
     line-height: 26px;
   }
@@ -40,8 +42,7 @@ table.test-report {
 
 @media print {
   body {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    @include css-prefix(print-color-adjust, exact);
   }
   .print-display-none {
     display: none;

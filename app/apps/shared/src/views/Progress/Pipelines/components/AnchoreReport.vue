@@ -8,7 +8,7 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="hasAnchoreData ? 'linkTextColor' : ''"
+            :class="hasAnchoreData ? 'link-text-color' : ''"
             :disabled="!hasAnchoreData"
             @click="openAnchore"
           >

@@ -128,7 +128,7 @@
               :content="$t('general.Edit')"
             >
               <em
-                class="ri-file-edit-line warning operate-button"
+                class="ri-file-edit-line warning table-button"
                 @click="handleEdit(row)"
               />
             </el-tooltip>
@@ -144,7 +144,7 @@
                 popper-class="danger"
                 @confirm="handleDelete(row.id)"
               >
-                <em slot="reference" class="ri-delete-bin-2-line danger operate-button" />
+                <em slot="reference" class="ri-delete-bin-2-line danger table-button" />
               </el-popconfirm>
             </el-tooltip>
           </div>
@@ -154,7 +154,7 @@
               :content="$t('general.ok')"
             >
               <em
-                class="ri-checkbox-circle-line primary operate-button"
+                class="ri-checkbox-circle-line primary table-button"
                 @click="handleSaveFile(row)"
               />
             </el-tooltip>
@@ -163,7 +163,7 @@
               :content="$t('general.Cancel')"
             >
               <em
-                class="ri-close-circle-line danger operate-button"
+                class="ri-close-circle-line danger table-button"
                 @click="handleCancelFile(row)"
               />
             </el-tooltip>

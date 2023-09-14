@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="flex justify-between">
       <div class="text-2xl">
-        {{ $t('SystemConfigs.SystemConfig') }}
+        {{ $t('System.SystemConfigs') }}
       </div>
       <el-input
         id="input-search-config"
@@ -28,7 +28,7 @@
           :content="$t('general.Edit')"
         >
           <em
-            class="ri-file-edit-line warning operate-button"
+            class="ri-file-edit-line warning table-button"
             @click="row.method"
           />
         </el-tooltip>

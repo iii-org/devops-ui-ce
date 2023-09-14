@@ -14,12 +14,12 @@
             type="text"
             size="medium"
             icon="el-icon-arrow-left"
-            class="text-title linkTextColor p-3"
+            class="text-title link-text-color p-3"
             @click="onBack"
           >
             <span v-if="!isMobile">{{ $t('general.Back') }}</span>
           </el-button>
-          <span class="text-xl py-3 title">
+          <span class="text-xl py-3 title truncate">
             {{ row.name }}
           </span>
           <span class="p-3">
@@ -184,9 +184,6 @@ export default {
 }
 .mobile {
   .title {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     align-self: center;
     font-size: 16px !important;
   }

@@ -47,7 +47,7 @@
         </div>
       </el-card>
       <el-button
-        class="buttonPrimary"
+        class="button-primary"
         style="width:100%; margin-top: 10px;"
         @click="advancedAddIssue(true)"
       >
@@ -75,13 +75,13 @@
           <el-col :xs="24" :md="8" class="text-right">
             <el-button
               v-if="parentId!==0"
-              class="buttonPrimary"
+              class="button-primary"
               @click="handleAdvancedImport"
             >
               {{ $t('Issue.ImportParentIssueData') }}
             </el-button>
             <el-button
-              class="buttonSecondaryReverse"
+              class="button-secondary-reverse"
               @click="handleCloseDialog()"
             >
               {{ $t('general.Close') }}
@@ -102,8 +102,8 @@
         @add-topic-visible="handleCloseDialog"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button id="dialog-btn-cancel" class="buttonSecondaryReverse" @click="handleAdvancedClose">{{ $t('general.Cancel') }}</el-button>
-        <el-button id="dialog-btn-confirm" :loading="loadingConfirm" class="buttonPrimary" @click="handleAdvancedSave">
+        <el-button id="dialog-btn-cancel" class="button-secondary-reverse" @click="handleAdvancedClose">{{ $t('general.Cancel') }}</el-button>
+        <el-button id="dialog-btn-confirm" :loading="loadingConfirm" class="button-primary" @click="handleAdvancedSave">
           {{ $t('general.Confirm') }}
         </el-button>
       </span>
@@ -478,17 +478,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-.menu-title {
-  background: #d2d2d2;
-  max-width: 150px;
-  height: 25px;
-  line-height: 1.25;
-  padding: 3px 3px 3px 5px;
-  margin: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
+@import 'src/styles/theme/mixin.scss';
 
 .container {
   padding: 20px;
@@ -551,16 +541,17 @@ export default {
     margin-top: 12px;
   }
 }
-@media (min-width: 350px) {
+
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

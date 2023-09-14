@@ -8,7 +8,7 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="showSideexReport ? 'linkTextColor' : ''"
+            :class="showSideexReport ? 'link-text-color' : ''"
             :disabled="!showSideexReport"
             @click="openSideex"
           >

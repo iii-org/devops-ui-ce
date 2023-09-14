@@ -8,7 +8,7 @@
             slot="link"
             type="text"
             icon="el-icon-tickets"
-            :class="hasPostmanData ? 'linkTextColor' : ''"
+            :class="hasPostmanData ? 'link-text-color' : ''"
             :disabled="!hasPostmanData"
             @click="openPostman"
           >

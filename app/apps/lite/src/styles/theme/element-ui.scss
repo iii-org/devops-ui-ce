@@ -337,6 +337,19 @@
   background-color: $linkTextColor !important;
 }
 
+$tag-circle-options: (
+  danger: $danger,
+  warning: $warning,
+  slow: $slow,
+  success: $success,
+  active: $active,
+  assigned: $assigned,
+  solved: $solved,
+  finish: $finished,
+  inProgress: $inProgress,
+  close: $closed
+);
+
 // el-tag--circle
 .el-tag--circle {
   color: #ffffff;
@@ -345,45 +358,23 @@
   border-radius: 100px !important;
   text-transform: capitalize !important;
   display: inline-block !important;
+
+  @each $key, $value in $tag-circle-options {
+    &.el-tag--#{$key} {
+      @include background-border-color($value, $value);
+    }
+  }
+
   &.el-tag--big {
     width: 90px;
     padding-left: 0;
     padding-right: 0;
   }
-  &.el-tag--danger {
-    @include background-border-color($danger, $danger);
-  }
-  &.el-tag--warning {
-    @include background-border-color($warning, $warning);
-  }
-  &.el-tag--slow {
-    @include background-border-color($slow, $slow);
-  }
-  &.el-tag--success {
-    @include background-border-color($success, $success);
-  }
+
   &.el-tag--none {
     color: #989898 !important;
     border: none;
     background: none;
-  }
-  &.el-tag--active {
-    @include background-border-color($active, $active);
-  }
-  &.el-tag--assigned {
-    @include background-border-color($assigned, $assigned);
-  }
-  &.el-tag--solved {
-    @include background-border-color($solved, $solved);
-  }
-  &.el-tag--finish {
-    @include background-border-color($finished, $finished);
-  }
-  &.el-tag--inProgress {
-    @include background-border-color($inProgress, $inProgress);
-  }
-  &.el-tag--close {
-    @include background-border-color($closed, $closed);
   }
 }
 
@@ -408,7 +399,7 @@
 
 .el-upload,
 .el-upload-dragger {
-  @include flexbox-center;
+  @include flex-center;
   width: 100% !important;
   height: 150px !important;
 }

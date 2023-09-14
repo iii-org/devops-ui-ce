@@ -46,34 +46,20 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
-.el-tag {
-  &--active {
-    background-color: $active;
-    border-color: $active;
-  }
-  &--assigned {
-    background-color: $assigned;
-    border-color: $assigned;
-  }
-  &--closed {
-    background-color: $closed;
-    border-color: $closed;
-  }
-  &--inProgress {
-    background-color: $inProgress;
-    border-color: $inProgress;
-  }
-  &--solved {
-    background-color: $solved;
-    border-color: $solved;
-  }
-  &--verified {
-    background-color: $verified;
-    border-color: $verified;
-  }
-  &--inProgress, &--solved {
-    color: #5a5c5f;
+$tag-options: (
+  active: $active,
+  assigned: $assigned,
+  closed: $closed,
+  inProgress: $inProgress,
+  solved: $solved,
+  verified: $verified
+);
+
+@each $key, $value in $tag-options {
+  .el-tag--#{$key} {
+    @include background-border-color($value, $value);
   }
 }
 </style>

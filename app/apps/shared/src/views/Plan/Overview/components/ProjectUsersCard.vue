@@ -9,7 +9,7 @@
       </div>
       <el-button
         v-permission="['Administrator','Project Manager','QA']"
-        class="buttonSecondary"
+        class="button-secondary"
         :size="isMobile ? 'small' : 'medium'"
         icon="el-icon-plus"
         @click="showDialog"

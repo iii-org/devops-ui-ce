@@ -120,16 +120,17 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 .title:hover {
   @apply bg-gray-100 rounded;
 }
 
-.el-button--success{
+.el-button--success {
+  @include css-prefix(transition, all .6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -137,12 +138,11 @@ export default {
   }
 }
 
-.el-button--danger{
+.el-button--danger {
+  @include css-prefix(transition, all .6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $danger;

@@ -68,7 +68,7 @@
       <el-col :span="8">
         <el-button
           v-if="!disableEdit"
-          class="buttonPrimary"
+          class="button-primary"
           @click="submitUpdateUserProfile('userProfileForm')"
         >{{
           $t('Profile.Save')

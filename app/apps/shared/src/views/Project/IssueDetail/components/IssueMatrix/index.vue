@@ -85,7 +85,7 @@
       </el-popover>
       <el-button
         icon="el-icon-download"
-        class="buttonPrimaryReverse"
+        class="button-primary-reverse"
         :disabled="selectedProjectId === -1 || chartLoading"
         @click="downloadSVG"
       >{{ $t('Track.DownloadSVG') }}</el-button>

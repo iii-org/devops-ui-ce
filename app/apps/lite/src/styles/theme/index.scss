@@ -60,7 +60,8 @@ div:focus {
   padding: 12px;
   overflow: auto;
 }
-@media(max-width: 768px) {
+
+@include tablet {
   .app-container {
     padding: 5px;
     -ms-overflow-style: none;  /* IE and Edge */

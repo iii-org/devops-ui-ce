@@ -17,9 +17,9 @@
       <pre>{{ logData }}</pre>
     </el-card>
     <span slot="footer">
-      <el-button class="buttonSecondaryReverse" @click="scrollTo('top')">{{ $t('general.ScrollToTop') }}</el-button>
-      <el-button class="buttonSecondaryReverse" @click="scrollTo('bottom')">{{ $t('general.ScrollToBottom') }}</el-button>
-      <el-button class="buttonPrimary" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
+      <el-button class="button-secondary-reverse" @click="scrollTo('top')">{{ $t('general.ScrollToTop') }}</el-button>
+      <el-button class="button-secondary-reverse" @click="scrollTo('bottom')">{{ $t('general.ScrollToBottom') }}</el-button>
+      <el-button class="button-primary" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
     </span>
   </el-dialog>
 </template>

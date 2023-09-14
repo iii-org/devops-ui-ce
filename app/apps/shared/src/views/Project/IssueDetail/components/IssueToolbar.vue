@@ -66,7 +66,7 @@
           <el-button
             size="mini"
             class="px-2 py-1 m-0 icon"
-            :class="isOpenMatrix ? 'buttonInfo' : ''"
+            :class="isOpenMatrix ? 'button-info' : ''"
             :disabled="isOpenMatrix || isButtonDisabled"
             @click="$emit('toggle-issue-matrix')"
           >
@@ -112,7 +112,7 @@
         </div>
         <div>
           <el-button
-            class="buttonPrimary"
+            class="button-primary"
             @click="handleUploadClose"
           >
             {{ $t('general.Save') }}
@@ -135,7 +135,7 @@
       />
       <span slot="footer" class="dialog-footer">
         <el-button
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           :loading="isLoading"
           @click="toggleExcalidrawDialog"
         >

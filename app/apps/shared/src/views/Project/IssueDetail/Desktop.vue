@@ -15,7 +15,7 @@
                 type="text"
                 size="medium"
                 icon="el-icon-arrow-left"
-                class="previous linkTextColor"
+                class="previous link-text-color"
                 @click="$parent.handleBackPage"
               >
                 {{ $t('general.Back') }}
@@ -184,7 +184,7 @@
                     {{ $t('Test.TestPlan.file_name') + `(${testFiles.length})` }}
                   </div>
                   <IssueCollection
-                    :selected-collections.sync="testFiles"
+                    :selected-collections.sync="test_files"
                     :is-button-disabled="isButtonDisabled"
                     @update="$parent.updateTestCollection"
                   />
@@ -224,6 +224,7 @@
                     :parent="parent"
                     :children-issue="children"
                     :is-issue-edited="isIssueEdited"
+                    :is-form-collapse-open="relationVisible === 'issueForm'"
                     @update="$parent.historyUpdate"
                   />
                 </el-collapse-item>
@@ -361,7 +362,7 @@
     >
       <RelatedCollectionDialog
         ref="relatedCollectionDialog"
-        :selected-collections.sync="testFiles"
+        :selected-collections.sync="test_files"
         @update="$parent.updateTestCollection"
         @close-dialog="$parent.toggleDialogVisible"
       />
@@ -630,7 +631,8 @@ export default {
       issueFormWidth: 80,
       mode: 'view',
       editorHeight: '100px',
-      dialogHeight: '100%'
+      dialogHeight: '100%',
+      test_files: []
     }
   },
   computed: {
@@ -651,6 +653,12 @@ export default {
       } else {
         this.editorHeight = '390px'
       }
+    },
+    propsIssueId() {
+      this.$refs.IssueForm.watchForm()
+    },
+    test_files(value) {
+      this.$emit('update:testFiles', value)
     },
     dataLoaded(value) {
       if (value) {
@@ -703,6 +711,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 ::v-deep .is-align-bottom {
   align-items: center;
@@ -750,8 +759,7 @@ export default {
 
 .el-tag {
   &--secondary {
-    background-color: $secondary;
-    border-color: $secondary;
+    @include background-border-color($secondary, $secondary);
   }
 }
 

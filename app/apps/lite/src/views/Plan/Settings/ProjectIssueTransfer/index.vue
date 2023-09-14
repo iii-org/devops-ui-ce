@@ -11,7 +11,7 @@
             type="text"
             size="medium"
             icon="el-icon-arrow-left"
-            class="text-title linkTextColor"
+            class="text-title link-text-color"
             @click="onBackClick"
           >
             {{ $t('general.Back') }}
@@ -30,7 +30,7 @@
           <el-button
             v-show="!isSearchVisible"
             type="text"
-            class="headerTextColor"
+            class="header-text-color"
             icon="el-icon-search"
             @click="showSearchInput"
           >
@@ -62,7 +62,7 @@
         <div style="text-align: right;">
           <el-button
             size="mini"
-            :class="hasCheckedIssues ? 'buttonPrimaryReverse' : ''"
+            :class="hasCheckedIssues ? 'button-primary-reverse' : ''"
             plain
             :disabled="!hasCheckedIssues"
             @click="onBatchTransferClick"
@@ -199,7 +199,7 @@
               :content="$t('general.Transfer')"
             >
               <em
-                class="ri-file-transfer-line success operate-button"
+                class="ri-file-transfer-line success table-button"
                 @click="onTransferClick(scope.row.id)"
               />
             </el-tooltip>
@@ -217,7 +217,7 @@
               >
                 <em
                   slot="reference"
-                  class="ri-delete-bin-2-line danger operate-button"
+                  class="ri-delete-bin-2-line danger table-button"
                   :disabled="!scope.row.is_closable"
                 />
               </el-popconfirm>
@@ -276,10 +276,10 @@
         slot="footer"
         class="dialog-footer"
       >
-        <el-button class="buttonSecondaryReverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
+        <el-button class="button-secondary-reverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
         <el-button
           :loading="isTransferring"
-          class="buttonPrimary"
+          class="button-primary"
           @click="onBatchTransferConfirm"
         >
           {{ $t('general.Confirm') }}

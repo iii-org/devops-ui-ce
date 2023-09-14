@@ -20,7 +20,7 @@
     <el-button
       slot="reference"
       type="text"
-      class="headerTextColor"
+      class="header-text-color"
     >
       <em class="ri-layout-column-fill align-middle" />
       <span v-if="!isMobile">{{ $t('Milestone.Display') }}</span>

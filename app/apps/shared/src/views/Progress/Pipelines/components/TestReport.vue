@@ -6,20 +6,22 @@
           type="text"
           size="medium"
           icon="el-icon-arrow-left"
-          class="previous linkTextColor"
+          class="previous link-text-color"
           @click="handleBackPage"
         >
           {{ $t('general.Back') }}
         </el-button>
         <span class="ml-2 text-xl">
-          <span v-if="!isMobile">{{ $t('route.TestReport') }}</span>
+          <span v-if="!isMobile">
+            {{ $t('route.TestReport') }}
+          </span>
         </span>
       </div>
       <div>
         <el-button
           v-show="!listLoading"
           type="text"
-          class="linkTextColor"
+          class="link-text-color"
           icon="el-icon-download"
           @click="downloadPdf"
         >
@@ -28,7 +30,7 @@
         <el-button
           v-show="!listLoading"
           type="text"
-          class="linkTextColor"
+          class="link-text-color"
           icon="el-icon-download"
           @click="getSheet('excel')"
         >
@@ -37,7 +39,7 @@
         <el-button
           v-show="!listLoading"
           type="text"
-          class="linkTextColor"
+          class="link-text-color"
           icon="el-icon-download"
           @click="getSheet('csv')"
         >
@@ -52,7 +54,9 @@
       </div>
       <div class="logo-container">
         <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo">
-        <h1 class="logo-title">{{ title }} </h1>
+        <h1 class="logo-title">
+          {{ title }}
+        </h1>
       </div>
       <div class="text-center font-bold clearfix title">
         {{ $t('route.TestReport') }}
@@ -63,23 +67,25 @@
           <li>{{ $t('TestReport.TestTime') }}: {{ latestTime }}</li>
           <li>
             {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}:
-            {{ branch }} /<svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
-            {{ commitId }}
+            {{ routeData.branch }} / <svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
+            {{ routeData.commitId }}
           </li>
         </ul>
         <!-- white box test -->
-        <div v-show="sonarqube || checkmarx">
-          <el-divider content-position="center">{{ $t('TestReport.WhiteBoxTesting') }}</el-divider>
+        <div v-show="isIncludesName('sonarqube') || isIncludesName('checkmarx')">
+          <el-divider content-position="center">
+            {{ $t('TestReport.WhiteBoxTesting') }}
+          </el-divider>
           <SonarQubeReport
-            v-show="sonarqube"
+            v-show="isIncludesName('sonarqube')"
             ref="sonarqube"
             class="mb-5"
-            :sonarqube="sonarqube"
-            :sonar-qube-link="sonarQubeLink"
+            :sonarqube="sonarqube.data"
+            :sonarqube-link="sonarqube.link"
             :list-loading="listLoading"
           />
           <CheckMarxReport
-            v-show="checkmarx"
+            v-show="isIncludesName('checkmarx')"
             ref="checkmarx"
             class="mb-5"
             :checkmarx="checkmarx"
@@ -87,10 +93,12 @@
           />
         </div>
         <!-- ISO weakness test -->
-        <div v-show="frontendProject === 'SSO' && (clair || anchore)">
-          <el-divider content-position="center">{{ $t('TestReport.ISOWeaknessTesting') }}</el-divider>
+        <div v-show="!isLite && (isIncludesName('harbor') || isIncludesName('anchore'))">
+          <el-divider content-position="center">
+            {{ $t('TestReport.ISOWeaknessTesting') }}
+          </el-divider>
           <ClairReport
-            v-show="clair"
+            v-show="isIncludesName('harbor')"
             ref="clair"
             class="mb-5"
             :clair="clair"
@@ -98,17 +106,19 @@
           />
         </div>
         <!-- black box test -->
-        <div v-show="zap || webinspect">
-          <el-divider content-position="center">{{ $t('TestReport.BlackBoxTesting') }}</el-divider>
+        <div v-show="isIncludesName('zap') || isIncludesName('webinspect')">
+          <el-divider content-position="center">
+            {{ $t('TestReport.BlackBoxTesting') }}
+          </el-divider>
           <ZapReport
-            v-show="zap"
+            v-show="isIncludesName('zap')"
             ref="zap"
             class="mb-5"
             :zap="zap"
             :list-loading="listLoading"
           />
           <WebInspectReport
-            v-show="webinspect"
+            v-show="isIncludesName('webinspect')"
             ref="webinspect"
             class="mb-5"
             :webinspect="webinspect"
@@ -116,8 +126,10 @@
           />
         </div>
         <!-- app script test -->
-        <div v-show="cmas">
-          <el-divider content-position="center">{{ $t('TestReport.AppScriptTesting') }}</el-divider>
+        <div v-show="isIncludesName('cmas')">
+          <el-divider content-position="center">
+            {{ $t('TestReport.AppScriptTesting') }}
+          </el-divider>
           <CmasReport
             ref="cmas"
             class="mb-5"
@@ -126,8 +138,10 @@
           />
         </div>
         <!-- api script test -->
-        <div v-show="postman">
-          <el-divider content-position="center">{{ $t('TestReport.ApiScriptTesting') }}</el-divider>
+        <div v-show="isIncludesName('postman')">
+          <el-divider content-position="center">
+            {{ $t('TestReport.ApiScriptTesting') }}
+          </el-divider>
           <PostmanReport
             ref="postman"
             class="mb-5"
@@ -136,8 +150,10 @@
           />
         </div>
         <!-- web script test -->
-        <div v-show="sideex">
-          <el-divider content-position="center">{{ $t('TestReport.WebScriptTesting') }}</el-divider>
+        <div v-show="isIncludesName('sideex')">
+          <el-divider content-position="center">
+            {{ $t('TestReport.WebScriptTesting') }}
+          </el-divider>
           <SideexReport
             ref="sideex"
             class="mb-5"
@@ -147,8 +163,7 @@
         </div>
       </div>
       <div class="footer">
-        <span>{{ $t('general.DataGenerationTime') }}:</span>
-        <span>{{ timeNow }}</span>
+        {{ $t('general.DataGenerationTime') }}:{{ timeNow }}
       </div>
     </div>
     <!--endprint-->
@@ -173,17 +188,6 @@ import {
 } from './'
 
 const downloadFileName = 'DevOps_test_report'
-const dataName = [
-  // 'anchore',
-  'clair', // clair
-  'checkmarx',
-  'cmas',
-  'postman',
-  'sideex',
-  'sonarqube',
-  'webinspect',
-  'zap'
-]
 
 export default {
   name: 'TestReport',
@@ -201,9 +205,13 @@ export default {
   data() {
     this.title = 'III DevOps'
     return {
-      projectName: '',
       listLoading: false,
-      sonarqube: [],
+      projectName: '',
+      dataName: [],
+      sonarqube: {
+        data: [],
+        link: ''
+      },
       checkmarx: [],
       clair: [],
       anchore: [],
@@ -211,58 +219,55 @@ export default {
       webinspect: [],
       cmas: [],
       postman: [],
-      sideex: [],
-      sonarQubeLink: '',
-      dataTimeArr: []
+      sideex: []
     }
   },
   computed: {
     ...mapGetters(['device']),
+    routeData() {
+      const { projectId, branch, commitId } = this.$route.params
+      const { pipeline_id } = this.$route.query
+      return {
+        projectId,
+        branch,
+        commitId,
+        pipeline_id
+      }
+    },
     latestTime() {
-      return this.dataTimeArr[0]
-    },
-    projectId () {
-      return this.$route.params.projectId
-    },
-    branch() {
-      return this.$route.params.commitBranch
-    },
-    commitId() {
-      return this.$route.params.commitId
-    },
-    handleDataTime() {
       const dataTimeArr = []
-      dataName.forEach(name => {
-        if (!this[name]) return
-        if (this[name][0]?.run_at) {
-          name === 'sonarqube'
-            ? dataTimeArr.push(getFormatTime(this[name][0].run_at))
-            : dataTimeArr.push(getLocalTime(this[name][0].run_at))
+      this.dataName.forEach((name) => {
+        if (this[name] && this[name][0]?.run_at) {
+          const run_at = this[name][0].run_at
+          dataTimeArr.push(name === 'sonarqube' ? getFormatTime(run_at) : getLocalTime(run_at))
         }
       })
-      return dataTimeArr.sort((a, b) => Date.parse(b) - Date.parse(a))
+      return dataTimeArr.sort((a, b) => Date.parse(b) - Date.parse(a))[0]
     },
     getTableDom() {
       let dom = null
       // create a new div and append all the table dom on it
-      const newDiv = document.createElement('div')
+      const div = document.createElement('div')
       // table dom
-      dataName.forEach(name => {
+      this.dataName.forEach((name) => {
         if (this[name]) {
           dom = this.$refs[name].$refs[`table_${name}`].cloneNode(true)
-          newDiv.appendChild(dom)
+          div.appendChild(dom)
         }
       })
-      return newDiv
+      return div
     },
     timeNow() {
       return getLocalTime(new Date())
     },
+    isIncludesName() {
+      return (name) => this.dataName.includes(name)
+    },
     isMobile() {
       return this.device === 'mobile'
     },
-    frontendProject() {
-      return process.env.VUE_APP_PROJECT
+    isLite() {
+      return process.env.VUE_APP_PROJECT === 'LITE'
     }
   },
   mounted() {
@@ -272,7 +277,8 @@ export default {
   methods: {
     async fetchProjectInfo() {
       try {
-        const res = await getProjectInfos(this.projectId)
+        const { projectId } = this.routeData
+        const res = await getProjectInfos(projectId)
         this.projectName = res.data.display
       } catch (error) {
         console.error(error)
@@ -281,9 +287,10 @@ export default {
     async fetchTestReport() {
       this.listLoading = true
       try {
-        const res = await getProjectCommitTestSummary(this.projectId, this.commitId)
-        dataName.forEach(name => this.setTestReportData(res.data, name))
-        this.dataTimeArr = this.handleDataTime
+        const { projectId, commitId, pipeline_id } = this.routeData
+        const res = await getProjectCommitTestSummary(projectId, commitId, pipeline_id)
+        this.dataName = Object.keys(res.data)
+        this.dataName.forEach((name) => this.setTestReportData(res.data, name))
       } catch (error) {
         console.error(error)
       } finally {
@@ -292,26 +299,18 @@ export default {
     },
     setTestReportData(resData, name) {
       const data = resData[name]
-      if (name === 'sonarqube') {
-        this.setSonarQubeData(resData)
-      } else if (name === 'clair') {
-        this.clair.push(resData.harbor)
-      } else if (data) {
-        this[name].push(data)
-      } else {
-        this[name] = undefined
-      }
+      if (name === 'sonarqube') this.setSonarQubeData(data)
+      else if (name === 'harbor') this.clair.push(data)
+      else this[name].push(data)
     },
-    setSonarQubeData(data) {
-      if (data.sonarqube) {
-        this.sonarqube = this.handleSonarQubeData(data.sonarqube.history)
-        this.sonarQubeLink = data.sonarqube.link
-      } else this.sonarqube = undefined
+    setSonarQubeData(sonarqube) {
+      this.sonarqube.data = this.handleSonarQubeData(sonarqube.history)
+      this.sonarqube.link = sonarqube.link
     },
     handleSonarQubeData(data) {
       const ret = []
       if (!data) return ret
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         const row = data[key]
         row['run_at'] = key
         ret.push(row)
@@ -347,6 +346,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .el-divider__text {
   font-size: 18px;
 }
@@ -436,15 +437,14 @@ export default {
     left: 5vw;
   }
 }
-@media screen and (max-width: 768px) {
+@include tablet {
   ::v-deep .el-divider__text {
     font-size: 14px;
     padding: 0 6px;
   }
   ::v-deep .el-divider__text.is-center {
+    @include css-prefix(transform, translateY(-50%));
     left: 20px;
-    -webkit-transform: translateY(-50%);
-    transform: translateY(-50%);
   }
   ul {
     padding-left: 20px;

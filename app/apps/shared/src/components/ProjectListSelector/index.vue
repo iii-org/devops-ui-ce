@@ -339,6 +339,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 .star {
   @apply align-middle pr-2 min-w-max max-w-max;
   .star-content {
@@ -399,9 +401,9 @@ export default {
   }
 }
 
-@media screen and (max-width: 768px) {
+@include tablet {
   .project {
-    min-width:auto !important;
+    min-width: auto !important;
     @apply w-full;
   }
 }

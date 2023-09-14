@@ -72,7 +72,7 @@
     </el-tabs>
     <span slot="footer">
       <el-button
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         @click="handleClose"
       >
         {{ $t('general.Close') }}

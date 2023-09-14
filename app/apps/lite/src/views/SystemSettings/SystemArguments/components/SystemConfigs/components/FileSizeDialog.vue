@@ -29,7 +29,7 @@
       </el-form-item>
       <el-form-item class="text-right">
         <el-button
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           :loading="isLoading"
           @click="handleClose"
         >

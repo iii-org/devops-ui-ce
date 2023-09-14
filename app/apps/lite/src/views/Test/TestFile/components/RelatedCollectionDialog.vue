@@ -13,7 +13,7 @@
           type="text"
           size="medium"
           icon="el-icon-arrow-left"
-          class="previous text-h6 linkTextColor"
+          class="previous text-h6 link-text-color"
           @click="onBack"
         >
           {{ $t('general.Back') }}
@@ -26,7 +26,7 @@
         class="text-right"
       >
         <el-button
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           :loading="btnConfirmLoading"
           @click="handleAddConfirm"
         >
@@ -282,6 +282,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .el-card {
   &__footer {
     padding: 18px 20px;
@@ -292,19 +294,17 @@ export default {
 
     .selected_count {
       @apply bg-white;
+      @include css-prefix(appearance, none);
+      @include css-prefix(box-sizing, border-box);
+      @include css-prefix(transition, 0.1s);
       display: inline-block;
       line-height: 1;
       white-space: nowrap;
       border: 1px solid #dcdfe6;
       color: #606266;
-      -webkit-appearance: none;
       text-align: center;
-      -webkit-box-sizing: border-box;
-      box-sizing: border-box;
       outline: 0;
       margin: 0;
-      -webkit-transition: 0.1s;
-      transition: 0.1s;
       font-weight: 500;
       padding: 12px 10px;
       font-size: 14px;

@@ -10,7 +10,7 @@
     </div>
     <el-button
       size="mini"
-      class="buttonSecondaryReverse"
+      class="button-secondary-reverse"
       plain
       @click="updateVersion"
     >

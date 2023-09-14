@@ -1,13 +1,13 @@
 <template>
   <div style="padding: 0;">
     <el-row class="my-2 sticky top-0">
-      <el-col :class="form.name ? 'issue-title' : ''">
+      <el-col :class="form.name ? 'issue-title truncate' : ''">
         <el-button
           v-if="!isInDialog"
           type="text"
           size="medium"
           icon="el-icon-arrow-left"
-          class="previous linkTextColor px-3"
+          class="previous link-text-color px-3"
           @click="$parent.handleBackPage"
         />
         <span :class="form.status_id === 6 ? 'grey-title' : ''" class="align-middle">
@@ -166,7 +166,7 @@
             <span class="text">{{ $t('Issue.Notes') }}</span>
           </span>
           <el-button
-            class="action buttonSecondary align-middle rounded-md"
+            class="action button-secondary align-middle rounded-md"
             size="small"
             @click="updateAddComment"
           >
@@ -206,7 +206,7 @@
             <span class="text">{{ $t('Dashboard.ADMIN.IssueRank.issue_name') }}</span>
           </span>
           <el-button
-            class="action buttonSecondary align-middle rounded-md"
+            class="action button-secondary align-middle rounded-md"
             size="small"
             @click="updateIssueTitle"
           >
@@ -416,6 +416,8 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 .grey-title {
   color: grey;
   ::v-deep .point {
@@ -482,9 +484,6 @@ export default {
   }
 }
 .issue-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   padding-right: 10px;
 }
 .drawer {
@@ -536,9 +535,8 @@ export default {
     padding: 0;
   }
   .el-tabs--border-card {
+    @include css-prefix(box-shadow, none);
     background: none;
-    box-shadow: none;
-    -webkit-box-shadow: none;
     border-radius: 0 !important;
   }
   .el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom {

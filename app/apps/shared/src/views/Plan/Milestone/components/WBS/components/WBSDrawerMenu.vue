@@ -161,6 +161,8 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 .drawer {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
@@ -250,16 +252,16 @@ export default {
     }
   }
 }
-@media (min-width: 350px) {
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

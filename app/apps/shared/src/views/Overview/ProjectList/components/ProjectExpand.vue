@@ -93,7 +93,7 @@
             <div class="mr-3">
               <el-link
                 v-if="userRole !== 'QA'"
-                :class="data.disabled || data.is_lock ? '' : 'linkTextColor'"
+                :class="data.disabled || data.is_lock ? '' : 'link-text-color'"
                 :underline="false"
                 :disabled="data.disabled || data.is_lock"
                 @click.stop="$emit('handleClick', data)"
@@ -151,7 +151,7 @@
             :content="$t('general.Edit')"
           >
             <em
-              class="ri-file-edit-line warning operate-button"
+              class="ri-file-edit-line warning table-button"
               @click.stop="$emit('handleEdit', data)"
             />
           </el-tooltip>
@@ -162,7 +162,7 @@
           >
             <em
               :disabled="permission(data)"
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
               @click.stop="$emit('handleDelete', data)"
             />
           </el-tooltip>
@@ -173,7 +173,7 @@
           >
             <em
               :disabled="permission(data)"
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
               @click.stop="$emit('handleDelete', data, true)"
             />
           </el-tooltip>
@@ -182,7 +182,7 @@
             placement="bottom"
             :content="$t('general.Fix')"
           >
-            <em class="ri-refresh-line primary operate-button" @click.stop="$emit('handleFix', data.id)" />
+            <em class="ri-refresh-line primary table-button" @click.stop="$emit('handleFix', data.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock !== true"
@@ -192,8 +192,8 @@
             <em
               :disabled="permission(data)"
               :class="data.disabled
-                ? 'ri-play-circle-line success operate-button'
-                : 'ri-pause-circle-line danger operate-button'"
+                ? 'ri-play-circle-line success table-button'
+                : 'ri-pause-circle-line danger table-button'"
               @click.stop="$emit('handleToggle', data)"
             />
           </el-tooltip>

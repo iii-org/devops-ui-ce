@@ -1,3 +1,54 @@
+@import './variables.scss';
+
+// TODO: keyframes mixin
+
+$mobile: 350;
+$tablet-1: 500;
+$tablet-2: 650;
+$tablet-3: 750;
+$tablet: 768;
+$tablet-max: 1024;
+$desktop: 1280;
+
+/* media query */
+@mixin mobile {
+  @media only screen and (min-width: #{$mobile * 1}px) {
+    @content;
+  }
+}
+
+@mixin tablet-1 {
+  @media only screen and (min-width: #{$tablet-1 * 1}px) {
+    @content;
+  }
+}
+
+@mixin tablet-2 {
+  @media only screen and (min-width: #{$tablet-2 * 1}px) {
+    @content;
+  }
+}
+
+@mixin tablet-3 {
+  @media only screen and (min-width: #{$tablet-3 * 1}px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media only screen and (max-width: #{$tablet * 1}px) {
+    @content;
+  }
+}
+
+@mixin css-prefix($prop, $value) {
+  -webkit-#{$prop}: #{$value}; /* Chrome */
+  -moz-#{$prop}: #{$value}; /* Firefox */
+  -ms-#{$prop}: #{$value}; /* Internet Explorer/Edge */
+  -o-#{$prop}: #{$value};
+  #{$prop}: #{$value};
+}
+
 @mixin clearfix {
   &:after {
     content: "";
@@ -11,6 +62,11 @@
   border-color: $borderColor !important;
 }
 
+@mixin box($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
 @mixin button($mainColor) {
   background-color: $mainColor !important;
   color: white !important;
@@ -21,23 +77,63 @@
 }
 
 @mixin button-reverse($mainColor) {
-  border-color: $buttonBorderColor;
+  @include background-border-color(white, $buttonBorderColor);
   color: $mainColor !important;
-  background-color: white !important;
   &:focus {
-    border-color: $buttonFocusBorderColor;
+    @include background-border-color(white, $buttonFocusBorderColor);
     color: $mainColor !important;
-    background-color: white !important;
   }
   &:hover, &:active {
-    background-color: $mainColor !important;
-    border-color: $mainColor !important;
+    @include background-border-color($mainColor, $mainColor);
     color:white !important;
   }
 }
 
-@mixin flexbox-center {
+@mixin cover-background {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+@mixin flex(
+  $flex-direction: row,
+  $justify-content: flex-start,
+  $align-items: flex-start,
+  $flex-wrap: nowrap
+) {
+  display: flex;
+  flex-direction: $flex-direction;
+  justify-content: $justify-content;
+  align-items: $align-items;
+  flex-wrap: $flex-wrap;
+}
+
+@mixin flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@mixin flex-center-horiz {
+  display: flex;
+  justify-content: center;
+}
+
+@mixin flex-center-vert {
+  display: flex;
+  align-items: center;
+}
+
+@mixin font-size($font-size, $line-height: normal, $letter-spacing: normal) {
+  @if $line-height == normal {
+    line-height: normal;
+  } @else {
+    line-height: $line-height / $font-size;
+  }
+
+  @if $letter-spacing == normal {
+    letter-spacing: normal;
+  } @else {
+    letter-spacing: #{$letter-spacing / $font-size}em;
+  }
 }

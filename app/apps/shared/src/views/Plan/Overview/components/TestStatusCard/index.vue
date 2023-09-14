@@ -11,7 +11,7 @@
       </span>
       <el-button
         type="text"
-        :class="Object.keys(projectTestObj).length === 0 ? '' : 'linkTextColor'"
+        :class="Object.keys(projectTestObj).length === 0 ? '' : 'link-text-color'"
         icon="el-icon-refresh"
         size="mini"
         :disabled="Object.keys(projectTestObj).length === 0"
@@ -38,7 +38,7 @@
       >
         <el-card shadow="never">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-xl linkTextColor font-semibold capitalize">{{ result.Software }}</span>
+            <span class="text-xl link-text-color font-semibold capitalize">{{ result.Software }}</span>
             <em
               class="el-icon-right cursor-pointer"
               @click="handleClick(result.Software)"

@@ -14,7 +14,7 @@
     <template v-else>
       <div class="flex justify-between mb-4">
         <el-button
-          class="buttonSecondary"
+          class="button-secondary"
           :size="isMobile ? 'small' : 'medium'"
           icon="el-icon-plus"
           @click="showDialog"
@@ -65,7 +65,7 @@
           >
             <em
               v-permission="['Administrator','QA']"
-              class="ri-file-list-2-line primary operate-button"
+              class="ri-file-list-2-line primary table-button"
               @click="handleParticipateDialog(row.id)"
             />
           </el-tooltip>
@@ -75,7 +75,7 @@
           >
             <em
               v-permission="['Administrator','Project Manager', 'QA']"
-              class="ri-file-copy-2-line primary operate-button"
+              class="ri-file-copy-2-line primary table-button"
               @click="handleIssueClick(row)"
             />
           </el-tooltip>
@@ -84,7 +84,7 @@
             :content="$t('general.Remove')"
           >
             <em
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
               :disabled="row.id === userId"
               @click="handleDeleteClick(row)"
             />

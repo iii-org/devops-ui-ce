@@ -43,7 +43,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            class="buttonSecondaryReverse"
+            class="button-secondary-reverse"
             icon="el-icon-refresh-left"
             @click="handleRestore(scope.row)"
           >

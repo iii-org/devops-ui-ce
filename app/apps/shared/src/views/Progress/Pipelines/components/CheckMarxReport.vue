@@ -7,7 +7,7 @@
           <div style="font-size: 14px;">
             <span>
               * {{ $t('TestReport.WarningPartOne') }}
-              <el-link class="linkTextColor" :underline="false" target="_blank" @click="openDevCheckMarx">
+              <el-link class="link-text-color" :underline="false" target="_blank" @click="openDevCheckMarx">
                 {{ $t('TestReport.CheckMarxReport') }}
               </el-link>
               {{ $t('TestReport.WarningPartTwo') }}
@@ -16,7 +16,7 @@
               slot="link"
               type="text"
               icon="el-icon-download"
-              :class="!disabled ? 'linkTextColor' : ''"
+              :class="!disabled ? 'link-text-color' : ''"
               :disabled="disabled"
               @click="openCheckMarx"
             >
@@ -93,7 +93,8 @@ export default {
       return !!(this.checkmarx && this.checkmarx[0] && this.checkmarx[0].hasOwnProperty('stats'))
     },
     hasEachItemData() {
-      return key => this.checkmarx[0].stats.hasOwnProperty(key)
+      const stats = this.checkmarx[0].stats
+      return (key) => stats ? stats.hasOwnProperty(key) : false
     }
   },
   methods: {

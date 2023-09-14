@@ -41,7 +41,7 @@
         >
           <em
             v-if="$route.params.user_id !== row.owner_id"
-            class="ri-file-list-2-line primary operate-button"
+            class="ri-file-list-2-line primary table-button"
             @click="handleParticipateDialog(row.owner_id)"
           />
         </el-tooltip>
@@ -50,7 +50,7 @@
           :content="$t('Issue.Issue')"
         >
           <em
-            class="ri-file-copy-2-line success operate-button"
+            class="ri-file-copy-2-line success table-button"
             @click="handleIssueClick(row)"
           />
         </el-tooltip>
@@ -70,7 +70,7 @@
           >
             <span slot="reference" :class="isDisabled ? 'disabled' : ''">
               <em
-                class="ri-delete-bin-2-line operate-button"
+                class="ri-delete-bin-2-line table-button"
                 :class="isDisabled ? 'disabled' : 'danger'"
               />
             </span>

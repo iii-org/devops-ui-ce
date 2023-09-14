@@ -95,7 +95,7 @@
           :content="$t('general.Edit')"
         >
           <em
-            class="ri-edit-box-line info operate-button"
+            class="ri-edit-box-line info table-button"
             @click.self="$emit('onCellClick', row, column)"
           />
         </el-tooltip>

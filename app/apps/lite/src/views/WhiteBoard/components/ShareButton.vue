@@ -69,7 +69,7 @@
       placement="bottom"
     >
       <em
-        class="el-icon-share info operate-button"
+        class="el-icon-share info table-button"
         @click="$emit('loadData')"
       />
     </el-tooltip>

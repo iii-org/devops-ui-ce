@@ -22,7 +22,7 @@
         id="btn-add-issue"
         slot="button"
         v-permission="['Administrator','Project Manager', 'Engineer']"
-        class="buttonSecondary"
+        class="button-secondary"
         icon="el-icon-plus"
         :disabled="isDisabled"
         @click="handleQuickAddClose"
@@ -88,7 +88,7 @@
             </el-menu>
             <el-button
               slot="reference"
-              class="buttonPrimaryReverse"
+              class="button-primary-reverse"
               icon="el-icon-download"
               size="mini"
             >
@@ -143,7 +143,7 @@
           <el-button
             slot="reference"
             :loading="isBoardLoading"
-            class="headerTextColor"
+            class="header-text-color"
             type="text"
           >
             <i18n path="Issue.GroupBy">

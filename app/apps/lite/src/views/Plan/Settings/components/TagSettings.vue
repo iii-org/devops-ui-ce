@@ -2,7 +2,7 @@
   <div>
     <div class="flex justify-between mb-4">
       <el-button
-        class="buttonSecondary"
+        class="button-secondary"
         :disabled="isAddingTag"
         :size="isMobile ? 'small' : 'medium'"
         icon="el-icon-plus"
@@ -23,14 +23,14 @@
               class="mr-3"
             />
             <el-button
-              class="buttonPrimary"
+              class="button-primary"
               :size="isMobile ? 'small' : 'medium'"
               @click="handleInputSave"
             >
               {{ $t('general.Save') }}
             </el-button>
             <el-button
-              class="buttonSecondaryReverse"
+              class="button-secondary-reverse"
               :size="isMobile ? 'small' : 'medium'"
               @click="handleInputCancel"
             >
@@ -91,7 +91,7 @@
             <template v-else>
               <span class="w-full">{{ row.name }}</span>
               <em
-                :class="row.mouseover ? 'ri-edit-box-line info operate-button' : ''"
+                :class="row.mouseover ? 'ri-edit-box-line info table-button' : ''"
                 @click.stop="row.edit = true"
               />
             </template>
@@ -102,7 +102,7 @@
               :content="$t('general.Delete')"
             >
               <em
-                class="ri-delete-bin-2-line danger operate-button"
+                class="ri-delete-bin-2-line danger table-button"
                 @click.stop="handleTagDelete(row)"
               />
             </el-tooltip>
@@ -396,6 +396,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 $bg-color: #EBEEF5;
 $ghost-bg-color: #E5E8EF;
@@ -451,12 +452,11 @@ table.table {
   }
 }
 
-.el-button--success{
+.el-button--success {
+  @include css-prefix(transition, all .6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -464,12 +464,11 @@ table.table {
   }
 }
 
-.el-button--danger{
+.el-button--danger {
+  @include css-prefix(transition, all .6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $danger;

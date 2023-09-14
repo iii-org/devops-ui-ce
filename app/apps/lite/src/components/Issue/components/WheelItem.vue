@@ -3,21 +3,27 @@
     <div class="wheel-item-line" />
     <div class="wheel-item-list">
       <div ref="list">
-        <div v-for="(el, idx) in renderData" :key="idx" class="list-block">{{ el.value }}</div>
+        <div
+          v-for="(el, idx) in renderData"
+          :key="idx"
+          class="list-block truncate"
+        >
+          {{ el.value }}
+        </div>
       </div>
     </div>
     <div ref="wheel" class="wheel-item">
       <div
         v-for="(el, index) in renderData"
         :key="index"
-        class="list-block"
+        class="list-block truncate"
         :style="setWheelItemDeg(el.index)"
         :class="{'hidden': setHidden(el.index)}"
       >{{ el.value }}</div>
     </div>
   </div>
 </template>
-  
+
 <script>
 export default {
   name: 'WheelItem',
@@ -234,6 +240,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 .wheel-item-container {
   position: relative;
   height: 220px;
@@ -257,16 +265,14 @@ export default {
 }
 .wheel-item-container > .wheel-item-line:before,
 .wheel-item-container > .wheel-item-line:after {
+  @include css-prefix(transform, scaleY(0.5));
+  @include css-prefix(transform-origin, 0 0);
   position: absolute;
   top: 0;
   content: "";
   display: table;
   background: #2c97f1;
   height: 2px;
-  -webkit-transform: scaleY(0.5);
-  transform: scaleY(0.5);
-  -webkit-transform-origin: 0 0;
-  transform-origin: 0 0;
 }
 .wheel-item-container > .wheel-item-line:before {
   bottom: -1px;
@@ -289,9 +295,6 @@ export default {
 }
 .wheel-item-container > .wheel-item-list .list-block,
 .wheel-item-container > .wheel-item > .list-block {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 34px;
   font-size: 20px;
   color: #505050;

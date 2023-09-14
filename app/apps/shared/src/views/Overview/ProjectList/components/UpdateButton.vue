@@ -2,7 +2,7 @@
   <el-button
     size="small"
     icon="el-icon-refresh"
-    class="buttonPrimaryReverse"
+    class="button-primary-reverse"
     :loading="listLoading"
     @click="updateProjectList"
   >

@@ -43,7 +43,7 @@
           <el-button
             slot="button"
             icon="el-icon-refresh"
-            class="buttonPrimaryReverse"
+            class="button-primary-reverse"
             circle
             @click="reloadPage"
           />
@@ -124,7 +124,7 @@
             <template slot-scope="scope">
               <span class="text-success mr-2">#{{ scope.row.id }}</span>
               <el-link
-                class="linkTextColor"
+                class="link-text-color"
                 @click.stop="onRelationIssueDialog(scope.row)"
               >
                 {{ scope.row.name }}

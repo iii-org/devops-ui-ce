@@ -8,7 +8,7 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="hasClairData ? 'linkTextColor' : ''"
+            :class="hasClairData ? 'link-text-color' : ''"
             :disabled="!hasClairData"
             @click="openClair"
           >

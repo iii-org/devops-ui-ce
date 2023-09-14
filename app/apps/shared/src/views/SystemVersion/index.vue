@@ -12,7 +12,7 @@
         <el-button
           :loading="isLoading"
           size="small"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           plain
           @click="handleUploadInfoClick"
         >

@@ -92,7 +92,7 @@
           slot="reference"
           icon="el-icon-s-operation"
           type="text"
-          class="headerTextColor"
+          class="header-text-color"
         >
           {{ isMobile ? '': displayFilterValue }}
           <em class="el-icon-arrow-down el-icon--right" />
@@ -114,7 +114,7 @@
         v-else
         type="text"
         icon="el-icon-search"
-        class="headerTextColor"
+        class="header-text-color"
         @click="searchVisible = !searchVisible"
       >
         {{ isMobile ? '' : ($t('general.Search') + ((keyword) ? ': ' + keyword : '')) }}
@@ -124,7 +124,7 @@
         <el-button
           size="small"
           icon="el-icon-close"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           @click="cleanFilter"
         >
           <span v-if="!isMobile">{{ $t('Issue.CleanFilter') }}</span>
@@ -175,7 +175,7 @@
                       </el-checkbox>
                     </el-tag>
                   </span>
-                  <el-button class="buttonTertiary" size="small" @click="cleanFilter">
+                  <el-button class="button-tertiary" size="small" @click="cleanFilter">
                     {{ $t('general.Clear') }}
                   </el-button>
                 </div>
@@ -535,6 +535,8 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .fab-main {
   padding: 22px !important;
 }
@@ -624,16 +626,16 @@ export default {
   }
 }
 
-@media (min-width: 350px) {
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

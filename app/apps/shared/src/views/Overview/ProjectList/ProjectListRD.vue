@@ -109,7 +109,7 @@
             <div>
               <el-link
                 :underline="false"
-                :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+                :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
                 :disabled="scope.row.disabled || scope.row.is_lock"
                 @click="handleClick(scope.row)"
               >

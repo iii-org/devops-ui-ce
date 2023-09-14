@@ -8,7 +8,7 @@
             slot="link"
             type="text"
             icon="el-icon-download"
-            :class="hasCmasData ? 'linkTextColor' : ''"
+            :class="hasCmasData ? 'link-text-color' : ''"
             :disabled="!hasCmasData"
             @click="openCmas"
           >

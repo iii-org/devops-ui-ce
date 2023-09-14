@@ -20,8 +20,8 @@
       </span>
     </template>
     <el-tooltip
-      :value="dataLoaded"
-      :disabled="form.tags && form.tags.length > 0"
+      :value="dataLoaded && isFormCollapseOpen"
+      :disabled="form.tags && form.tags.length > 0 "
       :enterable="false"
       :content="$t('Issue.TypeToAddTags')"
       placement="top"
@@ -91,13 +91,17 @@ export default {
       type: Boolean,
       default: false
     },
+    edit: {
+      type: Boolean,
+      default: false
+    },
     dataLoaded: {
       type: Boolean,
       default: false
     },
-    edit: {
+    isFormCollapseOpen: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   data() {
@@ -269,12 +273,13 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-.el-button--success{
+@import 'src/styles/theme/mixin.scss';
+
+.el-button--success {
+  @include css-prefix(transition, all .6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -282,12 +287,11 @@ export default {
   }
 }
 
-.el-button--danger{
+.el-button--danger {
+  @include css-prefix(transition, all .6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $danger;

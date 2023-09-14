@@ -176,14 +176,14 @@
         class="dialog-footer"
       >
         <el-button
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           @click="onDialogCancel"
         >
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
           :loading="isLoading"
-          class="buttonPrimary"
+          class="button-primary"
           @click="onDialogConfirm"
         >
           {{ $t('general.Confirm') }}
@@ -409,7 +409,9 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-@media only screen and (max-width: 768px) {
+@import 'src/styles/theme/mixin.scss';
+
+@include tablet {
   ::v-deep .el-dialog__wrapper {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none; /* Firefox */
@@ -514,16 +516,16 @@ export default {
   }
 }
 
-@media (min-width: 350px) {
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

@@ -50,7 +50,7 @@
       <el-col :span="8">
         <el-button
           :disabled="disableEdit"
-          class="buttonPrimary"
+          class="button-primary"
           @click="handleUpdateUserPwd('userPwdForm')"
         >{{
           $t('Profile.Save')

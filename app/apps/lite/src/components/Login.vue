@@ -138,6 +138,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 $bg: $loginBackground;
 $dark_gray: #889aa4;
@@ -185,22 +186,19 @@ $light_gray: #eee;
         background-color: $menuBg !important;
         color: white !important;
         &:hover, &:active, &:focus {
-          background-color: $menuBg !important;
-          border-color: $menuBg !important;
+          @include background-border-color($menuBg, $menuBg);
           color:white !important;
         }
       }
     }
 
     .login-more {
-        width: calc(100% - 520px);
-        background: linear-gradient(rgba(150, 150, 150, 0.4), rgba(150, 150, 150, 0.4)), url('../assets/bg-image.jpg');
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        z-index: 1;
-        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      @include cover-background;
+      width: calc(100% - 520px);
+      background: linear-gradient(rgba(150, 150, 150, 0.4), rgba(150, 150, 150, 0.4)), url('../assets/bg-image.jpg');
+      position: relative;
+      z-index: 1;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     }
 
   }
@@ -223,7 +221,7 @@ $light_gray: #eee;
     }
   }
 }
-@media (max-width: 768px) {
+@include tablet {
   ::v-deep {
     .login-form {
       padding: 140px 40px 40px !important;

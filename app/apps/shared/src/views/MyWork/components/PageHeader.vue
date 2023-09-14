@@ -10,7 +10,7 @@
         <template v-if="!focusedProjectId">
           <el-button
             v-permission="['Administrator','Project Manager']"
-            class="buttonSecondary"
+            class="button-secondary"
             icon="el-icon-plus"
             @click="$emit('create-project')"
           >
@@ -20,7 +20,7 @@
         <el-button
           v-if="focusedProjectId"
           v-permission="['Administrator','Project Manager', 'Engineer']"
-          class="buttonPrimary"
+          class="button-primary"
           icon="el-icon-plus"
           size="medium"
           @click="$emit('add-issue')"
@@ -114,7 +114,7 @@
           slot="reference"
           icon="el-icon-s-operation"
           type="text"
-          class="headerTextColor"
+          class="header-text-color"
         >
           {{ selectedConditions }}
           <em class="el-icon-arrow-down" />
@@ -126,7 +126,7 @@
       <el-button
         v-if="!searchVisible"
         type="text"
-        class="headerTextColor"
+        class="header-text-color"
         icon="el-icon-search"
         @click="showKeywordInput"
       >
@@ -148,7 +148,7 @@
         <el-divider direction="vertical" />
         <el-button
           size="small"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           icon="el-icon-close"
           @click="clearFilter"
         >
@@ -208,7 +208,7 @@
                       >{{ $t('Issue.DisplayClosedVersion') }} </el-checkbox>
                     </el-tag>
                   </span>
-                  <el-button class="buttonTertiary" size="small" @click="filterConditions[condition.value] = ''">
+                  <el-button class="button-tertiary" size="small" @click="filterConditions[condition.value] = ''">
                     {{ $t('general.Clear') }}
                   </el-button>
                 </div>
@@ -551,6 +551,8 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .fab-main {
   padding: 22px !important;
 }
@@ -640,16 +642,16 @@ export default {
   }
 }
 
-@media (min-width: 350px) {
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

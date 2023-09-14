@@ -13,7 +13,7 @@
     />
     <span slot="footer" class="dialog-footer">
       <el-button
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         @click="onDialogClosed"
       >
         {{ $t('general.Close') }}

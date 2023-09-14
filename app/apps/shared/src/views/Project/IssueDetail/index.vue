@@ -281,7 +281,7 @@ export default {
     // }
   },
   watch: {
-    propsIssueId(val) {
+    propsIssueId() {
       this.fetchIssueLink()
       this.isAddSubIssue = false
     },
@@ -588,9 +588,16 @@ export default {
       await this.fetchIssue(true)
       this.isLoading = false
     },
+    decodeURI(uri) {
+      if (!uri.includes('/')) {
+        this.decodeURI(decodeURIComponent(uri))
+      } else {
+        this.$router.push(uri)
+      }
+    },
     handleBackPage() {
       if (this.$route.query.prev_page) {
-        this.$router.push(this.$route.query.prev_page)
+        this.decodeURI(this.$route.query.prev_page)
       } else {
         this.$router.push({
           name: 'IssueList',

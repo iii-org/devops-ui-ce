@@ -3,7 +3,7 @@
     <contextmenu ref="contextmenu">
       <template v-if="Object.keys(contextMenu.row).length > 2">
         <contextmenu-item
-          class="menu-title"
+          class="menu-title truncate"
           @click="onRelationIssueDialog(contextMenu.row)"
         >
           {{ contextMenu.row.name }}
@@ -260,9 +260,6 @@ export default {
   line-height: 1.25;
   padding: 3px 3px 3px 5px;
   margin: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 }
 .current {
   @apply text-success font-bold;

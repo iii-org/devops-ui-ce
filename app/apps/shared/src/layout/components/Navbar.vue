@@ -35,7 +35,7 @@
             <el-dropdown-item>
               <router-link
                 :to="{ name: 'UserProfile' }"
-                class="linkTextColor"
+                class="link-text-color"
               >
                 <span>{{ $t('navbar.profile') }}</span>
               </router-link>
@@ -43,7 +43,7 @@
             <el-dropdown-item>
               <router-link
                 :to="{ name: 'SystemVersion' }"
-                class="linkTextColor"
+                class="link-text-color"
               >
                 <span>{{ $t('navbar.versions') }}</span>
               </router-link>

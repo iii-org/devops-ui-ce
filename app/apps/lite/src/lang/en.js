@@ -287,7 +287,8 @@ export default {
     ClickToEdit: 'Click to edit',
     Share: 'Share',
     ExpiredDays: 'Expired Days',
-    ProjectSettings: 'Project Settings'
+    ProjectSettings: 'Project Settings',
+    Notifications: 'Notifications'
   },
   Notify: {
     Updated: 'update successful',
@@ -958,7 +959,9 @@ export default {
     DueDate: '@:general.DueDate',
     ParentProject: 'Parent Project',
     InheritParentProjectMember: 'Inherit parent project member',
-    ImageAutoDel: 'Project Optimization'
+    ImageAutoDel: 'Project Optimization',
+    TriggerNotification: 'Trigger Notification',
+    TriggerCondition: 'Trigger Condition'
   },
   ProcessDevBranch: {
     Commit: 'Commit',

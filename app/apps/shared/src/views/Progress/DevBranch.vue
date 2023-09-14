@@ -49,7 +49,7 @@
                     class="flex justify-between text-sm"
                     style="width: 95%; color: #606266;"
                   >
-                    <div class="ellipsis">
+                    <div class="truncate">
                       <el-link
                         type="primary"
                         target="_blank"
@@ -98,7 +98,7 @@
                     :key="issue.id"
                     @click="toIssueDetail(issue.id)"
                   >
-                    <li v-show="issue" class="cursor-pointer ellipsis">
+                    <li v-show="issue" class="cursor-pointer truncate">
                       <span class="text-primary">
                         #{{ issue.id }}
                       </span>
@@ -131,7 +131,7 @@
             <el-button
               round
               size="small"
-              class="el-icon-bottom buttonPrimaryReverse"
+              class="el-icon-bottom button-primary-reverse"
               @click="toGitlab(gitlabActivityUrl)"
             >
               {{ $t('general.SeeMore') }}
@@ -380,10 +380,7 @@ export default {
 <style lang="scss" scoped>
 .w-75 {
   width: 75%;
-  .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .truncate {
     width: 75%;
     .text-info {
       pointer-events: none;

@@ -42,6 +42,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 /* To make el-tab content fill space, or table will not expand */
 ::v-deep .el-tabs__content {
   height: 100%;
@@ -66,8 +68,7 @@ export default {
 }
 
 ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
-  background-color: $linkTextColor;
-  border-color: $linkTextColor;
+  @include background-border-color($linkTextColor, $linkTextColor);
 }
 
 ::v-deep .el-radio.is-bordered.is-checked {
@@ -75,8 +76,7 @@ export default {
 }
 
 ::v-deep .el-radio__input.is-checked .el-radio__inner {
-  background-color: $linkTextColor;
-  border-color: $linkTextColor;
+  @include background-border-color($linkTextColor, $linkTextColor);
 }
 
 ::v-deep .el-radio__input.is-checked+.el-radio__label {

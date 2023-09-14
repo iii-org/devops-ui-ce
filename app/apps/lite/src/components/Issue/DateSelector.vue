@@ -158,11 +158,11 @@ export default {
 
 <style scoped>
 .row {
-  display: -webkit-flex; /*新版本语法：chrome 21+*/
-  display: flex; /*新版本语法:opera 12.1,Firefox 22+*/
-  display: -webkit-box; /*老版本语法：Safari,iOS,Android browser,old Webkit browser*/
-  display: -moz-box; /*老版本语法：Firefox(buggy)*/
-  display: -ms-flexbox; /*混合版本语法：IE 10*/
+  display: -webkit-flex; /*新版本語法：chrome 21+*/
+  display: flex; /*新版本語法:opera 12.1,Firefox 22+*/
+  display: -webkit-box; /*老版本語法：Safari,iOS,Android browser,old Webkit browser*/
+  display: -moz-box; /*老版本語法：Firefox(buggy)*/
+  display: -ms-flexbox; /*混合版本語法：IE 10*/
 }
 .row .col {
   -webkit-flex: 1; /*Chrome*/

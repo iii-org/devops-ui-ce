@@ -5,35 +5,35 @@
   cursor: pointer !important;
 }
 
-.buttonPrimary {
+.button-primary {
   @include button($buttonPrimary);
 }
 
-.buttonSecondary {
+.button-secondary {
   @include button($buttonSecondary);
 }
 
-.buttonTertiary {
+.button-tertiary {
   @include button($buttonTertiary);
 }
 
-.buttonInfo {
+.button-info {
   @include button($info);
 }
 
-.buttonPrimaryReverse {
+.button-primary-reverse {
   @include button-reverse($buttonPrimary);
 }
 
-.buttonSecondaryReverse {
+.button-secondary-reverse {
   @include button-reverse($buttonSecondary);
 }
 
-.buttonTertiaryReverse {
+.button-tertiar-reverse {
   @include button-reverse($buttonTertiary);
 }
 
-.buttonInfoReverse {
+.button-info-reverse {
   @include button-reverse($info);
 }
 
@@ -59,11 +59,11 @@
   }
 }
 
-.headerTextColor {
+.header-text-color {
   color: $headerTextColor !important;
 }
 
-.linkTextColor {
+.link-text-color {
   color: $headerTextColor !important;
   font-size: 14px;
   cursor: pointer;
@@ -84,12 +84,36 @@
   text-align: left !important;
 }
 
+.project-dialog-loading {
+  .el-loading-spinner {
+    i {
+      font-size: 30px;
+      color: $linkTextColor !important;
+    }
+    .el-loading-text {
+      font-size: 30px;
+      color: $linkTextColor !important;
+    }
+  }
+}
+
+.project-dialog-template-loading {
+  .el-loading-spinner {
+    i {
+      font-size: 15px !important;
+    }
+    .el-loading-text {
+      font-size: 15px !important;
+    }
+  }
+}
+
 /*
 * table operate button
 * search icon with keyword: 'ri' or 'el'
 * https://icon-sets.iconify.design
 */
-.operate-button {
+.table-button {
   font-size: 16px;
   color: $info;
   cursor: pointer;
@@ -145,38 +169,14 @@
   }
 }
 
-.project-dialog-loading {
-  .el-loading-spinner {
-    i {
-      font-size: 30px;
-      color: $linkTextColor !important;
-    }
-    .el-loading-text {
-      font-size: 30px;
-      color: $linkTextColor !important;
-    }
-  }
-}
-
-.project-dialog-template-loading {
-  .el-loading-spinner {
-    i {
-      font-size: 15px !important;
-    }
-    .el-loading-text {
-      font-size: 15px !important;
-    }
-  }
-}
-
-.text- {
-  &success {
+.text {
+  &-success {
     color: $success !important;
   }
-  &danger {
+  &-danger {
     color: $danger !important;
   }
-  &info {
+  &-info {
     color: $info !important;
   }
 }

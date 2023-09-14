@@ -2,7 +2,7 @@
   <div>
     <contextmenu ref="contextmenu">
       <template v-if="Object.keys(row).length > 2">
-        <contextmenu-item class="menu-title">
+        <contextmenu-item class="menu-title truncate">
           {{ row.name }}
         </contextmenu-item>
         <contextmenu-submenu
@@ -136,13 +136,13 @@
           </el-col>
           <el-col :xs="24" :md="8" class="text-right">
             <el-button
-              class="buttonPrimary"
+              class="button-primary"
               @click="onSaveCheckRelationIssue"
             >
               {{ $t('general.Save') }}
             </el-button>
             <el-button
-              class="buttonSecondaryReverse"
+              class="button-secondary-reverse"
               @click="toggleRelationDialog(relationDialog.target)"
             >
               {{ $t('general.Close') }}
@@ -213,7 +213,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button
           id="dialog-btn-cancel"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           @click="handleAdvancedClose"
         >
           {{ $t('general.Cancel') }}
@@ -221,7 +221,7 @@
         <el-button
           id="dialog-btn-confirm"
           :loading="loadingConfirm"
-          class="buttonPrimary"
+          class="button-primary"
           @click="handleAdvancedSave"
         >
           {{ $t('general.Confirm') }}
@@ -748,9 +748,6 @@ export default {
   line-height: 1.25;
   padding: 3px 3px 3px 5px;
   margin: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 .current {

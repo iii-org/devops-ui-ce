@@ -12,7 +12,7 @@
           @change="toggleSwitch"
         />
         <el-button
-          class="buttonPrimary"
+          class="button-primary"
           :disabled="!isToggle || permission"
           :size="isMobile ? 'small' : 'medium'"
           @click="handleSave"

@@ -10,8 +10,8 @@ export const addNewProject = (
 ) => request.post(`/v2/project`, data)
 export const getProjectTest = (project_id) =>
   request.get(`/v2/project/${project_id}/test_summary`)
-export const getProjectCommitTestSummary = (project_id, commit_id) =>
-  request.get(`/v2/project/${project_id}/test_summary/${commit_id}`)
+export const getProjectCommitTestSummary = (project_id, commit_id, pipeline_id) =>
+  request.get(`/v2/project/${project_id}/test_summary/${commit_id}?pipeline_id=${pipeline_id}`)
 export const updateProjectInfos = (project_id, data) =>
   request.patch(`/v2/project/${project_id}`, data)
 export const editProject = (
@@ -155,3 +155,8 @@ export const forceDeleteProject = (project_id) =>
   request.delete(`/v2/project/${project_id}?force_delete_project=true`)
 export const syncProject = (project_id) =>
   request.patch(`/v2/sync_projects/${project_id}`)
+
+export const getGitlabIntegrations = (repository_id) => request.get(`/v2/project/${repository_id}/integrations`)
+export const getSlackNotification = (repository_id) => request.get(`/v2/project/${repository_id}/slack/notifications`)
+export const updateSlackNotification = (repository_id, data) => request.put(`/v2/project/${repository_id}/slack/notifications`, data)
+export const disableSlackNotification = (repository_id) => request.delete(`/v2/project/${repository_id}/slack/notifications`)

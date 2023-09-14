@@ -4,7 +4,7 @@
       <div>
         <el-button
           icon="el-icon-plus"
-          class="buttonPrimary"
+          class="button-primary"
           @click="handleAdding"
         >
           {{ $t('Project.AddProject') }}
@@ -133,7 +133,7 @@
             <div>
               <el-link
                 v-if="userRole !== 'QA'"
-                :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+                :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
                 :underline="false"
                 :disabled="scope.row.disabled || scope.row.is_lock"
                 @click="handleClick(scope.row)"
@@ -218,7 +218,7 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-file-edit-line warning operate-button" @click="handleEdit(scope.row)" />
+            <em class="ri-file-edit-line warning table-button" @click="handleEdit(scope.row)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
@@ -227,7 +227,7 @@
           >
             <em
               :disabled="permission(scope.row)"
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
               @click="handleDelete(scope.row)"
             />
           </el-tooltip>
@@ -238,7 +238,7 @@
           >
             <em
               :disabled="permission(scope.row)"
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
               @click="handleDelete(scope.row, true)"
             />
           </el-tooltip>
@@ -247,7 +247,7 @@
             placement="bottom"
             :content="$t('general.Fix')"
           >
-            <em class="ri-refresh-line primary operate-button" @click="handleFix(scope.row.id)" />
+            <em class="ri-refresh-line primary table-button" @click="handleFix(scope.row.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
@@ -257,8 +257,8 @@
             <em
               :disabled="permission(scope.row)"
               :class="scope.row.disabled
-                ? 'ri-play-circle-line success operate-button'
-                : 'ri-pause-circle-line danger operate-button'"
+                ? 'ri-play-circle-line success table-button'
+                : 'ri-pause-circle-line danger table-button'"
               @click="handleToggle(scope.row)"
             />
           </el-tooltip>

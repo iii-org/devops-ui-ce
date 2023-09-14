@@ -62,7 +62,7 @@
               effect="dark"
               placement="bottom"
             >
-              <em class="ri-link-unlink-m warning operate-button" />
+              <em class="ri-link-unlink-m warning table-button" />
             </el-tooltip>
           </el-popconfirm>
           <el-popconfirm
@@ -79,7 +79,7 @@
               effect="dark"
               placement="bottom"
             >
-              <em class="ri-delete-bin-2-line danger operate-button" />
+              <em class="ri-delete-bin-2-line danger table-button" />
             </el-tooltip>
           </el-popconfirm>
         </template>

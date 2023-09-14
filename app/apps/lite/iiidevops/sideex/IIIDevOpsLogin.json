@@ -258,7 +258,7 @@
                   },
                   {
                     "type": "css:position",
-                    "value": "css=button.el-button.w-full.buttonPrimary.el-button--default > span"
+                    "value": "css=button.el-button.w-full.button-primary.el-button--default > span"
                   }
                 ],
                 "tac": "TAC_LOCATOR:N4IgLghgxgtAbgUwE4GcCWB7AdiAXCARgDpiCQAaEADwAcIwALPEAehYBM04BtAATXYBeAOQQaNYQF0OXbgWkAzDEgC2c6QCMArmDDZ1LFHSzqKIDGGaBvN0CmimYwQ8oSAHMAchBUJmRiDkoANhhQ9JhYAPJI7MjMZAC+lMF0TuAQ7p7e+Nq62Gbs9BDwMABs7OwKAOwATAAMjvhmYACeNJkg2Xr+IFABECgozAgBMB3YAAQA7jAKWgEBY6NYNEhoKhBITWNDIzqdMDDRChCzloHBodiR0UixIAnmUMt4WLMBiVA4uC9z71B43JJ3pZ8IAx7UAPR5jAAUMywUDAYUhUAAlMAYXCwghIQgUUokJC4OstOQGOQhAhuDVAQpBOT5HcgA"

@@ -34,7 +34,7 @@
         :content="$t('general.Reload')"
       >
         <el-button
-          class="ml-2 buttonPrimaryReverse"
+          class="ml-2 button-primary-reverse"
           icon="el-icon-refresh"
           style="float:left;"
           circle
@@ -123,7 +123,7 @@
           slot="reference"
           :loading="isLoading"
           icon="el-icon-s-operation"
-          class="headerTextColor"
+          class="header-text-color"
           type="text"
         > {{ displayFilterValue }}
           <em class="el-icon-arrow-down el-icon--right" />
@@ -170,7 +170,7 @@
         <el-button
           slot="reference"
           :loading="isLoading"
-          class="headerTextColor"
+          class="header-text-color"
           type="text"
         >
           <i18n path="Issue.GroupBy">
@@ -197,7 +197,7 @@
         v-if="!searchVisible && socket.connected"
         type="text"
         :loading="isLoading"
-        class="headerTextColor"
+        class="header-text-color"
         icon="el-icon-search"
         @click="searchVisible=!searchVisible"
       >
@@ -208,7 +208,7 @@
         <el-button
           size="small"
           icon="el-icon-close"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           :loading="isLoading"
           @click="cleanFilter"
         >

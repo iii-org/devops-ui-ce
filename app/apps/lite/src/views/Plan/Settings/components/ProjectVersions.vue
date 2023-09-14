@@ -14,7 +14,7 @@
     <template v-else>
       <div class="flex justify-between mb-4">
         <el-button
-          class="buttonSecondary"
+          class="button-secondary"
           :size="isMobile ? 'small' : 'medium'"
           icon="el-icon-plus"
           @click="handleAdding"
@@ -39,13 +39,13 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-file-edit-line warning operate-button" @click="handleEdit(row)" />
+            <em class="ri-file-edit-line warning table-button" @click="handleEdit(row)" />
           </el-tooltip>
           <el-tooltip
             placement="bottom"
             :content="$t('general.Delete')"
           >
-            <em class="ri-delete-bin-2-line danger operate-button" @click="handleDelete(row)" />
+            <em class="ri-delete-bin-2-line danger table-button" @click="handleDelete(row)" />
           </el-tooltip>
         </template>
       </ElTableResponsive>

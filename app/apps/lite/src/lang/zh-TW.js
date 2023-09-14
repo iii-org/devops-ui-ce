@@ -287,7 +287,8 @@ export default {
     ClickToEdit: '點選以編輯',
     Share: '分享',
     ExpiredDays: '逾期天數',
-    ProjectSettings: '專案設定'
+    ProjectSettings: '專案設定',
+    Notifications: '通知'
   },
   Notify: {
     Updated: '已更新',
@@ -951,7 +952,9 @@ export default {
     DueDate: '@:general.DueDate',
     ParentProject: '父專案',
     InheritParentProjectMember: '繼承父專案成員',
-    ImageAutoDel: '自動最佳化專案資源'
+    ImageAutoDel: '自動最佳化專案資源',
+    TriggerNotification: '觸發Slack通知',
+    TriggerCondition: '觸發條件'
   },
   ProcessDevBranch: {
     Commit: 'Commit',
@@ -1059,9 +1062,9 @@ export default {
   System: {
     Secrets: 'Secrets',
     Registry: 'Registry',
-    RedmineMail: 'Mail Setting',
-    SystemTemplates: 'Templates',
-    SystemConfigs: 'System Configs',
+    RedmineMail: 'Redmine 信箱設定',
+    SystemTemplates: '範本同步設定',
+    SystemConfigs: '系統參數設定',
     AddPlugin: '新增插件',
     AddParams: '新增參數'
   },

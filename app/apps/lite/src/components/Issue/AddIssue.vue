@@ -15,7 +15,7 @@
         placement="bottom"
       >
         <em
-          class="el-icon-document-copy success operate-button"
+          class="el-icon-document-copy success table-button"
           @click="$emit('import')"
         />
       </el-tooltip>
@@ -239,7 +239,7 @@
             <div>
               <el-button
                 size="small"
-                class="mb-2 buttonSecondary"
+                class="mb-2 button-secondary"
               >
                 {{ $t('File.ChooseFile') }}
               </el-button>
@@ -654,6 +654,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .el-row {
   font-size: 0;
 }
@@ -662,7 +664,7 @@ export default {
   padding: 0 10px;
   vertical-align: top;
   display: inline-block;
-  @media (max-width: 767px) {
+  @include tablet {
     width: 100%;
     display: block;
   }

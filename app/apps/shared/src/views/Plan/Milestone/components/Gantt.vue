@@ -73,13 +73,13 @@
       >
         <el-button
           id="dialog-btn-cancel"
-          class="buttonSecondaryReverse"
+          class="button-secondary-reverse"
           @click="handleAdvancedClose"
         >{{ $t('general.Cancel') }}</el-button>
         <el-button
           id="dialog-btn-confirm"
           :loading="addTopicDialog.LoadingConfirm"
-          class="buttonPrimary"
+          class="button-primary"
           @click="handleAdvancedSave"
         >
           {{ $t('general.Confirm') }}

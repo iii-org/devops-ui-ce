@@ -10,7 +10,7 @@
         <el-button
           size="small"
           icon="el-icon-refresh"
-          class="buttonPrimaryReverse"
+          class="button-primary-reverse"
           :disabled="status.is_lock"
           @click="getSyncRedmine"
         >
@@ -181,7 +181,7 @@
     <div v-if="!isLoading && projectCount <= 0">
       <el-empty :description="$t('general.NoData')">
         <el-button
-          class="buttonSecondary"
+          class="button-secondary"
           icon="el-icon-plus"
           @click="handleAdding"
         >

@@ -28,6 +28,12 @@
     <el-tab-pane :label="$t('ProjectSettingDialog.TagSettings')" name="tagSettings">
       <TagSettings v-if="activeTab === 'tagSettings'" />
     </el-tab-pane>
+    <el-tab-pane :label="`Slack ${$t('general.Notifications')}`" name="slackNotification">
+      <SlackNotification
+        v-if="activeTab === 'slackNotification'"
+        @handleCancel="handleCloseDialog"
+      />
+    </el-tab-pane>
   </el-tabs>
 </template>
 
@@ -40,7 +46,8 @@ export default {
     ProjectVersions: () => import('@/views/Plan/Settings/components/ProjectVersions'),
     AdvanceBranchSettings: () => import('@/views/Plan/Settings/components/AdvanceBranchSettings'),
     AlertSettings: () => import('@/views/Plan/Settings/components/AlertSettings'),
-    TagSettings: () => import('@/views/Plan/Settings/components/TagSettings')
+    TagSettings: () => import('@/views/Plan/Settings/components/TagSettings'),
+    SlackNotification: () => import('./components/SlackNotification')
   },
   data() {
     return {

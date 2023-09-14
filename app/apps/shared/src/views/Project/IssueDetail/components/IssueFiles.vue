@@ -33,7 +33,7 @@
       >
         <span>
           <el-button
-            class="buttonPrimary"
+            class="button-primary"
             size="mini"
             icon="el-icon-download"
             :loading="isLoading"
@@ -103,7 +103,7 @@
       <span slot="footer">
         <el-button v-if="device === 'desktop'" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
         <el-button
-          class="buttonPrimary"
+          class="button-primary"
           :class="device === 'mobile' ? 'w-full' : ''"
           @click="downloadImage"
         >

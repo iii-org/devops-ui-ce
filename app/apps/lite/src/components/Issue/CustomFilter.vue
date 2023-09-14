@@ -26,7 +26,7 @@
                 <span :class="filter.isApplying ? 'text-success' : ''">{{ filter.name }}</span>
               </div>
               <div>
-                <em class="ri-file-edit-line warning operate-button" @click="onEditClick(filter.id)" />
+                <em class="ri-file-edit-line warning table-button" @click="onEditClick(filter.id)" />
                 <el-popconfirm
                   :confirm-button-text="$t('general.Remove')"
                   :cancel-button-text="$t('general.Cancel')"
@@ -35,7 +35,7 @@
                   :title="$t('Issue.RemoveCustomFilter')"
                   @confirm="removeFilter(filter.id)"
                 >
-                  <em slot="reference" class="ri-delete-bin-2-line danger operate-button" />
+                  <em slot="reference" class="ri-delete-bin-2-line danger table-button" />
                 </el-popconfirm>
               </div>
             </div>
@@ -203,13 +203,13 @@
                 <div class="flex justify-between">
                   <el-button
                     size="small"
-                    class="buttonSecondaryReverse"
+                    class="button-secondary-reverse"
                     @click="onCancelClick(filter.id)"
                   >
                     {{ $t('general.Cancel') }}
                   </el-button>
                   <el-button
-                    class="buttonPrimary"
+                    class="button-primary"
                     size="small"
                     @click="editFilter(filter)"
                   >
@@ -222,7 +222,7 @@
         </div>
         <el-button
           slot="reference"
-          class="headerTextColor"
+          class="header-text-color"
           type="text"
         >
           {{ $t('Issue.CustomFilter') }}
@@ -237,7 +237,7 @@
           <el-divider direction="vertical" />
           <span class="text">{{ $t('Issue.CustomFilter') }}</span>
         </span>
-        <el-button class="buttonTertiary" size="small" @click="handleClearFilter">
+        <el-button class="button-tertiary" size="small" @click="handleClearFilter">
           {{ $t('general.Clear') }}
         </el-button>
       </div>

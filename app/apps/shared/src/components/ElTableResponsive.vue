@@ -41,7 +41,7 @@
           <slot :name="`header-${col.headerLabel}`" />
         </template>
         <template slot-scope="scope">
-          <span v-if="isMobile" class="label-mobile">{{ isMobile ? col.label : '' }}</span>
+          <span v-if="isMobile" class="label-mobile truncate">{{ isMobile ? col.label : '' }}</span>
           <span>
             <el-tooltip
               v-if="col.type === 'time'"
@@ -278,9 +278,6 @@ export default {
     margin-right: 6px;
     min-width: 120px;
     max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   ::v-deep .cell {
     white-space: nowrap !important;

@@ -148,14 +148,14 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         :loading="isLoading"
         @click="onDialogClosed"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
-        class="buttonPrimary"
+        class="button-primary"
         :loading="isLoading"
         @click="handleConfirm"
       >

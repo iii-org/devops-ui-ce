@@ -292,7 +292,7 @@ export default {
         case 'author_id':
           return 'ri-draft-line'
         case 'watcher_id':
-          return 'ri-cast-line'
+          return 'ri-bookmark-3-line'
         default:
           return ''
       }
@@ -327,6 +327,9 @@ export default {
             color: white;
             padding: 6px;
             border-radius: 15px;
+          }
+          span {
+            font-weight: bold;
           }
         }
       }

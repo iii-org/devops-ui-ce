@@ -3,7 +3,7 @@
     <ProjectListSelector>
       <div slot="button">
         <el-button
-          class="buttonPrimary"
+          class="button-primary"
           icon="el-icon-plus"
           :size="isMobile ? 'mini' : 'medium'"
           :disabled="!isAlive"
@@ -36,7 +36,7 @@
           v-else
           type="text"
           icon="el-icon-search"
-          class="headerTextColor"
+          class="header-text-color"
           @click="searchVisible =! searchVisible"
         >
           {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
@@ -46,7 +46,7 @@
           <el-button
             size="small"
             icon="el-icon-close"
-            class="buttonSecondaryReverse"
+            class="button-secondary-reverse"
             @click="cleanFilter"
           >
             {{ $t('Issue.CleanFilter') }}
@@ -64,7 +64,7 @@
     >
       <template v-slot:name="{row}">
         <span
-          class="text linkTextColor"
+          class="text link-text-color"
           @click="handleEdit(row)"
         >
           {{ row.name }}
@@ -91,7 +91,7 @@
           :content="$t('general.Edit')"
           placement="bottom"
         >
-          <em class="ri-file-edit-line warning operate-button" @click="handleEdit(row, true)" />
+          <em class="ri-file-edit-line warning table-button" @click="handleEdit(row, true)" />
         </el-tooltip>
         <el-popconfirm
           :title="$t('Notify.confirmDelete')"
@@ -106,7 +106,7 @@
             :content="$t('general.Delete')"
             placement="bottom"
           >
-            <em class="ri-delete-bin-2-line danger operate-button" />
+            <em class="ri-delete-bin-2-line danger table-button" />
           </el-tooltip>
         </el-popconfirm>
         <el-tooltip
@@ -115,7 +115,7 @@
         >
           <em
             v-if="isProjectOwnerOrAdministrator"
-            class="el-icon-time primary operate-button"
+            class="el-icon-time primary table-button"
             @click="handleRestore(row)"
           />
         </el-tooltip>

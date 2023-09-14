@@ -15,7 +15,7 @@
             type="text"
             size="medium"
             icon="el-icon-arrow-left"
-            class="text-title linkTextColor"
+            class="text-title link-text-color"
             @click="handleBack"
           >
             {{ $t('general.Back') }}
@@ -47,14 +47,14 @@
         </div>
         <div>
           <el-button
-            class="buttonSecondaryReverse"
+            class="button-secondary-reverse"
             size="small"
             @click="handleReset"
           >
             {{ $t('general.Cancel') }}
           </el-button>
           <el-button
-            class="buttonPrimary"
+            class="button-primary"
             size="small"
             :disabled="isShowWarning"
             @click="updatePipelineBranch"

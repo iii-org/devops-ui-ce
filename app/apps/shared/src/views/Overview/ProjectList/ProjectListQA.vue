@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="flex justify-between">
       <el-button
-        class="buttonPrimary"
+        class="button-primary"
         icon="el-icon-plus"
         @click="handleAdding"
       >
@@ -24,7 +24,7 @@
             slot="reference"
             icon="el-icon-date"
             type="text"
-            class="headerTextColor"
+            class="header-text-color"
           >
             {{ $t('Project.ProjectPeriod') }}:{{ selectedDateNow[0] }} ~ {{ selectedDateNow[1] }}<em
               class="el-icon-arrow-down el-icon--right"
@@ -45,7 +45,7 @@
           v-else
           type="text"
           icon="el-icon-search"
-          class="headerTextColor"
+          class="header-text-color"
           @click="searchVisible = !searchVisible"
         >
           {{ $t('general.Search') + (keyword ? ': ' + keyword : '') }}
@@ -55,7 +55,7 @@
           <el-button
             size="small"
             icon="el-icon-close"
-            class="buttonSecondaryReverse"
+            class="button-secondary-reverse"
             @click="cleanFilter"
           >
             {{ $t('Issue.CleanFilter') }}
@@ -85,7 +85,7 @@
             <el-button
               slot="reference"
               icon="el-icon-download"
-              class="buttonPrimaryReverse"
+              class="button-primary-reverse"
             >
               {{ $t('File.Download') }}
             </el-button>
@@ -145,7 +145,7 @@
         <template slot-scope="scope">
           <el-link
             v-if="userRole !== 'QA'"
-            :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+            :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
             :underline="false"
             :disabled="scope.row.disabled || scope.row.is_lock"
             @click="handleClick(scope.row)"
@@ -154,7 +154,7 @@
           </el-link>
           <el-link
             v-else-if="userRole === 'QA'"
-            :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+            :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
             :underline="false"
             :disabled="scope.row.disabled || scope.row.is_lock"
             @click="handleClickQA(scope.row)"
@@ -174,7 +174,7 @@
       >
         <template slot-scope="scope">
           <el-link
-            :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+            :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
             :underline="false"
             :disabled="scope.row.disabled || scope.row.is_lock"
             @click="handleParticipateDialog(scope.row.owner_id, scope.row.owner_name)"
@@ -219,7 +219,7 @@
       >
         <template slot-scope="scope">
           <el-link
-            :class="scope.row.disabled || scope.row.is_lock ? '' : 'linkTextColor'"
+            :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
             :underline="false"
             :disabled="scope.row.disabled || scope.row.is_lock"
             @click="handleRoutingProjectMembers(scope.row)"
@@ -245,7 +245,7 @@
           <el-button
             v-if="userRole !== 'QA'"
             size="mini"
-            class="buttonPrimaryReverse"
+            class="button-primary-reverse"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
           >

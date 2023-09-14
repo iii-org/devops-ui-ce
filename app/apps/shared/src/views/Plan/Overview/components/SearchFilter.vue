@@ -44,7 +44,7 @@
       <el-button
         slot="reference"
         icon="el-icon-s-operation"
-        class="headerTextColor"
+        class="header-text-color"
         type="text"
       >
         {{ displayFilterValue }}
@@ -54,7 +54,7 @@
     <template v-if="isFilterChanged">
       <el-divider direction="vertical" />
       <el-button
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         size="small"
         icon="el-icon-close"
         @click="clearSelect"

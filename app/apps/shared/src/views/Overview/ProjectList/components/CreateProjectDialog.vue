@@ -167,13 +167,13 @@
     >
       <el-button
         :loading="isLoading"
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         @click="onDialogClosed"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
-        class="buttonPrimary"
+        class="button-primary"
         :loading="isLoading"
         @click="handleConfirm"
       >

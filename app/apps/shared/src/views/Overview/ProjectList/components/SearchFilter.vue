@@ -24,7 +24,7 @@
       <el-button
         slot="reference"
         icon="el-icon-s-operation"
-        class="headerTextColor"
+        class="header-text-color"
         type="text"
       >
         {{ displayFilterValue }}
@@ -44,7 +44,7 @@
     <el-button
       v-else type="text"
       icon="el-icon-search"
-      class="headerTextColor"
+      class="header-text-color"
       @click="searchVisible=!searchVisible"
     >
       {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
@@ -54,7 +54,7 @@
       <el-button
         size="small"
         icon="el-icon-close"
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         @click="cleanFilter"
       >
         {{ $t('Issue.CleanFilter') }}

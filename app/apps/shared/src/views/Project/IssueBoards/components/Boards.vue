@@ -430,6 +430,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 .board {
   display: flex;
@@ -474,8 +475,7 @@ $tag-options: (
 
 @each $key, $value in $tag-options {
   .el-tag--#{$key} {
-    background-color: $value;
-    border-color: $value;
+    @include background-border-color($value, $value);
   }
 }
 

@@ -28,7 +28,7 @@
             size="medium"
             icon="el-icon-s-tools"
             style="padding: 5px;"
-            :class="!isMobile ? 'linkTextColor' : ''"
+            :class="!isMobile ? 'link-text-color' : ''"
             :type="!isMobile ? 'text' : 'primary'"
             :circle="isMobile"
           >
@@ -88,7 +88,7 @@
             placement="bottom"
           >
             <em
-              class="ri-terminal-box-line primary operate-button"
+              class="ri-terminal-box-line primary table-button"
               @click="onDetailsClick(row)"
             />
           </el-tooltip>
@@ -98,7 +98,7 @@
             placement="bottom"
           >
             <em
-              class="ri-stop-circle-line warning operate-button"
+              class="ri-stop-circle-line warning table-button"
               @click="onActionClick(row, 'stop')"
             />
           </el-tooltip>
@@ -108,7 +108,7 @@
             placement="bottom"
           >
             <em
-              class="ri-refresh-line success operate-button"
+              class="ri-refresh-line success table-button"
               @click="onActionClick(row, 'rerun')"
             />
           </el-tooltip>
@@ -118,8 +118,13 @@
             placement="bottom"
           >
             <em
-              class="ri-file-list-2-line primary operate-button"
+              v-if="row.execution_state === 'Finished'"
+              class="ri-file-list-2-line primary table-button"
               @click="handleToTestReport(row)"
+            />
+            <em
+              v-else
+              class="ri-file-list-2-line table-button disabled"
             />
           </el-tooltip>
         </template>
@@ -394,14 +399,20 @@ export default {
       this.timer = null
     },
     handleToTestReport(row) {
-      const commitId = row.commit_id
-      const commitBranch = row.commit_branch
+      const {
+        id,
+        commit_id: commitId,
+        commit_branch: commitBranch
+      } = row
       this.$router.push({
         name: 'TestReportParent',
         params: {
           commitId,
           commitBranch,
           projectId: this.selectedProject.id
+        },
+        query: {
+          pipeline_id: id
         }
       })
     }

@@ -24,7 +24,7 @@
         <div>
           <el-button
             size="mini"
-            class="buttonSecondaryReverse"
+            class="button-secondary-reverse"
             :loading="isLoading"
             plain
             @click="updatePipelineBranch(false)"
@@ -33,7 +33,7 @@
           </el-button>
           <el-button
             size="mini"
-            class="buttonSecondary"
+            class="button-secondary"
             icon="el-icon-refresh"
             :loading="isLoading"
             @click="isDataChanged ? updatePipelineBranch(true) : updateUnalteredPipelineBranch()"

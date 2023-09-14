@@ -5,7 +5,7 @@
         id="btn-add-issue"
         slot="button"
         v-permission="['Administrator','Project Manager', 'Engineer']"
-        class="buttonSecondary"
+        class="button-secondary"
         icon="el-icon-plus"
         :disabled="selectedProjectId === -1"
         @click="handleQuickAddClose"
@@ -50,7 +50,7 @@
             </el-menu>
             <el-button
               slot="reference"
-              class="buttonPrimaryReverse"
+              class="button-primary-reverse"
               icon="el-icon-download"
               size="mini"
             >

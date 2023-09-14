@@ -3,7 +3,7 @@
     <ProjectListSelector>
       <el-button
         slot="button"
-        class="buttonSecondary"
+        class="button-secondary"
         icon="ri-external-link-fill"
         :size="isMobile ? 'small' : 'medium'"
         :disabled="selectedProjectId === -1"

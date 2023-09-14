@@ -14,7 +14,7 @@
           <el-button
             icon="el-icon-s-tools"
             size="medium"
-            class="buttonPrimary"
+            class="button-primary"
             @click.native="isShowProjectSettingDialog = !isShowProjectSettingDialog"
           >
             <span v-if="!isMobile">{{ $t('general.ProjectSettings') }}</span>
@@ -75,6 +75,7 @@
       :visible.sync="isShowProjectSettingDialog"
       top="5vh"
       :width="isMobile ? '95%' : '75%'"
+      destroy-on-close
       @close="handleCloseDialog"
     >
       <ProjectSettingsDialog
@@ -211,6 +212,7 @@ export default {
     },
     async handleCloseDialog() {
       this.isShowProjectSettingDialog = false
+
       await this.fetchAllData()
     }
   }

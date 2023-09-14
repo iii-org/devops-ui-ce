@@ -134,7 +134,7 @@
     <span class="float-right">
       <el-button
         :size="isMobile ? 'small' : 'medium'"
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         :loading="isLoading"
         @click="handleCancel"
       >
@@ -142,7 +142,7 @@
       </el-button>
       <el-button
         :size="isMobile ? 'small' : 'medium'"
-        class="buttonPrimary"
+        class="button-primary"
         :loading="isLoading"
         @click="handleConfirm"
       >

@@ -50,7 +50,7 @@
     </el-form-item>
     <el-button
       v-if="formType === 'start_date' || formType === 'due_date'"
-      class="action buttonPrimary align-middle rounded-md w-full"
+      class="action button-primary align-middle rounded-md w-full"
       @click="updateSelect(formType)"
     >
       {{ $t('general.Save') }}
@@ -117,6 +117,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 .radio-group {
   display: grid;
   .settings::-webkit-scrollbar {
@@ -140,16 +142,16 @@ export default {
     }
   }
 }
-@media (min-width: 350px) {
+@include mobile {
   .settings { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 500px) {
+@include tablet-1 {
   .settings { grid-template-columns: repeat(3, 1fr); }
 }
-@media (min-width: 650px) {
+@include tablet-2 {
   .settings { grid-template-columns: repeat(4, 1fr); }
 }
-@media (min-width: 750px) {
+@include tablet-3 {
   .settings { grid-template-columns: repeat(5, 1fr); }
 }
 </style>

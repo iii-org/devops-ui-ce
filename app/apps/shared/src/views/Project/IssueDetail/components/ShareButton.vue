@@ -71,7 +71,7 @@
       <el-button
         circle
         size="small"
-        class="buttonInfoReverse"
+        class="button-info-reverse"
         type="info"
         icon="el-icon-share"
       />

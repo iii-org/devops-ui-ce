@@ -5,7 +5,7 @@
         id="btn-add-issue"
         slot="button"
         v-permission="['Administrator','Project Manager', 'Engineer']"
-        class="buttonPrimary"
+        class="button-primary"
         icon="el-icon-plus"
         :size="isMobile ? 'small' : 'medium'"
         :disabled="isDisabled"
@@ -65,7 +65,7 @@
             </el-menu>
             <el-button
               slot="reference"
-              class="buttonPrimaryReverse"
+              class="button-primary-reverse"
               icon="el-icon-download"
               size="mini"
             >

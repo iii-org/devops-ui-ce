@@ -8,8 +8,8 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="sonarQubeLink ? 'linkTextColor' : ''"
-            :disabled="!sonarQubeLink"
+            :class="sonarqubeLink ? 'link-text-color' : ''"
+            :disabled="!sonarqubeLink"
             @click="openSonarQube"
           >
             {{ $t('TestReport.DetailReport') }}
@@ -94,7 +94,7 @@ export default {
       type: Array,
       default: () => []
     },
-    sonarQubeLink: {
+    sonarqubeLink: {
       type: String,
       default: ''
     },
@@ -120,7 +120,7 @@ export default {
   },
   methods: {
     openSonarQube() {
-      window.open(this.sonarQubeLink)
+      window.open(this.sonarqubeLink)
     },
     convertRating(rating) {
       const r = parseInt(rating)

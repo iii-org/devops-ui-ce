@@ -51,6 +51,7 @@
               :form.sync="form"
               :is-direct-save="true"
               :data-loaded="dataLoaded"
+              :is-form-collapse-open="isFormCollapseOpen"
               :edit.sync="isIssueEdited.tags"
               @update="$emit('update')"
             />
@@ -482,13 +483,17 @@ export default {
       type: Boolean,
       default: false
     },
+    isIssueEdited: {
+      type: Object,
+      default: () => ({})
+    },
     dataLoaded: {
       type: Boolean,
       default: false
     },
-    isIssueEdited: {
-      type: Object,
-      default: () => ({})
+    isFormCollapseOpen: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -622,18 +627,21 @@ export default {
     if (this.form.project_id > 0) {
       this.onChangePId()
     }
-    const unwatchForm = this.$watch('form', (value) => {
-      this.originForm.status_id = value.status_id
-      this.originForm.assigned_to_id = value.assigned_to_id
-      this.originForm.fixed_version_id = value.fixed_version_id
-      this.originForm.estimated_hours = value.estimated_hours
-      this.originForm.done_ratio = value.done_ratio
-      this.originForm.start_date = value.start_date
-      this.originForm.due_date = value.due_date
-      unwatchForm()
-    }, { deep: true })
+    this.watchForm()
   },
   methods: {
+    watchForm() {
+      const unwatchForm = this.$watch('form', (value) => {
+        this.originForm.status_id = value.status_id
+        this.originForm.assigned_to_id = value.assigned_to_id
+        this.originForm.fixed_version_id = value.fixed_version_id
+        this.originForm.estimated_hours = value.estimated_hours
+        this.originForm.done_ratio = value.done_ratio
+        this.originForm.start_date = value.start_date
+        this.originForm.due_date = value.due_date
+        unwatchForm()
+      }, { deep: true })
+    },
     async fetchData(pId) {
       this.isLoading = true
       const projectId = pId || this.form.project_id
@@ -899,7 +907,8 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-/* noinspection CssUnusedSymbol */
+@import 'src/styles/theme/mixin.scss';
+
 ::v-deep .el-form-item {
   margin-bottom: 10px;
 }
@@ -926,11 +935,10 @@ export default {
 }
 
 .el-button--success{
+  @include css-prefix(transition, all .6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -939,11 +947,10 @@ export default {
 }
 
 .el-button--danger{
+  @include css-prefix(transition, all .6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
-  -webkit-transition: all .6s ease;
-  transition: all .6s ease;
   &:hover {
     color: #fff;
     border: 1px solid $danger;

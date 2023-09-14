@@ -49,8 +49,8 @@
           <div @contextmenu="handleContextMenu(element, '', $event)">
             <div class="title" :class="fromWbs ? 'cardTitle' : ''">
               <span
-                class="text linkTextColor"
-                :class="fromWbs ? 'msg-text' : ''"
+                class="text link-text-color"
+                :class="fromWbs ? 'msg-text truncate' : ''"
                 @click="handleClick(element)"
               >
                 <el-tooltip
@@ -169,7 +169,7 @@
                       size="mini"
                     />
                     <el-link
-                      class="linkTextColor"
+                      class="link-text-color"
                       :underline="false"
                       @click="handleClick(element.parent)"
                     >
@@ -199,7 +199,7 @@
                           size="mini"
                         />
                         <el-link
-                          class="linkTextColor"
+                          class="link-text-color"
                           :underline="false"
                           @click="handleClick(subElement)"
                         >
@@ -231,7 +231,7 @@
                           size="mini"
                         />
                         <el-link
-                          class="linkTextColor"
+                          class="link-text-color"
                           :underline="false"
                           @click="handleClick(subElement)"
                         >
@@ -781,6 +781,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
+
 .board-column {
   width: 280px;
   margin: 10px 5px 10px 5px;
@@ -809,14 +811,11 @@ export default {
   }
 
   .board-column-content {
+    @apply space-y-4;
+    @include css-prefix(user-select, none);
     border: 4px solid transparent;
     min-height: 140px;
-    @apply space-y-4;
     -webkit-touch-callout: none; /* Safari */
-    -webkit-user-select: none; /* Chrome */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
     margin-bottom: 10px;
 
     .quick-add {
@@ -1123,9 +1122,6 @@ export default {
   margin-bottom: 3px;
 }
 .msg-text {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
   width: 220px;
   font-weight: bold;
 }

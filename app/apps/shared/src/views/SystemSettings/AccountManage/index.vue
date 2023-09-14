@@ -2,7 +2,7 @@
   <div class="app-container account-manage-table">
     <div class="flex justify-between">
       <el-button
-        class="buttonPrimary"
+        class="button-primary"
         :size="isMobile ? 'small' : 'medium'"
         @click="showUserDialog('', 'Add User')"
       >
@@ -35,7 +35,7 @@
           :content="$t('general.Participate')"
         >
           <em
-            class="ri-file-edit-line warning operate-button"
+            class="ri-file-edit-line warning table-button"
             @click="handleParticipateDialog(row.id)"
           />
         </el-tooltip>
@@ -53,7 +53,7 @@
           >
             <em
               slot="reference"
-              class="ri-delete-bin-2-line danger operate-button"
+              class="ri-delete-bin-2-line danger table-button"
             />
           </el-popconfirm>
         </el-tooltip>

@@ -35,7 +35,7 @@
     <span slot="footer" class="dialog-footer">
       <el-button
         id="dialog-btn-cancel"
-        class="buttonSecondaryReverse"
+        class="button-secondary-reverse"
         :loading="isLoading"
         @click="showDialog = false"
       >
