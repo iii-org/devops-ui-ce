@@ -25,7 +25,7 @@
           <th id="">{{ $t('Docker.Fixable') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">Anchore</td>
+          <td :data-label="$t('DevOps.Tools')">SBOM</td>
           <template v-if="hasAnchoreData">
             <td :data-label="$t('Anchore.high')">
               <span v-if="hasEachItemData('3')">{{ anchore[0].result['3'] }}</span>

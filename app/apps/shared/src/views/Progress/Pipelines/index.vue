@@ -124,7 +124,7 @@
             />
             <em
               v-else
-              class="ri-file-list-2-line table-button disabled"
+              class="ri-file-list-2-line disabled table-button"
             />
           </el-tooltip>
         </template>

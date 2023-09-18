@@ -17,8 +17,20 @@
       <pre>{{ logData }}</pre>
     </el-card>
     <span slot="footer">
-      <el-button class="button-secondary-reverse" @click="scrollTo('top')">{{ $t('general.ScrollToTop') }}</el-button>
-      <el-button class="button-secondary-reverse" @click="scrollTo('bottom')">{{ $t('general.ScrollToBottom') }}</el-button>
+      <el-button
+        class="button-secondary-reverse"
+        @click="scrollTo('top')"
+      >
+        <em v-if="isMobile" class="ri-skip-up-fill" />
+        <span v-else>{{ $t('general.ScrollToTop') }}</span>
+      </el-button>
+      <el-button
+        class="button-secondary-reverse"
+        @click="scrollTo('bottom')"
+      >
+        <em v-if="isMobile" class="ri-skip-down-fill" />
+        <span v-else>{{ $t('general.ScrollToBottom') }}</span>
+      </el-button>
       <el-button class="button-primary" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
     </span>
   </el-dialog>
@@ -51,7 +63,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId'])
+    ...mapGetters(['selectedProjectId', 'device']),
+    isMobile() {
+      return this.device === 'mobile'
+    }
   },
   methods: {
     async fetchData(podName, containerName) {

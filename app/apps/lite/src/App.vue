@@ -14,8 +14,7 @@ export default {
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-  background-color: white;
-  border-radius: 4px;
+  background-color: transparent;
 }
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(104, 104, 104, 0.2);

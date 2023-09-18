@@ -70,5 +70,8 @@ export default {
 .icon {
   @apply rounded text-white text-xs;
   padding: 3px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-height: 100%;
 }
 </style>

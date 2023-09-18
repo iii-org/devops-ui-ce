@@ -67,7 +67,7 @@
           <li>{{ $t('TestReport.TestTime') }}: {{ latestTime }}</li>
           <li>
             {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}:
-            {{ routeData.branch }} / <svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
+            {{ routeData.branch }} / <em class="ri-git-commit-line" />
             {{ routeData.commitId }}
           </li>
         </ul>
@@ -93,7 +93,7 @@
           />
         </div>
         <!-- ISO weakness test -->
-        <div v-show="!isLite && (isIncludesName('harbor') || isIncludesName('anchore'))">
+        <div v-show="!isLite && (isIncludesName('harbor') || isIncludesName('sbom'))">
           <el-divider content-position="center">
             {{ $t('TestReport.ISOWeaknessTesting') }}
           </el-divider>
@@ -102,6 +102,13 @@
             ref="clair"
             class="mb-5"
             :clair="clair"
+            :list-loading="listLoading"
+          />
+          <AnchoreReport
+            v-show="isIncludesName('sbom')"
+            ref="clair"
+            class="mb-5"
+            :anchore="anchore"
             :list-loading="listLoading"
           />
         </div>
@@ -176,7 +183,7 @@ import { getLocalTime, getFormatTime } from '@shared/utils/handleTime'
 import { getProjectCommitTestSummary, getProjectInfos } from '@/api/projects'
 import XLSX from 'xlsx'
 import {
-  // AnchoreReport,
+  AnchoreReport,
   CheckMarxReport,
   ClairReport,
   CmasReport,
@@ -192,7 +199,7 @@ const downloadFileName = 'DevOps_test_report'
 export default {
   name: 'TestReport',
   components: {
-    // AnchoreReport,
+    AnchoreReport,
     CheckMarxReport,
     ClairReport,
     CmasReport,
@@ -219,13 +226,14 @@ export default {
       webinspect: [],
       cmas: [],
       postman: [],
-      sideex: []
+      sideex: [],
+      sbom: []
     }
   },
   computed: {
     ...mapGetters(['device']),
     routeData() {
-      const { projectId, branch, commitId } = this.$route.params
+      const { projectId, commitBranch: branch, commitId } = this.$route.params
       const { pipeline_id } = this.$route.query
       return {
         projectId,
@@ -237,8 +245,10 @@ export default {
     latestTime() {
       const dataTimeArr = []
       this.dataName.forEach((name) => {
-        if (this[name] && this[name][0]?.run_at) {
-          const run_at = this[name][0].run_at
+        if (this[name]) {
+          let run_at
+          if (name === 'sonarqube') run_at = this[name].data[0]?.run_at
+          else run_at = this[name][0]?.run_at
           dataTimeArr.push(name === 'sonarqube' ? getFormatTime(run_at) : getLocalTime(run_at))
         }
       })
@@ -304,8 +314,8 @@ export default {
       else this[name].push(data)
     },
     setSonarQubeData(sonarqube) {
-      this.sonarqube.data = this.handleSonarQubeData(sonarqube.history)
-      this.sonarqube.link = sonarqube.link
+      this.$set(this.sonarqube, 'data', this.handleSonarQubeData(sonarqube.history))
+      this.$set(this.sonarqube, 'link', sonarqube.link)
     },
     handleSonarQubeData(data) {
       const ret = []

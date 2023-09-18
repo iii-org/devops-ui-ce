@@ -146,6 +146,7 @@ export default {
     height: auto;
     background: #F5F7FA ;
     padding: 0 0 60px 0;
+    min-height: 90vh;
   }
   ::v-deep .el-tab-pane {
     height: auto;

@@ -206,7 +206,7 @@ export default {
     }
   },
   beforeRouteEnter(to, from, next) {
-    if (to.query.prev_page) {
+    if (to.query.prev_page || from.name === null) {
       next()
     } else {
       const newTo = Object.assign({}, to, {
@@ -588,16 +588,10 @@ export default {
       await this.fetchIssue(true)
       this.isLoading = false
     },
-    decodeURI(uri) {
-      if (!uri.includes('/')) {
-        this.decodeURI(decodeURIComponent(uri))
-      } else {
-        this.$router.push(uri)
-      }
-    },
     handleBackPage() {
-      if (this.$route.query.prev_page) {
-        this.decodeURI(this.$route.query.prev_page)
+      const { prev_page } = this.$route.query
+      if (prev_page) {
+        this.$router.push(!prev_page.includes('/') ? decodeURIComponent(prev_page) : prev_page)
       } else {
         this.$router.push({
           name: 'IssueList',

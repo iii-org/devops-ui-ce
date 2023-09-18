@@ -55,5 +55,8 @@ export default {
 .point {
   @apply mr-1 rounded text-white;
   padding: 3px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-height: 100%;
 }
 </style>
