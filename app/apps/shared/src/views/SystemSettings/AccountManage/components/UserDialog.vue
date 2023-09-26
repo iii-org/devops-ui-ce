@@ -69,6 +69,20 @@
           :inactive-text="$t('general.Disable')"
         />
       </el-form-item>
+      <el-form-item
+        v-if="!isLite"
+        :label="$t('User.ResetPassword')"
+      >
+        <el-switch
+          v-model="userForm.permanentPassword"
+          class="mt-2"
+          active-value="true"
+          inactive-value="false"
+          inactive-color="gray"
+          :active-text="$t('general.Enable')"
+          :inactive-text="$t('general.Disable')"
+        />
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button class="button-secondary-reverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
@@ -110,7 +124,8 @@ export default {
         email: '',
         phone: '',
         default_role: '',
-        status: 'enable'
+        status: 'enable',
+        permanentPassword: false
       },
       userFormRules: {
         login: [
@@ -147,6 +162,9 @@ export default {
     },
     isMobile() {
       return this.device === 'mobile'
+    },
+    isLite() {
+      return process.env.VUE_APP_PROJECT === 'LITE'
     }
   },
   watch: {
@@ -258,7 +276,8 @@ export default {
             email: this.userForm.email,
             phone: this.userForm.phone,
             role_id: this.userForm.default_role,
-            status: this.userForm.status
+            status: this.userForm.status,
+            permanentPassword: this.userForm.permanentPassword
           }
 
           // remove useless field
@@ -321,5 +340,7 @@ export default {
   overflow: auto;
   max-height: 75vh;
 }
-
+::v-deep .el-form-item {
+  margin-bottom: 18px;
+}
 </style>

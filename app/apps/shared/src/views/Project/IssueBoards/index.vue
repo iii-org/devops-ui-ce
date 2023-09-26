@@ -145,7 +145,7 @@
             >
               <template v-for="item in filterOptions">
                 <el-option
-                  v-if="item.value !== 'tags'"
+                  v-if="filterDimensionsList(item.value)"
                   :key="item.id"
                   :label="item.label"
                   :value="item.value"
@@ -343,6 +343,9 @@ export default {
     ...mapGetters(['selectedProjectId', 'userId', 'tracker', 'status', 'priority', 'fixedVersionShowClosed']),
     isMobile() {
       return this.device === 'mobile'
+    },
+    filterDimensionsList() {
+      return (value) => value !== 'tags' && value !== 'due_date_start' && value !== 'due_date_end'
     },
     contextOptions() {
       const result = {}

@@ -147,10 +147,11 @@ export default {
         this.isShowDrawer = false
       }
     },
-    handleInputDrawerMenu(row) {
+    handleInputDrawerMenu(row, e) {
       this.isShowDrawer = true
       this.issue = row
       this.tagValue = row.tags?.map((item) => item.id)
+      e.preventDefault()
     },
     onRelationIssueDialog() {
       if (!this.disabled) this.$router.push({ name: 'IssueDetail', params: { issueId: this.issue.id }})

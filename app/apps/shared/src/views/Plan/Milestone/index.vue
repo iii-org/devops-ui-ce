@@ -40,7 +40,7 @@
         @change-filter="onChangeFilterForm"
         @change-fixed-version="onChangeFixedVersionStatus"
       >
-        <el-popover v-if="activeTab === 'WBS' || activeTab === 'Gantt'">
+        <el-popover v-if="activeTab === 'WBS'">
           <el-form>
             <el-form-item label="展開層數">
               <el-select v-model="downloadForm.levels">
@@ -290,6 +290,7 @@
           :is-from-board="false"
           @update="handleRelationUpdate"
           @delete="handleRelationDelete"
+          @update-table="loadData"
         />
       </el-dialog>
     </div>

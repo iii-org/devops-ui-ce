@@ -49,10 +49,8 @@
               :issue-id="issueId"
               :loading.sync="isLoading"
               :form.sync="form"
-              :is-direct-save="true"
               :data-loaded="dataLoaded"
               :is-form-collapse-open="isFormCollapseOpen"
-              :edit.sync="isIssueEdited.tags"
               @update="$emit('update')"
             />
           </el-col>

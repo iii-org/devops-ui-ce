@@ -6,7 +6,7 @@
 @import './custom.scss';
 @import './table.scss';
 @import '~element-ui/lib/theme-chalk/display.css';
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300&family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&family=Noto+Sans+TC&display=swap');
 
 body {
   height: 100%;
@@ -15,7 +15,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 body, button, input, optgroup, select, textarea {
-  font-family: 'Open Sans', 'Noto Sans TC', Helvetica Neue, Helvetica, ttf, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif !important;
+  font-family: 'Montserrat', 'Noto Sans TC', Helvetica Neue, Helvetica, Hiragino Sans GB, ttf, Microsoft YaHei, Arial, sans-serif !important;
 }
 
 label {

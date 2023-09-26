@@ -35,7 +35,7 @@ export default {
     IssueTransfer: '議題轉移',
     DevProgress: 'CI/CD',
     DevBranch: '開發分支',
-    // GitGraph: '開發線圖',
+    GitGraph: '開發線圖',
     Pipelines: 'Pipelines',
     // DevEnvironment: '實證環境',
     // KubernetesResources: 'Kubernetes 資源',
@@ -1529,8 +1529,8 @@ export default {
     CancelStatusWarning: '開啓群組且選擇類別時，顯示項目必須勾選議題狀態'
   },
   Docker: {
-    Title: 'Docker映像檔安全掃描​',
-    Overview: '總　覽​',
+    Title: 'Docker映像檔安全掃描',
+    Overview: '總 覽​',
     Severity: '風險等級​',
     Critical: '嚴重​',
     High: '高',

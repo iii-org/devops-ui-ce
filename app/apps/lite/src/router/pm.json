@@ -218,6 +218,17 @@
     },
     "children": [
       {
+        "path": "git-graph",
+        "name": "GitGraph",
+        "component": "views/Progress/GitGraph",
+        "meta": {
+          "title": "GitGraph",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
         "path": "dev-branch",
         "name": "DevBranch",
         "component": "views/Progress/DevBranch",

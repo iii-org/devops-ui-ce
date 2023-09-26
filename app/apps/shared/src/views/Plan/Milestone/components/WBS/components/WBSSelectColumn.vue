@@ -50,13 +50,53 @@
       </template>
       <template v-else>
         <template v-if="components">
-          <component :is="components" :name="$t(`Issue.${row[propKey].name}`)" :type="row[propKey].name" />
+          <component 
+            :is="components" 
+            :name="$t(`Issue.${row[propKey].name}`)" 
+            :type="row[propKey].name" 
+            :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+          />
         </template>
         <template v-else>
-          {{ row[propKey].name }}
+          <span :class="editable(row) ? 'cursor-pointer' : 'cursor-note-allowed'">
+            {{ row[propKey].name }}
+          </span>
         </template>
       </template>
     </template>
+    <SubIssueDialog
+      :is-issue-dialog.sync="isCloseIssueDialog"
+      :issue="editedRow"
+      @handleClose="handlerEdit(editedRow, editedArrayId, false, true)"
+      @handleCancel="handlerReset(editedRow, editedArrayId)"
+    />
+    <el-dialog
+      :visible.sync="isAssignDialog"
+      append-to-body
+      destroy-on-close
+      width="30%"
+      :title="$t('Issue.IssueNeedAssigneeWarning')"
+      @close="handlerReset(editedRow, editedArrayId)"
+    >
+      <el-select
+        v-model="assigned_to_id"
+        style="width: 100%"
+        clearable
+        :placeholder="$t('RuleMsg.PleaseSelect')"
+        filterable
+        @change="handlerEdit(editedRow, editedArrayId, false, false, true)"
+      >
+        <el-option
+          v-for="item in assignedOptions"
+          :key="item.login"
+          :class="item.class"
+          :label="item.name+' ('+item.login+')'"
+          :value="item.id"
+        >
+          {{ item.name }} ({{ item.login }})
+        </el-option>
+      </el-select>
+    </el-dialog>
   </el-table-column>
 </template>
 
@@ -64,9 +104,11 @@
 import i18n from '@/lang'
 import { getCheckIssueClosable } from '@/api/issue'
 import { cloneDeep } from 'lodash'
+import SubIssueDialog from '@shared/views/Project/IssueDetail/components/SubIssueDialog'
 
 export default {
   name: 'WBSSelectColumn',
+  components: { SubIssueDialog },
   props: {
     prop: {
       type: String,
@@ -123,11 +165,20 @@ export default {
     editRowId: {
       type: [String, Number],
       default: null
+    },
+    assignedTo: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
-      dynamicStatusList: this.options
+      dynamicStatusList: this.options,
+      isCloseIssueDialog: false,
+      editedRow: {},
+      editedArrayId: null,
+      isAssignDialog: false,
+      assigned_to_id: ''
       // strictOptions: [{
       //   id: 1,
       //   name: 'Epic'
@@ -146,14 +197,17 @@ export default {
     },
     createDynamicOptions() {
       return (this.propKey === 'tracker' && this.isParentExist === false) ? this.strictOptions : this.options
+    },
+    assignedOptions() {
+      return this.assignedTo.filter((item) => item.id !== 'null')
     }
   },
   watch: {
-    editRowId(value) {
-      if (this.propKey === 'status' && value && parseInt(value)) {
-        this.getClosable(value)
-      }
-    }
+    // editRowId(value) {
+    //   if (this.propKey === 'status' && value && parseInt(value)) {
+    //     this.getClosable(value)
+    //   }
+    // }
   },
   methods: {
     hasRequired(row) {
@@ -166,8 +220,48 @@ export default {
         return !row['has_children']
       }
     },
-    handlerEdit(row, index, treeNode) {
-      this.$emit('edit', { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row: row, index: index, treeNode: treeNode })
+    async handlerEdit(row, index, treeNode, forceClose, forceAssign) {
+      const data = { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row: row, index: index, treeNode: treeNode }
+      if (this.propKey === 'status') {
+        this.editedRow = row
+        this.editedArrayId = index
+        if (row[this.propKey]['id'] === 6 && !forceClose) {
+          this.isCloseIssueDialog = true
+          return
+        } else if (forceClose) {
+          data.value['close_all'] = true
+        } else if (row[this.propKey]['id'] === 1 && row.assigned_to.id && row.assigned_to.id !== '' && row.assigned_to.id !== 'null') {
+          const confirm = await this.$confirm(this.$t('Issue.IssueHasAssigneeWarning'), this.$t('general.Warning'), {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }).then(() => {
+            data.value['assigned_to_id'] = ''
+            return true
+          }).catch(() => {
+            this.handlerReset(this.editedRow, this.editedArrayId)
+            return false
+          })
+          if (!confirm) return
+        } else if (row[this.propKey]['id'] > 1 &&
+            row[this.propKey]['id'] !== 6 &&
+            (!row.assigned_to.id || row.assigned_to.id === '' || row.assigned_to.id === 'null') &&
+            !forceAssign
+        ) {
+          this.isAssignDialog = true
+          return
+        } else if (forceAssign) {
+          data.value['assigned_to_id'] = this.assigned_to_id
+          this.isAssignDialog = false
+        }
+      } else if (this.propKey === 'assigned_to') {
+        if (row.status.id === 1 && (row[this.propKey]['id'] !== '' && row[this.propKey]['id'] !== 'null')) {
+          data.value['status_id'] = 2
+        } else if ((row[this.propKey]['id'] === '' || row[this.propKey]['id'] === 'null') && row.status.id > 1 && row.status.id !== 6) {
+          data.value['status_id'] = 1
+        }
+      }
+      this.$emit('edit', data)
     },
     handlerCreate(row, index, treeNode) {
       this.$emit('create', { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row: row, index: index, treeNode: treeNode })
@@ -201,3 +295,4 @@ export default {
   }
 }
 </script>
+

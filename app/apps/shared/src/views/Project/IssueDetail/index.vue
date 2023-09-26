@@ -199,7 +199,6 @@ export default {
       isIssueEdited: {
         description: false,
         notes: false,
-        tags: false,
         estimated_hours: false,
         done_ratio: false
       }
@@ -304,6 +303,11 @@ export default {
       )
       elCollapseItemHeader[elCollapseItemHeader.length - 1]
         .style['justify-content'] = val === 'top' ? '' : 'center'
+    },
+    device(value) {
+      if (value === 'mobile' && this.isInDialog) {
+        this.$router.push({ name: 'IssueDetail', params: { issueId: this.propsIssueId }})
+      }
     }
     // copyIssueEdited: {
     //   deep: true,
@@ -408,7 +412,6 @@ export default {
     },
     async setRelationsIssue(data) {
       const res_api = []
-      let relation_issue = []
       for (const item of data.relations) {
         let getIssueId
         if (data.id === item.issue_id) {
@@ -418,10 +421,8 @@ export default {
         }
         res_api.push(await getIssue(getIssueId))
       }
-      await Promise.allSettled(res_api).then((res) => {
-        const [resData] = res.map((item) => item.value)
-        relation_issue = resData
-      })
+
+      const relation_issue = await Promise.allSettled(res_api).then((res) => res.map((item) => item.value))
       relation_issue.forEach((item, idx) => {
         this.$set(data.relations, idx, {
           relation_id: data.relations[idx].id,
@@ -583,6 +584,7 @@ export default {
       }
       this.isLoading = false
       await this.fetchIssue()
+      this.$emit('update-table')
     },
     async handleUploadUpdated() {
       await this.fetchIssue(true)

@@ -16,7 +16,7 @@
           </el-col>
           <el-col :span="24" :sm="8" :xl="4">
             <el-form-item :label="$t('Project.Name')" prop="display">
-              <el-input v-model="form.display" />
+              <el-input v-model="form.display" :disabled="disabledEngineerRole" />
             </el-form-item>
           </el-col>
           <el-col :span="24" :sm="8" :xl="3">
@@ -56,6 +56,7 @@
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
+                :disabled="disabledEngineerRole"
                 @change="checkDueDate"
               />
             </el-form-item>
@@ -67,6 +68,7 @@
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
+                :disabled="disabledEngineerRole"
                 :picker-options="pickerOptions(form.start_date)"
               />
             </el-form-item>
@@ -76,6 +78,7 @@
               <el-input
                 v-model="form.description"
                 type="textarea"
+                :disabled="disabledEngineerRole"
                 :placeholder="$t('general.PleaseInput') + $t('RuleMsg.Description')"
               />
             </el-form-item>
@@ -90,11 +93,13 @@
               >
                 <ProjectList
                   :form="form"
+                  :disabled-engineer-role="disabledEngineerRole"
                   @change="handleInheritanceMemberChange"
                 />
                 <el-checkbox
                   v-if="!isLite"
                   v-model="form.image_auto_del"
+                  :disabled="disabledEngineerRole"
                   :label="$t('Project.ImageAutoDel')"
                 />
               </el-col>
@@ -131,7 +136,7 @@
         @clearTemplate="clearTemplate"
       />
     </el-form>
-    <span class="float-right">
+    <span v-if="!disabledEngineerRole" class="float-right">
       <el-button
         :size="isMobile ? 'small' : 'medium'"
         class="button-secondary-reverse"
@@ -274,7 +279,10 @@ export default {
     },
     disabledEditOwner() {
       if (this.userRole === 'Administrator') return false
-      return this.userId !== this.projectData.owner_id
+      return this.userId !== this.projectData.owner_id || this.userRole === 'Engineer'
+    },
+    disabledEngineerRole() {
+      return this.userRole === 'Engineer'
     },
     isInheritanceMemberChange() {
       return (this.originProject.parent_id === this.form.parent_id &&

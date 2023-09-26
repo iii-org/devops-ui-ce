@@ -108,7 +108,7 @@
             v-show="isIncludesName('sbom')"
             ref="clair"
             class="mb-5"
-            :anchore="anchore"
+            :anchore="sbom"
             :list-loading="listLoading"
           />
         </div>
@@ -221,7 +221,7 @@ export default {
       },
       checkmarx: [],
       clair: [],
-      anchore: [],
+      // anchore: [],
       zap: [],
       webinspect: [],
       cmas: [],

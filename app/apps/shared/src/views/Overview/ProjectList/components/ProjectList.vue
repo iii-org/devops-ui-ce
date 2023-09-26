@@ -6,6 +6,7 @@
     filterable
     clearable
     style="width:100%"
+    :disabled="disabledEngineerRole"
     @clear="form.is_inheritance_member=false"
     @change="$emit('change')"
   >
@@ -33,6 +34,10 @@ export default {
     form: {
       type: Object,
       default: () => ({})
+    },
+    disabledEngineerRole: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

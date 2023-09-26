@@ -80,6 +80,7 @@
           :edit-row-id="editRowId"
           :components="Status"
           :options="status"
+          :assigned-to="assignedTo"
           sortable
           :has-child-edit="true"
           @edit="handleUpdateIssue"
@@ -808,10 +809,12 @@ export default {
       }
     },
     handleResetEdit({ value, row }) {
-      this.$set(this.$data, 'editRowId', null)
-      this.$set(row, value, row.originColumn)
-      this.$set(row, 'editColumn', false)
-      this.$set(row, 'originColumn', null)
+      if (row.originColumn) {
+        this.$set(this.$data, 'editRowId', null)
+        this.$set(row, value, row.originColumn)
+        this.$set(row, 'editColumn', false)
+        this.$set(row, 'originColumn', null)
+      }
     },
     handleResetCreate({ row }) {
       let row_index = 0
@@ -916,7 +919,7 @@ export default {
             this.$notify({
               title: this.$t('general.Error').toString(),
               type: 'error',
-              message: this.$t(`errorMessage.${e.response.data.error.code}`, e.response.data.error.details).toString()
+              message: this.$t(`errorMessage.${e.response?.data.error.code}`, e.response?.data.error.details).toString()
             })
           }
           this.updateLoading = false
@@ -1029,7 +1032,7 @@ export default {
       if (!this.isMobile) {
         this.$refs?.contextmenu.handleContextMenu(row, column, event)
       } else {
-        this.$refs?.drawermenu.handleInputDrawerMenu(row)
+        this.$refs?.drawermenu.handleInputDrawerMenu(row, event)
       }
     },
     handleRelationDelete() {

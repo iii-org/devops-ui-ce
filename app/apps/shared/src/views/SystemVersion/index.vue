@@ -1,14 +1,25 @@
 <template>
   <div class="app-container">
     <VersionUpdater />
-    <div class="items-center bg-gray-600 text-white py-3 px-4 rounded mb-5" :class="!isMobile ? 'flex justify-between' : ''">
+    <div
+      class="items-center bg-gray-600 text-white py-3 px-4 rounded mb-5"
+      :class="!isMobile ? 'flex justify-between' : ''"
+    >
       <div class="text-title">
-        <span>{{ $t('SystemVersion.DeploymentName') }}： </span>
-        <span class="select-all">{{ deployment_name }}</span>
+        <span>
+          {{ $t('SystemVersion.DeploymentName') }}：
+        </span>
+        <span class="select-all">
+          {{ deployment_name }}
+        </span>
       </div>
       <div>
-        <span class="text-title">{{ $t('SystemVersion.DeploymentUuid') }}： </span>
-        <span class="text-title select-all mr-4">{{ deployment_uuid }}</span>
+        <span class="text-title">
+          {{ $t('SystemVersion.DeploymentUuid') }}：
+        </span>
+        <span class="text-title select-all mr-4">
+          {{ deployment_uuid }}
+        </span>
         <el-button
           :loading="isLoading"
           size="small"

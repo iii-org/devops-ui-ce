@@ -1,24 +1,8 @@
 <template>
-  <el-form-item prop="tags">
-    <template slot="label">
-      {{ $t('Issue.Tag') }}
-      <span v-if="isTagsChange && isDirectSave">
-        <el-button
-          class="action"
-          type="success"
-          size="mini"
-          icon="el-icon-check"
-          @click="handleUpdateTags"
-        />
-        <el-button
-          class="action"
-          type="danger"
-          size="mini"
-          icon="el-icon-close"
-          @click="cancelInput"
-        />
-      </span>
-    </template>
+  <el-form-item
+    :label="$t('Issue.Tag')"
+    prop="tags"
+  >
     <el-tooltip
       :value="dataLoaded && isFormCollapseOpen"
       :disabled="form.tags && form.tags.length > 0 "
@@ -27,6 +11,7 @@
       placement="top"
     >
       <el-select
+        ref="tags"
         v-model="form.tags"
         style="width: 100%"
         clearable
@@ -38,6 +23,7 @@
         :loading="isLoading"
         :remote-method="getSearchTags"
         @focus="getSearchTags()"
+        @change="handleUpdateTags"
       >
         <template v-if="tagsList && tagsList.length > 0">
           <el-option-group
@@ -87,14 +73,6 @@ export default {
       type: Object,
       default: () => ({})
     },
-    isDirectSave: {
-      type: Boolean,
-      default: false
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    },
     dataLoaded: {
       type: Boolean,
       default: false
@@ -111,7 +89,6 @@ export default {
       tagsList: [],
       isRepeated: false,
       cancelToken: null,
-      originTags: [],
       isProjectHasTags: false
     }
   },
@@ -121,23 +98,11 @@ export default {
       return this.form.project_id && this.form.project_id !== 0
         ? this.form.project_id
         : this.selectedProjectId
-    },
-    isTagsChange() {
-      let isTagsChange = false
-      if (!this.form.tags) isTagsChange = false
-      if (this.form.tags.length !== this.originTags.length) isTagsChange = true
-      else isTagsChange = !this.originTags.every((item) => this.form.tags.includes(item))
-      this.$emit('update:edit', isTagsChange)
-      return this.edit
     }
   },
   mounted() {
     this.checkProjectTags()
     this.getSearchTags()
-    const unwatch = this.$watch('form', () => {
-      this.setOriginTags()
-      unwatch()
-    }, { deep: true })
   },
   methods: {
     async checkProjectTags() {
@@ -170,7 +135,9 @@ export default {
     },
     getTagsList(tag_name, tags, query) {
       const tagsList = []
-      const tag_sorts = tag_name === null ? ['LastResult', 'All'] : ['AddTag', 'Result']
+      const tag_sorts = tag_name === null
+        ? ['LastResult', 'All']
+        : ['AddTag', 'Result']
       tag_sorts.forEach(sort => {
         const list = this.getTagsLabel(tags, sort, query)
         if (list.options.length > 0) tagsList.push(list)
@@ -207,15 +174,15 @@ export default {
       return showTags
     },
     async handleUpdateTags() {
+      this.$nextTick(() => { this.$refs.tags.blur() })
       const tags = this.form.tags
       const tagsLength = tags.length
       const addTags = []
       const originTags = []
       if (Array.isArray(tags)) {
         tags.forEach((tag) => {
-          if (typeof tag === 'string') {
-            addTags.push(tag)
-          } else if (typeof tag === 'number') originTags.push(tag)
+          if (typeof tag === 'string') addTags.push(tag)
+          else if (typeof tag === 'number') originTags.push(tag)
         })
       }
       if (addTags.length > 0) {
@@ -245,8 +212,6 @@ export default {
     },
     getAddTagsFormData(tag) {
       const formData = new FormData()
-      formData.delete('name')
-      formData.delete('project_id')
       formData.append('name', tag)
       formData.append('project_id', this.projectId)
       return formData
@@ -257,52 +222,9 @@ export default {
       sendForm.append('tags', tagsString)
       await updateIssue(this.issueId, sendForm).then(() => {
         this.$emit('update')
-        this.setOriginTags()
       })
       this.$emit('update:loading', false)
-    },
-    setOriginTags() {
-      this.originTags = JSON.parse(JSON.stringify(this.form.tags))
-    },
-    cancelInput() {
-      this.form.tags = JSON.parse(JSON.stringify(this.originTags))
     }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
-@import 'src/styles/theme/mixin.scss';
-
-.el-button--success {
-  @include css-prefix(transition, all .6s ease);
-  color: $success;
-  border: 1px solid #989898;
-  background: none;
-  &:hover {
-    color: #fff;
-    border: 1px solid $success;
-    background: $success;
-  }
-}
-
-.el-button--danger {
-  @include css-prefix(transition, all .6s ease);
-  color: $danger;
-  border: 1px solid #989898;
-  background: none;
-  &:hover {
-    color: #fff;
-    border: 1px solid $danger;
-    background: $danger;
-  }
-}
-
-.action {
-  margin: 0;
-  &.el-button--mini {
-    padding: 5px;
-  }
-}
-</style>

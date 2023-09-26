@@ -35,7 +35,7 @@ export default {
     IssueTransfer: 'Issue Transfer',
     DevProgress: 'CI/CD',
     DevBranch: 'Git Branches',
-    // GitGraph: 'Git Graph',
+    GitGraph: 'Git Graph',
     Pipelines: 'Pipelines',
     // DevEnvironment: 'Deployed Environments',
     // KubernetesResources: 'Kubernetes Resources',
@@ -325,7 +325,7 @@ export default {
     confirmDeleteSideex: 'Are you sure you want to delete all configurations and records related to combined testing of this project?',
     confirmRestore: 'Are you sure to @:(general.Restore)?',
     confirmEditProject: 'Applying a new template will replace this project repository, and this is unrecoverable. Please confirm the action.',
-    confirmVariableSetting: 'Attention, You still have unset variables! Are you sure you want to generate test data directly？',
+    confirmVariableSetting: 'Attention, You still have unset variables! Are you sure you want to generate test data directly?',
     logoutNotifications: 'The session has timed out. Please click re-login button to login back again.',
     pluginWarnNotifications:
       'Please ensure that the status of the Plugin switch with the same name is the same before saving and executing.',
@@ -851,7 +851,7 @@ export default {
     TransferIssue: 'Transfer Issue  〉',
     ConfirmTransfer:
       '{userRole}  ({userName}) has {unClosedIssueCount} unclosed issues. For the integrity of this project, please transfer or close issues before remove this member.',
-    ConfirmRemoveMember: 'Are you sure to @:(general.Remove) {userRole}（{userName}）？'
+    ConfirmRemoveMember: 'Are you sure to @:(general.Remove) {userRole}（{userName}）?'
   },
   Plugin: {
     Manage: 'Manage Plugins',
@@ -1541,7 +1541,7 @@ export default {
     CancelStatusWarning: 'When turning on the Group and selecting the Type, the Display Items must have the Status'
   },
   Docker: {
-    Title: 'Docker Image Vulnerability Scan Report​',
+    Title: 'Docker Image Vulnerability Scan Report',
     Overview: 'Overview',
     Severity: 'Severity',
     Critical: 'Critical',

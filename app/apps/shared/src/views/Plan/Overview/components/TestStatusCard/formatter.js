@@ -24,6 +24,7 @@ const postmanFormatter = (testResult) => {
   }
   return ret
 }
+
 const getCheckmarxStatusText = (status) => {
   const statusString = String(status)
   const mapText = {
@@ -39,6 +40,7 @@ const getCheckmarxStatusText = (status) => {
   }
   return mapText[statusString]
 }
+
 const checkmarxFormatter = (testResult) => {
   const { highSeverity, mediumSeverity, lowSeverity, infoSeverity } = testResult.result
   const { report_id } = testResult
@@ -66,6 +68,7 @@ const checkmarxFormatter = (testResult) => {
   }
   return ret
 }
+
 const webinspectFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
@@ -92,6 +95,34 @@ const webinspectFormatter = (testResult) => {
   }
   return ret
 }
+
+const sbomFormatter = (testResult) => {
+  const ret = {}
+  const status = testResult.status
+  if (Object.keys(testResult.result).length === 0) {
+    Object.assign(ret, {
+      Software: 'sbom',
+      informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
+      status: testResult.status
+    })
+  } else {
+    const packageNums = testResult.result.package_nums
+    const { Critical, High, Medium, Low } = testResult.result.scan_overview
+    Object.assign(ret, {
+      Software: 'sbom',
+      runAt: testResult.run_at,
+      informationText: [
+        { status: i18n.t('Sbom.PackageCount'), count: packageNums },
+        { status: i18n.t('Sbom.CriticalSeverity'), count: Critical },
+        { status: i18n.t('Sbom.HighSeverity'), count: High },
+        { status: i18n.t('Sbom.MediumSeverity'), count: Medium },
+        { status: i18n.t('Sbom.LowSeverity'), count: Low }
+      ]
+    })
+  }
+  return ret
+}
+
 const sonarqubeFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
@@ -137,6 +168,7 @@ const sideexFormatter = (testResult) => {
   }
   return ret
 }
+
 const zapFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
@@ -161,6 +193,7 @@ const zapFormatter = (testResult) => {
   }
   return ret
 }
+
 const cmasFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
@@ -221,6 +254,7 @@ export {
   postmanFormatter,
   checkmarxFormatter,
   webinspectFormatter,
+  sbomFormatter,
   sonarqubeFormatter,
   sideexFormatter,
   zapFormatter,

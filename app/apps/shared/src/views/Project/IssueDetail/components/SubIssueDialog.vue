@@ -3,8 +3,7 @@
     :visible="isIssueDialog"
     append-to-body
     destroy-on-close
-    :width="device === 'desktop' ? '30vw' : '100%'"
-    :top="device === 'mobile' ? '0' : ''"
+    :width="device === 'desktop' ? hasChildrenIssue ? '60vw' : '30vw' : '95%'"
     @close="handleCancel()"
   >
     <template v-if="!isLoading">
@@ -13,7 +12,7 @@
         {{ this.$t(`Issue.${type}`, { issueName: issue.name }) }}
       </span>
       <template v-if="hasChildrenIssue || isHasWhiteBoard">
-        <ul v-if="hasChildrenIssue" style="padding-left: 20px;">
+        <ul v-if="hasChildrenIssue">
           <li
             v-for="item in children"
             :key="item.id"
@@ -21,11 +20,13 @@
           >
             <Status
               :name="$t(`Issue.${item.status.name}`)"
+              :type="item.status.name"
               class="mx-1"
               size="mini"
             />
             <Tracker
               :name="$t(`Issue.${item.tracker.name}`)"
+              :type="item.tracker.name"
               size="mini"
             />
             {{ `#${item.id} - ` }}
@@ -145,13 +146,13 @@ export default {
   methods: {
     async getIssueFamilyData(issue) {
       if (issue.hasOwnProperty('children')) {
-        this.children = issue.children
+        this.$set(this, 'children', issue.children)
       } else {
         try {
           this.isLoading = true
           const family = await getIssueFamily(issue.id)
           const data = family.data
-          this.children = data.hasOwnProperty('children') ? data.children : []
+          this.$set(this, 'children', data.hasOwnProperty('children') ? data.children : [])
         } catch (e) {
           console.error(e)
         } finally {

@@ -437,7 +437,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'forceTracker', 'enableForceTracker']),
+    ...mapGetters(['selectedProjectId', 'forceTracker', 'enableForceTracker', 'device']),
     getHeaderBarClassName() {
       return function (name) {
         return name.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
@@ -480,6 +480,9 @@ export default {
       return function (element) {
         return this.relativeList.find((list) => list.id === element.id)
       }
+    },
+    isMobile() {
+      return this.device === 'mobile'
     }
   },
   watch: {
@@ -487,11 +490,17 @@ export default {
       this.$nextTick(() => {
         this.updateAnimation()
       })
+    },
+    isMobile(val) {
+      if (!val) {
+        document.oncontextmenu = () => { return true }
+      }
     }
   },
   beforeDestroy() {
     window.clearTimeout(this.timeoutId)
     window.clearTimeout(this.timeoutIdx)
+    document.oncontextmenu = () => { return true }
   },
   methods: {
     /**
@@ -754,6 +763,7 @@ export default {
         if (pressTimer === null) {
           pressTimer = setTimeout(() => {
             // Run function
+            document.oncontextmenu = () => { return false }
             this.handleContextMenu(element, column, event)
           }, 1000)
         }

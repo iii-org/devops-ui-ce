@@ -62,11 +62,6 @@ $desktop: 1280;
   border-color: $borderColor !important;
 }
 
-@mixin box($width, $height: $width) {
-  width: $width;
-  height: $height;
-}
-
 @mixin button($mainColor) {
   background-color: $mainColor !important;
   color: white !important;

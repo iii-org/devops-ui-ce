@@ -216,6 +216,7 @@
                     ref="IssueForm"
                     class="mx-3 text-xs"
                     :is-button-disabled="isButtonDisabled"
+                    :issue="issue"
                     :issue-id="issueId"
                     :issue-project="issueProject"
                     :is-from-board="isFromBoard"
@@ -626,7 +627,7 @@ export default {
   },
   data() {
     return {
-      relationVisible: 0,
+      relationVisible: '',
       isIssueFormOpened: !this.isFromBoard,
       issueFormWidth: 80,
       mode: 'view',

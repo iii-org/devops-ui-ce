@@ -164,7 +164,7 @@
             :key="componentKey"
             :initial-value="editorValue"
             class="px-1"
-            :class="ellipsisStatus ? 'ellipsis no-wrap' : null"
+            :class="ellipsisStatus ? 'ellipsis truncate' : null"
             @load="addLinkTarget(); isFolded()"
           />
         </el-tooltip>

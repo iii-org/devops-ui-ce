@@ -10,8 +10,8 @@ export const addNewProject = (
 ) => request.post(`/v2/project`, data)
 export const getProjectTest = (project_id) =>
   request.get(`/v2/project/${project_id}/test_summary`)
-export const getProjectCommitTestSummary = (project_id, commit_id, pipeline_id) =>
-  request.get(`/v2/project/${project_id}/test_summary/${commit_id}?pipeline_id=${pipeline_id}`)
+export const getProjectCommitTestSummary = (project_id, commit_id, pipeline_id = null) =>
+  request.get(`/v2/project/${project_id}/test_summary/${commit_id}`, { params: { pipeline_id }})
 export const updateProjectInfos = (project_id, data) =>
   request.patch(`/v2/project/${project_id}`, data)
 export const editProject = (

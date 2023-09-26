@@ -19,28 +19,33 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevOps.Tools') }}</th>
-          <th id="">{{ $t('Anchore.high') }}</th>
-          <th id="">{{ $t('Anchore.medium') }}</th>
-          <th id="">{{ $t('Anchore.low') }}</th>
-          <th id="">{{ $t('Docker.Fixable') }}</th>
+          <th id="">{{ $t('Sbom.PackageCount') }}</th>
+          <th id="">{{ $t('Sbom.CriticalSeverity') }}</th>
+          <th id="">{{ $t('Sbom.HighSeverity') }}</th>
+          <th id="">{{ $t('Sbom.MediumSeverity') }}</th>
+          <th id="">{{ $t('Sbom.LowSeverity') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevOps.Tools')">SBOM</td>
           <template v-if="hasAnchoreData">
-            <td :data-label="$t('Anchore.high')">
-              <span v-if="hasEachItemData('3')">{{ anchore[0].result['3'] }}</span>
+            <td :data-label="$t('Sbom.PackageCount')">
+              <span v-if="hasPackageCountData">{{ anchore[0].package_nums }}</span>
               <span v-else>-</span>
             </td>
-            <td :data-label="$t('Anchore.medium')">
-              <span v-if="hasEachItemData('2')">{{ anchore[0].result['2'] }}</span>
+            <td :data-label="$t('Sbom.CriticalSeverity')">
+              <span v-if="hasEachItemData('Critical')">{{ anchore[0].scan_overview['Critical'] }}</span>
               <span v-else>-</span>
             </td>
-            <td :data-label="$t('Anchore.low')">
-              <span v-if="hasEachItemData('1')">{{ anchore[0].result['1'] }}</span>
+            <td :data-label="$t('Sbom.HighSeverity')">
+              <span v-if="hasEachItemData('High')">{{ anchore[0].scan_overview['High'] }}</span>
               <span v-else>-</span>
             </td>
-            <td :data-label="$t('Docker.Fixable')">
-              <span v-if="hasEachItemData('0')">{{ anchore[0].result['0'] }}</span>
+            <td :data-label="$t('Sbom.MediumSeverity')">
+              <span v-if="hasEachItemData('Medium')">{{ anchore[0].scan_overview['Medium'] }}</span>
+              <span v-else>-</span>
+            </td>
+            <td :data-label="$t('Sbom.LowSeverity')">
+              <span v-if="hasEachItemData('Low')">{{ anchore[0].scan_overview['Low'] }}</span>
               <span v-else>-</span>
             </td>
           </template>
@@ -68,20 +73,36 @@ export default {
   },
   computed: {
     hasAnchoreData() {
-      return !!(this.anchore && this.anchore[0] && this.anchore[0].hasOwnProperty('result'))
+      return !!(this.anchore && this.anchore[0] && this.anchore[0].hasOwnProperty('scan_overview'))
+    },
+    hasPackageCountData() {
+      return this.anchore[0].package_nums
     },
     hasEachItemData() {
-      return key => !!(this.anchore[0].result.hasOwnProperty(key))
+      return key => !!(this.anchore[0].scan_overview.hasOwnProperty(key))
     }
   },
   methods: {
     openAnchore() {
-      const { full_log } = this.anchore[0]
-      this.showFullLog(full_log)
-    },
-    showFullLog(log) {
-      const wnd = window.open(' ')
-      wnd.document.write(log)
+      const {
+        created_at,
+        commit,
+        branch,
+        id,
+        package_nums,
+        project_id
+      } = this.anchore[0]
+      sessionStorage.setItem('sbomTime', created_at)
+      this.$router.push({
+        name: 'SbomReportParent',
+        params: {
+          commitId: commit,
+          commitBranch: branch,
+          sbomId: id,
+          packageCount: package_nums,
+          projectId: project_id
+        }
+      })
     }
   }
 }

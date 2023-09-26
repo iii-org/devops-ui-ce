@@ -3,13 +3,13 @@
     <el-row>
       <el-col
         :xs="24"
-        :md="activeStatus ? 12 : 24"
-        :span="activeStatus ? 12 : 24"
+        :md="isInitial ? 24 : 12"
+        :span="isInitial ? 24 : 12"
       >
         <el-result
-          :icon="activeStatus ? 'success' : 'error'"
-          :title="$t(`SystemVersion.${activeStatus ? 'Activating' : 'Inactive'}`)"
-          :sub-title="$t(`SystemVersion.${activeStatus ? 'VerificationCompleted' : 'ActivateBeforeUsing'}`)"
+          :icon="whichResult"
+          :title="whichTitle"
+          :sub-title="whichSubTitle"
         >
           <template slot="extra">
             <el-button
@@ -18,13 +18,13 @@
               size="medium"
               @click="dialogVisible = true"
             >
-              {{ $t(`SystemVersion.${activeStatus ? 'Override' : 'Activate'}`) }}
+              {{ whichButton }}
             </el-button>
           </template>
         </el-result>
       </el-col>
       <el-col
-        v-if="activeStatus"
+        v-if="!isInitial"
         :xs="24"
         :md="12"
         :span="12"
@@ -43,11 +43,15 @@
             :key="index"
             :label="name"
           >
-            {{ value }}
+            <span :class="{ 'text-danger': name === 'expired'&& isExpiredOrWarning }">
+              {{ value }}
+            </span>
             <el-button
               v-if="name === 'uuid'"
               class="ml-2"
-              round
+              circle
+              plain
+              type="primary"
               icon="el-icon-copy-document"
               @click="copyUrl(versionAuthInfo.uuid)"
             />
@@ -114,8 +118,9 @@ export default {
       isShowAuth: false,
       isLoading: false,
       dialogVisible: false,
-      activeStatus: false,
+      versionStatus: 'Initial',
       versionAuthInfo: {},
+      remainDays: 0,
       form: {
         secretKey: ''
       }
@@ -125,6 +130,68 @@ export default {
     ...mapGetters(['userRole']),
     isAdministrator() {
       return this.userRole === 'Administrator'
+    },
+    isInitial() {
+      return this.versionStatus === 'Initial'
+    },
+    isExpiredOrWarning() {
+      return this.versionStatus === 'Expired' || this.versionStatus === 'Warning'
+    },
+    whichResult() {
+      switch (this.versionStatus) {
+        case 'Initial':
+          return 'error'
+        case 'Enabled':
+          return 'success'
+        case 'Warning':
+          return 'warning'
+        case 'Expired':
+          return 'error'
+        default:
+          return 'error'
+      }
+    },
+    whichTitle() {
+      switch (this.versionStatus) {
+        case 'Initial':
+          return this.$t('SystemVersion.Inactive')
+        case 'Enabled':
+          return this.$t('SystemVersion.Activating')
+        case 'Warning':
+          return this.$t('SystemVersion.NearExpiration')
+        case 'Expired':
+          return this.$t('SystemVersion.Expired')
+        default:
+          return this.$t('SystemVersion.Inactive')
+      }
+    },
+    whichSubTitle() {
+      switch (this.versionStatus) {
+        case 'Initial':
+          return this.$t('SystemVersion.ActivateBeforeUsing')
+        case 'Enabled':
+          return this.$t('SystemVersion.VerificationCompleted')
+        case 'Warning':
+          return this.$t('SystemVersion.RemainingDays', [this.remainDays])
+        case 'Expired':
+          return this.$t('SystemVersion.ExpiredAndReactivate')
+        default:
+          return this.$t('SystemVersion.ActivateBeforeUsing')
+      }
+    },
+    whichButton() {
+      switch (this.versionStatus) {
+        case 'Initial':
+          return this.$t('SystemVersion.Activate')
+        case 'Enabled':
+          return this.$t('SystemVersion.Override')
+        case 'Warning':
+          return this.$t('SystemVersion.Override')
+        case 'Expired':
+          return this.$t('SystemVersion.Reactivate')
+        default:
+          return this.$t('SystemVersion.Activate')
+      }
     }
   },
   mounted() {
@@ -133,10 +200,11 @@ export default {
   methods: {
     fetchData() {
       getVersionAuthInfo().then((res) => {
-        const { disabled, value } = res.data
-        this.activeStatus = !disabled
+        const { status, value } = res.data
+        this.versionStatus = status
         this.versionAuthInfo = value
-        delete this.versionAuthInfo.key
+        this.remainDays = this.versionAuthInfo.remain_days
+        delete this.versionAuthInfo.remain_days
       }).catch(() => {})
         .finally(() => {
           this.isShowAuth = true

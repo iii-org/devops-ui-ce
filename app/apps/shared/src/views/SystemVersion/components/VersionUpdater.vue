@@ -1,43 +1,98 @@
 <template>
-  <div
-    v-if="showUpdater"
-    class="flex justify-between items-center bg-gray-600 text-white py-3 px-4 rounded mb-5"
-  >
-    <div class="flex items-center">
-      <span class="dot relative" />
-      <span class="dot absolute animate-ping" />
-      <span class="text-title ml-3">{{ `${notifyTitle}（${updateVersionName}）` }}</span>
-    </div>
-    <el-button
-      size="mini"
-      class="button-secondary-reverse"
-      plain
-      @click="updateVersion"
+  <div>
+    <div
+      v-if="showUpdater"
+      class="flex justify-between notification py-3 px-4 mb-5"
     >
-      {{ $t('SystemVersion.UpdateNow') }}
-    </el-button>
+      <div class="flex items-center">
+        <span class="dot relative" />
+        <span class="dot absolute animate-ping" />
+        <span class="text-title ml-3">
+          {{ notifyTitle }}（{{ updateVersionName }}）
+        </span>
+        <el-link
+          type="primary"
+          :underline="false"
+          @click="dialogVisible = true"
+        >
+          {{ $t("general.MoreInfo") }}
+          <em class="ri-more-line" />
+        </el-link>
+      </div>
+      <el-button
+        size="mini"
+        class="button-secondary-reverse block"
+        plain
+        @click="updateVersion"
+      >
+        {{ $t("SystemVersion.UpdateNow") }}
+      </el-button>
+    </div>
+    <el-dialog
+      :visible.sync="dialogVisible"
+      :width="isMobile ? '95%' : '50%'"
+      :close-on-click-modal="false"
+    >
+      <span slot="title" class="text-title">
+        {{ updateVersionName }}
+        <el-button
+          class="button-primary ml-1"
+          size="small"
+          round
+          @click="updateVersion"
+        >
+          {{ $t("SystemVersion.UpdateNow") }}
+        </el-button>
+        <el-divider />
+      </span>
+      <div style="max-height: 40vh;">
+        <el-empty
+          v-if="!updateReleaseNote"
+          :description="$t('general.NoData')"
+        />
+        <Viewer
+          v-else
+          class="overflow-y-auto"
+          :initial-value="updateReleaseNote"
+        />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { updateDevopsVersion } from '@/api/devopsVersion'
 import { mapActions, mapGetters } from 'vuex'
+import { updateDevopsVersion } from '@/api/devopsVersion'
+import '@toast-ui/editor/dist/toastui-editor-viewer.css'
+import '@toast-ui/editor/dist/i18n/zh-tw'
+import { Viewer } from '@toast-ui/vue-editor'
 import { Loading } from 'element-ui'
 
 export default {
   name: 'VersionUpdater',
+  components: { Viewer },
   data() {
     return {
+      dialogVisible: false,
       loadingInstance: null
     }
   },
   computed: {
-    ...mapGetters(['userRole', 'hasSystemUpdate', 'updateVersionName']),
-    isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+    ...mapGetters([
+      'device',
+      'userRole',
+      'hasSystemUpdate',
+      'updateVersionName',
+      'updateReleaseNote'
+    ]),
+    isMobile() {
+      return this.device === 'mobile'
     },
     showUpdater() {
-      return this.userRole === 'Administrator' && (this.updateVersionName === 'develop' || this.hasSystemUpdate)
+      return (
+        this.userRole === 'Administrator' &&
+        (this.updateVersionName === 'develop' || this.hasSystemUpdate)
+      )
     },
     notifyTitle() {
       return this.updateVersionName === 'develop'
@@ -45,12 +100,9 @@ export default {
         : this.$t('SystemVersion.NewVersion')
     }
   },
-  mounted() {
-    if (!this.isLite && this.userRole === 'Administrator') this.checkApiVersion()
-  },
   methods: {
-    ...mapActions('settings', ['checkApiVersion']),
     updateVersion() {
+      if (this.dialogVisible) this.dialogVisible = false
       this.showLoading()
       updateDevopsVersion()
         .then(() => {
@@ -88,5 +140,11 @@ export default {
 <style lang="scss" scoped>
 .dot {
   @apply rounded-full w-2 h-2 bg-success;
+}
+::v-deep .toastui-editor-contents {
+  @apply text-lg;
+}
+::v-deep .el-dialog__body {
+  padding: 0 3rem 1.5rem;
 }
 </style>
