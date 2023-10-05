@@ -3,21 +3,17 @@
     :visible="isIssueDialog"
     append-to-body
     destroy-on-close
-    :width="device === 'desktop' ? hasChildrenIssue ? '60vw' : '30vw' : '95%'"
+    :width="device === 'desktop' ? (hasChildrenIssue ? '60vw' : '30vw') : '95%'"
     @close="handleCancel()"
   >
-    <template v-if="!isLoading">
+    <template v-if="!isLoading && issue.name">
       <span class="block text-center text-lg font-bold">
         <em class="el-icon-warning text-danger" />
         {{ this.$t(`Issue.${type}`, { issueName: issue.name }) }}
       </span>
       <template v-if="hasChildrenIssue || isHasWhiteBoard">
         <ul v-if="hasChildrenIssue">
-          <li
-            v-for="item in children"
-            :key="item.id"
-            class="p-1"
-          >
+          <li v-for="item in children" :key="item.id" class="p-1">
             <Status
               :name="$t(`Issue.${item.status.name}`)"
               :type="item.status.name"
@@ -38,8 +34,16 @@
               </span>
             </template>
             {{ item.name }}
-            <template v-if="item.assigned_to && Object.keys(item.assigned_to).length > 0">
-              {{ `(${$t(`Issue.assigned_to`)}:${item.assigned_to.name} - ${item.assigned_to.login})` }}
+            <template
+              v-if="
+                item.assigned_to && Object.keys(item.assigned_to).length > 0
+              "
+            >
+              {{
+                `(${$t(`Issue.assigned_to`)}:${item.assigned_to.name} - ${
+                  item.assigned_to.login
+                })`
+              }}
             </template>
           </li>
         </ul>
@@ -52,15 +56,8 @@
             />
           </span>
           <ul class="mt-0">
-            <li
-              v-for="item in excalidraws"
-              :key="item.id"
-              class="p-1"
-            >
-              <el-link
-                type="primary"
-                @click="$emit('editWhiteBoard',item)"
-              >
+            <li v-for="item in excalidraws" :key="item.id" class="p-1">
+              <el-link type="primary" @click="$emit('editWhiteBoard', item)">
                 {{ item.name }}
               </el-link>
             </li>
@@ -69,18 +66,14 @@
       </template>
       <span slot="footer">
         <el-button @click="handleCancel()">
-          {{ $t('general.Cancel') }}
+          {{ $t("general.Cancel") }}
         </el-button>
         <el-button type="primary" @click="handleConfirm()">
-          {{ $t('general.Confirm') }}
+          {{ $t("general.Confirm") }}
         </el-button>
       </span>
     </template>
-    <el-skeleton
-      v-else
-      animated
-      class="px-3 pt-3"
-    />
+    <el-skeleton v-else animated class="px-3 pt-3" />
   </el-dialog>
 </template>
 
@@ -123,7 +116,9 @@ export default {
     ...mapGetters(['device']),
     type() {
       if (this.hasChildrenIssue) {
-        return this.isDeleteIssue ? 'ConfirmDeleteIssueWithSub' : 'ConfirmCloseIssueWithSub'
+        return this.isDeleteIssue
+          ? 'ConfirmDeleteIssueWithSub'
+          : 'ConfirmCloseIssueWithSub'
       } else {
         return this.isDeleteIssue ? 'ConfirmDeleteIssue' : 'ConfirmCloseIssue'
       }
@@ -152,7 +147,11 @@ export default {
           this.isLoading = true
           const family = await getIssueFamily(issue.id)
           const data = family.data
-          this.$set(this, 'children', data.hasOwnProperty('children') ? data.children : [])
+          this.$set(
+            this,
+            'children',
+            data.hasOwnProperty('children') ? data.children : []
+          )
         } catch (e) {
           console.error(e)
         } finally {

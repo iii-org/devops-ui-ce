@@ -38,8 +38,7 @@
           >
             <el-collapse
               v-model="collapseExpandedRow"
-              :style="{width: isMobile ? '100%' : '75%'}"
-              class="w-75"
+              :style="{width: isMobile ? '100%' : '95%'}"
               :class="isAbled(commit.issues) ? 'hasArrow' : 'noArrow'"
             >
               <el-collapse-item :name="commit.id">
@@ -130,11 +129,12 @@
           <div class="flex justify-center mt-2" :class="isMobile ? '' : ' w-75'">
             <el-button
               round
-              size="small"
-              class="el-icon-bottom button-primary-reverse"
+              size="mini"
+              class="button-primary-reverse"
+              icon="el-icon-bottom"
               @click="toGitlab(gitlabActivityUrl)"
             >
-              {{ $t('general.SeeMore') }}
+              {{ $t('LoadMore') }}
             </el-button>
           </div>
         </el-timeline>
@@ -378,13 +378,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.w-75 {
+
+.truncate {
   width: 75%;
-  .truncate {
-    width: 75%;
-    .text-info {
-      pointer-events: none;
-    }
+  .text-info {
+    pointer-events: none;
   }
 }
 .noArrow {
@@ -397,5 +395,10 @@ export default {
 }
 .hover-underline:hover {
   @apply underline font-bold;
+}
+::v-deep {
+  .el-timeline {
+    padding-left: 16px;
+  }
 }
 </style>

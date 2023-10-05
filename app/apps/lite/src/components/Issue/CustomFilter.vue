@@ -26,7 +26,7 @@
                 <span :class="filter.isApplying ? 'text-success' : ''">{{ filter.name }}</span>
               </div>
               <div>
-                <em class="ri-file-edit-line warning table-button" @click="onEditClick(filter.id)" />
+                <em class="ri-edit-box-line success table-button" @click="onEditClick(filter.id)" />
                 <el-popconfirm
                   :confirm-button-text="$t('general.Remove')"
                   :cancel-button-text="$t('general.Cancel')"

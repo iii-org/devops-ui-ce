@@ -5,6 +5,7 @@
         <contextmenu-item class="menu-title truncate">
           {{ row.name }}
         </contextmenu-item>
+        <contextmenu-item v-permission="permission" divider />
         <contextmenu-submenu
           v-for="column in filterColumnOptions"
           :key="column.id"
@@ -19,8 +20,8 @@
             :class="{ current: getContextMenuCurrentValue(column, item), [item.class]: item.class }"
             @click="onUpdate(column.value + '_id', item)"
           >
-            <em v-if="getContextMenuCurrentValue(column, item)" class="el-icon-check" />
-            <em v-if="item.id === 'null'" class="el-icon-circle-close" />
+            <em v-if="getContextMenuCurrentValue(column, item)" class="ri-check-line" />
+            <em v-if="item.id === 'null'" class="ri-close-circle-line" />
             {{ getSelectionLabel(item) }} {{ item.message }}
           </contextmenu-item>
         </contextmenu-submenu>
@@ -47,8 +48,8 @@
               style="padding-left: 0; color: #333;"
             >
               <li class="tag" @click="onUpdate(`tags_id`, tag)">
-                <em v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)" class="el-icon-check" />
-                <em v-if="tag.id === 'null'" class="el-icon-circle-close" />
+                <em v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)" class="ri-check-line" />
+                <em v-if="tag.id === 'null'" class="ri-close-circle-line" />
                 {{ tag.name }}
               </li>
             </ul>
@@ -66,7 +67,7 @@
             :class="{ current: getContextMenuCurrentValue('done_ratio', item) }"
             @click="onUpdate('done_ratio', item)"
           >
-            <em v-if="getContextMenuCurrentValue('done_ratio', item)" class="el-icon-check" />
+            <em v-if="getContextMenuCurrentValue('done_ratio', item)" class="ri-check-line" />
             {{ getSelectionLabel(item) }}
           </contextmenu-item>
         </contextmenu-submenu>
@@ -246,9 +247,9 @@ import { cloneDeep } from 'lodash'
 import { directive, Contextmenu, ContextmenuItem, ContextmenuSubmenu } from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 import { AddIssue } from './'
+import { getLocalTime } from '@shared/utils/handleTime'
 import { calendarUrl } from '@shared/utils/addToCalendar'
 import { ics } from '@shared/utils/ics'
-import { getLocalTime } from '@shared/utils/handleTime'
 
 const getAPI = {
   fixed_version: [getProjectVersion, 'versions'],
@@ -741,17 +742,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
+
 .menu-title {
-  background: #d2d2d2;
-  max-width: 150px;
-  height: 25px;
-  line-height: 1.25;
-  padding: 3px 3px 3px 5px;
-  margin: 0;
+  background: #ebebeb;
+  max-width: 160px;
+  font-weight: bold;
+  margin: 0 5px;
+  border-radius: 3px;
+  padding: 5px 9px;
+  &:hover {
+    background: #ebebeb;
+    color: #333;
+    cursor: initial;
+  }
 }
 
 .current {
-  @apply font-bold text-success #{!important};
+  font-weight: bold !important;
+  color: $success !important;
 }
 
 .tag-contextmenu-item {
@@ -767,6 +776,12 @@ export default {
   font-size: 14px;
   &:hover {
     background: #46a0fc;
+  }
+}
+::v-deep {
+  .v-contextmenu {
+    max-height: 40vh;
+    overflow: auto;
   }
 }
 </style>

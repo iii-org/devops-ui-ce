@@ -17,9 +17,12 @@
             :content="$t('general.Reload')"
           >
             <el-button
-              class="ml-2 button-primary-reverse"
+              class="ml-2"
+              type="primary"
               icon="el-icon-refresh"
+              style="padding: 10px;"
               circle
+              plain
               @click="onChangeFilter"
             />
           </el-tooltip>
@@ -182,10 +185,11 @@
     <el-divider />
     <QuickAddIssue
       ref="quickAddIssue"
-      :save-data="saveIssue"
       :project-id="selectedProjectId"
       :visible.sync="quickAddTopicDialogVisible"
-      @add-issue="advancedAddIssue"
+      :filter-conditions="filterValue"
+      :is-drawer="isMobile"
+      @update="loadData"
     />
     <div
       ref="wrapper"
@@ -305,7 +309,6 @@ import {
   patchIssueListDownload,
   postIssueListDownload
 } from '@/api/projects'
-import { addIssue } from '@/api/issue'
 import { BasicData, Columns, SearchFilter } from '@/mixins'
 import { getLocalTime } from '@shared/utils/handleTime'
 import { ProjectListSelector, ElSelectAll } from '@shared/components'
@@ -314,7 +317,6 @@ import {
   Gantt,
   WBS
 } from './components'
-import { QuickAddIssue } from '@/components/Issue'
 import XLSX from 'xlsx'
 
 export default {
@@ -323,7 +325,7 @@ export default {
     ProjectListSelector,
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail'),
     ElSelectAll,
-    QuickAddIssue,
+    QuickAddIssue: () => import('@shared/views/MyWork/components/QuickAddIssue'),
     Board,
     Gantt,
     WBS
@@ -565,21 +567,6 @@ export default {
         }
       }
       return label
-    },
-    async saveIssue(data) {
-      this.loadingSave = true
-      await addIssue(data)
-        .then((res) => {
-          this.onChangeFilter()
-          return res
-        })
-        .catch((error) => {
-          return error
-        })
-        .finally(() => {
-          this.showAddIssue = false
-          this.loadingSave = false
-        })
     },
     handleQuickAddClose() {
       this.quickAddTopicDialogVisible = !this.quickAddTopicDialogVisible

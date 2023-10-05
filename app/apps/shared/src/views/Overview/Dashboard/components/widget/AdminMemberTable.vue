@@ -34,8 +34,10 @@
         <el-tag
           v-for="(user,idx) in scope.row.user_name"
           :key="idx"
-          class="member"
-          :class="scope.row.role_name"
+          class="ml-1 rounded-md"
+          :type="mapType(scope.row.role_name)"
+          effect="dark"
+          size="small"
         >
           {{ user }}
         </el-tag>
@@ -68,32 +70,20 @@ export default {
       })
       return result
     }
+  },
+  methods: {
+    mapType(role) {
+      switch (role) {
+        case 'Administrator':
+          return 'danger'
+        case 'Project Manager':
+          return 'warning'
+        case 'Engineer':
+          return 'success'
+        default:
+          return 'info'
+      }
+    }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
-
-.member {
-  font-size: 1.025em;
-  margin-left: 10px;
-  border-radius: 5px;
-
-  &.Administrator {
-    border-color: $danger_border;
-    color: $danger_text;
-    background: $danger;
-  }
-  &.Manager {
-    border-color: $warning_text;
-    color: $warning_text;
-    background: $warning;
-  }
-  &.Engineer {
-    border-color: $success_text;
-    color: $success_text;
-    background: $success;
-  }
-}
-</style>

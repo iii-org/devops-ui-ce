@@ -15,7 +15,7 @@
           id="load-more"
           type="primary"
           icon="ri-git-branch-line"
-          class="mt-2"
+          class="mt-2 mb-5"
           style="width: max-content; align-self: center;"
           round
           size="medium"
@@ -35,6 +35,7 @@ import { getGitGraphByRepo } from '@/api/git-graph'
 import { BasicData } from '@/mixins'
 import { ProjectListSelector } from '@shared/components'
 import { getBranchesByProject } from '@/api/branches'
+import { getLocalTime } from '@shared/utils/handleTime'
 
 export default {
   name: 'ProgressGitGraph', // ready to refactor
@@ -73,7 +74,10 @@ export default {
           : []
         if (svgs && svgs.length > 0) [...svgs].forEach(_svg => _svg.remove())
         const res = await getGitGraphByRepo(this.selectedRepositoryId)
-        this.nodeData = res.data
+        this.nodeData = res.data.map(item => {
+          item.body = `${item.author.name} <${item.author.email}> ${getLocalTime(item.author.timestamp)}`
+          return item
+        })
         this.isNoData = this.nodeData.length === 0
         this.getDefaultBranch()
         this.createFromGit()
@@ -109,12 +113,13 @@ export default {
           commit: {
             message: {
               color: '#333238',
-              font: 'normal 12px JetBrains Mono',
-              id: 'message'
+              font: 'normal 14px JetBrains Mono',
+              id: 'message',
+              displayAuthor: false
             },
             dot: { size: 5 },
             spacing: 30,
-            font: 'normal 12px JetBrains Mono'
+            font: 'normal 14px JetBrains Mono'
           },
           branch: {
             label: {
@@ -126,6 +131,8 @@ export default {
           },
           tag: { font: 'normal 10px JetBrains Mono' }
         })
+        // branchLabelOnEveryCommit: true
+        // initCommitOffsetX: 100
         // responsive: true
       })
       gitgraph.import(this.nodeData)
@@ -168,6 +175,18 @@ export default {
   }
   path + text {
     transform: translate(-4px, 0);
+  }
+  foreignObject {
+    transform: translate(-10px, 10px);
+    font-size: 11px;
+    p {
+      margin: 0;
+      padding: 2px 0;
+      border-radius: 4px
+    }
+  }
+  svg:not(:root) {
+    width: 100%;
   }
 }
 

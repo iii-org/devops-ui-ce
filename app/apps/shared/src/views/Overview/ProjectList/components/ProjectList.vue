@@ -57,8 +57,9 @@ export default {
         this.showNoProjectWarning()
         return []
       }
-      const filteredArray = this.projectOptions.filter(obj => {
-        return obj.is_lock !== true && obj.disabled !== true
+      const filteredArray = this.projectOptions.filter((obj) => {
+        const { is_lock, disabled, id } = obj
+        return !is_lock && !disabled && id !== this.selectedProjectId
       })
       const starred = filteredArray.filter((item) => item.starred)
       const projects = filteredArray.filter((item) => !item.starred)

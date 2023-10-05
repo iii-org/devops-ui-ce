@@ -7,7 +7,7 @@
           <div style="font-size: 14px;">
             <span>
               * {{ $t('TestReport.WarningPartOne') }}
-              <el-link class="link-text-color" :underline="false" target="_blank" @click="openDevCheckMarx">
+              <el-link type="primary" :underline="false" target="_blank" style="line-height: 1px;" @click="openDevCheckMarx">
                 {{ $t('TestReport.CheckMarxReport') }}
               </el-link>
               {{ $t('TestReport.WarningPartTwo') }}
@@ -16,7 +16,7 @@
               slot="link"
               type="text"
               icon="el-icon-download"
-              :class="!disabled ? 'link-text-color' : ''"
+              class="ml-1"
               :disabled="disabled"
               @click="openCheckMarx"
             >

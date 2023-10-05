@@ -20,7 +20,7 @@
       "name": "ProjectList"
     },
     "meta": {
-      "icon": "list",
+      "icon": "ri-server-fill",
       "roles": [
         "Project Manager"
       ]
@@ -48,7 +48,7 @@
     },
     "meta": {
       "title": "Works",
-      "icon": "el-icon-s-cooperation",
+      "icon": "ri-briefcase-3-fill",
       "roles": [
         "Project Manager"
       ]
@@ -211,7 +211,7 @@
     },
     "meta": {
       "title": "DevProgress",
-      "icon": "el-icon-odometer",
+      "icon": "ri-refresh-fill",
       "roles": [
         "Project Manager"
       ]
@@ -261,7 +261,7 @@
     },
     "meta": {
       "title": "AutoTesting",
-      "icon": "el-icon-circle-check",
+      "icon": "ri-shield-check-fill",
       "roles": [
         "Project Manager"
       ]
@@ -288,7 +288,7 @@
       "name": "ProjectActivities"
     },
     "meta": {
-      "icon": "el-icon-s-order",
+      "icon": "ri-survey-fill",
       "roles": [
         "Project Manager"
       ]
@@ -327,7 +327,7 @@
         "name": "Profile",
         "meta": {
           "title": "Profile",
-          "icon": "user",
+          "icon": "ri-user-fill",
           "roles": [
             "Project Manager"
           ]
@@ -355,7 +355,7 @@
         "name": "SystemVersion",
         "meta": {
           "title": "SystemVersion",
-          "icon": "user",
+          "icon": "ri-user-fill",
           "roles": [
             "Project Manager"
           ]
@@ -365,7 +365,7 @@
   },
   {
     "path": "/test-report",
-    "name": "TestReports",
+    "name": "TestReportParent",
     "component": "layout",
     "redirect": {
       "name": "TestReport"

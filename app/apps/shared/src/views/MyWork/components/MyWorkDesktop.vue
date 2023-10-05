@@ -323,7 +323,7 @@ export default {
       &.is-active {
         .tab-header {
           .tab-icon {
-            background-color: $primary;
+            background-color: $linkTextColor;
             color: white;
             padding: 6px;
             border-radius: 15px;

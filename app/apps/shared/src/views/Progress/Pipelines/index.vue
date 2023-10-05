@@ -47,9 +47,8 @@
           <el-tag
             class="mt-1"
             size="small"
-            :type="mapStateType(row.execution_state)"
-            :effect="mapStateEffect(row.execution_state)"
-            :color="row.execution_state === 'Running' ? runningStateColor : ''"
+            effect="dark"
+            :type="row.execution_state.toLowerCase()"
           >
             {{ row.execution_state }}
           </el-tag>
@@ -117,15 +116,13 @@
             :content="$t('PipeLines.Report')"
             placement="bottom"
           >
-            <em
-              v-if="row.execution_state === 'Finished'"
-              class="ri-file-list-2-line primary table-button"
-              @click="handleToTestReport(row)"
-            />
-            <em
-              v-else
-              class="ri-file-list-2-line disabled table-button"
-            />
+            <span>
+              <em
+                class="ri-survey-line primary table-button"
+                :class="row.execution_state === 'Finished' ? 'primary' : 'disabled'"
+                @click="handleToTestReport(row)"
+              />
+            </span>
           </el-tooltip>
         </template>
       </ElTableResponsive>
@@ -156,7 +153,6 @@ import { getLocalTime } from '@shared/utils/handleTime'
 import { Pagination } from '@/components'
 import PipelineSettingsTable from '@/views/Plan/Settings/components/PipelineSettingsTable'
 import TestDetail from './components/TestDetail'
-import colorVariables from '@/styles/theme/variables.scss'
 
 const listQuery = () => ({
   page: 1,
@@ -263,9 +259,6 @@ export default {
           slot: 'actions'
         }
       ]
-    },
-    runningStateColor() {
-      return colorVariables.menuActiveText
     }
   },
   watch: {
@@ -357,28 +350,6 @@ export default {
           return err
         })
     },
-    mapStateType(status) {
-      const mapping = {
-        Created: 'warning',
-        Running: '',
-        Success: 'success',
-        Finished: 'success',
-        Failed: 'danger',
-        Canceled: 'warning',
-        Manual: 'warning',
-        Scheduled: 'warning'
-      }
-      return mapping[status]
-    },
-    mapStateEffect(status) {
-      const mapping = {
-        Created: 'light',
-        Running: 'light',
-        Manual: 'light',
-        Scheduled: 'light'
-      }
-      return mapping[status] || 'dark'
-    },
     onDetailsClick(row) {
       const { id, commit_message } = row
       this.isLoading = true
@@ -422,6 +393,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
 
 .icon {
   font-size: x-large;
@@ -436,6 +408,32 @@ export default {
   }
   &:hover {
     color: $active;
+  }
+}
+$tag-light-options: (
+  created: $created,
+  pending: $pending,
+  manual: $manual,
+  scheduled: $scheduled,
+  skipped: $skipped,
+  unknown: $unknown,
+  notfound: $unknown
+);
+$tag-dark-options: (
+  running: $running,
+  finished: $success,
+  passed: $passed,
+  failed: $failed,
+  canceled: $canceled
+);
+@each $key, $value in $tag-light-options {
+  .el-tag--#{$key} {
+    @include tag-light($value);
+  }
+}
+@each $key, $value in $tag-dark-options {
+  .el-tag--#{$key} {
+    @include tag-dark($value);
   }
 }
 </style>

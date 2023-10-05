@@ -331,10 +331,7 @@ export default {
       this.$router.go(-1)
     },
     async downloadPdf() {
-      const newHtml = this.$refs.pdfPage.innerHTML
-      document.body.innerHTML = newHtml
-      window.print()
-      window.location.reload()
+      await this.$pdf(this.$refs.pdfPage.innerHTML, downloadFileName, false)
     },
     async getSheet(filename_extension) {
       const newDiv = await this.getTableDom
@@ -358,25 +355,27 @@ export default {
 <style lang="scss" scoped>
 @import 'src/styles/theme/mixin.scss';
 
-::v-deep .el-divider__text {
-  font-size: 18px;
+::v-deep {
+  .el-divider__text {
+    font-size: 16px;
+    text-align: center;
+    font-weight: 600;
+  }
 }
 
 .watermark {
   display: none;
 }
 .title {
-  color: #429470;
+  color: #199ba9;
   font-size: 36px;
-  text-shadow: #b3b1b1 0.05em 0.05em 0.1em;
+  text-shadow: #4d4d4d42 3px 2px 0.1em;
 }
 .footer {
   display: none;
 }
 .logo-container {
-  position: relative;
-  left: 10px;
-  width: 100%;
+  margin-left: 10px;
   height: 50px;
   line-height: 50px;
   text-align: left;
@@ -386,7 +385,7 @@ export default {
     width: 32px;
     height: 32px;
     vertical-align: middle;
-    margin-right: 12px;
+    margin-right: 4px;
   }
 
   .logo-title {
@@ -394,9 +393,10 @@ export default {
     margin: 0;
     font-weight: 600;
     line-height: 50px;
-    font-size: 14px;
-    font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+    font-size: 16px;
     vertical-align: middle;
+    font-family: "Audiowide",cursive;
+    color: #303133;
   }
 }
 
@@ -482,6 +482,7 @@ export default {
     position: relative;
     padding-left: 50% !important;
     text-align: left !important;
+    background-color: whitesmoke;
   }
 
   ::v-deep td:before {

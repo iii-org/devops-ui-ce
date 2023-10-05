@@ -12,7 +12,7 @@
         slot-scope="{ node, data }"
         class="flex justify-start items-center"
       >
-        <span class="flex justify-start items-center" :style="calcStyle(node, data)">
+        <span class="flex justify-start items-center">
           <!-- star -->
           <template>
             <div class="mr-3">
@@ -73,7 +73,7 @@
                   slot="reference"
                   :underline="false"
                   :disabled="data.disabled || data.is_lock"
-                  style="font-size: 14px; padding: 0 2px;"
+                  style="font-size: 18px; padding: 0 2px;"
                 >
                   <svg-icon icon-class="gitlab" />
                 </el-link>
@@ -82,7 +82,7 @@
               <el-link
                 v-if="data.harbor_url"
                 target="_blank"
-                style="font-size: 14px; padding: 0 2px;"
+                style="font-size: 18px; padding: 0 2px;"
                 :underline="false"
                 :disabled="data.disabled || data.is_lock"
                 :href="data.harbor_url"
@@ -98,10 +98,10 @@
                 :disabled="data.disabled || data.is_lock"
                 @click.stop="$emit('handleClick', data)"
               >
-                {{ data.display }}
+                <span :style="calcStyle(node, data)">{{ data.display }}</span>
               </el-link>
               <template v-else>
-                {{ data.display }}
+                <span :style="calcStyle(node, data)">{{ data.display }}</span>
               </template>
               <br>
             </div>
@@ -151,7 +151,7 @@
             :content="$t('general.Edit')"
           >
             <em
-              class="ri-file-edit-line warning table-button"
+              class="ri-edit-box-line success table-button"
               @click.stop="$emit('handleEdit', data)"
             />
           </el-tooltip>
@@ -160,22 +160,26 @@
             placement="bottom"
             :content="$t('general.Delete')"
           >
-            <em
-              :disabled="permission(data)"
-              class="ri-delete-bin-2-line danger table-button"
-              @click.stop="$emit('handleDelete', data)"
-            />
+            <span>
+              <em
+                :class="permission(data) ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
+                @click.stop="$emit('handleDelete', data)"
+              />
+            </span>
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock === true"
             placement="bottom"
             :content="$t('general.ForceDelete')"
           >
-            <em
-              :disabled="permission(data)"
-              class="ri-delete-bin-2-line danger table-button"
-              @click.stop="$emit('handleDelete', data, true)"
-            />
+            <span>
+              <em
+                :class="permission(data) ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
+                @click.stop="$emit('handleDelete', data, true)"
+              />
+            </span>
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock === true"
@@ -189,13 +193,13 @@
             placement="bottom"
             :content="!data.disabled ? $t('general.Disable') : $t('general.Enable')"
           >
-            <em
-              :disabled="permission(data)"
-              :class="data.disabled
-                ? 'ri-play-circle-line success table-button'
-                : 'ri-pause-circle-line danger table-button'"
-              @click.stop="$emit('handleToggle', data)"
-            />
+            <span>
+              <em
+                :class="disableProjectClass(data)"
+                class="table-button"
+                @click.stop="$emit('handleToggle', data)"
+              />
+            </span>
           </el-tooltip>
         </template>
       </div>
@@ -235,10 +239,24 @@ export default {
       const nodeWidth = 2.125 * (node.level - 1) + 'rem'
       const style = {
         display: 'inline-block',
-        width: `calc(22rem - ${nodeWidth})`,
-        overflow: 'hidden'
+        width: `calc(20rem - ${nodeWidth})`,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        verticalAlign: 'middle'
       }
       return style
+    },
+    disableProjectClass(row) {
+      let className = ''
+      if (row.disabled) {
+        className = 'ri-play-circle-line success'
+      } else {
+        className = 'ri-pause-circle-line warning'
+      }
+      if (this.permission(row)) {
+        className += ' disabled'
+      }
+      return className
     }
   }
 }

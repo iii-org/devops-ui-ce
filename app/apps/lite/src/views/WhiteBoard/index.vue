@@ -91,7 +91,7 @@
           :content="$t('general.Edit')"
           placement="bottom"
         >
-          <em class="ri-file-edit-line warning table-button" @click="handleEdit(row, true)" />
+          <em class="ri-edit-box-line success table-button" @click="handleEdit(row, true)" />
         </el-tooltip>
         <el-popconfirm
           :title="$t('Notify.confirmDelete')"

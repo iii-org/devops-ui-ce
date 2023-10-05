@@ -207,20 +207,13 @@
               placement="bottom"
               :content="$t('general.Close')"
             >
-              <el-popconfirm
-                :title="$t('Notify.confirmClose')"
-                :confirm-button-text="$t('general.Close')"
-                :cancel-button-text="$t('general.Cancel')"
-                icon="el-icon-info"
-                popper-class="danger"
-                @confirm="onCloseClick(scope.row.id)"
-              >
+              <span>
                 <em
-                  slot="reference"
-                  class="ri-delete-bin-2-line danger table-button"
-                  :disabled="!scope.row.is_closable"
+                  class="ri-delete-bin-2-line table-button"
+                  :class="!scope.row.is_closable ? 'disabled' : 'danger'"
+                  @click="onCloseClick(scope.row)"
                 />
-              </el-popconfirm>
+              </span>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -286,6 +279,13 @@
         </el-button>
       </span>
     </el-dialog>
+    <SubIssueDialog
+      v-if="isCloseIssueDialog"
+      :is-issue-dialog.sync="isCloseIssueDialog"
+      :issue="issue"
+      @handleClose="handleCloseAllIssue"
+      @handleCancel="isCloseIssueDialog"
+    />
   </div>
 </template>
 
@@ -293,13 +293,22 @@
 import { mapGetters } from 'vuex'
 import { getUserIssueList } from '@/api/user'
 import { getProjectAssignable } from '@/api/projects'
-import { updateIssue, getCheckIssueClosable } from '@/api/issue'
+import {
+  updateIssue,
+  getCheckIssueClosable,
+  getIssueFamily
+} from '@/api/issue'
 import { BasicData, Pagination, ContextMenu, SearchBar, IssueExpand } from '@/mixins'
 import { Priority, Status, Tracker } from '@/components/Issue'
 
 export default {
   name: 'ProjectIssueTransfer',
-  components: { Tracker, Priority, Status },
+  components: {
+    Tracker,
+    Priority,
+    Status,
+    SubIssueDialog: () => import('@shared/views/Project/IssueDetail/components/SubIssueDialog')
+  },
   mixins: [BasicData, Pagination, ContextMenu, SearchBar, IssueExpand],
   data() {
     return {
@@ -312,7 +321,9 @@ export default {
       assigneeList: [],
       assigneeId: null,
       isTransferring: false,
-      expands: []
+      expands: [],
+      isCloseIssueDialog: false,
+      issue: {}
     }
   },
   computed: {
@@ -414,16 +425,24 @@ export default {
     onTransferClick(issueId) {
       this.$router.push({ name: 'IssueDetail', params: { issueId }})
     },
-    onCloseClick(issueId) {
+    async onCloseClick(row) {
+      const issueId = row.id
+      this.issue = {}
+      this.isCloseIssueDialog = true
+      try {
+        const family = await getIssueFamily(issueId)
+        this.formatIssueFamilyData(row, family.data)
+      } finally {
+        this.issue = row
+      }
+    },
+    async handleCloseAllIssue() {
       const sendData = new FormData()
       sendData.append('status_id', 6)
-      updateIssue(issueId, sendData)
+      sendData.append('close_all', true)
+      await updateIssue(this.issue.id, sendData)
         .then(() => {
           this.loadData()
-          this.removeIssue(issueId)
-        })
-        .catch((err) => {
-          console.error(err)
         })
     },
     async onPagination(listQuery) {

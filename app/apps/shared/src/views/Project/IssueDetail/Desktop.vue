@@ -688,7 +688,7 @@ export default {
       if (!edit) return
       const { $el, editor } = IssueEditor.$refs.mdEditor
       const editorHeight = $el.clientHeight
-      const movableArea = editorHeight + movementY > 150 && editorHeight + movementY < 500
+      const movableArea = editorHeight + movementY > 200 && editorHeight + movementY < 600
       if (isMoving && movableArea) editor.setHeight(`${editorHeight + movementY}px`)
     },
     changeIssueFormOpened() {

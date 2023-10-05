@@ -76,8 +76,8 @@
         <el-switch
           v-model="userForm.permanentPassword"
           class="mt-2"
-          active-value="true"
-          inactive-value="false"
+          :active-value="true"
+          :inactive-value="false"
           inactive-color="gray"
           :active-text="$t('general.Enable')"
           :inactive-text="$t('general.Disable')"

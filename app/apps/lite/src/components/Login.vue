@@ -16,7 +16,6 @@
           </div>
           <el-form-item prop="username">
             <el-input
-              ref="username"
               v-model="loginForm.username"
               :placeholder="$t('general.Account')"
               :name="$t('general.Account')"
@@ -28,10 +27,7 @@
           </el-form-item>
           <el-form-item prop="password">
             <el-input
-              :key="passwordType"
-              ref="password"
               v-model="loginForm.password"
-              :type="passwordType"
               :placeholder="$t('general.Password')"
               prefix-icon="el-icon-lock"
               name="password"
@@ -84,7 +80,6 @@ export default {
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,
-      passwordType: 'password',
       redirect: undefined,
       defaultSettings
     }
@@ -103,16 +98,6 @@ export default {
     }
   },
   methods: {
-    showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
-      } else {
-        this.passwordType = 'password'
-      }
-      this.$nextTick(() => {
-        this.$refs.password.focus()
-      })
-    },
     handleLogin() {
       this.$refs.loginForm.validate((valid) => {
         if (!valid) return

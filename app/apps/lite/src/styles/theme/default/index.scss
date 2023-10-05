@@ -13,7 +13,7 @@ $subMenuBg: #373737;
 $subMenuHover: #272727;
 $subMenuText: #bfcbd9;
 
-$sideBarWidth: 250px;
+$sideBarWidth: 280px;
 $sideBarTitleBg: #282828;
 
 $appMainBg: #f7f3f3;
@@ -29,13 +29,9 @@ $linkTextBackground: #ecf5ff;
 $buttonPrimary: #525252;
 $buttonSecondary: #80A2B6;
 $buttonTertiary: #e6a23c;
-$buttonBorderColor: #dcdfe6;
-$buttonFocusBorderColor: #989898;
 
 $headerTextColor: #c28831;
 $linkTextColor: #e6a23c;
-$switchActiveColor: #e6a23c;
-$noticeBackgroundColor: #fdf6ec;
 
 $success: #3ecbbc;
 $danger: #DF657F;
@@ -64,3 +60,14 @@ $changeRequest: #A06CD5;
 $risk: #FCD7AD;
 $testPlan: #A57548;
 $failManagement: #FF7033;
+
+$created: #56b1e8; //dot ri-radio-button-line
+$pending: #e6a23c; //pause ri-pause-circle-line
+$running: #56b1e8; //pie el-loading-icon
+$passed: #e6a23c; //! ri-error-warning-line
+$failed: #DF657F; //cross ri-close-circle-line
+$canceled: #606260; //\ ri-forbid-line
+$manual: #606260; //gear ri-settings-5-line
+$scheduled: #3ecbbc; //clock ri-time-line
+$skipped: #606260; //>> ri-arrow-right-double-line
+$unknown: #606260; //? ri-question-line

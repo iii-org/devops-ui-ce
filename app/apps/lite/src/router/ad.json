@@ -20,7 +20,7 @@
       "name": "Dashboard"
     },
     "meta": {
-      "icon": "dashboard",
+      "icon": "ri-dashboard-2-fill",
       "title": "Overview",
       "roles": [
           "Administrator"
@@ -60,7 +60,7 @@
     },
     "meta": {
       "title": "Works",
-      "icon": "el-icon-s-cooperation",
+      "icon": "ri-briefcase-3-fill",
       "roles": [
         "Administrator"
       ]
@@ -212,7 +212,7 @@
     },
     "meta": {
       "title": "DevProgress",
-      "icon": "el-icon-odometer",
+      "icon": "ri-refresh-fill",
       "roles": [
         "Administrator"
       ]
@@ -262,7 +262,7 @@
     },
     "meta": {
       "title": "AutoTesting",
-      "icon": "el-icon-circle-check",
+      "icon": "ri-shield-check-fill",
       "roles": [
         "Administrator"
       ]
@@ -289,7 +289,7 @@
       "name": "ProjectActivities"
     },
     "meta": {
-      "icon": "el-icon-s-order",
+      "icon": "ri-survey-fill",
       "roles": [
         "Administrator"
       ]
@@ -317,7 +317,7 @@
     },
     "meta": {
       "title": "Admin",
-      "icon": "el-icon-setting",
+      "icon": "ri-settings-5-fill",
       "roles": [
         "Administrator"
       ]
@@ -367,7 +367,7 @@
         "name": "Profile",
         "meta": {
           "title": "Profile",
-          "icon": "user",
+          "icon": "ri-user-fill",
           "roles": [
             "Administrator"
           ]
@@ -395,7 +395,7 @@
         "name": "SystemVersion",
         "meta": {
           "title": "SystemVersion",
-          "icon": "user",
+          "icon": "ri-user-fill",
           "roles": [
             "Administrator"
           ]
@@ -405,7 +405,7 @@
   },
   {
     "path": "/test-report",
-    "name": "TestReports",
+    "name": "TestReportParent",
     "component": "layout",
     "redirect": {
       "name": "TestReport"

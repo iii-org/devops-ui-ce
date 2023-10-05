@@ -7,17 +7,19 @@
     <div class="flex justify-between h-8">
       <span class="flex items-center font-semibold">
         <em class="el-icon-circle-check mx-1" />
-        {{ $t('Dashboard.TestStatus') }}
+        {{ $t("Dashboard.TestStatus") }}
       </span>
       <el-button
         type="text"
-        :class="Object.keys(projectTestObj).length === 0 ? '' : 'link-text-color'"
+        :class="
+          Object.keys(projectTestObj).length === 0 ? '' : 'link-text-color'
+        "
         icon="el-icon-refresh"
         size="mini"
         :disabled="Object.keys(projectTestObj).length === 0"
         @click="updateProjectTestList()"
       >
-        {{ $t('general.Refresh') }}
+        {{ $t("general.Refresh") }}
       </el-button>
     </div>
     <el-empty
@@ -25,11 +27,7 @@
       :description="$t('general.NoData')"
       :image-size="100"
     />
-    <el-row
-      v-else
-      :gutter="14"
-      class="mt-3 column"
-    >
+    <el-row v-else :gutter="14" class="mt-3 column">
       <el-col
         v-for="result in testResultList"
         :key="result.Software"
@@ -37,12 +35,14 @@
         :span="24"
       >
         <el-card shadow="never">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-xl link-text-color font-semibold capitalize">{{ result.Software }}</span>
-            <em
-              class="el-icon-right cursor-pointer"
-              @click="handleClick(result.Software)"
-            />
+          <div
+            class="flex justify-between items-center mb-1"
+            @click="handleClick(result.Software)"
+          >
+            <span class="text-xl link-text-color font-semibold capitalize">
+              {{ result.Software }}
+            </span>
+            <em class="el-icon-right cursor-pointer" />
           </div>
           <el-tooltip
             placement="right"
@@ -59,7 +59,7 @@
               v-if="Object.keys(result.informationText).length === 0"
               class="text-gray-400"
             >
-              {{ $t('general.NoData') }}
+              {{ $t("general.NoData") }}
             </span>
             <div
               v-for="item in result.informationText"
@@ -130,13 +130,15 @@ export default {
         cmas: cmasFormatter,
         harbor: clairFormatter
       }
-      keys.forEach((key) => {
+      keys.forEach(key => {
         result.push(mapFormatter[key](testResult[key]))
       })
       return result
     },
     handleClick(target) {
-      this.$router.push({ name: `${target.charAt(0).toUpperCase()}${target.slice(1)}` })
+      this.$router.push({
+        name: `${target.charAt(0).toUpperCase()}${target.slice(1)}`
+      })
     },
     updateProjectTestList() {
       this.$emit('update')
@@ -152,7 +154,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .column {
   column-count: 2;
   gap: 0;

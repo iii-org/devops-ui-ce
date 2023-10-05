@@ -1,27 +1,22 @@
 <template>
   <div>
     <el-row v-if="!isDrawer" v-show="visible">
-      <div style="padding: 10px 5px; font-weight: bold">
-        <span>{{ subIssue ? $t('Issue.AddSubIssue') : $t('Issue.AddIssue') }}: </span>
-        <el-link
-          :disabled="isLoading"
-          class="link"
-          :size="isTable ? 'small' : ''"
-          @click="onAdvancedSettingsClick"
-        >
-          {{ $t('general.AdvancedSettings') }}
-        </el-link>
-      </div>
       <el-form
         ref="quickAddIssueForm"
         inline
         :model="formData"
         :rules="formRules"
+        class="quick-add"
+        size="small"
       >
+        <el-form-item>
+          <span style="padding: 10px 0 10px 5px;" class="font-bold text-sm">
+            {{ subIssue ? $t('Issue.AddSubIssue') : $t('Issue.AddIssue') }}:
+          </span>
+        </el-form-item>
         <el-form-item prop="tracker_id">
           <el-select
             v-model="formData.tracker_id"
-            :size="isTable ? 'small' : ''"
             :placeholder="$t('Issue.SelectType')"
           >
             <el-option
@@ -40,15 +35,14 @@
         <el-form-item prop="name">
           <el-input
             v-model="formData.name"
-            :size="isTable ? 'small' : ''"
             :placeholder="$t('Issue.name')"
           />
         </el-form-item>
         <el-form-item>
           <el-button
             :type="isTable ? 'success' : 'primary'"
-            :style="isTable ? 'padding: 9px 8px;' : ''"
-            :size="isTable ? 'small' : 'medium'"
+            :style="isTable ? 'padding: 8px;' : ''"
+            size="small"
             :icon="isTable ? 'el-icon-check' : ''"
             :loading="isLoading"
             class="button-save"
@@ -59,12 +53,21 @@
           <el-button
             v-if="isTable && showClose"
             :disabled="isLoading"
-            style="padding: 9px 8px;"
+            style="padding: 8px;"
             size="small"
             icon="el-icon-close"
             type="danger"
             @click="$emit('close')"
           />
+        </el-form-item>
+        <el-form-item>
+          <span
+            class="expand-button"
+            @click="onAdvancedSettingsClick"
+          >
+            <em class="ri-settings-3-line expand-button-icon" />
+            <span class="expand-button-text">{{ $t('general.AdvancedSettings') }}</span>
+          </span>
         </el-form-item>
       </el-form>
     </el-row>
@@ -125,7 +128,7 @@
           class="link"
           @click="onAdvancedSettingsClick"
         >
-          {{ $t('general.AdvancedSettings').replace('》', '') }}
+          {{ $t('general.AdvancedSettings') }}
         </el-link>
         <el-button
           type="primary"
@@ -241,6 +244,10 @@ export default {
     isDrawer: {
       type: Boolean,
       default: false
+    },
+    fromTestPlan: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -302,6 +309,9 @@ export default {
     const { tracker } = this.filterConditions
     if (tracker && this.trackerList.map(a => a.id).includes(tracker)) {
       this.formData.tracker_id = tracker
+    }
+    if (this.fromTestPlan) {
+      this.formData.tracker_id = 8
     }
   },
   methods: {
@@ -425,12 +435,49 @@ export default {
     border-radius: 0px !important;
   }
 }
+
 ::v-deep .el-dialog__body {
   padding: 0 1rem;
 }
+
 .link {
   color: $linkTextColor !important;
 }
+
+.expand-button {
+  background-color: $buttonPrimary;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  height: 32.2px;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  width: auto;
+  max-width: 32.2px;
+  -webkit-transition: max-width 0.5s;
+  transition: max-width 0.5s;
+  vertical-align: middle;
+  &:hover {
+    max-width: 300px;
+  }
+  &.cursor-not-allowed {
+    background-color: gray;
+  }
+  &-icon {
+    font-size: 20px;
+    margin-right: 4px;
+    padding: 0px 5.5px;
+    display: flex;
+    align-items: center;
+  }
+  &-text {
+    white-space: nowrap;
+    padding-right: 16px;
+  }
+}
+
 .drawer {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
@@ -514,6 +561,12 @@ export default {
       width: 100%;
     }
   }
+}
+.quick-add {
+  border-radius: 10px;
+  padding: 20px 10px 0 10px;
+  margin-bottom: 10px;
+  background-color: white;
 }
 
 @include mobile {

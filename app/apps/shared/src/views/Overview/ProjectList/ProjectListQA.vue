@@ -239,27 +239,29 @@
       <el-table-column
         :label="$t('general.Actions')"
         align="center"
-        width="200"
+        min-width="120"
       >
         <template slot-scope="scope">
-          <el-button
-            v-if="userRole !== 'QA'"
-            size="mini"
-            class="button-primary-reverse"
-            icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
+          <el-tooltip
+            v-if="userRole !== 'QA' && scope.row.is_lock !== true"
+            placement="bottom"
+            :content="$t('general.Edit')"
           >
-            {{ $t('general.Edit') }}
-          </el-button>
-          <el-button
-            :disabled="scope.row.creator_id !== userId"
-            size="mini"
-            type="danger"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
+            <em class="ri-edit-box-line success table-button" @click="handleEdit(scope.row)" />
+          </el-tooltip>
+          <el-tooltip
+            v-if="scope.row.is_lock !== true"
+            placement="bottom"
+            :content="$t('general.Delete')"
           >
-            {{ $t('general.Delete') }}
-          </el-button>
+            <span>
+              <em
+                :class="scope.row.creator_id !== userId ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
+                @click="handleDelete(scope.row)"
+              />
+            </span>
+          </el-tooltip>
         </template>
       </el-table-column>
       <template slot="empty">
@@ -270,7 +272,9 @@
       :total="projectListTotal"
       :page="params.page"
       :limit="params.limit"
-      :layout="'total, sizes, prev, pager, next'"
+      :layout="paginationLayout"
+      :pager-count="isMobile ? 5 : 7"
+      :small="isMobile"
       @pagination="onPagination"
     />
 
@@ -350,7 +354,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userId', 'userRole', 'projectList', 'projectListTotal', 'userProjectList', 'selectedProjectId']),
+    ...mapGetters(['userId', 'userRole', 'projectList', 'projectListTotal', 'userProjectList', 'selectedProjectId', 'device']),
     hasSelectedProject() {
       return this.selectedProjectList.length > 0
     },
@@ -362,6 +366,12 @@ export default {
     },
     selectedDateNow() {
       return this.selectedDate ? this.selectedDate : this.getThisYear
+    },
+    isMobile() {
+      return this.device === 'mobile'
+    },
+    paginationLayout() {
+      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
     }
   },
   watch: {
@@ -386,6 +396,7 @@ export default {
       await this.getMyProjectList(this.params)
       this.listLoading = false
       this.listData = this.projectList
+      console.log(this.listData)
       const filteredArray = this.projectList.filter(obj => {
         return obj.is_lock !== true && obj.disabled !== true
       })
@@ -583,8 +594,8 @@ export default {
 
 .status-bar-track {
   background: $appMainBg;
-  border-radius: 5px;
-  max-width: 160px;
+  border-radius: 4px;
+  max-width: 110px;
   width: 100%;
   height: 4px;
   position: relative;
@@ -597,7 +608,16 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  background: $switchActiveColor;
+  background: $warning;
   height: 4px;
+  border-radius: 4px;
+}
+
+::v-deep .hide-expand {
+  > .el-table__expand-column {
+    > .cell {
+      display: none;
+    }
+  }
 }
 </style>

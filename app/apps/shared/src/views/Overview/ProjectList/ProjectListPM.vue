@@ -87,7 +87,7 @@
                   :id="`copy-${scope.$index}`"
                   class="text-center"
                 >
-                  <span class="text-title">{{ scope.row.git_url }}</span>
+                  <span class="font-bold text-sm">{{ scope.row.git_url }}</span>
                 </p>
                 <div class="flex justify-center">
                   <el-button
@@ -113,9 +113,9 @@
                   slot="reference"
                   :underline="false"
                   :disabled="scope.row.disabled || scope.row.is_lock"
-                  style="font-size: 18px; padding: 0 3px;"
+                  style="padding: 0 3px;"
                 >
-                  <svg-icon icon-class="gitlab" />
+                  <svg-icon icon-class="gitlab" style="font-size: 18px;" />
                 </el-link>
               </el-popover>
               <!-- harbor button -->
@@ -127,7 +127,7 @@
                 :disabled="scope.row.disabled || scope.row.is_lock"
                 :href="scope.row.harbor_url"
               >
-                <svg-icon icon-class="harbor" />
+                <svg-icon icon-class="harbor" style="font-size: 18px;" />
               </el-link>
             </div>
             <div>
@@ -218,29 +218,33 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-file-edit-line warning table-button" @click="handleEdit(scope.row)" />
+            <em class="ri-edit-box-line success table-button" @click="handleEdit(scope.row)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
             placement="bottom"
             :content="$t('general.Delete')"
           >
-            <em
-              :disabled="permission(scope.row)"
-              class="ri-delete-bin-2-line danger table-button"
-              @click="handleDelete(scope.row)"
-            />
+            <span>
+              <em
+                :class="permission(scope.row) ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
+                @click="handleDelete(scope.row)"
+              />
+            </span>
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock === true"
             placement="bottom"
             :content="$t('general.ForceDelete')"
           >
-            <em
-              :disabled="permission(scope.row)"
-              class="ri-delete-bin-2-line danger table-button"
-              @click="handleDelete(scope.row, true)"
-            />
+            <span>
+              <em
+                :class="permission(scope.row) ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
+                @click="handleDelete(scope.row, true)"
+              />
+            </span>
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock === true"
@@ -254,13 +258,13 @@
             placement="bottom"
             :content="!scope.row.disabled ? $t('general.Disable') : $t('general.Enable')"
           >
-            <em
-              :disabled="permission(scope.row)"
-              :class="scope.row.disabled
-                ? 'ri-play-circle-line success table-button'
-                : 'ri-pause-circle-line danger table-button'"
-              @click="handleToggle(scope.row)"
-            />
+            <span>
+              <em
+                :class="disableProjectClass(scope.row)"
+                class="table-button"
+                @click="handleToggle(scope.row)"
+              />
+            </span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -607,6 +611,18 @@ export default {
     },
     getRowClass({ row }) {
       return row.has_son ? '' : 'hide-expand'
+    },
+    disableProjectClass(row) {
+      let className = ''
+      if (row.disabled) {
+        className = 'ri-play-circle-line success'
+      } else {
+        className = 'ri-pause-circle-line warning'
+      }
+      if (this.permission(row)) {
+        className += ' disabled'
+      }
+      return className
     }
   }
 }
@@ -617,7 +633,7 @@ export default {
 
 .status-bar-track {
   background: $appMainBg;
-  border-radius: 5px;
+  border-radius: 4px;
   max-width: 110px;
   width: 100%;
   height: 4px;
@@ -631,8 +647,9 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  background: $switchActiveColor;
+  background: $warning;
   height: 4px;
+  border-radius: 4px;
 }
 
 ::v-deep .hide-expand {

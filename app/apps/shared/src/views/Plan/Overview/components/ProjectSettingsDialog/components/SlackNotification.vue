@@ -18,7 +18,7 @@
           v-if="isMobile"
           class="ri-slack-fill text-lg rounded text-white bg-primary p-1"
         />
-        <span v-else>{{ $t('general.AdvancedSettings').replace('》', '') }}</span>
+        <span v-else>{{ $t('general.AdvancedSettings') }}</span>
       </el-link>
     </div>
     <el-form
@@ -119,10 +119,10 @@
       </span>
     </el-form>
     <div v-else-if="active && is_locked">
-      <div class="notification">
+      <div class="notification-warning">
         <span>
           Please goto
-          <el-link type="primary" target="_blank" :href="slackLink">{{ $t('general.AdvancedSettings').replace('》', '') }}</el-link>
+          <el-link type="primary" target="_blank" :href="slackLink">{{ $t('general.AdvancedSettings') }}</el-link>
           to modify the data
         </span>
       </div>

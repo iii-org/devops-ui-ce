@@ -8,7 +8,6 @@
             slot="link"
             type="text"
             icon="el-icon-tickets"
-            :class="hasWebInspectData ? 'link-text-color' : ''"
             :disabled="!hasWebInspectData"
             @click="openWebInspect"
           >

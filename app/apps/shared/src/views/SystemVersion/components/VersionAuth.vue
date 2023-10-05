@@ -239,3 +239,13 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+::v-deep .el-dialog__body {
+  padding: 0 20px;
+}
+
+::v-deep .el-dialog__footer {
+  padding-top: 0;
+}
+</style>

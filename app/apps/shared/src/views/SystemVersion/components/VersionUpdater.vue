@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="showUpdater"
-      class="flex justify-between notification py-3 px-4 mb-5"
+      class="flex justify-between notification-warning py-3 px-4 mb-5"
     >
       <div class="flex items-center">
         <span class="dot relative" />
@@ -43,7 +43,7 @@
         >
           {{ $t("SystemVersion.UpdateNow") }}
         </el-button>
-        <el-divider />
+        <el-divider class="mb-0" />
       </span>
       <div style="max-height: 40vh;">
         <el-empty
@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 import { updateDevopsVersion } from '@/api/devopsVersion'
 import '@toast-ui/editor/dist/toastui-editor-viewer.css'
 import '@toast-ui/editor/dist/i18n/zh-tw'
@@ -141,10 +141,16 @@ export default {
 .dot {
   @apply rounded-full w-2 h-2 bg-success;
 }
+
 ::v-deep .toastui-editor-contents {
   @apply text-lg;
 }
+
+::v-deep .el-dialog__header {
+  padding-bottom: 0;
+}
+
 ::v-deep .el-dialog__body {
-  padding: 0 3rem 1.5rem;
+  padding: 0 2rem 1.5rem;
 }
 </style>

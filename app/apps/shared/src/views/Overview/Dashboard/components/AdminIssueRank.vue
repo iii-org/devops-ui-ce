@@ -6,6 +6,7 @@
       cell-class-name="items-center"
       row-class-name="cursor-pointer"
       header-cell-class-name="items-center"
+      stripe
       @row-click="showUnclosedIssuesDetail"
     >
       <template v-slot:user_name="{row}">

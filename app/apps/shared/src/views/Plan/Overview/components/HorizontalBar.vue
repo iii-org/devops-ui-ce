@@ -71,7 +71,8 @@ export default {
           data: this.chartData.yAxis
         },
         series: this.chartData.series,
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        textStyle: { fontFamily: 'Montserrat' }
       }
     }
   }

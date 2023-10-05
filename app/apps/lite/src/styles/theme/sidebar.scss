@@ -42,7 +42,7 @@
 
     &.has-logo {
       .el-scrollbar {
-        height: calc(100% - 90px);  // 90px is the height of the logo
+        height: calc(100% - 90px); // 90px is the height of the logo
       }
     }
 
@@ -148,6 +148,11 @@
         .el-submenu__icon-arrow {
           display: none;
         }
+      }
+    }
+    .is-active>.el-submenu__title {
+      .sub-el-icon {
+        color: $menuActiveText !important;
       }
     }
 

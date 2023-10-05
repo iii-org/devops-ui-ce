@@ -8,7 +8,6 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="hasClairData ? 'link-text-color' : ''"
             :disabled="!hasClairData"
             @click="openClair"
           >
@@ -78,10 +77,10 @@ export default {
   },
   computed: {
     hasClairData() {
-      return !!(this.clair && this.clair[0] && this.clair[0].status !== 'failed')
+      return !!(this.clair && this.clair[0] && this.clair[0].status && this.clair[0].status !== 'failed')
     },
     hasEachItemData() {
-      return key => !!(this.clair[0].hasOwnProperty(key))
+      return key => !!(this.clair[0] && this.clair[0].hasOwnProperty(key))
     },
     tool() {
       return process.env.VUE_APP_PROJECT === 'SSO' ? 'Trivy' : 'Clair'

@@ -77,7 +77,8 @@ export default {
             data: this.chartData.data
           }
         ],
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        textStyle: { fontFamily: 'Montserrat' }
       }
     }
   }

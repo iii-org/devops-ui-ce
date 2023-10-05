@@ -72,16 +72,14 @@
   }
 }
 
-.notification {
-  padding: 8px 16px !important;
-  background-color: $noticeBackgroundColor !important;
-  border-radius: 4px !important;
-  border-left: 5px solid $switchActiveColor !important;
-  margin: 10px 0;
-  font-size: 13px !important;
-  color: #515357 !important;
-  width: 100% !important;
-  text-align: left !important;
+.notification-danger {
+  @include notifications($danger, $danger-1);
+}
+.notification-warning {
+  @include notifications($warning, $warning-1);
+}
+.notification-info {
+  @include notifications($info, $info-1);
 }
 
 .project-dialog-loading {
@@ -114,16 +112,13 @@
 * https://icon-sets.iconify.design
 */
 .table-button {
-  font-size: 16px;
-  color: $info;
+  font-size: 20px;
+  color: $primary;
   cursor: pointer;
   border: 1px solid transparent;
-  padding: 2px;
-  border-radius: 15px;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
+  border-radius: 4px;
   text-align: center;
+  margin: 0 1px;
   &.primary {
     color: $primary;
     &:hover {
@@ -158,15 +153,17 @@
     cursor: help;
   }
   &.disabled {
+    color: $info-5;
     pointer-events: none;
+    cursor: not-allowed;
   }
   &:hover {
-    color: white;
-    font-weight: normal;
+    color: white !important;
     background-color: $info;
-    font-size: 14px;
-    padding: 3px;
   }
+}
+span:has(> .table-button.disabled) {
+  cursor: not-allowed;
 }
 
 .text {

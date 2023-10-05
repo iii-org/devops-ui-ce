@@ -1,12 +1,39 @@
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
-      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img src="../../../assets/logo_2.png" class="sidebar-logo" alt="">
+      <router-link
+        v-if="collapse"
+        key="collapse"
+        class="sidebar-logo-link"
+        to="/"
+      >
+        <img
+          src="../../../assets/logo_2.png"
+          class="sidebar-logo"
+          alt=""
+        >
       </router-link>
-      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <div style="text-align: center;"><img src="../../../assets/logo_2.png" class="sidebar-logo" alt=""></div>
-        <div style="text-align: center;"><h1 class="sidebar-title" :class="isLite ? 'lite' : ''">{{ defaultSettings.title }} </h1></div>
+      <router-link
+        v-else
+        key="expand"
+        class="sidebar-logo-link"
+        to="/"
+      >
+        <div>
+          <img
+            src="../../../assets/logo_2.png"
+            class="sidebar-logo"
+            alt=""
+          >
+        </div>
+        <div>
+          <h1
+            class="sidebar-title"
+            :class="isLite ? 'lite' : ''"
+          >
+            {{ defaultSettings.title }}
+          </h1>
+        </div>
       </router-link>
     </transition>
   </div>
@@ -55,13 +82,14 @@ export default {
   height: 90px;
   // line-height: 40px;
   background: $sideBarTitleBg;
-  text-align: left;
-  padding: 14px 12px 0 12px;
+  text-align: center;
+  padding: 14px 12px;
   overflow: hidden;
   //margin-bottom: 10px;
   border-radius: 0 0 15px 15px;
   box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
   z-index: 1;
+  transition: height .3s;
 
   & .sidebar-logo-link {
     height: 100%;
@@ -89,6 +117,7 @@ export default {
   }
 
   &.collapse {
+    height: 60px;
     .sidebar-logo {
       margin-right: 0px;
     }

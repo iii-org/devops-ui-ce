@@ -8,7 +8,6 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="hasZapData ? 'link-text-color' : ''"
             :disabled="!hasZapData"
             @click="openZap"
           >

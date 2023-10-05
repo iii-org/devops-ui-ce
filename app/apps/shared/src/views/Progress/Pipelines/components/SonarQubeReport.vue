@@ -8,7 +8,6 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="sonarqubeLink ? 'link-text-color' : ''"
             :disabled="!sonarqubeLink"
             @click="openSonarQube"
           >

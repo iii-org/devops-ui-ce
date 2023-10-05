@@ -81,7 +81,7 @@
         <Editor
           id="descriptionEditor"
           ref="mdEditor"
-          height="15rem"
+          :height="viewerHeight"
           preview-style="tab"
           initial-edit-type="wysiwyg"
           :initial-value="editorValue"
@@ -156,6 +156,7 @@
         <el-tooltip
           :enterable="false"
           :content="$t('Issue.DoubleClickToEdit')"
+          :offset="100"
           placement="top"
         >
           <Viewer
@@ -251,8 +252,9 @@ export default {
       editorType: 'wysiwyg',
       mentionList: [],
       tagList: [],
-      ellipsisStatus: false,
+      ellipsisStatus: true,
       isViewerFolded: true,
+      viewerHeight: 0,
       toggleDrawer: false,
       keyStatus: {},
       zoomSize: 0
@@ -304,7 +306,6 @@ export default {
   watch: {
     value() {
       this.componentKey += 1
-      this.ellipsisStatus = true
     },
     toggleDrawer(val) {
       if (!val) this.cancelInput()
@@ -366,7 +367,20 @@ export default {
         this.enableEditor()
       }
     },
+    calcViewerHeight() {
+      if (!this.$refs.mdViewer) return '200px'
+      const clientHeight = this.$refs.mdViewer.$el.clientHeight + 125
+      switch (true) {
+        case (clientHeight < 200):
+          return '200px'
+        case (clientHeight > 600):
+          return '600px'
+        default:
+          return clientHeight + 'px'
+      }
+    },
     enableEditor() {
+      this.viewerHeight = this.calcViewerHeight()
       this.isIssueEdited.description = !this.isButtonDisabled
       this.initZoom()
       if (this.device === 'mobile') {

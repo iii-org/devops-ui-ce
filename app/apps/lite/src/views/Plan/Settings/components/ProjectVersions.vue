@@ -39,7 +39,7 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-file-edit-line warning table-button" @click="handleEdit(row)" />
+            <em class="ri-edit-box-line success table-button" @click="handleEdit(row)" />
           </el-tooltip>
           <el-tooltip
             placement="bottom"

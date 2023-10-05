@@ -8,7 +8,6 @@
             slot="link"
             type="text"
             icon="el-icon-position"
-            :class="hasAnchoreData ? 'link-text-color' : ''"
             :disabled="!hasAnchoreData"
             @click="openAnchore"
           >
@@ -50,7 +49,7 @@
             </td>
           </template>
           <template v-else>
-            <td colspan="4" class="nodata">{{ $t('general.NoData') }}</td>
+            <td colspan="5" class="nodata">{{ $t('general.NoData') }}</td>
           </template>
         </tr>
       </tbody>
@@ -73,13 +72,17 @@ export default {
   },
   computed: {
     hasAnchoreData() {
-      return !!(this.anchore && this.anchore[0] && this.anchore[0].hasOwnProperty('scan_overview'))
+      return !!(this.anchore && this.anchore[0] &&
+        this.anchore[0].hasOwnProperty('scan_overview') &&
+        this.anchore[0].scan_overview !== null)
     },
     hasPackageCountData() {
       return this.anchore[0].package_nums
     },
     hasEachItemData() {
-      return key => !!(this.anchore[0].scan_overview.hasOwnProperty(key))
+      return key => !!(this.anchore &&
+        this.anchore[0]?.scan_overview &&
+        this.anchore[0].scan_overview.hasOwnProperty(key))
     }
   },
   methods: {

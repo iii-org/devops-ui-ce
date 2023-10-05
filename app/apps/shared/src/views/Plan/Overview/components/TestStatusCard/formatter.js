@@ -172,13 +172,7 @@ const sideexFormatter = (testResult) => {
 const zapFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
-  if (Object.keys(testResult.result).length === 0) {
-    Object.assign(ret, {
-      Software: 'zap',
-      informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
-      status: testResult.status
-    })
-  } else {
+  if (testResult.result !== 'None' && Object.keys(testResult.result).length !== 0) {
     const result = testResult.result
     Object.assign(ret, {
       Software: 'zap',
@@ -189,6 +183,12 @@ const zapFormatter = (testResult) => {
         { status: i18n.t('Zap.low'), count: result['1'] },
         { status: i18n.t('general.Info'), count: result['0'] }
       ]
+    })
+  } else {
+    Object.assign(ret, {
+      Software: 'zap',
+      informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
+      status: testResult.status
     })
   }
   return ret

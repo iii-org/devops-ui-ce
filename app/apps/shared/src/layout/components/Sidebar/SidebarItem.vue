@@ -125,8 +125,7 @@ export default {
 <style lang="scss" scoped>
 .nest-menu {
   ::v-deep li {
-    padding-left: 48px !important;
+    padding-left: 46px !important;
   }
 }
-
 </style>

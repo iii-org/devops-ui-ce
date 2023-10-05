@@ -42,7 +42,7 @@
         </template>
         <template slot-scope="scope">
           <span v-if="isMobile" class="label-mobile truncate">{{ isMobile ? col.label : '' }}</span>
-          <span>
+          <span :class="isMobile ? 'text-right' :''">
             <el-tooltip
               v-if="col.type === 'time'"
               placement="top"
@@ -280,7 +280,6 @@ export default {
     max-width: 120px;
   }
   ::v-deep .cell {
-    white-space: nowrap !important;
     display: flex;
     justify-content: space-between;
     padding-left: 0 !important;

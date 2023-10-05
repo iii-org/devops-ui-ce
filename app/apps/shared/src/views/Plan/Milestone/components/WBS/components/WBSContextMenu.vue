@@ -8,6 +8,7 @@
         >
           {{ contextMenu.row.name }}
         </contextmenu-item>
+        <contextmenu-item v-permission="permission" divider />
         <contextmenu-submenu
           v-permission="permission"
           :title="$t('Issue.tags')"
@@ -20,11 +21,11 @@
           >
             <em
               v-if="getContextMenuCurrentValue('tags', item)"
-              class="el-icon-check"
+              class="ri-check-line"
             />
             <em
               v-if="item.id==='null'"
-              class="el-icon-circle-close"
+              class="ri-close-circle-line"
             />
             {{ item.name }} {{ item.message }}
           </contextmenu-item>
@@ -99,7 +100,7 @@
           class="menu-remove"
           @click="handleRemoveIssue(contextMenu.row, 'ConfirmDelete', false)"
         >
-          <em class="el-icon-delete">{{ $t('general.Delete') }}</em>
+          <em class="ri-delete-bin-2-line mr-1" />{{ $t('general.Delete') }}
         </contextmenu-item>
       </template>
     </contextmenu>
@@ -254,12 +255,17 @@ export default {
 
 <style lang="scss" scoped>
 .menu-title {
-  background: #d2d2d2;
-  max-width: 150px;
-  height: 25px;
-  line-height: 1.25;
-  padding: 3px 3px 3px 5px;
-  margin: 0;
+  background: #ebebeb;
+  max-width: 160px;
+  font-weight: bold;
+  margin: 0 5px;
+  border-radius: 3px;
+  padding: 5px 9px;
+  &:hover {
+    background: #ebebeb;
+    color: #333;
+    cursor: initial;
+  }
 }
 .current {
   @apply text-success font-bold;

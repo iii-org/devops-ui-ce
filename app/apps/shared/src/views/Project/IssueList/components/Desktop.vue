@@ -39,6 +39,7 @@
           />
         </el-row>
         <IssueExpand
+          class="mx-3"
           :issue="row"
           @on-context-menu="parent.onContextMenu"
           @update="parent.loadDataAfterSetIssue"
@@ -295,10 +296,9 @@ export default {
 
 <style lang="scss" scoped>
 .add-issue {
-  margin-left: 24px;
-  margin-right: 29px;
+  margin: 0 16px;
   border: solid 1px #cbcbcb;
   border-radius: 4px;
-  padding: 10px;
+  padding: 8px 2px 0 2px;
 }
 </style>

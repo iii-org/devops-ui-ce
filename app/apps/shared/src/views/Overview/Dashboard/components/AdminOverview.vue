@@ -1,46 +1,28 @@
 <template>
   <el-row v-loading="listLoading">
     <el-row
-      class="circle hidden-sm-and-down"
-      type="flex"
-      justify="center"
-      align="middle"
+      class="circle"
     >
       <template v-if="listData.length>0">
         <el-col
           v-for="(item,idx) in listData"
           :key="idx"
           :xs="24"
-          :sm="24"
+          :sm="8"
           :md="8"
         >
-          <CircleDashboard
-            :count="item.count"
-            :item="$t('Dashboard.ADMIN.Overview.'+item.project_status)"
-            class="pointer"
-            :class="'circle-'+item.class"
-            @click.native="onShowDetail(item.database)"
+          <Doughnut
+            :chart-data="item"
+            :radius="['70%', '90%']"
+            :center="['50%', '50%']"
+            :show-legend="false"
+            :is-from-dashboard="true"
+            @click.native="onShowDetail(oriData[idx].database)"
           />
         </el-col>
       </template>
       <no-data v-else />
     </el-row>
-    <div class="list hidden-md-and-up">
-      <el-row
-        v-for="(item,idx) in listData"
-        :key="idx"
-        :class="'table-'+item.class"
-        align="bottom"
-        type="flex"
-        @click.native="onShowDetail(item.database)"
-      >
-        <el-col
-          :span="12"
-          class="text-right count"
-        >{{ item.count }}</el-col>
-        <el-col :span="12">{{ $t('Dashboard.ADMIN.Overview.' + item.project_status) }}</el-col>
-      </el-row>
-    </div>
     <el-dialog
       :visible.sync="detailDialog"
       :title="$t('Dashboard.ADMIN.ProjectList.NAME')"
@@ -57,17 +39,17 @@
 </template>
 
 <script>
-import CircleDashboard from './widget/CircleDashboard'
 import AdminProjectList from './AdminProjectList'
 import { getProjectListDetail } from '@/api/dashboard'
-import { NoData } from '@shared/components'
+import { Doughnut, NoData } from '@shared/components'
+import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'AdminOverview',
   components: {
     NoData,
     AdminProjectList,
-    CircleDashboard
+    Doughnut
   },
   props: {
     data: {
@@ -79,14 +61,15 @@ export default {
     return {
       listLoading: false,
       listData: [],
-      detailDialog: false
+      detailDialog: false,
+      oriData: []
     }
   },
   watch: {
     listLoading(value) {
       this.$emit('loading', value)
     },
-    listData: {
+    oriData: {
       deep: true,
       handler(value) {
         this.$emit('total-count', value[0])
@@ -99,8 +82,30 @@ export default {
   methods: {
     async loadData() {
       this.listLoading = true
-      this.listData = await this.data()
+      this.oriData = await this.data()
+      this.oriData.forEach((item, idx) => {
+        this.listData.push(this.formatData(item, this.oriData[0], idx))
+      })
       this.listLoading = false
+    },
+    formatData(item, total, idx) {
+      const result = []
+      result.push({
+        value: item.count,
+        name: this.$t('Dashboard.ADMIN.Overview.' + item.project_status),
+        emphasis: { color: colorVariables[item.class] },
+        itemStyle: { color: colorVariables[item.class] }
+      })
+      if (idx !== 0) {
+        result.push({
+          value: total.count - item.count,
+          total: total.count,
+          name: this.$t('Dashboard.ADMIN.Overview.' + total.project_status),
+          emphasis: { color: '#d3d3d3' },
+          itemStyle: { color: '#d3d3d3' }
+        })
+      }
+      return result
     },
     getProjectListDetailData() {
       return getProjectListDetail().then((res) => Promise.resolve(res.data))

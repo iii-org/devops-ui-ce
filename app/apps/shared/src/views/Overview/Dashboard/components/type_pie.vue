@@ -89,7 +89,8 @@ export default {
             animationDuration: 2600
           }
         ],
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        textStyle: { fontFamily: 'Montserrat' }
       }
     }
   },

@@ -4,6 +4,7 @@
     :visible.sync="dialogVisible"
     :close-on-click-modal="false"
     destroy-on-close
+    append-to-body
     :width="isMobile ? '95vw' : '80vw'"
     top="3vh"
     @closed="onDialogClosed"
@@ -45,7 +46,6 @@
           ref="userTable"
           :data="pagedData"
           :element-loading-text="$t('Loading')"
-          height="100%"
           highlight-current-row
           fit
           @cell-click="handleClick"

@@ -41,7 +41,7 @@
         >
           <em
             v-if="$route.params.user_id !== row.owner_id"
-            class="ri-file-list-2-line primary table-button"
+            class="ri-survey-line primary table-button"
             @click="handleParticipateDialog(row.owner_id)"
           />
         </el-tooltip>
@@ -68,7 +68,7 @@
             :disabled="isDisabled"
             @confirm="handleDelete(row.id)"
           >
-            <span slot="reference" :class="isDisabled ? 'disabled' : ''">
+            <span slot="reference">
               <em
                 class="ri-delete-bin-2-line table-button"
                 :class="isDisabled ? 'disabled' : 'danger'"

@@ -24,9 +24,8 @@
             v-if="stage.state"
             class="el-tag ml-2"
             size="mini"
-            :type="mapStateType(stage.state)"
-            :effect="mapStateEffect(stage.state)"
-            :color="stage.state === 'Running' ? runningStateColor : ''"
+            :type="stage.state.toLowerCase()"
+            effect="dark"
           >
             {{ stage.state }}
           </el-tag>
@@ -118,9 +117,6 @@ export default {
     },
     isMobile() {
       return this.device === 'mobile'
-    },
-    runningStateColor() {
-      return colorVariables.menuActiveText
     }
   },
   mounted() {
@@ -258,27 +254,6 @@ export default {
         item.state === 'Created'
       })
     },
-    mapStateType(state) {
-      const mapping = {
-        Created: 'warning',
-        Running: '',
-        Success: 'success',
-        Failed: 'danger',
-        Canceled: 'warning',
-        Manual: 'warning',
-        Scheduled: 'warning'
-      }
-      return mapping[state]
-    },
-    mapStateEffect(status) {
-      const mapping = {
-        Created: 'light',
-        Running: 'light',
-        Manual: 'light',
-        Scheduled: 'light'
-      }
-      return mapping[status] || 'dark'
-    },
     scrollToBottom(index) {
       this.$nextTick(() => {
         if (
@@ -297,6 +272,9 @@ export default {
 
 <style lang="scss" scoped>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/mixin.scss';
+
 .mobile {
   ::v-deep .el-tabs--left, ::v-deep .el-tabs__header.is-left {
     float: none;
@@ -357,6 +335,32 @@ pre {
     margin-right: .5em;
     color: #888;
     min-width: 40px;
+  }
+}
+$tag-light-options: (
+  created: $created,
+  pending: $pending,
+  manual: $manual,
+  scheduled: $scheduled,
+  skipped: $skipped,
+  unknown: $unknown,
+  notfound: $unknown
+);
+$tag-dark-options: (
+  running: $running,
+  finished: $success,
+  passed: $passed,
+  failed: $failed,
+  canceled: $canceled
+);
+@each $key, $value in $tag-light-options {
+  .el-tag--#{$key} {
+    @include tag-light($value);
+  }
+}
+@each $key, $value in $tag-dark-options {
+  .el-tag--#{$key} {
+    @include tag-dark($value);
   }
 }
 </style>

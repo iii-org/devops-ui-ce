@@ -362,7 +362,9 @@ export default {
       if (this.filterValue['tags'] && this.filterValue['tags'].length <= 0) {
         this.$delete(this.filterValue, 'tags')
       }
-      if (Object.prototype.hasOwnProperty.call(this.filterValue, this.groupBy.dimension)) {
+      if (this.storageName === 'issue_board' &&
+        Object.prototype.hasOwnProperty.call(this.filterValue, this.groupBy.dimension)
+      ) {
         this.$delete(this.filterValue, this.groupBy.dimension)
       }
       await this.loadData()

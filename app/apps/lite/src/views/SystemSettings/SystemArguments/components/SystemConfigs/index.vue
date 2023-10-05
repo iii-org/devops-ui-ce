@@ -28,7 +28,7 @@
           :content="$t('general.Edit')"
         >
           <em
-            class="ri-file-edit-line warning table-button"
+            class="ri-edit-box-line success table-button"
             @click="row.method"
           />
         </el-tooltip>

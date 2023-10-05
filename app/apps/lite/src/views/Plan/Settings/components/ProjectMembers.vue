@@ -65,7 +65,7 @@
           >
             <em
               v-permission="['Administrator','QA']"
-              class="ri-file-list-2-line primary table-button"
+              class="ri-survey-line primary table-button"
               @click="handleParticipateDialog(row.id)"
             />
           </el-tooltip>
@@ -75,7 +75,7 @@
           >
             <em
               v-permission="['Administrator','Project Manager', 'QA']"
-              class="ri-file-copy-2-line primary table-button"
+              class="ri-file-copy-2-line success table-button"
               @click="handleIssueClick(row)"
             />
           </el-tooltip>
@@ -83,11 +83,13 @@
             placement="bottom"
             :content="$t('general.Remove')"
           >
-            <em
-              class="ri-delete-bin-2-line danger table-button"
-              :disabled="row.id === userId"
-              @click="handleDeleteClick(row)"
-            />
+            <span>
+              <em
+                class="ri-delete-bin-2-line table-button"
+                :class="row.id === userId ? 'disabled' : 'danger'"
+                @click="handleDeleteClick(row)"
+              />
+            </span>
           </el-tooltip>
         </template>
       </ElTableResponsive>

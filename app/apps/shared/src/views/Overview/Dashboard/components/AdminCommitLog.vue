@@ -15,7 +15,8 @@
           placement="top"
         >
           <el-card class="timeline-item-card">
-            <h4>{{ commit.commit_title }}</h4>
+            <p class="text-sm font-bold m-0">{{ commit.commit_title }}</p>
+            <el-divider />
             <p v-if="compareCommitContent(commit)">{{ commit.commit_message }}</p>
             <p class="author">
               {{ commit.author_name }} @ {{ commit.pj_name }}
@@ -85,7 +86,7 @@ export default {
   }
 
   .author {
-    margin-bottom: 0;
+    margin: 0;
   }
 }
 
@@ -102,7 +103,12 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
-::v-deep .el-timeline {
-  padding-left: 8px;
+::v-deep {
+  .el-timeline {
+    padding-left: 0;
+  }
+  .el-card__body .el-divider--horizontal {
+    margin: 6px -12px !important;
+  }
 }
 </style>

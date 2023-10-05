@@ -42,9 +42,9 @@ $desktop: 1280;
 }
 
 @mixin css-prefix($prop, $value) {
-  -webkit-#{$prop}: #{$value}; /* Chrome */
-  -moz-#{$prop}: #{$value}; /* Firefox */
-  -ms-#{$prop}: #{$value}; /* Internet Explorer/Edge */
+  -webkit-#{$prop}: #{$value};
+  -moz-#{$prop}: #{$value};
+  -ms-#{$prop}: #{$value};
   -o-#{$prop}: #{$value};
   #{$prop}: #{$value};
 }
@@ -72,16 +72,39 @@ $desktop: 1280;
 }
 
 @mixin button-reverse($mainColor) {
-  @include background-border-color(white, $buttonBorderColor);
+  @include background-border-color(color-mix(in srgb, $mainColor 5%, white), rgba($mainColor, 0.20));
   color: $mainColor !important;
   &:focus {
-    @include background-border-color(white, $buttonFocusBorderColor);
+    @include background-border-color(color-mix(in srgb, $mainColor 5%, white), rgba($mainColor, 0.40));
     color: $mainColor !important;
   }
   &:hover, &:active {
     @include background-border-color($mainColor, $mainColor);
     color:white !important;
   }
+}
+
+@mixin tag-light($mainColor) {
+  background-color: rgba($mainColor, 0.10) !important;
+  border-color: rgba($mainColor, 0.20) !important;
+  color: $mainColor !important;
+}
+@mixin tag-dark($mainColor) {
+  background-color: $mainColor !important;
+  border-color: $mainColor !important;
+  color: white !important;
+}
+
+@mixin notifications($mainColor, $backgroundColor) {
+  padding: 8px 16px !important;
+  background-color: $backgroundColor !important;
+  border-radius: 4px !important;
+  border-left: 5px solid $mainColor !important;
+  margin: 10px 0;
+  font-size: 13px !important;
+  color: #515357 !important;
+  width: 100% !important;
+  text-align: left !important;
 }
 
 @mixin cover-background {

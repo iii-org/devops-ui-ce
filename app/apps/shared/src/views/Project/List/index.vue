@@ -103,6 +103,7 @@
           :filter-value="filterValue"
           type="issue_list"
         />
+
         <el-popover
           v-show="socket.connected && issueView === 'Board'"
           placement="bottom"
@@ -118,7 +119,7 @@
               >
                 <template v-for="item in filterOptions">
                   <el-option
-                    v-if="item.value !== 'tags'"
+                    v-if="filterDimensionsList(item.value)"
                     :key="item.id"
                     :label="item.label"
                     :value="item.value"
@@ -294,6 +295,9 @@ export default {
     ...mapGetters(['device']),
     isBoard() {
       return this.issueView === 'Board'
+    },
+    filterDimensionsList() {
+      return (value) => value !== 'tags' && value !== 'due_date_start' && value !== 'due_date_end'
     },
     contextOptions() {
       const result = {}

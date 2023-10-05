@@ -160,7 +160,8 @@ export default {
             type: 'scatter'
           }
         ],
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        textStyle: { fontFamily: 'Montserrat' }
       }
     },
     isMobile() {

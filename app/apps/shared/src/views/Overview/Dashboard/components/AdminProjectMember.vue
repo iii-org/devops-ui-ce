@@ -166,7 +166,8 @@ export default {
             bottom: '5%'
           }
         ],
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        textStyle: { fontFamily: 'Montserrat' }
       }
     },
     isLite() {

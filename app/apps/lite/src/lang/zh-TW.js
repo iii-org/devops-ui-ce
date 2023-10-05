@@ -225,7 +225,7 @@ export default {
     Branch: '分支',
     Commit: '提交碼',
     Total: '共',
-    AdvancedSettings: '》進階設定',
+    AdvancedSettings: '進階設定',
     year: '年',
     month: '月',
     week: '週',

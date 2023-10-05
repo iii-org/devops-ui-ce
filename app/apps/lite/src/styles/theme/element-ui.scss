@@ -135,6 +135,10 @@
   display: inline-block;
 }
 
+.el-form-item--medium .el-form-item__content {
+  line-height: 37px !important;
+}
+
 .el-input.is-active .el-input__inner, .el-input__inner:focus {
   border-color: $linkTextColor !important;
   outline: 0;
@@ -154,6 +158,9 @@
   &:hover {
     color: $linkTextColor !important;
   }
+}
+.el-link.el-link--primary.is-underline:hover:after {
+  border-color: $linkTextColor !important;
 }
 
 .el-loading-spinner {
@@ -237,6 +244,10 @@
 
 .el-select .el-input.is-focus .el-input__inner {
   border-color: $linkTextColor !important;
+}
+
+.el-select-dropdown__wrap {
+  max-width: 99vw;
 }
 
 .el-select-dropdown__item.selected {
