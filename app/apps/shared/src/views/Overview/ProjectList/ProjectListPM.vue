@@ -400,7 +400,7 @@ export default {
     selectedProjectId: {
       handler(id) {
         if (id > -1) {
-          this.isShowProjectSettingDialog = !this.isShowProjectSettingDialog
+          this.isShowProjectSettingDialog = false
         }
       }
     }

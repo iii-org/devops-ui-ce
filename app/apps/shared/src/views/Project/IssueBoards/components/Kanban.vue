@@ -1135,4 +1135,16 @@ export default {
   width: 220px;
   font-weight: bold;
 }
+@include tablet {
+  ::v-deep {
+    .el-scrollbar__wrap {
+      margin-right: 0 !important;
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+    .el-scrollbar__wrap::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
+    }
+  }
+}
 </style>

@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import VueShowdown from 'vue-showdown'
 import '@/assets/tailwind.css'
 import 'normalize.css/normalize.css'
 import ElementUI from 'element-ui'
@@ -36,20 +35,6 @@ Vue.prototype.$dayjs = dayjs
 
 Vue.use(permission)
 Vue.use(ElementUI, { i18n: (key, value) => i18n.t(key, value) })
-Vue.use(VueShowdown, {
-  options: {
-    emoji: true,
-    tables: true,
-    simplifiedAutoLink: true,
-    tasklists: true,
-    openLinksInNewWindow: true,
-    underline: true,
-    ghCodeBlocks: true,
-    encodeEmails: true,
-    simpleLineBreaks: true,
-    strikethrough: true
-  }
-})
 Vue.use(VueGtag, {
   config: { id: process.env.VUE_APP_GTM_TAG }
 })

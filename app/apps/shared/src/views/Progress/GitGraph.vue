@@ -1,6 +1,11 @@
 <template>
   <el-row v-loading="listLoading" :element-loading-text="$t('Loading')" class="app-container">
-    <ProjectListSelector />
+    <ProjectListSelector>
+      <el-radio-group v-model="graphTheme" size="small">
+        <el-radio-button label="light"><em class="ri-sun-line text-xl" /></el-radio-button>
+        <el-radio-button label="dark"><em class="ri-moon-line text-xl" /></el-radio-button>
+      </el-radio-group>
+    </ProjectListSelector>
     <el-divider />
     <el-card class="box-card">
       <div class="cardBody">
@@ -9,7 +14,12 @@
           :description="$t('general.NoData')"
           :image-size="100"
         />
-        <div v-show="!isNoData" id="graph-container" />
+        <div
+          v-show="!isNoData"
+          id="graph-container"
+          :style="{ backgroundColor: colorSwitch.background }"
+          :class="graphTheme === 'dark' ? 'dark' : ''"
+        />
         <el-button
           v-if="!isNoData && defaultBranch"
           id="load-more"
@@ -29,13 +39,14 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import { createGitgraph, templateExtend } from '@gitgraph/js'
 import { getGitGraphByRepo } from '@/api/git-graph'
 import { BasicData } from '@/mixins'
 import { ProjectListSelector } from '@shared/components'
 import { getBranchesByProject } from '@/api/branches'
 import { getLocalTime } from '@shared/utils/handleTime'
+import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'ProgressGitGraph', // ready to refactor
@@ -49,7 +60,8 @@ export default {
       isNoData: false,
       allBranchGraph: {},
       defaultBranch: null,
-      nodeData: []
+      nodeData: [],
+      graphTheme: 'light'
     }
   },
   computed: {
@@ -59,15 +71,39 @@ export default {
     },
     gitlabGraphLink() {
       return this.selectedProject.git_url.replace('.git', `/-/network/${this.defaultBranch}?ref_type=heads`)
+    },
+    colorSwitch() {
+      if (this.graphTheme === 'light') {
+        return {
+          message: '##333238',
+          background: '#fff'
+        }
+      } else {
+        return {
+          message: '#fff',
+          background: colorVariables.sideBarTitleBg
+        }
+      }
+    }
+  },
+  watch: {
+    graphTheme() {
+      this.createFromGit()
+      this.$nextTick(() => {
+        this.replaceGraph()
+      })
+      this.setGraphTheme(this.graphTheme)
     }
   },
   methods: {
+    ...mapActions('projects', ['getGraphTheme', 'setGraphTheme']),
     async fetchData() {
       if (this.selectedProjectId === -1) {
         this.showNoProjectWarning()
         return []
       }
       this.listLoading = true
+      this.graphTheme = await this.getGraphTheme()
       try {
         const svgs = document.querySelector('#graph-container')
           ? document.querySelector('#graph-container').children
@@ -87,8 +123,7 @@ export default {
         this.listLoading = false
         // remove duplicate graph if exist
         this.$nextTick(() => {
-          const element = document.getElementById('graph-container')
-          element.replaceChildren(element.firstElementChild)
+          this.replaceGraph()
         })
       }
     },
@@ -112,14 +147,14 @@ export default {
           colors: ['#479edc', '#CCC052', '#7A29CC', '#49CC29', '#CC007A', '#00CC8F'],
           commit: {
             message: {
-              color: '#333238',
-              font: 'normal 14px JetBrains Mono',
+              color: this.colorSwitch.message,
+              font: 'normal 13px JetBrains Mono',
               id: 'message',
               displayAuthor: false
             },
             dot: { size: 5 },
             spacing: 30,
-            font: 'normal 14px JetBrains Mono'
+            font: 'normal 13px JetBrains Mono'
           },
           branch: {
             label: {
@@ -139,6 +174,10 @@ export default {
     },
     openGitLabGraph() {
       window.open(this.gitlabGraphLink, '_blank')
+    },
+    replaceGraph() {
+      const element = document.getElementById('graph-container')
+      element.replaceChildren(element.lastElementChild)
     }
   }
 }
@@ -158,9 +197,15 @@ export default {
 }
 #graph-container {
   flex: 1;
+  padding-top: 10px;
   padding-bottom: 0 !important;
   overflow: auto !important;
-
+  border-radius: 4px;
+  ::v-deep {
+    svg:not(:root) {
+      min-width: max-content;
+    }
+  }
 }
 ::v-deep {
   rect {
@@ -179,15 +224,22 @@ export default {
   foreignObject {
     transform: translate(-10px, 10px);
     font-size: 11px;
+    color: #757575;
     p {
       margin: 0;
       padding: 2px 0;
       border-radius: 4px
     }
   }
-  svg:not(:root) {
-    width: 100%;
+  .el-radio-button__inner {
+    padding: 3px 9px;
   }
 }
-
+.dark {
+  ::v-deep {
+    foreignObject {
+      color: #c7c7c7;
+    }
+  }
+}
 </style>

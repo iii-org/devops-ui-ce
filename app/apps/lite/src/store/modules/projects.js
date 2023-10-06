@@ -36,7 +36,8 @@ const getDefaultState = () => {
     listQuery: {},
     sort: JSON.parse(sessionStorage.getItem('sort')) || {},
     issueListPageInfo: {},
-    fixedVersionShowClosed: false
+    fixedVersionShowClosed: false,
+    graphTheme: JSON.parse(sessionStorage.getItem('graphTheme')) || 'light'
   }
 }
 
@@ -96,6 +97,9 @@ const mutations = {
   // },
   SET_FIXED_VERSION_SHOW_CLOSED: (state, value) => {
     state.fixedVersionShowClosed = value
+  },
+  SET_GRAPH_THEME: (state, value) => {
+    state.graphTheme = value
   }
 }
 
@@ -350,6 +354,18 @@ const actions = {
   setTableExpand({ commit }, value) {
     sessionStorage.setItem('tableExpand', JSON.stringify(value))
     commit('SET_TABLE_EXPAND', value)
+  },
+  getGraphTheme({ commit, state }) {
+    const getSessionValue = sessionStorage.getItem('graphTheme')
+    if (getSessionValue) {
+      commit('SET_GRAPH_THEME', JSON.parse(getSessionValue))
+      return JSON.parse(getSessionValue)
+    }
+    return state.graphTheme
+  },
+  setGraphTheme({ commit }, value) {
+    sessionStorage.setItem('graphTheme', JSON.stringify(value))
+    commit('SET_GRAPH_THEME', value)
   }
 }
 

@@ -58,7 +58,6 @@
     "vue-jwt-decode": "^0.1.0",
     "vue-router": "3.0.6",
     "vue-runtime-helpers": "^1.1.2",
-    "vue-showdown": "^2.4.1",
     "vue2-editor": "^2.10.3",
     "vue2-touch-events": "^3.2.2",
     "vuedraggable": "git+https://github.com/SortableJS/Vue.Draggable.git",

@@ -124,7 +124,8 @@ export default {
                   id: node.id,
                   text: node.text,
                   style: node.style,
-                  editable: node.editable
+                  editable: node.editable,
+                  edgeType: node.edgeType || 'default'
                 })
                 node.next.forEach(id => {
                   if (nids.has(id)) {
@@ -132,14 +133,16 @@ export default {
                       id: node.id,
                       text: node.text,
                       link: node.link,
-                      next: [id]
+                      next: [id],
+                      edgeType: node.edgeType || 'default'
                     })
                   } else {
                     outNodes.push({
                       id: node.id,
                       text: node.text,
                       link: node.link,
-                      next: [id]
+                      next: [id],
+                      edgeType: node.edgeType || 'default'
                     })
                   }
                 })
