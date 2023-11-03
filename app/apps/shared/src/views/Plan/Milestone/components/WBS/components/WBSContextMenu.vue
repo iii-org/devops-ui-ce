@@ -9,98 +9,101 @@
           {{ contextMenu.row.name }}
         </contextmenu-item>
         <contextmenu-item v-permission="permission" divider />
-        <contextmenu-submenu
-          v-permission="permission"
-          :title="$t('Issue.tags')"
-        >
-          <contextmenu-item
-            v-for="item in tags"
-            :key="item.id"
-            :class="{ current : getContextMenuCurrentValue('tags', item), [item.class]:item.class }"
-            @click="handleUpdateIssue({value:{'tags':item.id}, row:contextMenu.row})"
+        <template v-for="contextMenuOption in contextMenuOptions">
+          <contextmenu-submenu
+            v-if="!hasColumn(contextMenuOption)"
+            :key="contextMenuOption"
+            v-permission="permission"
+            :disabled="isContextSubmenuDisabled(contextMenuOption)"
           >
-            <em
-              v-if="getContextMenuCurrentValue('tags', item)"
-              class="ri-check-line"
-            />
-            <em
-              v-if="item.id==='null'"
-              class="ri-close-circle-line"
-            />
-            {{ item.name }} {{ item.message }}
-          </contextmenu-item>
-        </contextmenu-submenu>
-        <contextmenu-item
-          v-permission="permission"
-          divider
-        />
-        <contextmenu-item @click="onRelationIssueDialog(contextMenu.row)">
-          {{ $t('route.IssueDetail') }}
-        </contextmenu-item>
-        <contextmenu-item @click="toggleIssueMatrixDialog(contextMenu.row)">
-          {{ $t('Issue.TraceabilityMatrix') }}
-        </contextmenu-item>
-        <contextmenu-item
-          v-permission="permission"
-          divider
-        />
+            <span slot="title">
+              <em :class="mapTagType(contextMenuOption)" class="mr-2" />
+              {{ $t(`Issue.FilterDimensions.${contextMenuOption}`) }}
+            </span>
+            <contextmenu-item
+              v-for="contextMenuItem in getContextMenuItem(contextMenuOption)"
+              :key="`${contextMenuOption}-${contextMenuItem.id}`"
+              :disabled="contextMenuOption !== 'tags' && contextMenuItem.disabled"
+              :class="{
+                current: getCurrentSelectedValue(contextMenuOption, contextMenuItem),
+                [contextMenuItem.class]: contextMenuItem.class
+              }"
+              @click="
+                handleUpdateIssue({
+                  value: getUpdateValue(contextMenuOption, contextMenuItem.id),
+                  row: contextMenu.row
+                })
+              "
+            >
+              <em v-if="getCurrentSelectedValue(contextMenuOption, contextMenuItem)" class="el-icon-check" />
+              <em v-if="contextMenuItem.id === 'null'" class="el-icon-circle-close" />
+              <em :class="mapTagType(contextMenuItem.name)" class="point text-xs" />
+              <span>
+                {{
+                  hasNoI18n(contextMenuOption)
+                    ? contextMenuItem.name
+                    : getContextMenuI18nDisplay(contextMenuItem.name)
+                }}&nbsp;
+                {{ contextMenuItem.message }}
+              </span>
+            </contextmenu-item>
+          </contextmenu-submenu>
+        </template>
+        <contextmenu-item v-permission="permission" divider />
         <contextmenu-item
           v-permission="permission"
           @click="appendIssue(contextMenu.row)"
         >
-          {{ $t('Issue.AddIssue') }}
+          <em class="ri-add-circle-fill mr-2" />{{ $t("Issue.AddIssue") }}
         </contextmenu-item>
-        <contextmenu-submenu
-          v-permission="permission"
-          :title="$t('Issue.ChildrenIssue')"
-        >
+        <contextmenu-submenu v-permission="permission">
+          <span slot="title">
+            <em class="ri-bring-forward mr-2" />{{ $t('Issue.ChildrenIssue') }}
+          </span>
           <contextmenu-item
             v-permission="permission"
             @click="toggleRelationDialog('Children')"
           >
-            {{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
+            <em class="ri-settings-5-fill mr-2" />{{ $t("general.Settings", { name: $t("Issue.ChildrenIssue") }) }}
           </contextmenu-item>
           <contextmenu-item
             v-permission="permission"
             @click="appendIssue(contextMenu.row, true)"
           >
-            {{ $t('Issue.AddSubIssue') }}
+            <em class="ri-add-circle-fill mr-2" />{{ $t("Issue.AddSubIssue") }}
           </contextmenu-item>
         </contextmenu-submenu>
+        <contextmenu-item @click="toggleIssueMatrixDialog(contextMenu.row)">
+          <em class="ri-bar-chart-horizontal-fill mr-2" />{{ $t("Issue.TraceabilityMatrix") }}
+        </contextmenu-item>
+        <contextmenu-item v-permission="permission" divider />
         <contextmenu-item
           v-permission="permission"
           @click="appendIssue(contextMenu.row, false, contextMenu.row)"
         >
-          {{ $t('Issue.CopyIssue') }}
+          <em class="ri-file-copy-line mr-2" />{{ $t("Issue.CopyIssue") }}
         </contextmenu-item>
-        <contextmenu-submenu :title="$t('Issue.AddToCalendar')">
-          <contextmenu-item v-permission="permission" @click="addToCalendar('google', contextMenu.row)">
-            <svg-icon icon-class="google" class="text-md" />
-            <span>Google</span>
-          </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('microsoft', contextMenu.row)">
-            <svg-icon icon-class="microsoft" class="text-md" />
-            <span>Outlook.com</span>
-          </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('office365', contextMenu.row)">
-            <svg-icon icon-class="office365" class="text-md" />
-            <span>Microsoft 365</span>
-          </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('ics', contextMenu.row)">
-            <svg-icon icon-class="ical" class="text-md" />
-            <span>ICalendar</span>
+        <contextmenu-submenu>
+          <span slot="title"><em class="ri-calendar-event-fill mr-2" />
+            {{ $t('Issue.AddToCalendar') }}
+          </span>
+          <contextmenu-item
+            v-for="contextMenuCalendarOption in contextMenuCalendarOptions"
+            :key="contextMenuCalendarOption.id"
+            v-permission="permission"
+            @click="addToCalendar(contextMenuCalendarOption.id, contextMenu.row)"
+          >
+            <svg-icon :icon-class="contextMenuCalendarOption.id" class="text-md" />
+            <span>{{ contextMenuCalendarOption.display }}</span>
           </contextmenu-item>
         </contextmenu-submenu>
-        <contextmenu-item
-          v-permission="permission"
-          divider
-        />
+        <contextmenu-item v-permission="permission" divider />
         <contextmenu-item
           v-permission="permission"
           class="menu-remove"
           @click="handleRemoveIssue(contextMenu.row, 'ConfirmDelete', false)"
         >
-          <em class="ri-delete-bin-2-line mr-1" />{{ $t('general.Delete') }}
+          <em class="ri-delete-bin-2-line mr-2" />{{ $t('general.Delete') }}
         </contextmenu-item>
       </template>
     </contextmenu>
@@ -125,7 +128,14 @@
 </template>
 
 <script>
-import { directive, Contextmenu, ContextmenuItem, ContextmenuSubmenu } from 'v-contextmenu'
+import { mapGetters } from 'vuex'
+import { cloneDeep } from 'lodash'
+import {
+  directive,
+  Contextmenu,
+  ContextmenuItem,
+  ContextmenuSubmenu
+} from 'v-contextmenu'
 
 export default {
   name: 'WBSContextMenu',
@@ -139,11 +149,23 @@ export default {
     contextmenu: directive
   },
   props: {
+    columns: {
+      type: Array,
+      default: () => []
+    },
     contextMenu: {
       type: Object,
-      default: () => ({})
+      default: () => {}
     },
     tags: {
+      type: Array,
+      default: () => []
+    },
+    fixedVersion: {
+      type: Array,
+      default: () => {}
+    },
+    assignedTo: {
       type: Array,
       default: () => []
     },
@@ -153,6 +175,24 @@ export default {
     }
   },
   data() {
+    this.contextMenuCalendarOptions = [
+      {
+        id: 'google',
+        display: 'Google'
+      },
+      {
+        id: 'microsoft',
+        display: 'Outlook.com'
+      },
+      {
+        id: 'office365',
+        display: 'Microsoft 365'
+      },
+      {
+        id: 'ical',
+        display: 'ICalendar'
+      }
+    ]
     return {
       relationIssue: {
         visible: false,
@@ -160,9 +200,148 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'tracker',
+      'status',
+      'priority'
+    ]),
+    hasColumn() {
+      return checkColumn => !!this.columns.find(column => column === checkColumn)
+    },
+    contextMenuOptions() {
+      const defaultContextMenu = [
+        'tracker',
+        'status',
+        'assigned_to',
+        'fixed_version',
+        'priority',
+        'tags',
+        'done_ratio'
+      ]
+      return defaultContextMenu.filter(column => this.columns.indexOf(column) === -1)
+    },
+    isContextSubmenuDisabled() {
+      // Priority & Done Ratio couldn't been modified when the issue has children issues
+      return contextMenuOption => contextMenuOption === 'priority' ||
+        contextMenuOption === 'done_ratio'
+        ? this.contextMenu.row.has_children
+        : false
+    },
+    hasNoI18n() {
+      // Tag & Fixed Version & Done Ratio don't have i18n
+      return contextMenuOption => contextMenuOption === 'tags' ||
+        contextMenuOption === 'done_ratio'
+    },
+    doneRatio() {
+      const doneRatioList = []
+      for (let num = 0; num <= 100; num += 10) {
+        doneRatioList.push({ id: num, name: num + ' %' })
+      }
+      return doneRatioList
+    },
+    contextMenuAssignedTo() {
+      return this.assignedTo.filter((item) => item.login !== '-Me-')
+    },
+    getDynamicStatus() {
+      const option = cloneDeep({ status: this.status })
+      return option['status'].map((item) => this.formatDynamicStatus(item))
+    },
+    checkIssueAssignedToStatus() {
+      return (
+        !this.contextMenu.row.assigned_to ||
+        !this.contextMenu.row.assigned_to.id ||
+        this.contextMenu.row.assigned_to.id === '' ||
+        this.contextMenu.row.assigned_to.id === 'null'
+      )
+    }
+  },
   methods: {
-    getContextMenuCurrentValue(column, item) {
-      return this.contextMenu.row[column].map((subItem) => subItem.id).includes(item.id)
+    mapTagType(category) {
+      const map = {
+        status: 'ri-focus-2-fill',
+        priority: 'ri-arrow-up-double-line',
+        tracker: 'ri-list-indefinite',
+        assigned_to: 'ri-user-received-fill',
+        fixed_version: 'ri-folder-zip-fill',
+        tags: 'ri-bookmark-2-fill',
+        done_ratio: 'ri-check-double-fill',
+        Document: 'ri-file-fill bg-document',
+        Research: 'ri-seo-line bg-research',
+        Epic: 'ri-flashlight-fill bg-epic',
+        Audit: 'ri-bookmark-2-fill bg-audit',
+        Feature: 'ri-lightbulb-fill bg-feature',
+        Bug: 'ri-bug-fill bg-bug',
+        Issue: 'ri-circle-fill bg-issue',
+        'Change Request': 'ri-repeat-2-fill bg-changeRequest',
+        Risk: 'ri-close-circle-line bg-risk',
+        'Test Plan': 'ri-check-double-fill bg-testPlan',
+        'Fail Management': 'ri-alert-line bg-failManagement',
+        Immediate: 'ri-arrow-up-double-line bg-danger',
+        High: 'ri-arrow-up-double-line bg-warning',
+        Normal: 'ri-equal-line bg-success',
+        Low: 'ri-arrow-down-double-line bg-info',
+        Active: 'ri-focus-2-line bg-active',
+        Assigned: 'ri-user-follow-fill bg-assigned',
+        InProgress: 'ri-contrast-line bg-inProgress',
+        Solved: 'ri-check-line bg-solved',
+        Verified: 'ri-check-double-line bg-finished',
+        Closed: 'ri-close-line bg-closed'
+      }
+      return map[category] ? map[category] + ' mr-2' : ''
+    },
+    getContextMenuItem(key) {
+      switch (key) {
+        case 'status':
+          return this.getDynamicStatus
+        case 'assigned_to':
+          return this.contextMenuAssignedTo
+        case 'fixed_version':
+          return this.fixedVersion
+        case 'done_ratio':
+          return this.doneRatio
+        default:
+          return this[key]
+      }
+    },
+    getCurrentSelectedValue(column, item) {
+      switch (column) {
+        case 'tracker':
+          return this.contextMenu.row[column].name === item.name
+        case 'assigned_to':
+          return this.contextMenu.row[column].id === item.id ||
+            this.contextMenu.row[column].id === null && item.id === 'null'
+        case 'fixed_version':
+          return this.contextMenu.row[column].id === item.id ||
+            this.contextMenu.row[column].id === null && item.id === 'null'
+        case 'tags':
+          return this.contextMenu.row[column]
+            .map(subItem => subItem.id)
+            .includes(item.id)
+        case 'done_ratio':
+          return this.contextMenu.row[column] === item.id
+        default:
+          return this.contextMenu.row[column].id === item.id
+      }
+    },
+    getUpdateValue(key, value) {
+      return key === 'tags' || key === 'done_ratio'
+        ? { [key]: value }
+        : { [`${key}_id`]: value }
+    },
+    formatDynamicStatus(item) {
+      if (this.checkIssueAssignedToStatus && item.id > 1 && item.id < 6) {
+        item.disabled = true
+        item.message = `(${this.$t('Issue.NoAssignee')})`
+      }
+      if (!this.checkIssueAssignedToStatus && item.id === 1) {
+        item.disabled = true
+        item.message = `(${this.$t('Issue.HasAssignee')})`
+      }
+      return item
+    },
+    getContextMenuI18nDisplay(name) {
+      return this.$te(`Issue.${name}`) ? this.$t(`Issue.${name}`) : name
     },
     onRelationIssueDialog(row) {
       this.$set(this.relationIssue, 'visible', true)
@@ -174,11 +353,15 @@ export default {
     },
     handleRelationIssueDialogBeforeClose(done) {
       if (this.$refs.children.hasUnsavedChanges()) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        })
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        )
           .then(() => {
             done()
           })
@@ -256,7 +439,7 @@ export default {
 <style lang="scss" scoped>
 .menu-title {
   background: #ebebeb;
-  max-width: 160px;
+  max-width: 180px;
   font-weight: bold;
   margin: 0 5px;
   border-radius: 3px;
@@ -275,5 +458,18 @@ export default {
 }
 .menu-remove {
   @apply text-danger font-bold;
+}
+.slider-container {
+  width: 200px;
+  &.v-contextmenu-item--hover {
+    background-color: #fff;
+  }
+}
+.point {
+  @apply rounded text-white;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-height: 100%;
+  padding: 3px;
 }
 </style>

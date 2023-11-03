@@ -1,10 +1,8 @@
 <template>
   <div class="app-container">
     <div class="flex justify-between items-center mb-2">
-      <div class="notification-warning mr-1">
-        <span class="text-sm">
-          *本表每小時更新一次 {{ $t('Dashboard.ADMIN.sync_date', [getLocalTime(status.sync_date)]) }}
-        </span>
+      <div class="text-info text-sm ml-2">
+        *本表每小時更新一次 {{ $t('Dashboard.ADMIN.sync_date', [getLocalTime(status.sync_date)]) }}
       </div>
       <div>
         <el-button

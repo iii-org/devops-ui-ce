@@ -7,32 +7,33 @@
       </el-radio-group>
     </ProjectListSelector>
     <el-divider />
-    <el-card class="box-card">
-      <div class="cardBody">
-        <el-empty
-          v-if="isNoData"
-          :description="$t('general.NoData')"
-          :image-size="100"
-        />
-        <div
-          v-show="!isNoData"
-          id="graph-container"
-          :style="{ backgroundColor: colorSwitch.background }"
-          :class="graphTheme === 'dark' ? 'dark' : ''"
-        />
-        <el-button
-          v-if="!isNoData && defaultBranch"
-          id="load-more"
-          type="primary"
-          icon="ri-git-branch-line"
-          class="mt-2 mb-5"
-          style="width: max-content; align-self: center;"
-          round
-          size="medium"
-          @click="openGitLabGraph"
-        >
-          {{ $t('LoadMore') }}
-        </el-button>
+    <el-card>
+      <div class="box-card">
+        <div class="card-body">
+          <el-empty
+            v-if="isNoData"
+            :description="$t('general.NoData')"
+          />
+          <div
+            v-show="!isNoData"
+            id="graph-container"
+            :style="{ backgroundColor: colorSwitch.background }"
+            :class="graphTheme === 'dark' ? 'dark' : ''"
+          />
+          <el-button
+            v-if="!isNoData && defaultBranch"
+            id="load-more"
+            type="primary"
+            icon="ri-git-branch-line"
+            class="mt-2 mb-5"
+            style="width: max-content; align-self: center;"
+            round
+            size="medium"
+            @click="openGitLabGraph"
+          >
+            {{ $t('LoadMore') }}
+          </el-button>
+        </div>
       </div>
     </el-card>
   </el-row>
@@ -61,7 +62,8 @@ export default {
       allBranchGraph: {},
       defaultBranch: null,
       nodeData: [],
-      graphTheme: 'light'
+      graphTheme: 'light',
+      timeout: null
     }
   },
   computed: {
@@ -71,6 +73,9 @@ export default {
     },
     gitlabGraphLink() {
       return this.selectedProject.git_url.replace('.git', `/-/network/${this.defaultBranch}?ref_type=heads`)
+    },
+    gitlabCommitsLink() {
+      return this.selectedProject.git_url.replace('.git', `/commits/${this.defaultBranch}`)
     },
     colorSwitch() {
       if (this.graphTheme === 'light') {
@@ -95,6 +100,9 @@ export default {
       this.setGraphTheme(this.graphTheme)
     }
   },
+  beforeDestroy() {
+    window.clearTimeout(this.timeout)
+  },
   methods: {
     ...mapActions('projects', ['getGraphTheme', 'setGraphTheme']),
     async fetchData() {
@@ -116,14 +124,14 @@ export default {
         })
         this.isNoData = this.nodeData.length === 0
         this.getDefaultBranch()
-        this.createFromGit()
+        await this.createFromGit()
       } catch (err) {
         console.error(err)
       } finally {
         this.listLoading = false
         // remove duplicate graph if exist
-        this.$nextTick(() => {
-          this.replaceGraph()
+        this.$nextTick(async () => {
+          await this.replaceGraph()
         })
       }
     },
@@ -171,9 +179,31 @@ export default {
         // responsive: true
       })
       gitgraph.import(this.nodeData)
+      this.setCommitListener()
+      this.listLoading = false
+    },
+    setCommitListener() {
+      window.clearTimeout(this.timeout)
+      this.timeout = window.setTimeout(() => {
+        const pattern = /^[A-Za-z0-9]{7}$/
+        const element = document.getElementsByTagName('text')
+        for (const el of element) {
+          if (pattern.test(el.innerHTML.split(' ')[0]) && el.nextSibling) {
+            el.classList.add('gitgraph-hover')
+            el.addEventListener('click', () => {
+              this.openCommitLink(el.innerHTML.split(' ')[0])
+            })
+          }
+        }
+      }, 1500)
     },
     openGitLabGraph() {
       window.open(this.gitlabGraphLink, '_blank')
+    },
+    openCommitLink(commitId) {
+      const commit = this.nodeData.find(node => node.hashAbbrev.substring(0, 7) === commitId)
+      if (commit) window.open(commit.web_url, '_blank')
+      else window.open(this.gitlabCommitsLink, '_blank')
     },
     replaceGraph() {
       const element = document.getElementById('graph-container')
@@ -185,15 +215,12 @@ export default {
 
 <style lang="scss" scoped>
 .box-card {
-  max-height: 80vh;
   overflow: auto;
+  margin: 10px;
 }
-.cardBody {
+.card-body {
   display: flex;
   flex-direction: column;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: #8b8b8b;
 }
 #graph-container {
   flex: 1;
@@ -201,45 +228,54 @@ export default {
   padding-bottom: 0 !important;
   overflow: auto !important;
   border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #8b8b8b;
   ::v-deep {
     svg:not(:root) {
-      min-width: max-content;
+      min-width: -webkit-fill-available;
+    }
+    rect {
+      height: 20px;
+      transform: translate(0, -4px);
+    }
+    g rect + text {
+      transform: translate(0, -6px);
+    }
+    path:first-child:has(~ text) {
+      transform: scaleY(0.75) scaleX(0.95);
+    }
+    path + text {
+      transform: translate(-4px, 0);
+    }
+    foreignObject {
+      transform: translate(-10px, 10px);
+      font-size: 11px;
+      color: #757575;
+      p {
+        margin: 0;
+        padding: 2px 0;
+        border-radius: 4px
+      }
     }
   }
 }
-::v-deep {
-  rect {
-    height: 20px;
-    transform: translate(0, -4px);
-  }
-  g rect + text {
-    transform: translate(0, -6px);
-  }
-  path:first-child:has(~ text) {
-    transform: scaleY(0.75) scaleX(0.95);
-  }
-  path + text {
-    transform: translate(-4px, 0);
-  }
-  foreignObject {
-    transform: translate(-10px, 10px);
-    font-size: 11px;
-    color: #757575;
-    p {
-      margin: 0;
-      padding: 2px 0;
-      border-radius: 4px
+::v-deep .el-radio-button__inner {
+      padding: 3px 9px;
     }
-  }
-  .el-radio-button__inner {
-    padding: 3px 9px;
-  }
-}
+
 .dark {
   ::v-deep {
     foreignObject {
-      color: #c7c7c7;
+      color: #c7c7c7 !important;
     }
   }
+}
+</style>
+<style lang="scss">
+@import 'src/styles/theme/variables.scss';
+.gitgraph-hover:hover {
+  fill: $linkTextColor;
+  cursor: pointer;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div
-    v-loading="isLoading"
+    v-loading="isLoading || isFirstLoad"
     :element-loading-text="$t('Loading')"
     class="app-container"
   >
@@ -13,7 +13,7 @@
           $t('general.SocketConnected') :
           $t('general.ReconnectByReload')"
       >
-        <div style="float:left;">
+        <div style="float: left;">
           <el-button
             slot="button"
             :disabled="isLoading"
@@ -34,9 +34,10 @@
         :content="$t('general.Reload')"
       >
         <el-button
-          class="ml-2 button-primary-reverse"
+          class="mx-2 button-primary-reverse"
           icon="el-icon-refresh"
           style="float:left;"
+          size="small"
           circle
           @click="reloadPage"
         />
@@ -291,6 +292,7 @@ export default {
       elementIds: [],
       hasChildren: false,
       project: [],
+      isFirstLoad: false,
       filterOptions: [{
         id: 1,
         label: this.$t('Issue.FilterDimensions.status'),
@@ -490,6 +492,7 @@ export default {
     }
   },
   async created() {
+    this.isFirstLoad = true
     this.connectSocket()
     this.projectId = this.selectedProjectId
     this.connectSocket()
@@ -636,9 +639,10 @@ export default {
       const getIssueList = this.getIssueList()
       this.projectIssueList = []
       await this.setIssueList(getIssueList)
-      this.updateData()
+      // this.updateData()
       this.projectIssueQueue = {}
       this.isLoading = false
+      this.isFirstLoad = false
     },
     getIssueList() {
       const issueList = []

@@ -162,7 +162,7 @@ export default {
         {
           label: this.$t('general.Actions'),
           prop: 'actions',
-          minWidth: 80,
+          minWidth: 120,
           slot: 'actions'
         }
       ]

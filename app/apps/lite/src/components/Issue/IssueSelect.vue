@@ -24,32 +24,27 @@
           :label="'#' + item.id +' - '+item.name"
           :value="item.id"
         >
-          <el-popover
-            placement="left"
-            width="250"
-            trigger="hover"
-          >
-            <el-card>
-              <template slot="header">
-                <Tracker :name="$t(`Issue.${item.tracker.name}`)" :type="item.tracker.name" />
-                #{{ item.id }} - {{ item.name }}
-              </template>
-              <strong>{{ $t('Issue.Description') }}:</strong>
-              <p>{{ item.description }}</p>
-            </el-card>
-            <div slot="reference">
-              <span
-                class="truncate"
-                style="float: left;"
-              >
+          <el-tooltip placement="right" popper-class="relation-popper">
+            <div slot="content" style="width: 250px;">
+              <el-card style="max-height: 300px;">
+                <template slot="header">
+                  <Tracker :name="$t(`Issue.${item.tracker.name}`)" :type="item.tracker.name" />
+                  #{{ item.id }} - {{ item.name }}
+                </template>
+                <strong>{{ $t('Issue.Description') }}:</strong>
+                <p>{{ item.description }}</p>
+              </el-card>
+            </div>
+            <div class="flex justify-between">
+              <span class="truncate" style="width: 250px;">
                 <strong>#<span v-html="highLight(item.id.toString())" /></strong> -
                 <span v-html="highLight(item.name)" />
               </span>
-              <span style="float: right; color: #8492a6; font-size: 13px"
+              <span style="color: #8492a6; font-size: 13px"
                     v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
               />
             </div>
-          </el-popover>
+          </el-tooltip>
         </el-option>
       </template>
     </el-option-group>

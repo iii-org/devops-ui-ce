@@ -122,6 +122,10 @@ export default {
         type: '',
         elements: []
       })
+    },
+    type: {
+      type: String,
+      default: 'issue_board'
     }
   },
   data() {

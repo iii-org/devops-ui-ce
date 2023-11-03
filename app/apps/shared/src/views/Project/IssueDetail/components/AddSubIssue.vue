@@ -54,8 +54,8 @@
         v-loading="isTabIssueLoading"
         :label="$t('general.Settings', { name: $t('Issue.ParentIssue') })"
       >
-        <el-row class="flex items-center">
-          <el-col :span="20">
+        <el-row :gutter="10" class="flex items-center">
+          <el-col :span="18">
             <el-select
               v-model="form.parent_id"
               style="width: 100%"
@@ -80,53 +80,42 @@
                     :label="'#' + item.id +' - '+item.name"
                     :value="item.id"
                   >
-                    <el-popover
-                      placement="left"
-                      width="250"
-                      trigger="hover"
-                    >
-                      <el-card>
-                        <template slot="header">
-                          <Tracker
-                            :name="$t(`Issue.${item.tracker.name}`)"
-                            :type="item.tracker.name"
-                          />
-                          #{{ item.id }} - {{ item.name }}
-                        </template>
-                        <strong>
-                          {{ $t('Issue.Description') }}:
-                        </strong>
-                        <p>
-                          {{ item.description }}
-                        </p>
-                      </el-card>
-                      <div slot="reference">
-                        <span
-                          class="truncate"
-                          style="float: left; width: 250px;"
-                        >
+                    <el-tooltip placement="right" popper-class="relation-popper">
+                      <div slot="content" style="width: 250px;">
+                        <el-card style="max-height: 300px;">
+                          <template slot="header">
+                            <Tracker
+                              :name="$t(`Issue.${item.tracker.name}`)"
+                              :type="item.tracker.name"
+                            />
+                            #{{ item.id }} - {{ item.name }}
+                          </template>
+                          <strong> {{ $t('Issue.Description') }}: </strong>
+                          <p>{{ item.description }}</p>
+                        </el-card>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="truncate" style="width: 250px;">
                           <strong>
                             #<span v-html="highLight(item.id.toString())" />
                           </strong> -
                           <span v-html="highLight(item.name)" />
                         </span>
+                        <span
+                          style="color: #8492a6; font-size: 13px"
+                          v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
+                        />
                       </div>
-                    </el-popover>
-                    <span
-                      style="float: right; color: #8492a6; font-size: 13px"
-                      v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
-                    />
+                    </el-tooltip>
                   </el-option>
                 </template>
               </el-option-group>
             </el-select>
-
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-tag
               v-if="getTrackerFilter.name"
               icon="el-icon-s-operation"
-              class="ml-3"
             >
               <el-checkbox v-model="isRecommendRelation" />
               {{ $t('general.Filter') }}: {{ $t('Issue.' + getTrackerFilter.name) }}
@@ -164,42 +153,33 @@
                     :label="'#' + item.id +' - '+item.name"
                     :value="item.id"
                   >
-                    <el-popover
-                      placement="left"
-                      width="250"
-                      trigger="hover"
-                    >
-                      <el-card>
-                        <template slot="header">
-                          <Tracker
-                            :name="$t(`Issue.${item.tracker.name}`)"
-                            :type="item.tracker.name"
-                          />
-                          #{{ item.id }} - {{ item.name }}
-                        </template>
-                        <strong>
-                          {{ $t('Issue.Description') }}:
-                        </strong>
-                        <p>
-                          {{ item.description }}
-                        </p>
-                      </el-card>
-                      <div slot="reference">
-                        <span
-                          class="truncate"
-                          style="float: left; width: 250px;"
-                        >
+                    <el-tooltip placement="right" popper-class="relation-popper">
+                      <div slot="content" style="width: 250px;">
+                        <el-card style="max-height: 300px;">
+                          <template slot="header">
+                            <Tracker
+                              :name="$t(`Issue.${item.tracker.name}`)"
+                              :type="item.tracker.name"
+                            />
+                            #{{ item.id }} - {{ item.name }}
+                          </template>
+                          <strong>{{ $t('Issue.Description') }}:</strong>
+                          <p>{{ item.description }}</p>
+                        </el-card>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="truncate" style="width: 250px;">
                           <strong>
                             #<span v-html="highLight((item.id)? item.id.toString(): '')" />
                           </strong> -
                           <span v-html="highLight(item.name)" />
                         </span>
+                        <span
+                          style="color: #8492a6; font-size: 13px"
+                          v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
+                        />
                       </div>
-                    </el-popover>
-                    <span
-                      style="float: right; color: #8492a6; font-size: 13px"
-                      v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
-                    />
+                    </el-tooltip>
                   </el-option>
                 </template>
               </el-option-group>
@@ -515,9 +495,11 @@ export default {
 @import 'src/styles/theme/variables.scss';
 @import 'src/styles/theme/mixin.scss';
 
-::v-deep .el-tabs__nav-scroll {
-  display: flex;
-  justify-content: space-between;
+::v-deep {
+  .el-tabs__nav-scroll {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 .el-button--success{

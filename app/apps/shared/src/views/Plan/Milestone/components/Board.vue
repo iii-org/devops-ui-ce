@@ -1097,7 +1097,12 @@ export default {
   position: -webkit-sticky;
 }
 
-::v-deep .expand .el-table__expand-column .cell  {
+::v-deep {
+  .expand .el-table__expand-column .cell  {
     display: none;
+  }
+  .el-scrollbar__view {
+    height: inherit !important;
+  }
 }
 </style>

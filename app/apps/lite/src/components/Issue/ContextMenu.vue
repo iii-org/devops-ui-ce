@@ -10,9 +10,9 @@
           v-for="column in filterColumnOptions"
           :key="column.id"
           v-permission="permission"
-          :title="column.label"
           :disabled="(column.value === 'priority' ? row.has_children : false) || isForceParent"
         >
+          <span slot="title"><em :class="mapTagType(column.value)" class="mr-2" />{{ column.label }}</span>
           <contextmenu-item
             v-for="item in getOptionsData(column.value)"
             :key="getId(column.value, item)"
@@ -22,13 +22,13 @@
           >
             <em v-if="getContextMenuCurrentValue(column, item)" class="ri-check-line" />
             <em v-if="item.id === 'null'" class="ri-close-circle-line" />
-            {{ getSelectionLabel(item) }} {{ item.message }}
+            <em :class="mapTagType(item.name)" class="point text-xs" />{{ getSelectionLabel(item) }} {{ item.message }}
           </contextmenu-item>
         </contextmenu-submenu>
         <contextmenu-submenu
           v-permission="permission"
-          :title="$t('Issue.FilterDimensions.tags')"
         >
+          <span slot="title"><em class="ri-bookmark-2-fill mr-2" />{{ $t('Issue.FilterDimensions.tags') }}</span>
           <contextmenu-item class="tag-contextmenu-item">
             <el-select
               v-model="searchTag"
@@ -57,9 +57,9 @@
         </contextmenu-submenu>
         <contextmenu-submenu
           v-permission="permission"
-          :title="$t('Issue.DoneRatio')"
           :disabled="row.has_children || isForceParent"
         >
+          <span slot="title"><em class="ri-check-double-fill mr-2" />{{ $t('Issue.DoneRatio') }}</span>
           <contextmenu-item
             v-for="item in done_ratio"
             :key="item.id"
@@ -76,42 +76,45 @@
           v-permission="permission"
           @click="toggleRelationDialog('Parent')"
         >
-          {{ $t('Issue.ParentIssue') }}
+          <em class="ri-send-backward mr-2" />{{ $t('Issue.ParentIssue') }}
         </contextmenu-item>
         <contextmenu-submenu
           v-permission="permission"
-          :title="$t('Issue.ChildrenIssue')"
           :disabled="isForceParent"
         >
+          <span slot="title"><em class="ri-bring-forward mr-2" />{{ $t('Issue.ChildrenIssue') }}</span>
           <contextmenu-item @click="toggleRelationDialog('Children')">
-            {{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
+            <em class="ri-settings-5-fill mr-2" />{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
           </contextmenu-item>
           <contextmenu-item @click="advancedAddIssue(false)">
-            {{ $t('Issue.AddSubIssue') }}
+            <em class="ri-add-circle-fill mr-2" />{{ $t('Issue.AddSubIssue') }}
           </contextmenu-item>
         </contextmenu-submenu>
         <contextmenu-item @click="toggleIssueMatrixDialog">
-          {{ $t('Issue.TraceabilityMatrix') }}
+          <em class="ri-bar-chart-horizontal-fill mr-2" />{{ $t('Issue.TraceabilityMatrix') }}
         </contextmenu-item>
         <contextmenu-item v-permission="permission" divider />
         <contextmenu-item v-permission="permission" @click="advancedAddIssue(true)">
-          {{ $t('Issue.CopyIssue') }}
+          <em class="ri-file-copy-2-fill mr-2" />{{ $t('Issue.CopyIssue') }}
         </contextmenu-item>
-        <contextmenu-submenu title="Add to Calendar">
+        <contextmenu-submenu>
+          <span slot="title"><em class="ri-calendar-event-fill mr-2" />
+            {{ $t('Issue.AddToCalendar') }}
+          </span>
           <contextmenu-item v-permission="permission" @click="addToCalendar('google')">
-            <svg-icon icon-class="google" class="text-md" />
+            <svg-icon icon-class="google" class="text-md mr-2" />
             <span>Google</span>
           </contextmenu-item>
           <contextmenu-item v-permission="permission" @click="addToCalendar('microsoft')">
-            <svg-icon icon-class="microsoft" class="text-md" />
+            <svg-icon icon-class="microsoft" class="text-md mr-2" />
             <span>Outlook.com</span>
           </contextmenu-item>
           <contextmenu-item v-permission="permission" @click="addToCalendar('office365')">
-            <svg-icon icon-class="office365" class="text-md" />
+            <svg-icon icon-class="office365" class="text-md mr-2" />
             <span>Microsoft 365</span>
           </contextmenu-item>
           <contextmenu-item v-permission="permission" @click="addToCalendar('ics')">
-            <svg-icon icon-class="ical" class="text-md" />
+            <svg-icon icon-class="ical" class="text-md mr-2" />
             <span>ICalendar</span>
           </contextmenu-item>
         </contextmenu-submenu>
@@ -396,6 +399,37 @@ export default {
     }
   },
   methods: {
+    mapTagType(category) {
+      const map = {
+        status: 'ri-focus-2-fill',
+        priority: 'ri-arrow-up-double-line',
+        tracker: 'ri-list-indefinite',
+        assigned_to: 'ri-user-received-fill',
+        fixed_version: 'ri-folder-zip-fill',
+        Document: 'ri-file-fill bg-document',
+        Research: 'ri-seo-line bg-research',
+        Epic: 'ri-flashlight-fill bg-epic',
+        Audit: 'ri-bookmark-2-fill bg-audit',
+        Feature: 'ri-lightbulb-fill bg-feature',
+        Bug: 'ri-bug-fill bg-bug',
+        Issue: 'ri-circle-fill bg-issue',
+        'Change Request': 'ri-repeat-2-fill bg-changeRequest',
+        Risk: 'ri-close-circle-line bg-risk',
+        'Test Plan': 'ri-check-double-fill bg-testPlan',
+        'Fail Management': 'ri-alert-line bg-failManagement',
+        Immediate: 'ri-arrow-up-double-line bg-danger',
+        High: 'ri-arrow-up-double-line bg-warning',
+        Normal: 'ri-equal-line bg-success',
+        Low: 'ri-arrow-down-double-line bg-info',
+        Active: 'ri-focus-2-line bg-active',
+        Assigned: 'ri-user-follow-fill bg-assigned',
+        InProgress: 'ri-contrast-line bg-inProgress',
+        Solved: 'ri-check-line bg-solved',
+        Verified: 'ri-check-double-line bg-finished',
+        Closed: 'ri-close-line bg-closed'
+      }
+      return map[category] ? map[category] + ' mr-2' : ''
+    },
     initOptions() {
       const option = JSON.parse(JSON.stringify(this.selectionOptions))
       Object.keys(option).forEach((item) => {
@@ -746,7 +780,7 @@ export default {
 
 .menu-title {
   background: #ebebeb;
-  max-width: 160px;
+  max-width: 180px;
   font-weight: bold;
   margin: 0 5px;
   border-radius: 3px;
@@ -783,5 +817,12 @@ export default {
     max-height: 40vh;
     overflow: auto;
   }
+}
+.point {
+  @apply rounded text-white;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-height: 100%;
+  padding: 3px;
 }
 </style>

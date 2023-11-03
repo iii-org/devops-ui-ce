@@ -56,10 +56,8 @@ export default {
   },
   methods: {
     deleteIssueCollection(row) {
-      const selectedList = JSON.parse(JSON.stringify(this.selectedCollections))
-      const idx = selectedList.findIndex((item) => item.id === row.id)
-      selectedList.splice(idx, 1)
-      this.$emit('update:selected-collections', JSON.parse(JSON.stringify(selectedList)))
+      const idx = this.selectedCollections.findIndex((item) => item.id === row.id)
+      this.selectedCollections.splice(idx, 1)
       this.$emit('update')
     }
   }

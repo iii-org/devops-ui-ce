@@ -90,7 +90,7 @@
       {
         "path": "issue-boards/:projectName?",
         "name": "IssueBoards",
-        "component": "views/Project/List",
+        "component": "views/Project/IssueBoards",
         "meta": {
           "title": "Kanban",
           "roles": [

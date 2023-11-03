@@ -14,15 +14,17 @@
     />
 
     <el-divider />
-
-    <QuickAddIssue
-      :project-id="projectId"
-      :visible.sync="showQuickAddIssue"
-      :filter-conditions="filterConditions"
-      :is-drawer="device === 'mobile' ? true : false"
-      @close="showQuickAddIssue = false"
-      @update="updateIssueTables"
-    />
+    <component :is="device === 'mobile' ? 'div' : 'el-collapse-transition'">
+      <QuickAddIssue
+        v-if="showQuickAddIssue"
+        :project-id="projectId"
+        :visible.sync="showQuickAddIssue"
+        :filter-conditions="filterConditions"
+        :is-drawer="device === 'mobile'"
+        @close="showQuickAddIssue = false"
+        @update="updateIssueTables"
+      />
+    </component>
     <template v-if="dataLoaded">
       <MyWorkDesktop
         v-if="device !== 'mobile'"

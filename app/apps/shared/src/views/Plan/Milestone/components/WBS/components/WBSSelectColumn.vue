@@ -9,7 +9,7 @@
         >
           <el-option
             v-for="item in createDynamicOptions"
-            :key="(item.login) ? item.login : item.id"
+            :key="item.login ? item.login : item.id"
             :value="item.id"
             :label="$te(`Issue.${item.name}`)?$t(`Issue.${item.name}`):item.name"
             :class="item.class"
@@ -27,9 +27,9 @@
       <template v-else-if="row.editColumn===propKey&&row.id===editRowId&&editable(row)">
         <el-select
           v-model="row[propKey]['id']"
-          @change="handlerEdit(row, $index)"
-          @keyup.enter.native="handlerEdit(row, $index)"
-          @keyup.esc.native="handlerReset(row, $index)"
+          @change="handleEdit(row, $index)"
+          @keyup.enter.native="handleEdit(row, $index)"
+          @keyup.esc.native="handleReset(row, $index)"
         >
           <el-option
             v-for="item in editDynamicOptions"
@@ -50,25 +50,31 @@
       </template>
       <template v-else>
         <template v-if="components">
-          <component 
-            :is="components" 
-            :name="$t(`Issue.${row[propKey].name}`)" 
-            :type="row[propKey].name" 
+          <component
+            :is="components"
+            :name="$t(`Issue.${row[propKey].name}`)"
+            :type="row[propKey].name"
             :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
           />
         </template>
         <template v-else>
-          <span :class="editable(row) ? 'cursor-pointer' : 'cursor-note-allowed'">
+          <div v-if="row[propKey].name" :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'">
             {{ row[propKey].name }}
-          </span>
+          </div>
+          <div
+            v-else
+            :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+          >
+            -
+          </div>
         </template>
       </template>
     </template>
     <SubIssueDialog
       :is-issue-dialog.sync="isCloseIssueDialog"
       :issue="editedRow"
-      @handleClose="handlerEdit(editedRow, editedArrayId, false, true)"
-      @handleCancel="handlerReset(editedRow, editedArrayId)"
+      @handleClose="handleEdit(editedRow, editedArrayId, false, true)"
+      @handleCancel="handleReset(editedRow, editedArrayId)"
     />
     <el-dialog
       :visible.sync="isAssignDialog"
@@ -76,7 +82,7 @@
       destroy-on-close
       width="30%"
       :title="$t('Issue.IssueNeedAssigneeWarning')"
-      @close="handlerReset(editedRow, editedArrayId)"
+      @close="handleReset(editedRow, editedArrayId)"
     >
       <el-select
         v-model="assigned_to_id"
@@ -84,7 +90,7 @@
         clearable
         :placeholder="$t('RuleMsg.PleaseSelect')"
         filterable
-        @change="handlerEdit(editedRow, editedArrayId, false, false, true)"
+        @change="handleEdit(editedRow, editedArrayId, false, false, true)"
       >
         <el-option
           v-for="item in assignedOptions"
@@ -179,10 +185,6 @@ export default {
       editedArrayId: null,
       isAssignDialog: false,
       assigned_to_id: ''
-      // strictOptions: [{
-      //   id: 1,
-      //   name: 'Epic'
-      // }]
     }
   },
   computed: {
@@ -202,13 +204,6 @@ export default {
       return this.assignedTo.filter((item) => item.id !== 'null')
     }
   },
-  watch: {
-    // editRowId(value) {
-    //   if (this.propKey === 'status' && value && parseInt(value)) {
-    //     this.getClosable(value)
-    //   }
-    // }
-  },
   methods: {
     hasRequired(row) {
       return this.required && row[this.propKey].length <= 0
@@ -220,8 +215,8 @@ export default {
         return !row['has_children']
       }
     },
-    async handlerEdit(row, index, treeNode, forceClose, forceAssign) {
-      const data = { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row: row, index: index, treeNode: treeNode }
+    async handleEdit(row, index, treeNode, forceClose, forceAssign) {
+      const data = { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row, index, treeNode }
       if (this.propKey === 'status') {
         this.editedRow = row
         this.editedArrayId = index
@@ -239,7 +234,7 @@ export default {
             data.value['assigned_to_id'] = ''
             return true
           }).catch(() => {
-            this.handlerReset(this.editedRow, this.editedArrayId)
+            this.handleReset(this.editedRow, this.editedArrayId)
             return false
           })
           if (!confirm) return
@@ -264,13 +259,13 @@ export default {
       this.$emit('edit', data)
     },
     handlerCreate(row, index, treeNode) {
-      this.$emit('create', { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row: row, index: index, treeNode: treeNode })
+      this.$emit('create', { value: { [`${this.propKey}_id`]: row[this.propKey]['id'] }, row, index, treeNode })
     },
-    handlerReset(row, index, treeNode) {
-      this.$emit('reset-edit', { value: this.propKey, row: row, index: index, treeNode: treeNode })
+    handleReset(row, index, treeNode) {
+      this.$emit('reset-edit', { value: this.propKey, row, index, treeNode })
     },
     handlerResetCreate(row, index, treeNode) {
-      this.$emit('reset-create', { value: this.propKey, row: row, index: index, treeNode: treeNode })
+      this.$emit('reset-create', { value: this.propKey, row, index, treeNode })
     },
     async getClosable(id) {
       let result = true
@@ -295,4 +290,3 @@ export default {
   }
 }
 </script>
-

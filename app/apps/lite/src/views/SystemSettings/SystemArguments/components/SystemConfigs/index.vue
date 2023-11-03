@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="flex justify-between">
-      <div class="text-2xl">
+      <div :class="isMobile ? 'text-lg' : 'text-2xl'">
         {{ $t('System.SystemConfigs') }}
       </div>
       <el-input

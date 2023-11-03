@@ -24,7 +24,8 @@ export default {
       projectId: null,
       elementIds: [],
       hasChildren: false,
-      triggerLoad: 0
+      triggerLoad: 0,
+      isFirstLoad: false
     }
   },
   computed: {
@@ -71,8 +72,8 @@ export default {
     }
   },
   watch: {
-    async triggerLoad() {
-      await this.updateData()
+    triggerLoad(val) {
+      this.updateData()
     }
   },
   beforeDestroy() {
@@ -87,8 +88,10 @@ export default {
     ]),
     async loadData() {
       try {
+        // this.isFirstLoad = true
         await this.fetchBoardData()
         this.fetchListData()
+        this.isFirstLoad = false
       } catch (e) {
         // null
       }
@@ -102,7 +105,6 @@ export default {
     async fetchInitData() {
       await this.checkProjectHasChildren()
       await this.getInitStoredData()
-      await this.loadSelectionList()
     },
     async checkProjectHasChildren() {
       this.hasChildren = (await getHasSon(this.projectId)).has_child
@@ -113,16 +115,16 @@ export default {
       }
     },
     async getRelativeList() {
-      const hasClosed = this.groupByValueOnBoard.filter((item) => item.hasOwnProperty('is_closed') && item.is_closed)
+      const hasClosed = await this.groupByValueOnBoard.filter((item) => item.hasOwnProperty('is_closed') && item.is_closed)
       if (hasClosed.length > 0) {
         const projectIssueListRes = await getProjectIssueListByTree(this.projectId)
-        this.relativeIssueList = this.createRelativeList(projectIssueListRes.data)
+        this.relativeIssueList = await this.createRelativeList(projectIssueListRes.data)
       }
     },
-    async classifyIssue() {
+    classifyIssue() {
       const issueList = this.projectIssueList
       this.checkGroupByValueOnBoard()
-      await issueList.forEach((issue) => {
+      issueList.forEach((issue) => {
         if (issue) {
           let dimensionName = issue[this.groupBy.dimension].id
           dimensionName = dimensionName || 'null'
@@ -162,7 +164,7 @@ export default {
       const getIssueList = this.getIssueList()
       this.projectIssueList = []
       await this.setIssueList(getIssueList)
-      this.updateData()
+      // this.updateData()
       this.projectIssueQueue = {}
       this.isBoardLoading = false
       this.triggerLoad++
@@ -188,7 +190,7 @@ export default {
       await Promise.allSettled(getIssueList)
         .then((res) => {
           const issueList = res.map((item) => item.value.data)
-          const list = [].concat.apply([], issueList)
+          const list = [].concat(...issueList)
           this.$set(this.$data, 'projectIssueList', list)
         })
         .catch((e) => {
@@ -238,7 +240,7 @@ export default {
     },
     async updateData() {
       this.resetClassifyIssue()
-      await this.classifyIssue()
+      this.classifyIssue()
       Object.keys(this.filterValue).forEach((item) => {
         const searchOpt = {
           keys: [`${item}.id`],
@@ -253,16 +255,16 @@ export default {
         this.$set(this.classifyIssueList, item, this.classifyIssueList[item].sort(sortUpdateOn))
       })
     },
-    createRelativeList(list) {
+    async createRelativeList(list) {
       const result = []
-      function flatList(parent) {
+      async function flatList(parent) {
         for (const item of parent) {
           result.push(item)
           const children = item.children
           if (item.children.length) flatList(children)
         }
       }
-      flatList(list)
+      await flatList(list)
       return result
     },
     async connectSocket() {

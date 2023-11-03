@@ -1,6 +1,6 @@
 <template>
   <el-card v-if="isShowAuth" class="my-3">
-    <el-row>
+    <el-row :type="isMobile ? '' : 'flex'" align="middle">
       <el-col
         :xs="24"
         :md="isInitial ? 24 : 12"
@@ -127,7 +127,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userRole']),
+    ...mapGetters(['userRole', 'device']),
     isAdministrator() {
       return this.userRole === 'Administrator'
     },
@@ -192,6 +192,9 @@ export default {
         default:
           return this.$t('SystemVersion.Activate')
       }
+    },
+    isMobile() {
+      return this.device === 'mobile'
     }
   },
   mounted() {

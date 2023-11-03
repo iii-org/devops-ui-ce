@@ -17,7 +17,7 @@
         :add-issue="saveIssue"
         :element-ids="elementIds"
         :project-id="projectId"
-        :filter-type="fiterType"
+        :filter-type="filterType"
         @relationIssueId="onRelationIssueDialog($event, classObj.id)"
         @update="updateIssueStatus"
         @update-board="updateIssueBoard"
@@ -134,7 +134,7 @@ export default {
       type: Number,
       default: null
     },
-    fiterType: {
+    filterType: {
       type: String,
       default: 'board'
     }

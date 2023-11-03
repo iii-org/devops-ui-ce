@@ -24,13 +24,26 @@
           {{ $t('User.AccountRule') }}
         </div>
       </el-form-item>
-      <el-form-item :label="$t('User.Password')" prop="password">
-        <el-input v-model="userForm.password" type="password" maxlength="20" show-password />
+      <el-form-item
+        v-if="!disableEdit"
+        :label="$t('User.Password')"
+        prop="password"
+      >
+        <el-input
+          v-model="userForm.password"
+          type="password"
+          maxlength="20"
+          show-password
+        />
         <div style="word-break: keep-all; margin-top: 5px">
           {{ $t('User.PasswordRule') }}
         </div>
       </el-form-item>
-      <el-form-item :label="$t('User.RepeatPassword')" prop="repeatPassword">
+      <el-form-item
+        v-if="!disableEdit"
+        :label="$t('User.RepeatPassword')"
+        prop="repeatPassword"
+      >
         <el-input
           v-model="userForm.repeatPassword"
           type="password"
@@ -70,11 +83,11 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="!isLite"
+        v-if="!isLite && !disableEdit"
         :label="$t('User.ResetPassword')"
       >
         <el-switch
-          v-model="userForm.permanentPassword"
+          v-model="userForm.temporary"
           class="mt-2"
           :active-value="true"
           :inactive-value="false"
@@ -125,7 +138,7 @@ export default {
         phone: '',
         default_role: '',
         status: 'enable',
-        permanentPassword: false
+        temporary: false
       },
       userFormRules: {
         login: [
@@ -277,7 +290,7 @@ export default {
             phone: this.userForm.phone,
             role_id: this.userForm.default_role,
             status: this.userForm.status,
-            permanentPassword: this.userForm.permanentPassword
+            temporary: this.userForm.temporary
           }
 
           // remove useless field

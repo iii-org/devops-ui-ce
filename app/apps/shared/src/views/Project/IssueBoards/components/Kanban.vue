@@ -22,6 +22,10 @@
         :move="canIssueMoved"
         :disabled="disabled"
         :draggable="'.item'"
+        :animation="120"
+        drag-class="dragClass"
+        ghost-class="ghostClass"
+        :force-fallback="true"
         @change="end(boardObject, $event)"
       >
         <div
@@ -39,11 +43,13 @@
             :content="`${element.done_ratio}%`"
             placement="right"
           >
-            <div
+            <el-progress
               v-if="element.done_ratio > 0"
               class="progress-bar"
-              :class="getStatus(element)"
-              :style="{width: `${element.done_ratio}%`}"
+              :percentage="element.done_ratio"
+              :status="getStatus(element)"
+              :show-text="false"
+              :stroke-width="4"
             />
           </el-tooltip>
           <div @contextmenu="handleContextMenu(element, '', $event)">
@@ -167,6 +173,7 @@
                       :name="$t(`Issue.${element.parent.status.name}`)"
                       :type="element.parent.status.name"
                       size="mini"
+                      tooltip
                     />
                     <el-link
                       class="link-text-color"
@@ -197,6 +204,7 @@
                           :name="$t(`Issue.${subElement.status.name}`)"
                           :type="subElement.status.name"
                           size="mini"
+                          tooltip
                         />
                         <el-link
                           class="link-text-color"
@@ -229,6 +237,7 @@
                           :name="$t(`Issue.${subElement.status.name}`)"
                           :type="subElement.status.name"
                           size="mini"
+                          tooltip
                         />
                         <el-link
                           class="link-text-color"
@@ -260,12 +269,12 @@
             <div
               v-if="element.due_date"
               class="detail due_date"
-              :class="getStatus(element)"
+              :class="getDateStatus(element)"
             >
               <em class="el-icon-date" />
               <div
                 class="text"
-                :class="getStatus(element)"
+                :class="getDateStatus(element)"
               >{{ element.due_date }}</div>
             </div>
             <div
@@ -315,6 +324,7 @@
               :project-id="projectId"
               :save-data="addIssue"
               :board-object="boardObject"
+              :filter-type="filterType"
               @after-add="showDialog = !showDialog"
             />
           </transition>
@@ -330,6 +340,7 @@ import { getIssueFamily } from '@/api/issue'
 import Draggable from 'vuedraggable'
 import { Priority, Tracker, Status } from '@/components/Issue'
 import QuickAddIssueOnBoard from './QuickAddIssueOnBoard'
+import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'Kanban',
@@ -400,6 +411,10 @@ export default {
     fromTab: {
       type: String,
       default: 'assigned_to'
+    },
+    filterType: {
+      type: String,
+      default: 'board'
     }
   },
   data() {
@@ -688,15 +703,26 @@ export default {
       e.preventDefault()
     },
     getStatus(element) {
+      if (element.done_ratio === 100) {
+        return 'success'
+      } else if (element.done_ratio >= 30 && element.done_ratio < 60) {
+        return 'warning'
+      } else if (element.done_ratio < 30) {
+        return 'exception'
+      } else {
+        return
+      }
+    },
+    getDateStatus(element) {
       const dueDate = new Date(element.due_date)
       const today = new Date()
       const notClosed = element.status.name !== 'Closed'
-      if (element.done_ratio === 100) {
-        return 'success'
-      } else if (notClosed && today > dueDate) {
+      if (notClosed && today > dueDate) {
         return 'danger'
       } else if (notClosed && this.differentInDays(dueDate, today) <= 3) {
         return 'warning'
+      } else {
+        return 'success'
       }
     },
     getTranslateHeader(value) {
@@ -720,25 +746,20 @@ export default {
       this.fromWbs ? this.$emit('contextmenu', row, context, event) : this.$emit('contextmenu', { row, context, event })
     },
     updateAnimation() {
+      const opacity = 0.3
+      const hexOpacity = Math.floor(opacity * 255).toString(16)
       for (const elementId of this.elementIds) {
         setTimeout(() => {
           const element = document.getElementById(elementId)
           if (element) {
             this.scrollTo(element)
-            const relation = element.getElementsByClassName('el-collapse-item__header')
-            if (relation.length > 0) {
-              relation[0].style.background = 'rgba(255,0,0,.2)'
-              relation[0].style.transition = 'background 0.3s ease-in-out'
-            }
-            element.style.boxShadow = '0px 0px 10px 2px rgba(255,0,0,.2)'
-            element.style.background = 'rgba(255,0,0,.2)'
-            element.style.transition = 'box-shadow 0.3s ease-in-out'
-            element.style.transition = 'background 0.3s ease-in-out'
+            element.style.boxShadow = `0px 0px 10px 2px ${colorVariables.danger + hexOpacity}`
+            element.style.background = colorVariables.danger + hexOpacity
+            element.style.transition = 'all 0.3s ease-in-out'
             this.$nextTick(() => {
               window.setTimeout(() => {
                 element.style.boxShadow = ''
-                element.style.background = ''
-                if (relation.length > 0) relation[0].style.background = ''
+                element.style.background = 'rgba(255, 255, 255, 1)'
               }, 500)
             })
           }
@@ -807,7 +828,7 @@ export default {
 
     .header-bar {
       height: 3px;
-      @apply bg-red-500;
+      @apply bg-assigned;
     }
   }
 
@@ -818,6 +839,9 @@ export default {
         overflow-x: hidden;
       }
     }
+    .el-collapse-item__header, .el-collapse-item__wrap {
+      background-color: transparent;
+    }
   }
 
   .board-column-content {
@@ -827,7 +851,7 @@ export default {
     min-height: 140px;
     -webkit-touch-callout: none; /* Safari */
     margin-bottom: 10px;
-
+    height: inherit;
     .quick-add {
       padding: 10px 10px 0 10px;
     }
@@ -865,20 +889,11 @@ export default {
       }
 
       .progress-bar {
-        @apply bg-active rounded-full;
-        height: 4px;
-        border-radius: 9999px 9999px 0 0;
-
-        &.success {
-          @apply bg-success;
-        }
-
-        &.danger {
-          @apply bg-danger;
-        }
-
-        &.warning {
-          @apply bg-warning;
+        ::v-deep {
+          .el-progress-bar__outer{
+            border-radius: 9999px 9999px 0 0;
+            background-color: #f3f3f3 !important;
+          }
         }
       }
 
@@ -898,36 +913,15 @@ export default {
       }
 
       .relation {
+        background-color: transparent;
         .parent {
           @apply m-3;
           font-size: 0.75em;
 
           .el-tag {
-            font-size: 0.5em;
-          }
-
-          .Active {
-            @apply bg-active;
-          }
-
-          .Assigned {
-            @apply bg-assigned;
-          }
-
-          .Solved {
-            @apply bg-solved;
-          }
-
-          .InProgress {
-            @apply bg-inProgress;
-          }
-
-          .Verified {
-            @apply bg-finished;
-          }
-
-          .Closed {
-            @apply bg-closed;
+            font-size: 1em;
+            min-width: 20px;
+            text-align: center;
           }
         }
 
@@ -968,7 +962,7 @@ export default {
           }
 
           em {
-            @apply mr-0.5 text-gray-400;
+            @apply mr-1 text-gray-400;
           }
         }
 
@@ -992,140 +986,127 @@ export default {
   }
 
   &.active {
-    .board-column-header {
-      .header-bar {
-        @apply bg-active;
-      }
+    ::v-deep .header-bar {
+      @apply bg-active;
     }
   }
 
   &.assigned {
-    .board-column-header {
-      .header-bar {
-        @apply bg-assigned;
-      }
+    ::v-deep .header-bar {
+      @apply bg-assigned;
     }
   }
 
   &.solved {
-    .board-column-header {
-      .header-bar {
-        @apply bg-solved;
-      }
+    ::v-deep .header-bar {
+      @apply bg-solved;
     }
   }
 
   &.inprogress {
-    .board-column-header {
-      .header-bar {
-        @apply bg-inProgress;
-      }
+    ::v-deep .header-bar {
+      @apply bg-inProgress;
     }
   }
 
   &.verified {
-    .board-column-header {
-      .header-bar {
-        @apply bg-finished;
-      }
+    ::v-deep .header-bar {
+      @apply bg-finished;
     }
   }
 
   &.closed {
-    .board-column-header {
-      .header-bar {
-        @apply bg-closed;
-      }
+    ::v-deep .header-bar {
+      @apply bg-closed;
     }
   }
 
   &.document {
-    .board-column-header {
-      .header-bar {
-        @apply bg-document;
-      }
+    ::v-deep .header-bar {
+      @apply bg-document;
     }
   }
 
   &.research {
-    .board-column-header {
-      .header-bar {
-        @apply bg-research;
-      }
+    ::v-deep .header-bar {
+    @apply bg-research;
     }
   }
 
   &.epic {
-    .board-column-header {
-      .header-bar {
-        @apply bg-epic;
-      }
+    ::v-deep .header-bar {
+      @apply bg-epic;
     }
   }
 
   &.audit {
-    .board-column-header {
-      .header-bar {
-        @apply bg-audit;
-      }
+    ::v-deep .header-bar {
+      @apply bg-audit;
     }
   }
 
   &.feature {
-    .board-column-header {
-      .header-bar {
-        @apply bg-feature;
-      }
+    ::v-deep .header-bar {
+      @apply bg-feature;
     }
   }
 
   &.bug {
-    .board-column-header {
-      .header-bar {
-        @apply bg-bug;
-      }
+    ::v-deep .header-bar {
+      @apply bg-bug;
     }
   }
 
   &.issue {
-    .board-column-header {
-      .header-bar {
-        @apply bg-issue;
-      }
+    ::v-deep .header-bar {
+      @apply bg-issue;
     }
   }
 
   &.changeRequest {
-    .board-column-header {
-      .header-bar {
-        @apply bg-changeRequest;
-      }
+    ::v-deep .header-bar {
+      @apply bg-changeRequest;
     }
   }
 
   &.risk {
-    .board-column-header {
-      .header-bar {
-        @apply bg-risk;
-      }
+    ::v-deep .header-bar {
+      @apply bg-risk;
     }
   }
 
   &.testPlan {
-    .board-column-header {
-      .header-bar {
-        @apply bg-testPlan;
-      }
+    ::v-deep .header-bar {
+      @apply bg-testPlan;
     }
   }
 
   &.failManagement {
-    .board-column-header {
-      .header-bar {
-        @apply bg-failManagement;
-      }
+    ::v-deep .header-bar {
+      @apply bg-failManagement;
     }
   }
+  &.immediate {
+    ::v-deep .header-bar {
+      @apply bg-danger;
+    }
+  }
+  &.high {
+    ::v-deep .header-bar {
+      @apply bg-warning;
+    }
+  }
+  &.normal {
+    ::v-deep .header-bar {
+      @apply bg-success;
+    }
+  }
+  &.low {
+    ::v-deep .header-bar {
+      @apply bg-info;
+    }
+  }
+
 }
 .cardTitle {
   margin-top: 3px;
@@ -1145,6 +1126,27 @@ export default {
     .el-scrollbar__wrap::-webkit-scrollbar {
       display: none; /* Chrome, Safari, Opera*/
     }
+    .el-scrollbar__view {
+      height: auto;
+    }
   }
+}
+@include desktop {
+  ::v-deep {
+    .el-scrollbar__view {
+      height: -webkit-fill-available;
+    }
+  }
+}
+.dragClass {
+  opacity: 1 !important;
+  transform: rotate(4deg);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
+}
+.ghostClass {
+  opacity: 0.2 !important;
+  border: 2px solid rgb(100, 100, 100) !important;
+  background-color: rgb(204, 204, 204) !important;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
 }
 </style>

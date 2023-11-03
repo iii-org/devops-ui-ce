@@ -1,6 +1,6 @@
 <template>
   <el-row v-loading="listLoading">
-    <el-row v-if="inDialog" type="flex" align="middle">
+    <el-row v-if="inDialog" type="flex" align="middle" class="mb-3">
       <el-col :span="12">
         <el-select
           v-model="searchStatus"

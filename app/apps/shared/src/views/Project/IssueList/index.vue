@@ -77,21 +77,23 @@
           :columns-options="columnsOptions"
           :display-fields.sync="displayFields"
           :filter-value="filterValue"
-          :type="'issue_list'"
+          :type="type"
         />
         <el-divider direction="vertical" />
       </SearchFilter>
     </ProjectListSelector>
     <el-divider />
-    <QuickAddIssue
-      v-if="quickAddTopicDialogVisible"
-      ref="quickAddIssue"
-      :project-id="selectedProjectId"
-      :visible.sync="quickAddTopicDialogVisible"
-      :filter-conditions="filterValue"
-      :is-drawer="isMobile"
-      @update="loadData"
-    />
+    <component :is="isMobile ? 'div' : 'el-collapse-transition'">
+      <QuickAddIssue
+        v-if="quickAddTopicDialogVisible"
+        ref="quickAddIssue"
+        :project-id="selectedProjectId"
+        :visible.sync="quickAddTopicDialogVisible"
+        :filter-conditions="filterValue"
+        :is-drawer="isMobile"
+        @update="loadData"
+      />
+    </component>
     <div
       ref="wrapper"
       class="wrapper"
@@ -176,7 +178,7 @@ import { excelTranslate } from '@shared/utils/excelTableTranslate'
 import { ProjectListSelector } from '@shared/components'
 
 import {
-  BasicData,
+  // BasicData,
   Columns,
   IssueExpand,
   SearchFilter,
@@ -200,7 +202,7 @@ export default {
     IssueCard: () => import('./components/Mobile')
   },
   mixins: [
-    BasicData,
+    // BasicData,
     Columns,
     IssueExpand,
     SearchFilter,
@@ -309,7 +311,10 @@ export default {
       sort: '',
       lastIssueListCancelToken: null,
       expands: [],
-      filterSelected: ''
+      filterSelected: '',
+      listData: [],
+      listLoading: false,
+      type: 'issue_list'
     }
   },
   computed: {
@@ -338,6 +343,9 @@ export default {
       if (val === 'Filter') this.filterSelected = ''
     }
   },
+  mounted() {
+    this.listLoading = true
+  },
   methods: {
     ...mapActions('projects', ['getSort', 'setSort']),
     async fetchAllDownloadData() {
@@ -357,28 +365,28 @@ export default {
       if (storedTabQuery !== undefined) this.listQuery = storedTabQuery
       if (storedSort !== undefined) this.sort = storedSort
     },
+    async loadData() {
+      this.listLoading = true
+      await this.fetchData()
+      this.listLoading = false
+    },
     async fetchData() {
-      let listData
-      try {
-        await this.checkLastRequest()
-        const cancelTokenSource = axios.CancelToken.source()
-        this.lastIssueListCancelToken = cancelTokenSource
-        const res = await getProjectIssueList(
-          this.mainSelectedProjectId,
-          this.getParams(), {
-            cancelToken: cancelTokenSource.token
-          })
-        listData = res.data.issue_list
-        listData = listData.map((element) => ({
-          ...element,
-          showQuickAddIssue: false
-        }))
-        this.setNewListQuery(res.data.page)
-      } catch (e) {
-        // null
-      }
+      await this.checkLastRequest()
+      const cancelTokenSource = axios.CancelToken.source()
+      this.lastIssueListCancelToken = cancelTokenSource
+      await getProjectIssueList(
+        this.mainSelectedProjectId,
+        this.getParams(), {
+          cancelToken: cancelTokenSource.token
+        })
+        .then((res) => {
+          this.listData = res.data.issue_list.map((element) => ({
+            ...element,
+            showQuickAddIssue: false
+          }))
+          this.setNewListQuery(res.data.page)
+        })
       this.lastIssueListCancelToken = null
-      return listData
     },
     async loadDataAfterSetIssue(issueId = null) {
       await this.loadData()

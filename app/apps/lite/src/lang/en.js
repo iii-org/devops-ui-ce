@@ -487,7 +487,7 @@ export default {
     ConfirmDelete: 'Are you sure to @:(general.Delete) 「{version}」?'
   },
   MyWork: {
-    AssignedToMe: 'Assigned to me',
+    AssignedToMe: 'Assigned to Me',
     ReportedIssue: 'Reported Issue',
     WatcherList: 'Watcher List'
   },
@@ -652,6 +652,7 @@ export default {
       tracker: 'Type',
       assigned_to: 'Assigned',
       fixed_version: 'Version',
+      done_ratio: 'Done Ratio',
       priority: '@:Issue.Priority',
       due_date_start: '@:Issue.StartDate',
       due_date_end: '@:Issue.EndDate'
@@ -981,7 +982,8 @@ export default {
     SearchCommitMessage: 'Search Commit Message',
     TestDetail: 'Test Detail',
     PipeLineSettings: 'Pipeline Settings',
-    RerunPipeline: 'Pipeline of branch {0} has been re-executed.'
+    RerunPipeline: 'Pipeline of branch {0} has been re-executed.',
+    ExecuteLoadingText: 'The pipeline is currently executing, so please wait for a moment.'
   },
   ProcessDevEnvironment: {
     Branch: '@:general.Branch',

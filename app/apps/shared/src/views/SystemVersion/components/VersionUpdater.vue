@@ -45,15 +45,17 @@
         </el-button>
         <el-divider class="mb-0" />
       </span>
-      <div style="max-height: 40vh;">
-        <el-empty
-          v-if="!updateReleaseNote"
-          :description="$t('general.NoData')"
-        />
+      <div
+        class="overflow-y-auto"
+        style="max-height: 40vh;"
+      >
         <Viewer
-          v-else
-          class="overflow-y-auto"
+          v-if="updateReleaseNote"
           :initial-value="updateReleaseNote"
+        />
+        <el-empty
+          v-else
+          :description="$t('general.NoData')"
         />
       </div>
     </el-dialog>
@@ -151,6 +153,6 @@ export default {
 }
 
 ::v-deep .el-dialog__body {
-  padding: 0 2rem 1.5rem;
+  padding: 0.5rem 2rem;
 }
 </style>

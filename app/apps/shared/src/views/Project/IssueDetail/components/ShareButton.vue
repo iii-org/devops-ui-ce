@@ -12,22 +12,19 @@
     >
       <el-form-item
         prop="user"
-        :rules="{
-          required: true,
-          message: $t('Notify.NoEmpty'),
-          trigger: 'blur'
-        } "
+        :rules="{ required: true, message: $t('Notify.NoEmpty'), trigger: 'blur' }"
       >
         <el-select
           v-model="shareForm.user"
           :placeholder="$t('RuleMsg.PleaseSelect') + $t('RuleMsg.Member')"
-          clearable
-          filterable
-          multiple
           collapse-tags
+          clearable
+          multiple
+          filterable
+          :filter-method="setAssignTo"
         >
           <el-option
-            v-for="user in assignedTo"
+            v-for="user in assigned_to"
             :key="user.id"
             :label="user.name"
             :value="user.id"
@@ -102,7 +99,8 @@ export default {
       shareForm: {
         user: [],
         message: ''
-      }
+      },
+      assigned_to: []
     }
   },
   computed: {
@@ -110,10 +108,19 @@ export default {
   },
   watch: {
     isPopover(value) {
-      if (!value) this.resetShareForm()
+      if (value) this.assigned_to = [...this.assignedTo]
+      else this.resetShareForm()
     }
   },
   methods: {
+    setAssignTo(value) {
+      const keyword = value.toLowerCase()
+      this.assigned_to = this.assignedTo.filter((item) => {
+        const { name, login } = item
+        return name.toLowerCase().indexOf(keyword) > -1 ||
+          login.toLowerCase().indexOf(keyword) > -1
+      })
+    },
     sendMentionMessage() {
       this.$refs.form.validate(async (valid) => {
         if (!valid) return

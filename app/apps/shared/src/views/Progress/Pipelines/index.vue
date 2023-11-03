@@ -4,6 +4,7 @@
       <ProjectListSelector>
         <el-input
           v-model="keyword"
+          :size="isMobile ? 'small' : 'medium'"
           :style="{ width: isMobile ? '150px' : '250px' }"
           prefix-icon="el-icon-search"
           :placeholder="$t('ProgressPipelines.SearchCommitMessage')"
@@ -11,17 +12,15 @@
       </ProjectListSelector>
       <el-divider />
       <div class="flex justify-between items-center text-base text-info mb-2">
-        <div class="notification mr-1">
-          <span class="text-sm">
-            {{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}
-          </span>
+        <div class="text-sm ml-2">
+          {{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}
         </div>
         <el-popover trigger="click">
           <el-card
             shadow="never"
             :body-style="{ width: isMobile ? 'auto' : '460px' }"
           >
-            <PipelineSettingsTable />
+            <PipelineSettingsTable @reexecute="handleReexecute" />
           </el-card>
           <el-button
             slot="reference"
@@ -35,6 +34,10 @@
             <span v-if="!isMobile">{{ $t('ProgressPipelines.PipeLineSettings') }}</span>
           </el-button>
         </el-popover>
+      </div>
+      <div v-if="isExecuteLoad" class="notification-warning">
+        <em class="el-icon-loading text-warning mr-1" />
+        <span class="text-sm">{{ $t('ProgressPipelines.ExecuteLoadingText') }}</span>
       </div>
       <ElTableResponsive
         v-loading="isLoading"
@@ -185,7 +188,8 @@ export default {
       listData: [],
       listQuery: listQuery(),
       searchKeys: ['commit_message'],
-      keyword: ''
+      keyword: '',
+      isExecuteLoad: false
     }
   },
   computed: {
@@ -255,7 +259,7 @@ export default {
           label: this.$t('general.Actions'),
           prop: 'actions',
           align: 'center',
-          width: '120',
+          width: '130',
           slot: 'actions'
         }
       ]
@@ -265,7 +269,6 @@ export default {
     selectedProject() {
       this.listQuery = listQuery()
       this.searchData = ''
-      this.clearTimer()
       this.loadData()
     },
     keyword() {
@@ -290,7 +293,6 @@ export default {
     //   })
     // },
     onPagination(query) {
-      this.clearTimer()
       this.listQuery.start = query.limit * query.page - query.limit
       this.listQuery.page = query.page
       this.listQuery.limit = query.limit
@@ -302,6 +304,7 @@ export default {
       await this.fetchData()
     },
     async fetchData() {
+      this.clearTimer()
       if (this.isUpdating) this.cancelRequest()
       this.isUpdating = true
       await getPipelines(
@@ -309,16 +312,15 @@ export default {
         { limit: this.listQuery.limit, start: this.listQuery.start },
         { cancelToken: this.cancelToken }
       )
-        .then((res) => {
+        .then(async(res) => {
           this.lastUpdateTime = getLocalTime(res.datetime)
-          this.updatePipeExecs(res.data)
+          await this.updatePipeExecs(res.data)
           const { per_page, current, total } = res.data.pagination
           this.listQuery = { limit: per_page, total, page: current }
-          if (this.listQuery.page === 1) this.setTimer()
+          if (this.listQuery.page === 1) this.setTimer(10000)
           this.isUpdating = false
-        })
-        .finally(() => {
           this.isLoading = false
+          this.isExecuteLoad = false
         })
     },
     updatePipeExecs(resData) {
@@ -342,8 +344,9 @@ export default {
       if (action === 'stop') delete data.branch
       this.isLoading = true
       await changePipelineByAction(this.selectedRepositoryId, data)
-        .then((_) => {
-          this.loadData()
+        .then(() => {
+          this.isLoading = false
+          this.handleReexecute()
         })
         .catch((err) => {
           this.isLoading = false
@@ -362,11 +365,17 @@ export default {
       const allowStatus = ['Created', 'Pending', 'Preparing', 'Running', 'Waiting_for_resource']
       return allowStatus.includes(status)
     },
-    setTimer() {
-      this.timer = setTimeout(() => this.fetchData(), 10000)
+    handleReexecute() {
+      this.isExecuteLoad = true
+      this.listQuery.page = 1
+      this.setTimer(3000)
+    },
+    setTimer(ms) {
+      this.clearTimer()
+      this.timer = window.setTimeout(() => this.fetchData(), ms)
     },
     clearTimer() {
-      clearTimeout(this.timer)
+      window.clearTimeout(this.timer)
       this.timer = null
     },
     handleToTestReport(row) {

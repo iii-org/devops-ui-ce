@@ -51,18 +51,22 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button
-            class="button-primary"
-            :loading="LoadingConfirm"
-            @click="handleSave"
-          >{{ $t('general.Save') }}</el-button>
-          <el-button
-            :disabled="LoadingConfirm"
-            class="button-secondary-reverse"
-            @click="advancedAddIssue"
-          >{{
-            $t('general.AdvancedSettings')
-          }}</el-button>
+          <span class="flex justify-between">
+            <el-button
+              class="button-primary"
+              :loading="LoadingConfirm"
+              size="small"
+              @click="handleSave"
+            >{{ $t('general.Save') }}</el-button>
+            <el-button
+              :disabled="LoadingConfirm"
+              class="button-secondary-reverse"
+              size="small"
+              @click="advancedAddIssue"
+            >{{
+              $t('general.AdvancedSettings')
+            }}</el-button>
+          </span>
         </el-form-item>
       </el-form>
     </el-col>

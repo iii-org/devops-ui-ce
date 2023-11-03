@@ -101,7 +101,7 @@
           :columns-options="columnsOptions"
           :display-fields.sync="displayFields"
           :filter-value="filterValue"
-          type="issue_list"
+          :type="type"
         />
 
         <el-popover
@@ -158,19 +158,21 @@
       </SearchFilter>
     </ProjectListSelector>
     <el-divider />
-    <QuickAddIssue
-      v-if="quickAddTopicDialogVisible && issueView === 'List'"
-      ref="quickAddIssue"
-      :project-id="selectedProjectId"
-      :visible.sync="quickAddTopicDialogVisible"
-      :filter-conditions="filterValue"
-      :is-drawer="isMobile"
-      @update="loadData"
-    />
+    <component :is="isMobile ? 'div' : 'el-collapse-transition'">
+      <QuickAddIssue
+        v-if="quickAddTopicDialogVisible && issueView === 'List'"
+        ref="quickAddIssue"
+        :project-id="selectedProjectId"
+        :visible.sync="quickAddTopicDialogVisible"
+        :filter-conditions="filterValue"
+        :is-drawer="isMobile"
+        @update="loadData"
+      />
+    </component>
     <IssueBoards
       v-show="issueView === 'Board'"
       ref="board"
-      :is-loading="isBoardLoading"
+      :is-loading="isBoardLoading || isFirstLoad"
       :group-by.sync="groupBy"
       :display-closed="displayClosed"
       :filter-options="filterOptions"
@@ -202,6 +204,7 @@
       :filter-value="filterValue"
       :keyword-prop="keyword"
       :socket-update="socketUpdate"
+      :type="type"
       @setListQuery="setListQuery"
       @setDisplayField="setDisplayField"
     />
@@ -288,7 +291,8 @@ export default {
       socketUpdate: {
         type: '',
         elements: []
-      }
+      },
+      type: 'issue_list'
     }
   },
   computed: {
@@ -346,6 +350,7 @@ export default {
     }
   },
   created() {
+    this.isFirstLoad = true
     this.connectSocket()
     this.projectId = this.selectedProjectId
     this.connectSocket()

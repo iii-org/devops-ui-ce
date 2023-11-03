@@ -22,9 +22,9 @@
             :label="'#' + item.id +' - '+item.name"
             :value="item.id"
           >
-            <el-tooltip placement="left" effect="light" popper-class="relation-popper">
+            <el-tooltip placement="right" popper-class="relation-popper">
               <div slot="content" style="width: 250px;">
-                <el-card>
+                <el-card style="max-height: 300px;">
                   <template slot="header">
                     <Tracker :name="$t(`Issue.${item.tracker.name}`)" :type="item.tracker.name" />
                     #{{ item.id }} - {{ item.name }}
@@ -33,15 +33,12 @@
                   <p>{{ item.description }}</p>
                 </el-card>
               </div>
-              <div>
-                <span
-                  class="truncate"
-                  style="float: left; width: 250px;"
-                >
+              <div class="flex justify-between">
+                <span class="truncate" style="width: 250px;">
                   <strong>#<span v-html="highLight(item.id.toString())" /></strong> -
                   <span v-html="highLight(item.name)" />
                 </span>
-                <span style="float: right; color: #8492a6; font-size: 13px"
+                <span style="color: #8492a6; font-size: 13px"
                       v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
                 />
               </div>
@@ -92,25 +89,23 @@
             :label="'#' + item.id +' - '+item.name"
             :value="item.id"
           >
-            <el-tooltip placement="left" effect="light" popper-class="relation-popper">
+            <el-tooltip placement="right" popper-class="relation-popper">
               <div slot="content" style="width: 250px;">
-                <el-card>
+                <el-card style="max-height: 300px;">
                   <template slot="header">
                     <Tracker :name="$t(`Issue.${item.tracker.name}`)" :type="item.tracker.name" />
                     #{{ item.id }} - {{ item.name }}
                   </template>
                   <strong>{{ $t('Issue.Description') }}:</strong>
                   <p>{{ item.description }}</p>
-                </el-card></div>
-              <div>
-                <span
-                  class="truncate"
-                  style="float: left; width: 250px;"
-                >
+                </el-card>
+              </div>
+              <div class="flex justify-between">
+                <span class="truncate" style="width: 250px;">
                   <strong>#<span v-html="highLight(item.id.toString())" /></strong> -
                   <span v-html="highLight(item.name)" />
                 </span>
-                <span style="float: right; color: #8492a6; font-size: 13px"
+                <span style="color: #8492a6; font-size: 13px"
                       v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
                 />
               </div>
@@ -349,10 +344,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.relation-popper {
-  padding: 0px;
-  border: none !important;
-}
-</style>

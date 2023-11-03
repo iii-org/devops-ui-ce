@@ -1,12 +1,18 @@
 <template>
-  <el-tag
-    :type="getStatusTagType(type)"
-    class="rounded-xl font-bold"
-    effect="dark"
-    :size="size"
+  <el-tooltip
+    :disabled="!tooltip"
+    :content="name"
+    placement="bottom"
   >
-    {{ name }}
-  </el-tag>
+    <el-tag
+      :type="getStatusTagType(type)"
+      class="rounded-xl font-bold"
+      effect="dark"
+      :size="size"
+    >
+      {{ !tooltip ? name : name.charAt(0) }}
+    </el-tag>
+  </el-tooltip>
 </template>
 
 <script>
@@ -24,6 +30,10 @@ export default {
     type: {
       type: String,
       default: null
+    },
+    tooltip: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -49,17 +59,18 @@ export default {
 @import 'src/styles/theme/mixin.scss';
 
 $tag-options: (
-  active: $active,
-  assigned: $assigned,
-  closed: $closed,
-  inProgress: $inProgress,
-  solved: $solved,
-  verified: $verified
+  active: ($active white),
+  assigned: ($assigned white),
+  closed: ($closed white),
+  inProgress: ($inProgress #525252),
+  solved: ($solved #525252),
+  verified: ($verified white)
 );
 
 @each $key, $value in $tag-options {
   .el-tag--#{$key} {
-    @include background-border-color($value, $value);
+    @include background-border-color(nth($value, 1), nth($value, 1));
+    color: nth($value, 2);
   }
 }
 </style>

@@ -395,7 +395,7 @@ export default {
     line-height: 50px;
     font-size: 16px;
     vertical-align: middle;
-    font-family: "Audiowide",cursive;
+    font-family: "Audiowide", sans-serif;
     color: #303133;
   }
 }

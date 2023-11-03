@@ -268,8 +268,7 @@ export default {
       'userId',
       'userRole',
       'projectOptions',
-      'selectedProject',
-      'selectedProjectId'
+      'completeSelectedProject'
     ]),
     isMobile() {
       return this.device === 'mobile'
@@ -303,20 +302,22 @@ export default {
       this.getExampleInfo()
       this.form.owner_id = this.projectData.owner_id
     },
-    selectedProjectId: {
-      handler(id) {
-        if (id > -1) {
+    completeSelectedProject: {
+      async handler(project) {
+        const { id } = project
+        if (id) {
           this.setProjectData()
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   },
   methods: {
     ...mapActions('projects', ['editProject']),
     setProjectData() {
       this.form = formTemplate()
-      this.projectData = Object.assign({}, this.selectedProject)
+      this.projectData = Object.assign({}, this.completeSelectedProject)
     },
     fetchProjectAssignableList(projectId) {
       getProjectAssignable(projectId).then(res => (this.assignableList = res.data.user_list))

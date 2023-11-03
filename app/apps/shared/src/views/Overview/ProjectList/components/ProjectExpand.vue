@@ -257,6 +257,20 @@ export default {
         className += ' disabled'
       }
       return className
+    },
+    copyUrl(id) {
+      const message = this.$t('Notify.Copied')
+      const target = document.getElementById(id)
+      window.getSelection().selectAllChildren(target)
+      document.execCommand('Copy')
+      this.showSuccessMessage(message)
+    },
+    showSuccessMessage(message) {
+      this.$message({
+        title: this.$t('general.Success'),
+        message,
+        type: 'success'
+      })
     }
   }
 }

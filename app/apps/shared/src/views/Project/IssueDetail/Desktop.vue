@@ -3,8 +3,8 @@
     <el-card
       v-loading="isLoading"
       :element-loading-text="$t('Loading')"
-      :body-style="{ 'min-height': '85vh' }"
-      :style="!isFromBoard ? 'height: 93vh;' : ''"
+      :body-style="{ 'min-height': '80vh' }"
+      :style="!isFromBoard ? 'height: 93vh;overflow:auto;' : ''"
     >
       <el-row slot="header">
         <el-row type="flex" align="bottom" justify="space-between">
@@ -184,7 +184,7 @@
                     {{ $t('Test.TestPlan.file_name') + `(${testFiles.length})` }}
                   </div>
                   <IssueCollection
-                    :selected-collections.sync="test_files"
+                    :selected-collections.sync="testFiles"
                     :is-button-disabled="isButtonDisabled"
                     @update="$parent.updateTestCollection"
                   />
@@ -363,7 +363,7 @@
     >
       <RelatedCollectionDialog
         ref="relatedCollectionDialog"
-        :selected-collections.sync="test_files"
+        :selected-collections.sync="testFiles"
         @update="$parent.updateTestCollection"
         @close-dialog="$parent.toggleDialogVisible"
       />
@@ -632,8 +632,7 @@ export default {
       issueFormWidth: 80,
       mode: 'view',
       editorHeight: '100px',
-      dialogHeight: '100%',
-      test_files: []
+      dialogHeight: '100%'
     }
   },
   computed: {
@@ -657,9 +656,6 @@ export default {
     },
     propsIssueId() {
       this.$refs.IssueForm.watchForm()
-    },
-    test_files(value) {
-      this.$emit('update:testFiles', value)
     },
     dataLoaded(value) {
       if (value) {

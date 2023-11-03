@@ -1,6 +1,1 @@
-{
-  "name": "Vue.js-Element Ui",
-  "description": "nodejs 12 / nginx 1.19 <a class='el-link el-link--primary' href='https://github.com/iiidevops-templates/vuejs-app-template1/blob/master/README.md' target='_blank'>simple web 範本說明</a><hr /><ul>  <li><strong>v1.26</strong>:增加定義 SonarQube 與 Checkmarx 黑白名單功能</li>  <li><strong>v1.20</strong>:整合 rancher-cli 與 deployment-wait 至 iiidevops-cli</li>  <li><strong>v1.19</strong>:增加自動計算原始碼行數功能</li></ul>",
-  "arguments": [
-  ]
-}
+{"name": "Vue.js-Element Ui", "description": "<p>nodejs 12 / nginx 1.19 <a href=\"https://github.com/iiidevops-templates/vuejs-app-template1/blob/master/README.md\">simple web \u7bc4\u672c\u8aaa\u660e</a></p><div contenteditable=\"false\"><hr></div><ul><li><p><strong>v1.26</strong>:\u589e\u52a0\u5b9a\u7fa9 SonarQube \u8207 Checkmarx \u9ed1\u767d\u540d\u55ae\u529f\u80fd</p></li><li><p><strong>v1.20</strong>:\u6574\u5408 rancher-cli \u8207 deployment-wait \u81f3 iiidevops-cli</p></li><li><p><strong>v1.19</strong>:\u589e\u52a0\u81ea\u52d5\u8a08\u7b97\u539f\u59cb\u78bc\u884c\u6578\u529f\u80fd</p></li></ul>", "arguments": []}

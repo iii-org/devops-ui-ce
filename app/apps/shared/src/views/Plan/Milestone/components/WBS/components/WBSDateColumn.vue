@@ -1,6 +1,6 @@
 <template>
   <el-table-column v-bind="$props">
-    <template slot-scope="{row, $index}">
+    <template slot-scope="{ row, $index }">
       <template v-if="row.create">
         <el-date-picker
           v-model="row[prop]"
@@ -13,7 +13,11 @@
           @keyup.esc.native="handlerResetCreate(row, $index)"
         />
       </template>
-      <template v-else-if="row.editColumn===prop&&row.id===editRowId&&editable(row)">
+      <template
+        v-else-if="
+          row.editColumn === prop && row.id === editRowId && editable(row)
+        "
+      >
         <el-date-picker
           v-model="row[prop]"
           type="date"
@@ -27,7 +31,18 @@
         />
       </template>
       <template v-else>
-        {{ getLocalTime(row[prop] ,'YYYY-MM-DD') }}
+        <div
+          v-if="row[prop]"
+          :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+        >
+          {{ getLocalTime(row[prop], "YYYY-MM-DD") }}
+        </div>
+        <div
+          v-else
+          :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+        >
+          -
+        </div>
       </template>
     </template>
   </el-table-column>
@@ -115,16 +130,36 @@ export default {
       return getLocalTime(time, format)
     },
     handlerEdit(row, index, treeNode) {
-      this.$emit('edit', { value: { [this.prop]: row[this.prop] }, row: row, index: index, treeNode: treeNode })
+      this.$emit('edit', {
+        value: { [this.prop]: row[this.prop] },
+        row: row,
+        index: index,
+        treeNode: treeNode
+      })
     },
     handlerCreate(row, index, treeNode) {
-      this.$emit('create', { value: { [this.prop]: row[this.prop] }, row: row, index: index, treeNode: treeNode })
+      this.$emit('create', {
+        value: { [this.prop]: row[this.prop] },
+        row: row,
+        index: index,
+        treeNode: treeNode
+      })
     },
     handlerReset(row, index, treeNode) {
-      this.$emit('reset-edit', { value: this.prop, row: row, index: index, treeNode: treeNode })
+      this.$emit('reset-edit', {
+        value: this.prop,
+        row: row,
+        index: index,
+        treeNode: treeNode
+      })
     },
     handlerResetCreate(row, index, treeNode) {
-      this.$emit('reset-create', { value: this.prop, row: row, index: index, treeNode: treeNode })
+      this.$emit('reset-create', {
+        value: this.prop,
+        row: row,
+        index: index,
+        treeNode: treeNode
+      })
     }
   }
 }

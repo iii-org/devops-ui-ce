@@ -61,13 +61,15 @@
           />
         </el-form-item>
         <el-form-item>
-          <span
-            class="expand-button"
-            @click="onAdvancedSettingsClick"
-          >
-            <em class="ri-settings-3-line expand-button-icon" />
-            <span class="expand-button-text">{{ $t('general.AdvancedSettings') }}</span>
-          </span>
+          <div style="min-width: 200px;">
+            <span
+              class="expand-button"
+              @click="onAdvancedSettingsClick"
+            >
+              <em class="ri-settings-3-line expand-button-icon" />
+              <span class="expand-button-text">{{ $t('general.AdvancedSettings') }}</span>
+            </span>
+          </div>
         </el-form-item>
       </el-form>
     </el-row>

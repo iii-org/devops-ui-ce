@@ -189,18 +189,19 @@
         width="140"
       >
         <template slot-scope="scope">
-          {{
-            `${scope.row.closed_count ? scope.row.closed_count : "0"} / ${
-              scope.row.total_count ? scope.row.total_count : "0"
-            }`
-          }}
-          <br>
-          <span class="status-bar-track">
-            <span
-              class="status-bar"
-              :style="`width: ${getProgressRatio(scope.row.closed_count, scope.row.total_count)}%`"
-            />
-          </span>
+          <div>
+            {{
+              `${scope.row.closed_count ? scope.row.closed_count : "0"} / ${
+                scope.row.total_count ? scope.row.total_count : "0"
+              }`
+            }}
+          </div>
+          <el-progress
+            :percentage="getProgressRatio(scope.row.closed_count, scope.row.total_count)"
+            status="warning"
+            :show-text="false"
+            :stroke-width="4"
+          />
         </template>
       </el-table-column>
       <el-table-column
@@ -590,29 +591,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
-
-.status-bar-track {
-  background: $appMainBg;
-  border-radius: 4px;
-  max-width: 110px;
-  width: 100%;
-  height: 4px;
-  position: relative;
-  margin-bottom: 3px;
-  margin-left: 5px;
-  display: inline-block;
-}
-
-.status-bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background: $warning;
-  height: 4px;
-  border-radius: 4px;
-}
-
 ::v-deep .hide-expand {
   > .el-table__expand-column {
     > .cell {

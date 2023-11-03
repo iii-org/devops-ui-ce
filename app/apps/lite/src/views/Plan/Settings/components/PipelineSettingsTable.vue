@@ -262,6 +262,7 @@ export default {
       } finally {
         this.isLoading = false
         this.showSuccessMessage(this.$t('ProgressPipelines.RerunPipeline', [this.selectedBranch]))
+        this.$emit('reexecute')
       }
     },
     getSendData(runPipeline) {

@@ -15,7 +15,7 @@
       :assigned_to="assignedTo"
       :element-ids="elementIds"
       :project-id="projectId"
-      :filter-type="'issue_board'"
+      filter-type="issue_board"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @loadData="loadData"

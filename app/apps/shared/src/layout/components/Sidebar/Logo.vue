@@ -66,7 +66,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.scss';
-@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Audiowide&family=Kumar+One&family=Michroma&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Audiowide&display=swap');
 .sidebarLogoFade-enter-active {
   transition: opacity 1.5s;
 }
@@ -110,8 +110,6 @@ export default {
       line-height: 34px;
       font-size: 16px;
       vertical-align: middle;
-      font-family: 'Kumar One', cursive;
-      font-family: 'Michroma', sans-serif;
       font-family: 'Audiowide', cursive;
     }
   }

@@ -5,7 +5,8 @@ import {
   deleteProject,
   getProjectIssueProgress,
   getProjectIssueStatistics,
-  getProjectUserList
+  getProjectUserList,
+  getProjectInfos
 } from '@/api/projects'
 import { getMyProjectSimpleList, forceDeleteProject } from '@/api_v2/projects'
 import { getIssuePriority, getIssueStatus, getIssueTracker } from '@/api/issue'
@@ -17,6 +18,7 @@ const getDefaultState = () => {
     options: [],
     total: 0,
     selectedProject: { id: -1, repository_ids: [-1] },
+    completeSelectedProject: {},
 
     tracker: [],
     status: [],
@@ -55,6 +57,9 @@ const mutations = {
   },
   SET_SELECTED_PROJECT: (state, project) => {
     state.selectedProject = project
+  },
+  SET_COMPLETE_SELECTED_PROJECT: (state, project) => {
+    state.completeSelectedProject = project
   },
   SET_SELECTION_OPTIONS: (state, list) => {
     state.tracker = list[0]
@@ -227,6 +232,14 @@ const actions = {
       console.error(error.toString())
     }
   },
+  async getCompleteSelectedProject({ commit }, pId) {
+    try {
+      const res = await getProjectInfos(pId)
+      commit('SET_COMPLETE_SELECTED_PROJECT', res.data)
+    } catch (error) {
+      console.error(error.toString())
+    }
+  },
   setSelectedProject({ commit, dispatch }, project) {
     const { id } = project
     if (localStorage.getItem('projectId') !== id.toString()) {
@@ -243,6 +256,7 @@ const actions = {
     commit('SET_FILTER', {})
     commit('SET_GROUP_BY', { dimension: 'status', value: [] })
     commit('SET_DISPLAY_CLOSED', {})
+    dispatch('getCompleteSelectedProject', id)
     dispatch('getIssueStrictTracker')
     dispatch('getIssueForceTracker')
   },

@@ -177,20 +177,23 @@
           :columns-options="columnsOptions"
           :display-fields.sync="displayFields"
           :filter-value="filterValue"
-          :type="'wbs_cache'"
+          :type="type"
         />
         <el-divider direction="vertical" />
       </SearchFilter>
     </ProjectListSelector>
     <el-divider />
-    <QuickAddIssue
-      ref="quickAddIssue"
-      :project-id="selectedProjectId"
-      :visible.sync="quickAddTopicDialogVisible"
-      :filter-conditions="filterValue"
-      :is-drawer="isMobile"
-      @update="loadData"
-    />
+    <component :is="isMobile ? 'div' : 'el-collapse-transition'">
+      <QuickAddIssue
+        v-if="quickAddTopicDialogVisible"
+        ref="quickAddIssue"
+        :project-id="selectedProjectId"
+        :visible.sync="quickAddTopicDialogVisible"
+        :filter-conditions="filterValue"
+        :is-drawer="isMobile"
+        @update="loadData"
+      />
+    </component>
     <div
       ref="wrapper"
       class="wrapper"
@@ -223,6 +226,7 @@
             @update-loading="handleUpdateLoading"
             @update-status="handleUpdateStatus"
             @update-selection-list="loadSelectionList"
+            @resize-table="resizeTable"
           />
         </el-tab-pane>
         <el-tab-pane
@@ -309,7 +313,7 @@ import {
   patchIssueListDownload,
   postIssueListDownload
 } from '@/api/projects'
-import { BasicData, Columns, SearchFilter } from '@/mixins'
+import { Columns, SearchFilter } from '@/mixins'
 import { getLocalTime } from '@shared/utils/handleTime'
 import { ProjectListSelector, ElSelectAll } from '@shared/components'
 import {
@@ -330,7 +334,7 @@ export default {
     Gantt,
     WBS
   },
-  mixins: [BasicData, Columns, SearchFilter],
+  mixins: [Columns, SearchFilter],
   data() {
     return {
       quickAddTopicDialogVisible: false,
@@ -339,7 +343,7 @@ export default {
       updateLoading: false,
       lastUpdated: null,
       activeNames: '',
-      tableHeight: 0,
+      tableHeight: 600,
       form: {},
       groupBoardBy: {
         dimension: 'status',
@@ -355,7 +359,7 @@ export default {
         { display: this.$t('Issue.EndDate'), field: 'EndDate' },
         { display: this.$t('Issue.priority'), field: 'priority' },
         { display: this.$t('Issue.assigned_to'), field: 'assigned_to' },
-        { display: this.$t('Issue.DoneRatio'), field: 'DoneRatio' },
+        { display: this.$t('Issue.DoneRatio'), field: 'done_ratio' },
         { display: this.$t('Issue.points'), field: 'points' }
       ]),
       storageName: 'milestone',
@@ -383,7 +387,8 @@ export default {
         visible: false,
         id: null
       },
-      isProjectDetailPopUp: false
+      isProjectDetailPopUp: false,
+      type: 'wbs_cache'
     }
   },
   computed: {
@@ -451,20 +456,28 @@ export default {
       if (this.issueDetail.visible) {
         this.$router.push({ name: 'IssueDetail', params: { issueId: this.issueDetail.id }})
       }
+    },
+    displayFields() {
+      this.resizeTable()
     }
   },
   async mounted() {
+    if (this.$refs['WBS']) this.$refs['WBS'].listLoading = true
     await this.loadReportStatus()
-    this.$nextTick(() => {
-      this.tableHeight = this.$refs.wrapper?.clientHeight
-    })
+    this.resizeTable()
     window.onresize = () => {
       this.$nextTick(() => {
-        this.tableHeight = this.$refs.wrapper?.clientHeight
+        this.resizeTable()
+        console.log('resize')
       })
     }
   },
   methods: {
+    resizeTable() {
+      this.$nextTick(() => {
+        this.tableHeight = this.$refs.wrapper?.clientHeight
+      })
+    },
     handleUpdateLoading(value) {
       this.updateLoading = value
       this.$nextTick(() => {

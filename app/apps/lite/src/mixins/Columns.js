@@ -62,7 +62,7 @@ export default {
     async loadDisplayColumns() {
       const res = await getIssueFieldDisplay({
         project_id: this.filterValue.project || this.selectedProjectId,
-        type: 'issue_list'
+        type: this.type
       })
       this.displayFields = res.data
     }

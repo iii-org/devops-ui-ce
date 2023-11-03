@@ -645,6 +645,7 @@ export default {
       tracker: '議題類別',
       assigned_to: '專案成員',
       fixed_version: '專案版本',
+      done_ratio: '完成比率',
       priority: '@:Issue.Priority',
       due_date_start: '@:Issue.EndDate(>=)',
       due_date_end: '@:Issue.EndDate(<=)'
@@ -674,7 +675,7 @@ export default {
     InputFilterName: '請輸入篩選條件名稱',
     RemoveCustomFilter: '確認要移除自定義條件嗎?',
     ImportParentIssueData: '匯入父議題標題與敍述',
-    AddToCalendar: '將添加到日曆',
+    AddToCalendar: '添加到日曆',
     Watch: '關注',
     Unwatch: '取消關注',
     WatcherList: '關注者清單',
@@ -974,7 +975,8 @@ export default {
     SearchCommitMessage: '搜尋 上傳訊息',
     TestDetail: '測試細節',
     PipeLineSettings: 'Pipeline 設定',
-    RerunPipeline: '{0} 分支已重新執行 Pipeline。'
+    RerunPipeline: '{0} 分支已重新執行 Pipeline。',
+    ExecuteLoadingText: 'Pipeline 正在執行中，請稍等片刻。'
   },
   ProcessDevEnvironment: {
     Branch: '@:general.Branch',
@@ -1062,7 +1064,7 @@ export default {
   System: {
     Secrets: 'Secrets',
     Registry: 'Registry',
-    RedmineMail: 'Redmine 信箱設定',
+    RedmineMail: 'SMTP 主機設定',
     SystemTemplates: '範本同步設定',
     SystemConfigs: '系統參數設定',
     AddPlugin: '新增插件',

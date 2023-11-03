@@ -16,7 +16,7 @@ RUN yarn
 
 COPY .git .
 COPY app .
-RUN git rev-parse HEAD > git_commit && echo "ce-0.3.0-dev" > git_tag && git log -1 --date=iso8601 --format="%ad" > git_date
+RUN git rev-parse HEAD > git_commit && echo "ce-0.4.0-dev" > git_tag && git log -1 --date=iso8601 --format="%ad" > git_date
 RUN echo -e "\nVUE_APP_COMMIT='$(cat git_commit)'\nVUE_APP_TAG='$(cat git_tag)'\nVUE_APP_DATE='$(cat git_date)'" >> apps/lite/.env.production
 RUN echo -e "\nVUE_APP_SER_TITLE='III DevOps Community'" >> apps/lite/.env.production
 

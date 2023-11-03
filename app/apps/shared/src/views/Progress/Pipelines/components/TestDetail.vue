@@ -85,7 +85,6 @@ import { io } from 'socket.io-client'
 import AnsiUp from 'ansi_up'
 import { mapGetters } from 'vuex'
 import { getPipelinesConfig } from '@/api/cicd'
-import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'TestDetailSocket',

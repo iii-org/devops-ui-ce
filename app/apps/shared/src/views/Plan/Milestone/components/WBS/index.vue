@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :style="{height: `${tableHeight}px`}" class="relative">
+    <div :style="{minHeight: `${tableHeight}px`}" class="relative">
       <el-table
         ref="WBS"
         v-el-table-infinite-scroll="fetchMoreData"
@@ -165,7 +165,7 @@
           @reset-create="handleResetCreate"
         />
         <WBSInputColumn
-          v-if="columns.indexOf('DoneRatio')>=0"
+          v-if="columns.indexOf('done_ratio')>=0"
           width="130px"
           :label="$t('Issue.DoneRatio_sm')"
           prop="done_ratio"
@@ -196,6 +196,7 @@
           @reset-create="handleResetCreate"
         />
         <el-empty
+          v-if="listData.length === 0"
           slot="empty"
           :description="$t('general.NoData')"
         />
@@ -226,7 +227,10 @@
         ref="contextmenu"
         :context-menu="contextMenu"
         :permission="permission"
+        :columns="columns"
         :tags="tags"
+        :fixed-version="fixedVersion"
+        :assigned-to="assignedTo"
         @handleUpdateIssue="handleUpdateIssue"
         @handleRelationUpdate="handleRelationUpdate"
         @handleRelationDelete="handleRelationDelete"
@@ -297,7 +301,7 @@
         />
       </el-dialog>
     </div>
-    <div v-if="listData?.length < 15 && pageQuery.pages !== 0 && pageQuery.pages !== pageQuery.current">
+    <div v-if="listData.length < pageQuery.total">
       <div class="scroll-down-hint" />
     </div>
   </div>
@@ -341,7 +345,7 @@ export default {
   props: {
     filterValue: {
       type: Object,
-      default: () => ({})
+      default: () => {}
     },
     keyword: {
       type: String,
@@ -383,6 +387,7 @@ export default {
       Status,
       listLoading: false,
       listData: [],
+      originData: [],
       addIssueVisible: false,
       updateLoading: false,
       editRowId: null,
@@ -400,7 +405,8 @@ export default {
       infiniteScrollDisabled: false,
       pageQuery: {
         current: 0,
-        pages: 0
+        pages: 0,
+        total: 0
       },
       scrollLoading: false,
       existCreatedRow: {}
@@ -426,11 +432,11 @@ export default {
     }
   },
   mounted() {
-    this.loadData()
-    window.addEventListener('resize', this.loadData)
+    // this.loadData()
+    window.addEventListener('resize', this.$emit('resize-table'))
   },
   destroyed() {
-    window.removeEventListener('resize', this.loadData)
+    window.removeEventListener('resize', this.$emit('resize-table'))
   },
   methods: {
     getParams() {
@@ -480,10 +486,10 @@ export default {
       }
       if (this.selectedProjectId === -1) return
       this.initInfiniteScrollQuery()
-      this.listData = []
       this.listData = await this.fetchData()
+      this.originData = cloneDeep(this.listData)
       this.$nextTick(() => {
-        this.$set(this.$refs['WBS'].resizeState, 'height', 0)
+        // this.$set(this.$refs['WBS'].resizeState, 'height', 0)
         this.$set(this.$refs['WBS'], 'isGroup', true)
         this.$set(this.$refs['WBS'], 'isGroup', false)
       })
@@ -499,6 +505,7 @@ export default {
       this.infiniteScrollDisabled = false
       this.pageQuery.current = 0
       this.pageQuery.pages = 0
+      this.pageQuery.total = 0
     },
     async fetchData() {
       if (!this.selectedProjectId) return
@@ -519,13 +526,9 @@ export default {
         this.scrollLoading ||
         !this.hasNoTagFilter) return
       let data = []
-      if (this.pageQuery.current <= this.pageQuery.pages) {
+      if (this.pageQuery.total !== this.listData.length) {
         data = await this.getProjectIssueList()
-      }
-      if (this.pageQuery.current !== 0 &&
-        this.pageQuery.pages !== 0 &&
-        this.pageQuery.current === this.pageQuery.pages
-      ) {
+      } else {
         this.infiniteScrollDisabled = true
       }
       if (data.hasOwnProperty('data')) {
@@ -546,9 +549,10 @@ export default {
       )
         .then((res) => {
           if (this.hasNoTagFilter && res.data) {
-            const { current, pages } = res.data.page
+            const { current, pages, total } = res.data.page
             this.pageQuery.current = current
             this.pageQuery.pages = pages
+            this.pageQuery.total = total
           }
           return res
         })
@@ -848,6 +852,8 @@ export default {
     },
     async handleUpdateIssue({ value, row }) {
       let checkUpdate = false
+      const originRowData = this.originData.find((data) => data.id === row.id)
+
       if (value['tags']) {
         const tags = row['tags'].map((item) => item.id)
         const findTags = tags.findIndex((item) => item === value['tags'])
@@ -858,6 +864,19 @@ export default {
         }
         value = { tags: tags.join(',') }
         checkUpdate = true
+      } else if (typeof value['priority_id'] === 'number') {
+        checkUpdate = value['priority_id'] !== originRowData.priority.id
+      } else if (typeof value['tracker_id'] === 'number') {
+        checkUpdate = value['tracker_id'] !== originRowData.tracker.id
+      } else if (typeof value['status_id'] === 'number') {
+        checkUpdate = value['status_id'] !== originRowData.status.id
+      } else if (value['fixed_version_id'] === 'null' || typeof value['fixed_version_id'] === 'number') {
+        checkUpdate = value['fixed_version_id'] !== originRowData.fixed_version.id
+      } else if (value['assigned_to_id'] === 'null' || typeof value['assigned_to_id'] === 'number') {
+        value['status_id'] = value['assigned_to_id'] === 'null' ? 1 : 2
+        checkUpdate = value['assigned_to_id'] !== originRowData.assigned_to.id
+      } else if (typeof value['done_ratio'] === 'number') {
+        checkUpdate = value['done_ratio'] !== originRowData.done_ratio
       } else if (typeof row.originColumn === 'object' && row.originColumn instanceof Date) {
         if (isTimeValid(row.originColumn)) {
           checkUpdate = value[row.editColumn] !== getLocalTime(row.originColumn, 'YYYY-MM-DD')
@@ -870,6 +889,7 @@ export default {
       if (row.name.length <= 0) {
         return
       }
+
       if (checkUpdate) {
         if (!this.updateLoading) {
           this.updateLoading = true
@@ -922,6 +942,7 @@ export default {
               message: this.$t(`errorMessage.${e.response?.data.error.code}`, e.response?.data.error.details).toString()
             })
           }
+          this.originData = cloneDeep(this.listData)
           this.updateLoading = false
           this.$emit('update-loading', false)
         }
@@ -1124,7 +1145,7 @@ export default {
             start: start_date,
             end: due_date
           }
-          if (type === 'ics') {
+          if (type === 'ical') {
             const cal = ics()
             cal.addEvent(name, description, '', getLocalTime(start_date), getLocalTime(due_date))
             cal.download('issue-' + (id || name))
@@ -1156,14 +1177,61 @@ export default {
 $light-gray: #9ca3af;
 $deep-gray: #333333;
 
+$tag-options: (
+  active: #00008b,
+  assigned: #8b0000,
+  closed: #808080,
+  inProgress: #006400,
+  solved: #ff8c00,
+  verified: #8b008b
+);
+
+@each $key, $value in $tag-options {
+  ::v-deep .el-tag--#{$key}.cursor-pointer:hover {
+    @include background-border-color($value, $value);
+    color: #ffffff;
+  }
+}
+
+$html-elements: (
+  span: #00aaff,
+  div: #00aaff
+);
+
+@each $key, $value in $html-elements {
+  ::v-deep #{$key}.cursor-pointer:hover {
+    @apply font-black;
+    color: $value;
+  }
+}
+
+$cursor-pointer-colors: (
+  cursor-pointer: (
+    background-border-color: #dbe6f0,
+    color: #3d83c0
+  ),
+  cursor-not-allowed: (
+    background-border-color: #b0c4de,
+    color: #7d94a8
+  )
+);
+
+@each $key, $value in $cursor-pointer-colors {
+  ::v-deep .el-tag--light.#{$key}:hover {
+    @include background-border-color(
+      map-get(map-get($cursor-pointer-colors, $key), background-border-color),
+      map-get(map-get($cursor-pointer-colors, $key), background-border-color)
+    );
+    color: map-get(map-get($cursor-pointer-colors, $key), color);
+  }
+}
+
 .add-issue-inline {
-  @apply pl-5;
-  @apply py-3;
+  @apply pl-5 py-5;
 }
 
 .table-css {
-  height: 100% !important;
-
+  //height: 100% !important;
   .action {
     @apply flex cursor-pointer;
     width: 15px;
@@ -1173,17 +1241,19 @@ $deep-gray: #333333;
       @apply bg-gray-200 text-black rounded-md text-center align-middle px-1;
     }
   }
+  ::v-deep {
+    table {
+      th {
+        padding: 5px;
+      }
 
-  ::v-deep table {
-    th {
-      padding: 5px;
-    }
-
-    td {
-      padding: 5px;
+      td {
+        padding: 5px;
+      }
     }
   }
 }
+
 .scroll-down-hint {
   left: 50%;
   width: 28px;
@@ -1226,5 +1296,9 @@ $deep-gray: #333333;
   position: -webkit-sticky;
   bottom: 0;
   z-index: 99;
+}
+
+::v-deep .cursor-context-menu {
+  cursor: context-menu;
 }
 </style>

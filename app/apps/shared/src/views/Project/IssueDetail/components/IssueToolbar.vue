@@ -101,6 +101,7 @@
     >
       <IssueFileUploader
         ref="IssueFileUploader"
+        v-loading="isLoading"
         :issue-id="issueId"
       />
       <div class="flex justify-between mt-2">
@@ -113,6 +114,7 @@
         <div>
           <el-button
             class="button-primary"
+            :loading="isLoading"
             @click="handleUploadClose"
           >
             {{ $t('general.Save') }}
@@ -231,6 +233,7 @@ export default {
   },
   methods: {
     async handleUploadClose() {
+      this.isLoading = true
       const sendForm = new FormData()
       const uploadFileList = this.$refs.IssueFileUploader.uploadFileList
       if (uploadFileList.length > 0) {
@@ -238,6 +241,7 @@ export default {
       }
       this.$refs.IssueFileUploader.$refs.fileUploader.clearFiles()
       this.$refs.IssueFileUploader.uploadFileList = []
+      this.isLoading = false
       this.uploadDialogVisible = false
     },
     async uploadFiles(sendForm, fileList) {

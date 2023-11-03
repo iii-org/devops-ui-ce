@@ -218,3 +218,16 @@ span:has(> .table-button.disabled) {
     }
   }
 }
+
+.relation-popper {
+  padding: 0 !important;
+  border-radius: 10px !important;
+  border: none !important;
+  font-size: 14px;
+  > .popper__arrow {
+    border-right-color: #fff !important;
+    &:after {
+      border-right-color: #fff !important;
+    }
+  }
+}

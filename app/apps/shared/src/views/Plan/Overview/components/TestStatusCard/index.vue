@@ -31,7 +31,7 @@
       <el-col
         v-for="result in testResultList"
         :key="result.Software"
-        class="mb-2"
+        class="mb-3"
         :span="24"
       >
         <el-card shadow="never">
