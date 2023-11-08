@@ -73,10 +73,11 @@ export default {
             trigger: 'blur'
           },
           {
-            required: true,
+            type: 'number',
             min: 0,
             max: 100,
-            message: this.$t('SystemConfigs.TypeBetween0And100')
+            message: this.$t('SystemConfigs.TypeBetween0And100'),
+            trigger: 'blur'
           }
         ]
       }

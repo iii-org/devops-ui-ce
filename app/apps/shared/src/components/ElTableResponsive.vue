@@ -13,11 +13,11 @@
     :cell-class-name="cellClassName"
     :header-cell-class-name="headerCellClassName"
     :class="isMobile ? 'mobile' : ''"
-    :style="style"
     :size="size"
     :tree-props="treeProps"
     :row-key="rowKey"
     :expand-row-keys="expandRowKeys"
+    :height="height"
     @row-click="handleRowClick"
     @sort-change="handleSortChange"
     @current-change="handleCurrentChange"
@@ -73,7 +73,8 @@
               class="cell"
               :class="col.showOverflowTooltip ? 'show-tooltip' : ''"
             >
-              {{ access(col.prop, scope.row) }}
+              <span v-if="access(col.prop, scope.row) !== ''">{{ access(col.prop, scope.row) }}</span>
+              <span v-else>-</span>
             </span>
           </span>
         </template>
@@ -199,6 +200,10 @@ export default {
     expandRowKeys: {
       type: Array,
       default: () => null
+    },
+    height: {
+      type: [Number, String],
+      default: null
     }
   },
   data() {
@@ -211,11 +216,6 @@ export default {
     ...mapGetters(['device']),
     isMobile() {
       return this.device === 'mobile'
-    },
-    style () {
-      return {
-        'padding': !this.isMobile ? '0 12px' : '0'
-      }
     }
   },
   methods: {
@@ -327,8 +327,8 @@ export default {
   word-break: normal !important;
 }
 ::v-deep .cell, ::v-deep th.el-table__cell>.cell {
-  padding-left: 0;
-  padding-right: 0;
+  //padding-left: 0;
+  //padding-right: 0;
 }
 ::v-deep .el-table__expanded-cell[class*=cell] {
   padding: 20px 50px !important;

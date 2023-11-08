@@ -42,6 +42,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
 @import 'src/styles/theme/mixin.scss';
 
 /* To make el-tab content fill space, or table will not expand */
@@ -52,8 +53,9 @@ export default {
 ::v-deep .el-tab-pane {
   height: 100%;
 }
-
-@import 'src/styles/theme/variables.scss';
+::v-deep .el-tabs__nav-wrap::after {
+  background-color: none;
+}
 ::v-deep .el-tabs__item {
   &:hover {
     color: $linkTextColor;

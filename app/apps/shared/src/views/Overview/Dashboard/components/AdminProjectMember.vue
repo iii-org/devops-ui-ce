@@ -155,8 +155,27 @@ export default {
             data: this.chartData,
             label: {
               show: true,
-              formatter: '{b}\n\n{c}',
-              fontSize: '1em'
+              formatter: '{title|{b}}\n{hr|}\n{value|{c}}',
+              rich: {
+                title: {
+                  color: '#6E7079',
+                  lineHeight: 22,
+                  fontSize: 15,
+                  align: 'center'
+                },
+                hr: {
+                  borderColor: '#f0f0f0',
+                  width: '100%',
+                  borderWidth: 1,
+                  height: 0
+                },
+                value: {
+                  color: '#4C5058',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  lineHeight: 24
+                }
+              }
             },
             itemStyle: {
               shadowBlur: 10,
@@ -234,6 +253,6 @@ export default {
 <style scoped>
 .chart {
   height: 100%;
-  min-height: 250px;
+  min-height: 270px;
 }
 </style>

@@ -319,7 +319,8 @@ export default {
           label: this.$t('general.Actions'),
           prop: 'actions',
           minWidth: '80',
-          slot: 'actions'
+          slot: 'actions',
+          align: 'center'
         }
       ]
     }
@@ -506,7 +507,7 @@ export default {
 }
 .mobile {
   ::v-deep .el-form-item__content {
-    width: webkit-fill-available;
+    width: -webkit-fill-available;
   }
 }
 </style>

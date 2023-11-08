@@ -61,8 +61,27 @@ export default {
             avoidLabelOverlap: false,
             label: {
               show: true,
-              formatter: '{b}\n\n{c}',
-              fontSize: '14px'
+              formatter: '{title|{b}}\n{hr|}\n{value|{c}}',
+              rich: {
+                title: {
+                  color: '#6E7079',
+                  lineHeight: 22,
+                  fontSize: 14,
+                  align: 'center'
+                },
+                hr: {
+                  borderColor: '#f0f0f0',
+                  width: '100%',
+                  borderWidth: 1,
+                  height: 0
+                },
+                value: {
+                  color: '#4C5058',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  lineHeight: 24
+                }
+              }
             },
             emphasis: {
               label: {

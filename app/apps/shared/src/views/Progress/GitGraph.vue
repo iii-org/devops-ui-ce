@@ -7,8 +7,14 @@
       </el-radio-group>
     </ProjectListSelector>
     <el-divider />
-    <el-card>
+    <el-card :class="graphTheme === 'dark' ? 'dark' : ''">
       <div class="box-card">
+        <div id="mypopup">
+          <div id="title" class="mb-2 text-sm font-bold"><em class="ri-user-3-line mr-2 text-base" /><span id="user" /></div>
+          <div><em class="ri-calendar-event-fill mr-2 text-base text-info" /><span id="date" /></div>
+          <div><em class="ri-git-commit-fill mr-2 text-base text-info" /><span id="commit" /></div>
+          <div><em id="msg-icon" class="ri-chat-quote-fill text-base text-info" /><div id="message" /></div>
+        </div>
         <div class="card-body">
           <el-empty
             v-if="isNoData"
@@ -18,7 +24,6 @@
             v-show="!isNoData"
             id="graph-container"
             :style="{ backgroundColor: colorSwitch.background }"
-            :class="graphTheme === 'dark' ? 'dark' : ''"
           />
           <el-button
             v-if="!isNoData && defaultBranch"
@@ -187,11 +192,42 @@ export default {
       this.timeout = window.setTimeout(() => {
         const pattern = /^[A-Za-z0-9]{7}$/
         const element = document.getElementsByTagName('text')
+        const containerEl = document.getElementsByClassName('app-container')
         for (const el of element) {
           if (pattern.test(el.innerHTML.split(' ')[0]) && el.nextSibling) {
+            const commit = this.nodeData.find(node => node.hashAbbrev.substring(0, 7) === el.innerHTML.split(' ')[0])
             el.classList.add('gitgraph-hover')
             el.addEventListener('click', () => {
-              this.openCommitLink(el.innerHTML.split(' ')[0])
+              this.openCommitLink(commit)
+            })
+
+            const mypopup = document.getElementById('mypopup')
+            el.addEventListener('mouseover', () => {
+              const iconPos = el.getBoundingClientRect()
+              let tipX = iconPos.right - 260
+              let tipY = containerEl[0].scrollTop + iconPos.top - 60
+              mypopup.style.left = tipX + 'px'
+              mypopup.style.top = tipY + 'px'
+              mypopup.style.display = 'block'
+              // Get calculated tooltip coordinates and size
+              const tooltip_rect = mypopup.getBoundingClientRect()
+              // Corrections if out of window
+              if ((tooltip_rect.x + tooltip_rect.width) >= window.innerWidth) {
+                tipX -= (tooltip_rect.x + tooltip_rect.width) - window.innerWidth + 10 // Simulate a "right: tipX" position
+              }
+              if ((tooltip_rect.y + tooltip_rect.height) >= window.innerHeight) {
+                tipY -= (tooltip_rect.y + tooltip_rect.height) - window.innerHeight + 10 // Align on the top
+              }
+              mypopup.style.top = tipY + 'px'
+              mypopup.style.left = tipX + 'px'
+              // mypopup.querySelector('#title').innerHTML = el.innerHTML
+              mypopup.querySelector('#user').innerHTML = commit.author.name
+              mypopup.querySelector('#date').innerHTML = getLocalTime(commit.author.timestamp)
+              mypopup.querySelector('#commit').innerHTML = commit.hash
+              mypopup.querySelector('#message').innerHTML = commit.message
+            })
+            el.addEventListener('mouseout', () => {
+              mypopup.style.display = 'none'
             })
           }
         }
@@ -200,8 +236,7 @@ export default {
     openGitLabGraph() {
       window.open(this.gitlabGraphLink, '_blank')
     },
-    openCommitLink(commitId) {
-      const commit = this.nodeData.find(node => node.hashAbbrev.substring(0, 7) === commitId)
+    openCommitLink(commit) {
       if (commit) window.open(commit.web_url, '_blank')
       else window.open(this.gitlabCommitsLink, '_blank')
     },
@@ -214,6 +249,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/mixin.scss';
 .box-card {
   overflow: auto;
   margin: 10px;
@@ -269,6 +305,9 @@ export default {
     foreignObject {
       color: #c7c7c7 !important;
     }
+    .el-card__body {
+      background-color: $sideBarTitleBg !important;
+    }
   }
 }
 </style>
@@ -277,5 +316,40 @@ export default {
 .gitgraph-hover:hover {
   fill: $linkTextColor;
   cursor: pointer;
+}
+#mypopup {
+  width: 374px;
+  padding: 14px;
+  font-size: 10pt;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #ebeef5;
+  position: absolute;
+  display: none;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+  line-height: 1.5;
+  #title {
+    border-bottom: 1px solid #ebeef5;
+  }
+  #msg-icon {
+    float: left;
+    width: 24px;
+  }
+  #message {
+    float: left;
+    width: calc(100% - 24px);
+  }
+}
+#mypopup::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background-color: white;
+  position: absolute;
+  left: -6px;
+  top: 10px;
+  border-bottom: 1px solid #ebeef5;
+  border-left: 1px solid #ebeef5;
 }
 </style>

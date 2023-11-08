@@ -3,8 +3,8 @@
     <el-card
       v-loading="isLoading"
       :element-loading-text="$t('Loading')"
-      :body-style="{ 'min-height': '80vh' }"
-      :style="!isFromBoard ? 'height: 93vh;overflow:auto;' : ''"
+      :body-style="{ 'min-height': '78vh' }"
+      :style="!isFromBoard ? 'height: 91vh;overflow:auto;' : ''"
     >
       <el-row slot="header">
         <el-row type="flex" align="bottom" justify="space-between">
@@ -715,7 +715,7 @@ export default {
 }
 
 .issueHeight {
-  height: calc(95vh - 50px - 80px - 30px - 54px);
+  height: calc(95vh - 50px - 80px - 30px - 82px);
   overflow-y: auto;
 }
 
@@ -726,7 +726,7 @@ export default {
 }
 
 .issueOptionHeight {
-  height: calc(95vh - 50px - 80px - 30px);
+  height: calc(95vh - 50px - 80px - 58px);
   overflow-y: auto;
 }
 

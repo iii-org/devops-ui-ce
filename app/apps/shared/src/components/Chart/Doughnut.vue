@@ -15,6 +15,7 @@ import { use } from 'echarts/core'
 import VChart from 'vue-echarts'
 import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart, ScatterChart } from 'echarts/charts'
+import variables from '@/styles/theme/variables.scss'
 
 require('echarts/theme/vintage') // echarts theme
 
@@ -53,6 +54,14 @@ export default {
     isFromDashboard: {
       type: Boolean,
       default: false
+    },
+    isFromMonitoringLog: {
+      type: Boolean,
+      default: false
+    },
+    monitoringLogType: {
+      type: String,
+      default: 'System'
     }
   },
   computed: {
@@ -83,7 +92,32 @@ export default {
             type: 'pie',
             radius: this.radius,
             center: this.center,
-            label: {
+            label: this.isFromMonitoringLog ? {
+              show: false,
+              position: 'center',
+              formatter: d => {
+                const { name, value, total, isPod } = d.data
+                return isPod
+                  ? `{number|${Math.round(value / total * 100)}%}\n{hint|${value} of ${total} ${name}}\n\n{title|Pods}`
+                  : `{number|${Math.round(value / total * 100)}%}\n{hint|${value} of ${total} GiB ${name}}\n\n{title|Memory}`
+              },
+              rich: {
+                number: {
+                  fontSize: '30',
+                  fontWeight: 'bold'
+                },
+                hint: {
+                  color: '#606266',
+                  fontSize: '15',
+                  padding: [0, 0, 5, 0]
+                },
+                title: {
+                  color: this.monitoringLogType === 'System' ? variables.primary : variables.secondary,
+                  fontSize: '24',
+                  fontWeight: 'bold'
+                }
+              }
+            } : {
               show: false,
               position: 'center',
               formatter: d => `{number|${d.data.total || d.value}}\n{title|${d.name}}`,
@@ -103,7 +137,7 @@ export default {
               show: true,
               label: {
                 show: true,
-                fontSize: '36',
+                fontSize: '28',
                 fontWeight: 'bold'
               }
             },

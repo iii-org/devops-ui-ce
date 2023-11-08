@@ -256,6 +256,7 @@ export default {
           data.value['status_id'] = 1
         }
       }
+      this.assigned_to_id = ''
       this.$emit('edit', data)
     },
     handlerCreate(row, index, treeNode) {

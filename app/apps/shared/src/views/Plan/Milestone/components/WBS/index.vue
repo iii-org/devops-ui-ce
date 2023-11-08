@@ -388,6 +388,7 @@ export default {
       listLoading: false,
       listData: [],
       originData: [],
+      originChildrenData: [],
       addIssueVisible: false,
       updateLoading: false,
       editRowId: null,
@@ -536,6 +537,7 @@ export default {
         formatterData.forEach((item) => {
           if (this.listData && !this.listData.find((listDataItem) => listDataItem.id === item.id)) {
             this.listData = this.listData.concat(item)
+            this.originData = cloneDeep(this.listData)
           }
         })
       }
@@ -852,7 +854,10 @@ export default {
     },
     async handleUpdateIssue({ value, row }) {
       let checkUpdate = false
-      const originRowData = this.originData.find((data) => data.id === row.id)
+      const isHasOriginData = this.originData.findIndex((data) => data.id === row.id) !== -1
+      const originRowData = isHasOriginData
+        ? this.originData.find((data) => data.id === row.id)
+        : this.originChildrenData.find((data) => data.id === row.id)
 
       if (value['tags']) {
         const tags = row['tags'].map((item) => item.id)
@@ -889,6 +894,8 @@ export default {
       if (row.name.length <= 0) {
         return
       }
+
+      if (!isHasOriginData) checkUpdate = true
 
       if (checkUpdate) {
         if (!this.updateLoading) {
@@ -1030,6 +1037,7 @@ export default {
           } else {
             resolve(data.children.map((item) => ({ parent_object: { ...row, children: data.children }, ...item })))
           }
+          this.originChildrenData.push(...data.children)
         } else {
           if (treeData) {
             const store = this.$refs.WBS.layout.store
