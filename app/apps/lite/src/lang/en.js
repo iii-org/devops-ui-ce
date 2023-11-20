@@ -1519,7 +1519,8 @@ export default {
     EditBoard: 'Edit Whiteboard',
     HistoricalRecord: 'Historical Record',
     AutoSavedTime: 'Auto Saved Time',
-    Size: 'Size'
+    Size: 'Size',
+    FullScreen: 'Full screen, press ESC to exit full screen'
   },
   IssueMatrix: {
     Relations: 'Relationship',

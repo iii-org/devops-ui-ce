@@ -133,7 +133,7 @@
       <el-input
         v-model="excalidrawName"
         v-loading="isLoading"
-        :placeholder="`${$t('RuleMsg.PleaseInput')} ${$t('Excalidraw.Name')}`"
+        :placeholder="$t('RuleMsg.PleaseInput') + $t('Excalidraw.Name')"
       />
       <span slot="footer" class="dialog-footer">
         <el-button

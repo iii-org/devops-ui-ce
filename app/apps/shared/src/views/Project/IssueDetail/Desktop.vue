@@ -1,15 +1,26 @@
 <template>
-  <div class="app-container" :class="isInDialog ? 'in-dialog' : ''" :style="isFromBoard ? 'padding: 0' : ''">
+  <div
+    class="app-container"
+    :class="isInDialog ? 'in-dialog' : ''"
+    :style="isFromBoard ? 'padding: 0' : ''"
+  >
     <el-card
       v-loading="isLoading"
       :element-loading-text="$t('Loading')"
       :body-style="{ 'min-height': '78vh' }"
-      :style="!isFromBoard ? 'height: 91vh;overflow:auto;' : ''"
+      :style="!isFromBoard ? 'height: 91vh; overflow: auto;' : ''"
     >
       <el-row slot="header">
-        <el-row type="flex" align="bottom" justify="space-between">
+        <el-row
+          type="flex"
+          align="bottom"
+          justify="space-between"
+        >
           <el-row>
-            <el-col class="text-xl mr-3" :style="isFromBoard ? 'max-width: 500px;' : ''">
+            <el-col
+              class="text-xl mr-3"
+              :style="isFromBoard ? 'max-width: 500px;' : ''"
+            >
               <el-button
                 v-if="!isInDialog"
                 type="text"
@@ -20,11 +31,27 @@
               >
                 {{ $t('general.Back') }}
               </el-button>
-              <span :class="form.status_id === 6 ? 'grey-title' : ''" class="align-middle">
-                <Status v-if="form.status_id === 6" class="mx-1" :name="$t(`Issue.Closed`)" type="Closed" />
-                <Tracker v-if="tracker" :name="$t(`Issue.${tracker}`)" :type="tracker" />
-                <span v-else>{{ $t('Issue.Issue') }}</span>
-                <span>#{{ issueId }} -</span>
+              <span
+                class="align-middle"
+                :class="form.status_id === 6 ? 'grey-title' : ''"
+              >
+                <Status
+                  v-if="form.status_id === 6"
+                  class="mx-1"
+                  :name="$t(`Issue.Closed`)"
+                  type="Closed"
+                />
+                <Tracker
+                  v-if="tracker"
+                  :name="$t(`Issue.${tracker}`)"
+                  :type="tracker"
+                />
+                <span v-else>
+                  {{ $t('Issue.Issue') }}
+                </span>
+                <span>
+                  #{{ issueId }} -
+                </span>
                 <IssueTitle
                   ref="IssueTitle"
                   v-model="form.name"
@@ -44,7 +71,10 @@
               </span>
             </el-row>
             <el-row>
-              <WatchButton :issue.sync="issue" @update="$emit('update:issue', $event)" />
+              <WatchButton
+                :issue.sync="issue"
+                @update="$emit('update:issue', $event)"
+              />
               <el-divider direction="vertical" />
               <ShareButton
                 v-if="!isLite"
@@ -52,13 +82,28 @@
                 :assigned-to="assignedTo"
                 @copyUrl="$parent.copyUrl"
               />
-              <el-tooltip :content="$t('general.CopyUrl')" placement="bottom">
-                <el-button circle size="small" @click="$parent.copyUrl">
+              <el-tooltip
+                :content="$t('general.CopyUrl')"
+                placement="bottom"
+              >
+                <el-button
+                  circle
+                  size="small"
+                  @click="$parent.copyUrl"
+                >
                   <em class="el-icon-copy-document" />
                 </el-button>
               </el-tooltip>
-              <el-tooltip v-if="isFromBoard" :content="$t('general.PopUp')" placement="bottom">
-                <el-button circle size="small" @click="$parent.$emit('popup')">
+              <el-tooltip
+                v-if="isFromBoard"
+                :content="$t('general.PopUp')"
+                placement="bottom"
+              >
+                <el-button
+                  circle
+                  size="small"
+                  @click="$parent.$emit('popup')"
+                >
                   <em class="ri-external-link-line" />
                 </el-button>
               </el-tooltip>
@@ -90,7 +135,7 @@
         <el-col
           ref="mainIssueWrapper"
           :span="24"
-          :md="isFromBoard ? 24 : isIssueFormOpened ? 16 : 24"
+          :sm="isFromBoard ? 24 : isIssueFormOpened ? 16 : 24"
           @mousemove.native="detectEditorHeight"
           @mouseup.native="detectEditorHeight(false)"
           @mouseleave.native="detectEditorHeight(false)"
@@ -235,7 +280,7 @@
               ref="moveEditor"
               :span="24"
               class="mb-3"
-              style="position: sticky; top: 0; z-index: 3; background-color: white"
+              style="position: sticky; top: 0; z-index: 3; background-color: white;"
             >
               <IssueNotesEditor
                 ref="IssueNotesEditor"
@@ -245,6 +290,8 @@
                 :is-button-disabled="isButtonDisabled"
                 :assigned-to="assignedTo"
                 :is-issue-edited="isIssueEdited"
+                :data-loaded="dataLoaded"
+                :is-description-empty="originForm.description === ''"
                 @filterImage="$parent.filterImage"
                 @update="$parent.historyUpdate"
               />
@@ -309,7 +356,7 @@
           v-show="isIssueFormOpened"
           class="issueOptionHeight"
           :span="24"
-          :md="8"
+          :sm="8"
         >
           <IssueForm
             v-if="!isFromBoard"
@@ -658,11 +705,8 @@ export default {
       this.$refs.IssueForm.watchForm()
     },
     dataLoaded(value) {
-      if (value) {
-        setInterval(() => {
-          this.$emit('update:dataLoaded', false)
-        }, 5000)
-      }
+      if (!value) return
+      setInterval(() => { this.$emit('update:dataLoaded', false) }, 5000)
     }
   },
   methods: {

@@ -83,7 +83,10 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col
+            v-if="!originProject.parent_id || (originProject.parent_id && originProject.has_parent_project_permission)"
+            :span="24"
+          >
             <el-form-item :label="$t('Project.ParentProject')">
               <el-col
                 :xl="18"
@@ -180,7 +183,8 @@ const formTemplate = () => {
     is_inheritance_member: false,
     template_id: '',
     tag_name: '',
-    argumentsForm: []
+    argumentsForm: [],
+    has_parent_project_permission: false
   }
   if (process.env.VUE_APP_PROJECT !== 'LITE') form.image_auto_del = false
   return form
@@ -252,7 +256,8 @@ export default {
       baseExampleDescription: '',
       originProject: {
         parent_id: '',
-        is_inheritance_member: false
+        is_inheritance_member: false,
+        has_parent_project_permission: false
       },
       pickerOptions(startDate) {
         return {
@@ -324,8 +329,14 @@ export default {
     },
     async getExampleInfo() {
       if (this.userRole !== 'Engineer') {
-        this.originProject.parent_id = this.projectData.parent_id
-        this.originProject.is_inheritance_member = this.projectData.is_inheritance_member
+        const {
+          parent_id,
+          is_inheritance_member,
+          has_parent_project_permission
+        } = this.projectData
+        this.originProject.parent_id = parent_id
+        this.originProject.is_inheritance_member = is_inheritance_member
+        this.originProject.has_parent_project_permission = has_parent_project_permission
         await getTemplateList().then((res) => {
           res.data.forEach((item) => {
             item.options.forEach((element) => {

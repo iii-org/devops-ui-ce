@@ -227,6 +227,7 @@ export default {
       deep: true,
       handler(value) {
         if (Object.keys(value).length <= 1) { this.getSearchIssue() }
+        this.$emit('updateFamily', value)
       }
     },
     'form.children_id': {

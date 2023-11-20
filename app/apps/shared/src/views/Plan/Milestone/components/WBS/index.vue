@@ -196,7 +196,7 @@
           @reset-create="handleResetCreate"
         />
         <el-empty
-          v-if="listData.length === 0"
+          v-if="listData?.length === 0"
           slot="empty"
           :description="$t('general.NoData')"
         />
@@ -282,6 +282,7 @@
           ref="settingRelationIssue"
           :row.sync="contextMenu.row"
           :target.sync="relationDialog.target"
+          @updateFamily="(issues) => handleUpdateFamily(issues)"
         />
       </el-dialog>
       <el-dialog
@@ -301,7 +302,7 @@
         />
       </el-dialog>
     </div>
-    <div v-if="listData.length < pageQuery.total">
+    <div v-if="listData?.length < pageQuery.total">
       <div class="scroll-down-hint" />
     </div>
   </div>
@@ -387,13 +388,12 @@ export default {
       Status,
       listLoading: false,
       listData: [],
-      originData: [],
-      originChildrenData: [],
       addIssueVisible: false,
       updateLoading: false,
       editRowId: null,
       isParentExist: false,
       contextMenu: { visible: false, row: {}},
+      originSelectedRow: {},
       relationDialog: {
         visible: false,
         target: 'Parent'
@@ -417,7 +417,7 @@ export default {
     ...mapGetters(['selectedProjectId', 'priority', 'tracker', 'status', 'userId', 'userRole', 'strictTracker', 'device']),
     hasInlineCreate() {
       const create = this.listData ? this.listData.filter((item) => item.create) : false
-      return create.length > 0
+      return create?.length > 0
     },
     isButtonDisabled() {
       return this.userRole === 'QA'
@@ -430,6 +430,16 @@ export default {
     },
     isMobile() {
       return this.device === 'mobile'
+    }
+  },
+  watch: {
+    originSelectedRow: {
+      handler(newRow, oldRow) {
+        if (typeof newRow?.id === 'number') {
+          this.getIssueFamilyData(newRow, newRow.id, null, true)
+        }
+      },
+      deep: true
     }
   },
   mounted() {
@@ -468,7 +478,7 @@ export default {
             result['due_date_end'] = isTimeValid(this.filterValue['due_date_end'])
               ? getLocalTime(this.filterValue['due_date_end'], 'YYYY-MM-DD')
               : null
-          } else if (item === 'tags' && this.filterValue[item].length > 0) {
+          } else if (item === 'tags' && this.filterValue[item]?.length > 0) {
             result[item] = this.filterValue[item].join()
           } else {
             result[item + '_id'] = this.filterValue[item]
@@ -488,7 +498,6 @@ export default {
       if (this.selectedProjectId === -1) return
       this.initInfiniteScrollQuery()
       this.listData = await this.fetchData()
-      this.originData = cloneDeep(this.listData)
       this.$nextTick(() => {
         // this.$set(this.$refs['WBS'].resizeState, 'height', 0)
         this.$set(this.$refs['WBS'], 'isGroup', true)
@@ -527,7 +536,7 @@ export default {
         this.scrollLoading ||
         !this.hasNoTagFilter) return
       let data = []
-      if (this.pageQuery.total !== this.listData.length) {
+      if (this.pageQuery.total !== this.listData?.length) {
         data = await this.getProjectIssueList()
       } else {
         this.infiniteScrollDisabled = true
@@ -537,7 +546,6 @@ export default {
         formatterData.forEach((item) => {
           if (this.listData && !this.listData.find((listDataItem) => listDataItem.id === item.id)) {
             this.listData = this.listData.concat(item)
-            this.originData = cloneDeep(this.listData)
           }
         })
       }
@@ -672,7 +680,7 @@ export default {
           this.listData.splice(row_index, 0, issueForm)
         } else {
           const { scrollHeight, scrollTop } = this.$refs.WBS.bodyWrapper
-          let row_index = Math.round(this.listData.length * scrollTop / scrollHeight) + 2
+          let row_index = Math.round(this.listData?.length * scrollTop / scrollHeight) + 2
           if (scrollTop === 0) row_index = 0
           else if (scrollTop === scrollHeight) row_index += 1
           this.listData.splice(row_index, 0, issueForm)
@@ -681,7 +689,7 @@ export default {
       this.existCreatedRow = issueForm
     },
     async removeIssue(row) {
-      let row_index = this.listData.length
+      let row_index = this.listData?.length
       let treeDataArray = []
       let updateNodeMap = []
       const store = this.$refs.WBS.layout.store
@@ -780,27 +788,26 @@ export default {
       this.$emit('update-loading', false)
       await this.removeIssue(row)
     },
+    handleContextMenu(row, column, event) {
+      this.originSelectedRow = cloneDeep(row)
+      if (!this.isMobile) {
+        this.$refs?.contextmenu.handleContextMenu(row, column, event)
+      } else {
+        this.$refs?.drawermenu.handleInputDrawerMenu(row, event)
+      }
+    },
     handleCellClick(row, column) {
+      this.originSelectedRow = cloneDeep(row)
       if (row.create) return
       if (column.property === 'name' && row.id.toString().includes('new')) return
       if (column.property === 'name' && !row.editColumn) {
         this.$emit('onOpenIssueDetail', row.id)
         return
       }
-      if (!this.isButtonDisabled && column['property']) {
-        let columnName = column['property'].split('.')
-        if (columnName.length >= 2) {
-          columnName = columnName[0]
-        } else {
-          columnName = column['property']
-        }
-        this.$set(this.$data, 'editRowId', row.id)
-        this.$set(this.$data, 'isParentExist', Object.prototype.hasOwnProperty.call(row, 'parent_object'))
-        this.$set(row, 'originColumn', cloneDeep(row[columnName]))
-        this.$set(row, 'editColumn', columnName)
-      }
+      this.handleIssueNameCellClick(row, column)
     },
     handleIssueNameCellClick(row, column) {
+      this.originSelectedRow = cloneDeep(row)
       if (!this.isButtonDisabled && column['property']) {
         let columnName = column['property'].split('.')
         if (columnName.length >= 2) {
@@ -854,10 +861,6 @@ export default {
     },
     async handleUpdateIssue({ value, row }) {
       let checkUpdate = false
-      const isHasOriginData = this.originData.findIndex((data) => data.id === row.id) !== -1
-      const originRowData = isHasOriginData
-        ? this.originData.find((data) => data.id === row.id)
-        : this.originChildrenData.find((data) => data.id === row.id)
 
       if (value['tags']) {
         const tags = row['tags'].map((item) => item.id)
@@ -870,18 +873,18 @@ export default {
         value = { tags: tags.join(',') }
         checkUpdate = true
       } else if (typeof value['priority_id'] === 'number') {
-        checkUpdate = value['priority_id'] !== originRowData.priority.id
+        checkUpdate = value['priority_id'] !== this.originSelectedRow.priority.id
       } else if (typeof value['tracker_id'] === 'number') {
-        checkUpdate = value['tracker_id'] !== originRowData.tracker.id
+        checkUpdate = value['tracker_id'] !== this.originSelectedRow.tracker.id
       } else if (typeof value['status_id'] === 'number') {
-        checkUpdate = value['status_id'] !== originRowData.status.id
+        checkUpdate = value['status_id'] !== this.originSelectedRow.status.id
       } else if (value['fixed_version_id'] === 'null' || typeof value['fixed_version_id'] === 'number') {
-        checkUpdate = value['fixed_version_id'] !== originRowData.fixed_version.id
+        checkUpdate = value['fixed_version_id'] !== this.originSelectedRow.fixed_version.id
       } else if (value['assigned_to_id'] === 'null' || typeof value['assigned_to_id'] === 'number') {
         value['status_id'] = value['assigned_to_id'] === 'null' ? 1 : 2
-        checkUpdate = value['assigned_to_id'] !== originRowData.assigned_to.id
+        checkUpdate = value['assigned_to_id'] !== this.originSelectedRow.assigned_to.id
       } else if (typeof value['done_ratio'] === 'number') {
-        checkUpdate = value['done_ratio'] !== originRowData.done_ratio
+        checkUpdate = value['done_ratio'] !== this.originSelectedRow.done_ratio
       } else if (typeof row.originColumn === 'object' && row.originColumn instanceof Date) {
         if (isTimeValid(row.originColumn)) {
           checkUpdate = value[row.editColumn] !== getLocalTime(row.originColumn, 'YYYY-MM-DD')
@@ -894,8 +897,6 @@ export default {
       if (row.name.length <= 0) {
         return
       }
-
-      if (!isHasOriginData) checkUpdate = true
 
       if (checkUpdate) {
         if (!this.updateLoading) {
@@ -949,7 +950,6 @@ export default {
               message: this.$t(`errorMessage.${e.response?.data.error.code}`, e.response?.data.error.details).toString()
             })
           }
-          this.originData = cloneDeep(this.listData)
           this.updateLoading = false
           this.$emit('update-loading', false)
         }
@@ -1009,6 +1009,16 @@ export default {
         this.$emit('update-loading', false)
       }
     },
+    handleUpdateFamily(issues) {
+      Object.values(issues).forEach(async (issue) => {
+        await this.getIssueFamilyData(issue, issue.id, null, true)
+        if (issue.parent) {
+          this.handleUpdateFamily({
+            [issue.parent.id]: issue.parent
+          })
+        }
+      })
+    },
     async getIssueFamilyData(row, treeNode, resolve, treeData) {
       if (!this.hasNoTagFilter) {
         resolve(row.children && row.children.length > 0 ? row.children : [])
@@ -1037,7 +1047,6 @@ export default {
           } else {
             resolve(data.children.map((item) => ({ parent_object: { ...row, children: data.children }, ...item })))
           }
-          this.originChildrenData.push(...data.children)
         } else {
           if (treeData) {
             const store = this.$refs.WBS.layout.store
@@ -1053,16 +1062,6 @@ export default {
         return Promise.resolve()
       }
       return Promise.resolve()
-    },
-    handleInputContextMenu({ row, column, event }) {
-      this.handleContextMenu(row, column, event)
-    },
-    handleContextMenu(row, column, event) {
-      if (!this.isMobile) {
-        this.$refs?.contextmenu.handleContextMenu(row, column, event)
-      } else {
-        this.$refs?.drawermenu.handleInputDrawerMenu(row, event)
-      }
     },
     handleRelationDelete() {
       this.handleUpdated()
@@ -1102,6 +1101,7 @@ export default {
           type: 'success'
         })
         this.loadData()
+        this.getIssueFamilyData(this.originSelectedRow, this.originSelectedRow.id, null, true)
       } catch (e) {
         console.error(e)
       }

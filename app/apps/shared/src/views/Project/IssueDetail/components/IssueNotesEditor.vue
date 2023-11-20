@@ -3,25 +3,40 @@
     <el-col v-if="!isDrawer">
       <el-row class="text-sm font-bold py-3">
         {{ $t('Issue.Notes') }}
-        <span v-if="edit">
-          <el-button
-            class="action"
-            type="success"
-            size="mini"
-            icon="el-icon-check"
-            @click="updateNotes"
-          />
-          <el-button
-            class="action"
-            type="danger"
-            size="mini"
-            icon="el-icon-close"
-            @click="checkCancelInput"
-          />
+        <span class="ml-1">
+          <el-tooltip
+            v-if="!edit && isDescriptionEmpty"
+            :value="dataLoaded && notes === ''"
+            :enterable="false"
+            :content="$t('Issue.ClickToEdit')"
+            placement="right"
+          >
+            <el-button
+              class="edit-btn align-middle cursor-pointer text-xl p-0"
+              icon="el-icon-edit-outline"
+              @click="checkEnableEditor"
+            />
+          </el-tooltip>
+          <span v-else-if="edit">
+            <el-button
+              class="action"
+              type="success"
+              size="mini"
+              icon="el-icon-check"
+              @click="updateNotes"
+            />
+            <el-button
+              class="action"
+              type="danger"
+              size="mini"
+              icon="el-icon-close"
+              @click="checkCancelInput"
+            />
+          </span>
         </span>
       </el-row>
     </el-col>
-    <el-col v-if="edit || isDrawer">
+    <el-col v-show="edit || isDrawer">
       <Editor
         ref="mdEditor"
         preview-style="tab"
@@ -38,7 +53,7 @@
         @mousedown="isMoving = true"
       >
     </el-col>
-    <el-col v-else-if="!edit && !isDrawer">
+    <el-col v-if="!edit && !isDescriptionEmpty && !isDrawer">
       <el-tooltip
         :enterable="false"
         :content="$t('Issue.ClickToEdit')"
@@ -91,6 +106,14 @@ export default {
     isIssueEdited: {
       type: Object,
       default: () => ({})
+    },
+    dataLoaded: {
+      type: Boolean,
+      default: false
+    },
+    isDescriptionEmpty: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -112,9 +135,7 @@ export default {
       return process.env.VUE_APP_PROJECT === 'LITE'
     },
     notes() {
-      let notes = this.$refs.mdEditor
-        ? this.$refs.mdEditor.invoke('getMarkdown')
-        : ''
+      let notes = this.$refs.mdEditor?.invoke('getMarkdown') || ''
       notes = notes.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
       return notes
     },
@@ -236,15 +257,13 @@ export default {
         sendForm.append('notes', this.notes)
         await updateIssue(this.issueId, sendForm).then(() => {
           this.$emit('update')
-          this.isIssueEdited.notes = false
         })
         if (!this.isLite) {
           this.sendMentionMessage(this.mentionList)
         }
         this.isLoading = false
-      } else {
-        this.cancelInput()
       }
+      this.cancelInput()
     },
     checkCancelInput() {
       if (this.isChanged) {
@@ -301,6 +320,15 @@ export default {
   height: 6px;
   cursor: row-resize;
   background-color: gray;
+}
+
+.edit-btn {
+  border: none;
+  background-color: transparent;
+}
+
+.edit-btn:hover {
+  background-color: transparent;
 }
 
 .el-button--success {

@@ -1507,7 +1507,8 @@ export default {
     EditBoard: '編輯白板',
     HistoricalRecord: '歷史記錄',
     AutoSavedTime: '自動儲存時間',
-    Size: '檔案大小'
+    Size: '檔案大小',
+    FullScreen: '全螢幕，可按 ESC 離開全螢幕'
   },
   IssueMatrix: {
     Relations: '關係',

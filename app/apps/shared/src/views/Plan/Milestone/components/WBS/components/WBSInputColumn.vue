@@ -203,8 +203,8 @@ export default {
       ) {
         width = '50%'
       }
-      if (this.prop === 'name' && treeNode && treeNode.indent) {
-        return `calc(${width} - ${treeNode.indent}px)`
+      if (this.prop === 'name' && treeNode?.indent) {
+        return `calc(${width} - ${treeNode.indent * 2}px)`
       }
       if (this.prop === 'name') {
         return `calc(${width})`
@@ -299,6 +299,10 @@ export default {
   width: 20px;
   height: 20px;
   display: inline-block;
+}
+
+::v-deep .cell.el-tooltip {
+  white-space: initial;
 }
 
 .action {

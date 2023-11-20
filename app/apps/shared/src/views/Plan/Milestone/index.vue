@@ -612,6 +612,7 @@ export default {
       this.$nextTick(async () => {
         await this.loadSelectionList()
         this.$refs.WBS.loadData()
+        this.$refs.WBS.fetchMoreData()
       })
     },
     handleRelationDelete() {
@@ -620,6 +621,7 @@ export default {
       this.$set(this.issueDetail, 'id', null)
       this.$nextTick(() => {
         this.$refs.WBS.loadData()
+        this.$refs.WBS.fetchMoreData()
       })
     },
     handleRightPanelVisible() {

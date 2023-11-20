@@ -23,17 +23,15 @@
           </span>
           <span class="ml-1">
             <el-tooltip
-              v-if="!edit"
+              v-if="!edit && value !== ''"
               :value="dataLoaded && value === ''"
               :enterable="false"
               :content="$t('Issue.ClickToEdit')"
               placement="right"
             >
               <el-button
-                class="edit-btn p-0 text-xl
-                  el-icon-edit-outline
-                  cursor-pointer
-                  align-middle"
+                class="edit-btn align-middle cursor-pointer text-xl p-0"
+                icon="el-icon-edit-outline"
                 @click="checkEnableEditor"
               />
             </el-tooltip>
@@ -94,6 +92,20 @@
           class="move-bar flex justify-center rounded-b-md w-1/4 mt-0"
           @mousedown="isMoving = true"
         >
+      </el-col>
+      <el-col v-else-if="!edit && value === '' && device !== 'mobile'">
+        <el-tooltip
+          :enterable="false"
+          :content="$t('Issue.ClickToEdit')"
+          placement="top"
+        >
+          <el-input
+            class="p-3 mr-1"
+            :class="isButtonDisabled ? 'cursor-not-allowed' : 'cursor-text description'"
+            :placeholder="$t('general.Input', { item: $t('Issue.Description') })"
+            @click.native="checkEnableEditor"
+          />
+        </el-tooltip>
       </el-col>
       <el-drawer
         v-else-if="edit && device === 'mobile'"
@@ -524,6 +536,12 @@ export default {
   @apply bg-gray-100 rounded;
 }
 
+.move-bar {
+  height: 6px;
+  cursor: row-resize;
+  background-color: $info;
+}
+
 .edit-btn {
   border: none;
   background-color: transparent;
@@ -531,12 +549,6 @@ export default {
 
 .edit-btn:hover {
   background-color: transparent;
-}
-
-.move-bar {
-  height: 6px;
-  cursor: row-resize;
-  background-color: $info;
 }
 
 .el-button--success{
