@@ -25,7 +25,7 @@ Copy Code From EE:
 
     # Do some stuff
     - |
-      cp Mono/Dockerfile.lite ./Dockerfile
+      cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
       cp Mono/app/yarn.lock ./app/yarn.lock
       cp Mono/app/lerna.json ./app/lerna.json
       cp Mono/app/entrypoint.sh ./app/entrypoint.sh
