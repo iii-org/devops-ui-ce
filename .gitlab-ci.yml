@@ -28,6 +28,7 @@ Copy Code From EE:
       cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
       cp Mono/app/yarn.lock ./app/yarn.lock
       cp Mono/app/lerna.json ./app/lerna.json
+      mkdir build
       cp Mono/build/entrypoint.sh ./build/entrypoint.sh
       cp Mono/build/default.nginx ./build/default.nginx
       cp Mono/app/package_ce.json ./app/package.json
