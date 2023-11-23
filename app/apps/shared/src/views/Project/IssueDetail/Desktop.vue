@@ -272,6 +272,7 @@
                     :is-issue-edited="isIssueEdited"
                     :is-form-collapse-open="relationVisible === 'issueForm'"
                     @update="$parent.historyUpdate"
+                    @updateIssueBoard="$parent.updateIssueBoard"
                   />
                 </el-collapse-item>
               </el-collapse>

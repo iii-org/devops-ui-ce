@@ -165,7 +165,8 @@ export default {
         start_date: '',
         due_date: '',
         description: '',
-        notes: ''
+        notes: '',
+        board: []
       },
       files: [],
       test_files: [],
@@ -537,11 +538,12 @@ export default {
         done_ratio,
         start_date,
         due_date,
-        description
+        description,
+        board
       } = data
       this.form.parent_id = parent ? parent.id : ''
       this.form.project_id = project ? project.id : ''
-      this.form.assigned_to_id = assigned_to ? assigned_to.id : ''
+      this.form.assigned_to_id = Object.keys(assigned_to).length > 0 ? assigned_to.id : ''
       this.form.name = name
       this.form.fixed_version_id = fixed_version ? fixed_version.id : ''
       this.form.tracker_id = tracker.id
@@ -556,6 +558,11 @@ export default {
           ? '' : description
       this.form.relation_ids = this.relations.length > 0 ? this.relations.map((item) => item.id) : []
       this.form.tags = this.tags.length > 0 ? this.tags.map((item) => item.id) : []
+      this.form.board = board.length > 0 ? board.map((item) => item.id) : []
+      this.form.boardList = board.length > 0 ? board.map((item) => {
+        item.name = '[ ' + item.name + ' ] ' + item.item.name
+        return item
+      }) : []
       this.originForm = Object.assign({}, this.form)
     },
     async historyUpdate(isLoadIssueFamily = false) {
@@ -898,6 +905,9 @@ export default {
         const element = document.getElementById('AddSubIssueWrapper')
         element.scrollIntoView({ behavior: 'smooth' })
       })
+    },
+    updateIssueBoard() {
+      this.$emit('updateIssueBoard')
     }
   }
 }

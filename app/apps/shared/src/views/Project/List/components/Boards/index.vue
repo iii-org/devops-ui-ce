@@ -13,23 +13,89 @@
       :project-issue-list="projectIssueList"
       :fixed_version="fixedVersion"
       :assigned_to="assignedTo"
+      :tags="tags"
       :element-ids="elementIds"
       :project-id="projectId"
       filter-type="issue_board"
+      :custom-sort="customSort"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @loadData="loadData"
     />
+    <el-dialog
+      title="新增看板View"
+      :visible.sync="customBoardDialogVisible"
+      top="3vh"
+      append-to-body
+      destroy-on-close
+      :close-on-click-modal="false"
+      :before-close="closeCustomBoardDialog"
+    >
+      <div style="max-height: 25vh; overflow: auto;">
+        <CustomItem
+          v-for="(boardObject, index) in customValueOnBoard"
+          :key="boardObject.id"
+          v-loading="isLoading"
+          :order="index"
+          :board-object.sync="boardObject"
+          :custom-value-on-board="customValueOnBoard"
+          class="mb-3"
+        />
+      </div>
+      <el-link
+        icon="ri-add-line"
+        type="primary"
+        @click="addCustomBoard"
+      >
+        看板標題
+      </el-link>
+      <el-row slot="footer">
+        <el-col
+          :lg="16"
+          :md="14"
+          :sm="12"
+          :xs="10"
+        >
+          <el-input
+            v-model="boardName"
+            placeholder="看板名稱"
+          />
+        </el-col>
+        <el-col
+          :lg="8"
+          :md="10"
+          :sm="12"
+          :xs="14"
+        >
+          <el-button
+            class="buttonSecondaryReverse"
+            :loading="isLoading"
+            @click="closeCustomBoardDialog"
+          >
+            {{ $t('general.Cancel') }}
+          </el-button>
+          <el-button
+            class="buttonPrimary"
+            :loading="isLoading"
+            @click="confirmCustomBoardDialog"
+          >
+            {{ $t('general.Confirm') }}
+          </el-button>
+        </el-col>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import Boards from '@shared/views/Project/IssueBoards/components/Boards'
+import CustomItem from '@shared/views/Project/IssueBoards/components/CustomItem'
 
 export default {
   name: 'IssueBoards',
   components: {
-    Boards
+    Boards,
+    CustomItem
   },
   props: {
     isLoading: {
@@ -94,14 +160,41 @@ export default {
     contextOptions: {
       type: Object,
       default: () => ({})
+    },
+    customBoardDialogVisible: {
+      type: Boolean,
+      default: false
+    },
+    customSort: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
       // isLoading: false
+      customValueOnBoard: [],
+      boardName: ''
     }
   },
   methods: {
+    addCustomBoard() {
+      this.customValueOnBoard.push({
+        id: null,
+        name: '',
+        color: '#409EFF'
+      })
+    },
+    closeCustomBoardDialog() {
+      this.$emit('update:customBoardDialogVisible', false)
+      this.customValueOnBoard.length = 0
+    },
+    confirmCustomBoardDialog() {
+      this.$emit('addCustomOption', this.boardName)
+      this.$emit('addCustomBoard', this.customValueOnBoard)
+      this.$emit('update:customBoardDialogVisible', false)
+      this.customValueOnBoard.length = 0
+    },
     async getRelativeList() {
       this.$emit('getRelativeList')
     },

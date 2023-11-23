@@ -17,11 +17,14 @@
           <el-button
             slot="button"
             :disabled="isLoading"
-            :type="(socket.connected)? 'success': 'danger'"
+            :type="(socket.connected) ? 'success' : 'danger'"
             :size="isMobile ? 'mini' : 'medium'"
             @click="onSocketConnect"
           >
-            <div class="dot inline-block" :class="(socket.connected)? 'bg-success': 'bg-danger'" />
+            <div
+              class="dot inline-block"
+              :class="(socket.connected) ? 'bg-success' : 'bg-danger'"
+            />
             {{ (socket.connected) ? $t('general.Connected') : $t('general.Disconnected') }}
           </el-button>
         </div>
@@ -72,7 +75,9 @@
                   class="flex-1"
                 >
                   <el-checkbox v-model="fixed_version_closed">
-                    <span class="text-xs">{{ $t('Issue.DisplayClosedVersion') }}</span>
+                    <span class="text-xs">
+                      {{ $t('Issue.DisplayClosedVersion') }}
+                    </span>
                   </el-checkbox>
                 </el-tag>
               </div>
@@ -105,7 +110,9 @@
             </el-form-item>
           </template>
           <el-form-item>
-            <label class="el-form-item__label mr-3">{{ $t('Issue.DisplayClosedIssue') }}</label>
+            <label class="el-form-item__label mr-3">
+              {{ $t('Issue.DisplayClosedIssue') }}
+            </label>
             <el-checkbox
               v-model="displayClosed"
               @change="onChangeFilter"
@@ -119,14 +126,14 @@
           :group-by="groupBy"
           @update="onCustomFilterAdded"
         />
-
         <el-button
           slot="reference"
           :loading="isLoading"
           icon="el-icon-s-operation"
           class="header-text-color"
           type="text"
-        > {{ displayFilterValue }}
+        >
+          {{ displayFilterValue }}
           <em class="el-icon-arrow-down el-icon--right" />
         </el-button>
       </el-popover>
@@ -139,22 +146,60 @@
         <el-form v-loading="isLoading">
           <el-form-item :label="$t('Issue.FilterDimensions.label')">
             <el-select
+              ref="groupByDimensionSelect"
               v-model="groupBy.dimension"
               class="mr-4"
               filterable
               @change="onChangeGroupByDimension($event, true)"
             >
-              <template v-for="item in filterOptions">
+              <el-option-group :label="$t('Issue.FilterDimensions.default_dimension')">
+                <template v-for="item in filterOptions">
+                  <el-option
+                    v-if="filterDimensionsList(item.value)"
+                    :key="item.id"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </template>
+              </el-option-group>
+              <el-option-group
+                v-if="customOptions.length > 0 && !isLite"
+                :label="$t('Issue.FilterDimensions.custom_dimension')"
+              >
                 <el-option
-                  v-if="filterDimensionsList(item.value)"
+                  v-for="item in customOptions"
                   :key="item.id"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </template>
+                  :label="item.name"
+                  :value="item.name"
+                >
+                  <span class="flex justify-between items-center">
+                    {{ item.name }}
+                    <span @click="(e) => { e.stopPropagation() }">
+                      <el-popconfirm
+                        :title="$t('Issue.RemoveCustomFilter')"
+                        :confirm-button-text="$t('general.Remove')"
+                        :cancel-button-text="$t('general.Cancel')"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        @confirm="deleteCustomBoardBySelect(item)"
+                        @cancel="$refs.groupByDimensionSelect.visible = true"
+                      >
+                        <el-link
+                          slot="reference"
+                          icon="el-icon-delete"
+                          type="danger"
+                        />
+                      </el-popconfirm>
+                    </span>
+                  </span>
+                </el-option>
+              </el-option-group>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('Issue.Display')">
+          <el-form-item
+            v-show="isSelectDefaultOption"
+            :label="$t('Issue.Display')"
+          >
             <ElSelectAll
               ref="groupByValue"
               :value="groupBy.value"
@@ -167,6 +212,15 @@
               @change="onChangeGroupByValue($event, true)"
             />
           </el-form-item>
+          <el-link
+            v-if="!isLite"
+            class="float-right"
+            icon="ri-add-line"
+            type="primary"
+            @click="customBoardDialogVisible = true"
+          >
+            {{ $t('Issue.BoardView') }}
+          </el-link>
         </el-form>
         <el-button
           slot="reference"
@@ -175,7 +229,9 @@
           type="text"
         >
           <i18n path="Issue.GroupBy">
-            <strong slot="filter">{{ showSelectedGroupByName }}</strong>
+            <strong slot="filter">
+              {{ showSelectedGroupByName }}
+            </strong>
           </i18n>
           ({{ showSelectedGroupByLength }})
           <em class="el-icon-arrow-down el-icon--right" />
@@ -228,12 +284,85 @@
       :project-issue-list="projectIssueList"
       :fixed_version="fixed_version"
       :assigned_to="assigned_to"
+      :tags="tags"
       :element-ids="elementIds"
       :project-id="projectId"
       :filter-type="'board'"
+      :get-status-sort="getStatusSort"
+      :is-select-default-option="isSelectDefaultOption"
+      :custom-options="customOptions"
+      :params="getParams"
+      :board-id="boardId"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @updateData="updateData"
+      @loadData="loadData"
+    />
+    <el-dialog
+      :title="$t('general.Add') + $t('Issue.BoardTitle')"
+      :visible.sync="customBoardDialogVisible"
+      top="3vh"
+      append-to-body
+      destroy-on-close
+      :close-on-click-modal="false"
+      :before-close="closeCustomBoardDialog"
+    >
+      <div
+        v-loading="isLoading"
+        style="max-height: 25vh; overflow: auto;"
+      >
+        <CustomItem
+          v-for="(boardObject, index) in customValueOnBoard.list"
+          :key="boardObject.id"
+          v-loading="isLoading"
+          :order="index"
+          :board-object.sync="boardObject"
+          :group-by-value-on-board="customValueOnBoard.list"
+          class="mb-3"
+        />
+      </div>
+      <el-link
+        icon="ri-add-line"
+        type="primary"
+        :disabled="isLoading"
+        @click="addCustomBoard"
+      >
+        {{ $t('Issue.BoardTitle') }}
+      </el-link>
+      <el-row slot="footer">
+        <el-col :lg="14" :md="12" :sm="10" :xs="8">
+          <el-input
+            v-model="customValueOnBoard.name"
+            :placeholder="$t('RuleMsg.PleaseInput') + $t('Issue.BoardTitle')"
+          />
+        </el-col>
+        <el-col :lg="10" :md="12" :sm="14" :xs="16">
+          <el-button
+            class="buttonSecondaryReverse"
+            :loading="isLoading"
+            @click="closeCustomBoardDialog"
+          >
+            {{ $t('general.Cancel') }}
+          </el-button>
+          <el-button
+            class="buttonPrimary"
+            :loading="isLoading"
+            @click="confirmCustomBoardDialog"
+          >
+            {{ $t('general.Confirm') }}
+          </el-button>
+        </el-col>
+      </el-row>
+    </el-dialog>
+    <Fab
+      v-if="!isSelectDefaultOption"
+      position="bottom-right"
+      bg-color="#409eff"
+      icon-size="small"
+      main-icon="more_vert"
+      :actions="fabActions"
+      @addButton="customBoardDialogVisible = true"
+      @deleteButton="deleteCustomBoard()"
     />
   </div>
 </template>
@@ -248,6 +377,14 @@ import {
   getProjectVersion,
   getTagsByProject
 } from '@/api/projects'
+
+import { getIssue } from '@/api_v2/issue'
+import {
+  getAllBoard,
+  createNewBoard,
+  removeBoard,
+  createBoardItem
+} from '@/api_v2/issueBoard'
 import { getHasSon, getProjectRelation } from '@/api_v2/projects'
 import axios from 'axios'
 import Fuse from 'fuse.js'
@@ -256,10 +393,12 @@ import { ProjectListSelector, ElSelectAll } from '@shared/components'
 import { Status, Tracker, Priority, CustomFilter } from '@/components/Issue'
 import SaveFilterButton from '@/components/Issue/components/SaveFilterButton'
 import Boards from './components/Boards'
+import CustomItem from './components/CustomItem'
 
 export default {
   name: 'IssueBoards',
   components: {
+    CustomItem,
     Boards,
     ElSelectAll,
     ProjectListSelector,
@@ -267,7 +406,8 @@ export default {
     Tracker,
     Priority,
     CustomFilter,
-    SaveFilterButton
+    SaveFilterButton,
+    Fab: () => import('vue-fab')
   },
   data() {
     return {
@@ -335,16 +475,32 @@ export default {
       socket: io(`/issues/websocket`, { // production socket
         reconnectionAttempts: 5,
         forceNew: true
-      })
+      }),
       // socket: io(`${process.env.VUE_APP_BASE_API}/issues/websocket`, { // development socket
       //   reconnectionAttempts: 5
       // })
+      customBoardDialogVisible: false,
+      customValueOnBoard: {
+        name: '',
+        list: []
+      },
+      customOptions: []
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'userId', 'tracker', 'status', 'priority', 'fixedVersionShowClosed']),
+    ...mapGetters([
+      'selectedProjectId',
+      'userId',
+      'tracker',
+      'status',
+      'priority',
+      'fixedVersionShowClosed'
+    ]),
     isMobile() {
       return this.device === 'mobile'
+    },
+    isLite() {
+      return process.env.VUE_APP_PROJECT === 'LITE'
     },
     filterDimensionsList() {
       return (value) => value !== 'tags' && value !== 'due_date_start' && value !== 'due_date_end'
@@ -379,9 +535,15 @@ export default {
     },
     getStatusSort() {
       const dimension = this.groupBy.dimension
-      let sort = dimension === 'status' ? this.filterClosedStatus(this[dimension]) : this[dimension]
-      sort = dimension === 'assigned_to' ? this.filterMe(sort) : sort
-      return sort
+      if (this.isSelectDefaultOption) {
+        let sort = dimension === 'status' ? this.filterClosedStatus(this[dimension]) : this[dimension]
+        sort = dimension === 'assigned_to' ? this.filterMe(sort) : sort
+        return sort
+      } else {
+        const sort = this.customOptions.find((option) => option.name === dimension)?.items || []
+        sort.unshift({ id: 'all', name: this.$t('Issue.Uncategorized'), color: '#409EFF' })
+        return sort
+      }
     },
     filterClosedStatus() {
       return function (statusList) {
@@ -390,7 +552,11 @@ export default {
       }
     },
     showSelectedGroupByName() {
-      return this.filterOptions.find((item) => item.value === this.groupBy.dimension).label
+      if (this.isSelectDefaultOption) {
+        return this.filterOptions.find((item) => item.value === this.groupBy.dimension).label
+      } else {
+        return this.customOptions.find((item) => item.name === this.groupBy.dimension)?.name
+      }
     },
     showSelectedGroupByLength() {
       if (this.groupByOptions.length === this.groupBy.value.length || this.groupBy.value.length === 0) {
@@ -458,6 +624,49 @@ export default {
         fixed_version_closed: this.fixed_version_closed,
         displayClosed: this.displayClosed
       })
+    },
+    isSelectDefaultOption() {
+      const defaultStatus = ['tracker', 'status', 'priority', 'assigned_to', 'fixed_version']
+      return defaultStatus.includes(this.groupBy.dimension)
+    },
+    getParams() {
+      const result = {}
+      if (!this.displayClosed && this.groupBy.dimension !== 'status') result['status_id'] = 'open'
+      if (this.keyword) result['search'] = this.keyword
+      Object.keys(this.filterValue).forEach((param) => {
+        if (this.filterValue[param]) {
+          const isArray = param === 'tags' && this.filterValue[param].length > 0
+          if (isArray) {
+            result[param] = this.filterValue[param].join(',')
+          } else {
+            result[`${param}_id`] = this.filterValue[param]
+          }
+        }
+      })
+      return result
+    },
+    boardId() {
+      return this.customOptions.find((item) => item.name === this.groupBy.dimension)?.id
+    },
+    fabActions() {
+      const actions = [
+        {
+          name: 'addButton',
+          icon: 'add',
+          color: '#409eff'
+        },
+        {
+          name: 'deleteButton',
+          icon: 'delete',
+          color: '#F56C6C'
+        }
+        // {
+        //   name: 'copyButton',
+        //   icon: 'content_copy',
+        //   color: '#E6A23C'
+        // }
+      ]
+      return this.selectedProjectId ? actions : actions.slice(1, 3)
     }
   },
   watch: {
@@ -520,10 +729,15 @@ export default {
     ]),
     async loadData() {
       try {
+        if (!this.isLite) await this.fetchCustomBoard()
         await this.fetchData()
       } catch (e) {
         // null
       }
+    },
+    async fetchCustomBoard() {
+      const boards = await getAllBoard(this.projectId)
+      this.customOptions = boards.data
     },
     async fetchData() {
       await this.resetClassifyIssue()
@@ -534,8 +748,8 @@ export default {
     async fetchInitData() {
       this.groupBy = await this.getGroupBy()
       await this.checkProjectHasChildren()
-      await this.loadSelectionList()
       await this.getInitStoredData()
+      await this.loadSelectionList()
     },
     async checkProjectHasChildren() {
       this.hasChildren = (await getHasSon(this.projectId)).has_child
@@ -596,13 +810,26 @@ export default {
         this.relativeIssueList = this.createRelativeList(projectIssueListRes.data)
       }
     },
-    classifyIssue() {
+    async classifyIssue() {
       const issueList = this.projectIssueList
       this.checkGroupByValueOnBoard()
+      if (!this.isSelectDefaultOption) {
+        const params = { ...this.getParams, limit: 30, offset: 0 }
+        const res = await getProjectIssueList(this.projectId, params)
+        const existIssueListIds = issueList.map((issue) => issue.id)
+        const issue_list = res.data.issue_list.filter((item, index) => {
+          return !existIssueListIds.includes(item.id)
+        })
+        this.$set(this.classifyIssueList, 'all', issue_list)
+      }
       issueList.forEach((issue) => {
         if (issue) {
-          let dimensionName = issue[this.groupBy.dimension].id
-          dimensionName = dimensionName || 'null'
+          let dimensionName
+          if (this.isSelectDefaultOption) {
+            dimensionName = issue[this.groupBy.dimension].id
+          } else {
+            dimensionName = issue.board.find((board) => board.id === this.boardId).item.id
+          }
           if (!this.classifyIssueList[dimensionName]) return
           if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
         }
@@ -610,28 +837,28 @@ export default {
       this.sortIssue()
     },
     checkGroupByValueOnBoard() {
-      this.groupByValueOnBoard.forEach((dimension) => {
+      this.groupByValueOnBoard.filter((item) => item.id !== 'all').forEach((dimension) => {
         if (!this.classifyIssueList.hasOwnProperty(dimension.id)) {
           this.classifyIssueList[dimension.id] = []
         }
       })
     },
-    getParams() {
-      const result = {}
-      if (!this.displayClosed && this.groupBy.dimension !== 'status') result['status_id'] = 'open'
-      if (this.keyword) result['search'] = this.keyword
-      Object.keys(this.filterValue).forEach((param) => {
-        if (this.filterValue[param]) {
-          const isArray = param === 'tags' && this.filterValue[param].length > 0
-          if (isArray) {
-            result[param] = this.filterValue[param].join(',')
-          } else {
-            result[`${param}_id`] = this.filterValue[param]
-          }
-        }
-      })
-      return result
-    },
+    // getParams() {
+    //   const result = {}
+    //   if (!this.displayClosed && this.groupBy.dimension !== 'status') result['status_id'] = 'open'
+    //   if (this.keyword) result['search'] = this.keyword
+    //   Object.keys(this.filterValue).forEach((param) => {
+    //     if (this.filterValue[param]) {
+    //       const isArray = param === 'tags' && this.filterValue[param].length > 0
+    //       if (isArray) {
+    //         result[param] = this.filterValue[param].join(',')
+    //       } else {
+    //         result[`${param}_id`] = this.filterValue[param]
+    //       }
+    //     }
+    //   })
+    //   return result
+    // },
     async syncLoadFilterData() {
       await this.cancelLoadFilterData()
       this.projectIssueQueue = {}
@@ -646,13 +873,23 @@ export default {
     },
     getIssueList() {
       const issueList = []
-      this.groupByValueOnBoard.forEach((item) => {
+      const issueIds = []
+      this.groupByValueOnBoard.filter((item) => item.id !== 'all').forEach((item) => {
         const { CancelToken, config } = this.getCancelToken()
         this.$set(this.projectIssueQueue, item.id, CancelToken)
-        const dimension = this.groupBy.dimension === 'tags' ? this.groupBy.dimension : `${this.groupBy.dimension}_id`
-        const params = { ...this.getParams(), [dimension]: item.id }
-        const getIssueList = getProjectIssueList(this.projectId, params, config)
-        issueList.push(getIssueList)
+        if (this.isSelectDefaultOption) {
+          const dimension = `${this.groupBy.dimension}_id`
+          const params = { ...this.getParams, [dimension]: item.id }
+          const getIssueList = getProjectIssueList(this.projectId, params, config)
+          issueList.push(getIssueList)
+        } else {
+          item.issue_ids.forEach((issue_id) => {
+            if (issueIds.includes(issue_id)) return
+            const getIssueList = getIssue(issue_id)
+            issueList.push(getIssueList)
+            issueIds.push(issue_id)
+          })
+        }
       })
       return issueList
     },
@@ -665,7 +902,7 @@ export default {
       await Promise.allSettled(getIssueList)
         .then((res) => {
           const issueList = res.map((item) => item.value.data)
-          const list = [].concat.apply([], issueList)
+          const list = [].concat(...issueList)
           this.$set(this.$data, 'projectIssueList', list)
         })
         .catch((e) => {
@@ -838,6 +1075,7 @@ export default {
       if (Object.prototype.hasOwnProperty.call(this.filterValue, this.groupBy.dimension)) {
         this.$delete(this.filterValue, this.groupBy.dimension)
       }
+      this.onSaveFilter()
       await this.loadData()
     },
     async onSaveFilter() {
@@ -959,7 +1197,85 @@ export default {
     },
     reloadPage() {
       window.location.reload()
+    },
+    addCustomBoard() {
+      this.customValueOnBoard.list.push({
+        id: null,
+        name: '',
+        color: '#409EFF'
+      })
+    },
+    closeCustomBoardDialog() {
+      this.customBoardDialogVisible = false
+      this.customValueOnBoard.list.length = 0
+    },
+    async confirmCustomBoardDialog() {
+      if (this.customValueOnBoard.name === '') {
+        this.$message({
+          title: this.$t('general.Warning'),
+          message: this.$t('Issue.BoardName') + this.$t('Notify.NoEmpty'),
+          type: 'warning'
+        })
+        return false
+      }
+      this.isLoading = true
+      const boardName = this.customValueOnBoard.name
+      const boardForm = new FormData()
+      boardForm.append('board_name', boardName)
+      const board_id = (await createNewBoard(this.projectId, boardForm)).data.id
+      const itemsArray = this.customValueOnBoard.list.map((item) => {
+        if (!item.name) return
+        const itemForm = new FormData()
+        itemForm.append('item_name', item.name)
+        itemForm.append('color', item.color)
+        return createBoardItem(this.projectId, board_id, itemForm)
+      })
+      await Promise.allSettled(itemsArray).then(async () => {
+        await this.fetchCustomBoard()
+        this.customBoardDialogVisible = false
+        this.customValueOnBoard.name = ''
+        this.customValueOnBoard.list.length = 0
+      }).catch((error) => {
+        console.error(error)
+      }).finally(() => {
+        this.onChangeGroupByDimension(boardName)
+        this.isLoading = false
+      })
+    },
+    deleteCustomBoard() {
+      this.$confirm(this.$t('Issue.RemoveCustomFilter'), this.$t('general.Warning'), {
+        confirmButtonText: this.$t('general.Confirm'),
+        cancelButtonText: this.$t('general.Cancel'),
+        type: 'warning'
+      }).then(async() => {
+        const option = this.customOptions.find((option) => {
+          return option.name === this.groupBy.dimension
+        })
+        await removeBoard(this.projectId, option.id)
+        await this.fetchCustomBoard()
+        if (this.groupBy.dimension === option.name) {
+          this.onChangeGroupByDimension('status')
+        }
+      }).catch()
+    },
+    async deleteCustomBoardBySelect(item) {
+      await removeBoard(this.projectId, item.id)
+      await this.fetchCustomBoard()
+      if (this.groupBy.dimension === item.name) {
+        this.onChangeGroupByDimension('status')
+      }
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+::v-deep .fab-main {
+  padding: 1.25rem !important;
+}
+
+::v-deep .fab-wrapper {
+  right: 2.5vh !important;
+  bottom: 2.5vh !important;
+}
+</style>

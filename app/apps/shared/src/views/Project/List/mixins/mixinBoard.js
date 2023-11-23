@@ -25,12 +25,25 @@ export default {
       elementIds: [],
       hasChildren: false,
       triggerLoad: 0,
-      isFirstLoad: false
+      isFirstLoad: false,
+      customOptions: [{
+        id: 'zzz',
+        label: 'zzz',
+        value: 'zzz'
+      }],
+      customSort: [{
+        name: 'zzz',
+        sort: [
+          { id: 9, name: 'study', color: '#000000' },
+          { id: 10, name: 'work', color: '#000000' }
+        ]
+      }]
     }
   },
   computed: {
     ...mapGetters(['selectedProjectId', 'userId', 'tracker', 'status', 'priority', 'fixedVersionShowClosed']),
     groupByOptions() {
+      console.log('this.getStatusSort', this.getStatusSort)
       return this.getStatusSort.map((item, idx) => ({
         id: idx,
         label: this.getTranslateHeader(item.name),
@@ -38,10 +51,15 @@ export default {
       }))
     },
     getStatusSort() {
+      const defaultStatus = ['tracker', 'status', 'priority', 'assigned_to', 'fixed_version']
       const dimension = this.groupBy.dimension
-      let sort = dimension === 'status' ? this.filterClosedStatus(this[dimension]) : this[dimension]
-      sort = dimension === 'assigned_to' ? this.filterMe(sort) : sort
-      return sort
+      if (defaultStatus.includes(dimension)) {
+        let sort = dimension === 'status' ? this.filterClosedStatus(this[dimension]) : this[dimension]
+        sort = dimension === 'assigned_to' ? this.filterMe(sort) : sort
+        return sort
+      } else {
+        return this.customSort.find((item) => item.name === dimension).sort
+      }
     },
     filterClosedStatus() {
       return function (statusList) {
@@ -50,7 +68,13 @@ export default {
       }
     },
     showSelectedGroupByName() {
-      return this.filterOptions.find((item) => item.value === this.groupBy.dimension).label
+      const defaultStatus = ['tracker', 'status', 'priority', 'assigned_to', 'fixed_version']
+      const dimension = this.groupBy.dimension
+      if (defaultStatus.includes(dimension)) {
+        return this.filterOptions.find((item) => item.value === this.groupBy.dimension).label
+      } else {
+        return this.customOptions.find((item) => item.value === dimension).label
+      }
     },
     showSelectedGroupByLength() {
       if (this.groupByOptions.length === this.groupBy.value.length || this.groupBy.value.length === 0) {
@@ -81,6 +105,25 @@ export default {
     window.clearInterval(this.intervalTimer)
   },
   methods: {
+    addCustomOption(name) {
+      this.customOptions.push({
+        id: name,
+        label: name,
+        value: name
+      })
+    },
+    addCustomBoard(board) {
+      this.customSort.push({
+        id: this.customSort.length + 1,
+        sort: JSON.parse(JSON.stringify(board))
+      })
+    },
+    // fetchCustomBoard() {
+    //   this.customOptions = []
+    // },
+    deleteCustomBoard () {
+      this.$refs.groupByDimensionSelect.visible = true
+    },
     ...mapActions('projects', [
       'getProjectUserList',
       'getGroupBy',
@@ -91,13 +134,14 @@ export default {
         // this.isFirstLoad = true
         await this.fetchBoardData()
         this.fetchListData()
+        // this.fetchCustomBoard()
         this.isFirstLoad = false
       } catch (e) {
         // null
       }
     },
     async fetchBoardData() {
-      await this.resetClassifyIssue()
+      this.resetClassifyIssue()
       this.projectIssueList = []
       await this.syncLoadFilterData()
       await this.getRelativeList()
@@ -126,10 +170,20 @@ export default {
       this.checkGroupByValueOnBoard()
       issueList.forEach((issue) => {
         if (issue) {
-          let dimensionName = issue[this.groupBy.dimension].id
-          dimensionName = dimensionName || 'null'
-          if (!this.classifyIssueList[dimensionName]) return
-          if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
+          const defaultStatus = ['tracker', 'status', 'priority', 'assigned_to', 'fixed_version']
+          if (defaultStatus.includes(this.groupBy.dimension)) {
+            let dimensionName = issue[this.groupBy.dimension].id
+            dimensionName = dimensionName || 'null'
+            if (!this.classifyIssueList[dimensionName]) return
+            if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
+          } else if (issue.tags.length > 0) {
+            console.log('issue', issue)
+            issue.tags.forEach((tag) => {
+              const dimensionName = tag.id
+              if (!this.classifyIssueList[dimensionName]) return
+              if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
+            })
+          }
         }
       })
       this.sortIssue()

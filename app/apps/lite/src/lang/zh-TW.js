@@ -640,6 +640,8 @@ export default {
     },
     FilterDimensions: {
       label: '篩選維度',
+      default_dimension: '預設維度',
+      custom_dimension: '自訂維度',
       tags: '議題標籤',
       status: '議題狀態',
       tracker: '議題類別',
@@ -650,6 +652,10 @@ export default {
       due_date_start: '@:Issue.EndDate(>=)',
       due_date_end: '@:Issue.EndDate(<=)'
     },
+    BoardView: '看板View',
+    BoardTitle: '看板標題',
+    BoardName: '看板名稱',
+    Uncategorized: '未分類',
     Display: '顯示',
     DragTip: '拖曳到議題，可以將 {key} 改變成 {value}',
     GroupBy: '以 {filter} 分組',
@@ -681,7 +687,7 @@ export default {
     WatcherList: '關注者清單',
     ClickToEdit: '點擊進入編輯',
     DoubleClickToEdit: '點擊兩下進入編輯',
-    TypeToAddTags: '可以直接在這打字以新增標籤'
+    TypeToAddTag: '可以直接在這打字以新增標籤'
   },
   Milestone: {
     Saving: '儲存中',

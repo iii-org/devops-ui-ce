@@ -153,6 +153,33 @@
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
             <el-form-item
+              label="自訂看板"
+              prop="board"
+            >
+              <el-select
+                v-model="form.board"
+                class="tagStyle"
+                style="width: 100%"
+                filterable
+                multiple
+                collapse-tags
+                :placeholder="$t('general.NoData')"
+                @remove-tag="removeCustomBoard"
+              >
+                <el-option
+                  v-for="item in form.boardList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                  disabled
+                >
+                  {{ item.name }}
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="isFromBoard ? 8 : 24">
+            <el-form-item
               :label="$t('Issue.priority')"
               prop="priority_id"
             >
@@ -431,8 +458,10 @@ import { mapGetters } from 'vuex'
 import { getProjectAssignable, getProjectVersion } from '@/api/projects'
 import { getAllRelation, getHasRelation } from '@/api_v2/projects'
 import { getCheckIssueClosable, updateIssue } from '@/api/issue'
+import { removeBoardItemIssue } from '@/api_v2/issueBoard'
 import { cloneDeep } from 'lodash'
 import { Priority, Tracker, Status, Tags } from '@/components/Issue'
+import variables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'IssueForm',
@@ -542,7 +571,9 @@ export default {
       isDrawerVisible: false,
       drawerKey: 0,
       formType: '',
-      isAssignDialog: false
+      isAssignDialog: false,
+      boardList: [],
+      customBoardStyle: ''
     }
   },
   computed: {
@@ -621,6 +652,11 @@ export default {
       this.drawerKey++
     }
   },
+  created() {
+    this.customBoardStyle = window.document.head.appendChild(
+      document.createElement('style')
+    )
+  },
   mounted() {
     if (this.form.project_id > 0) {
       this.onChangePId()
@@ -656,6 +692,15 @@ export default {
       } else {
         this.$set(this.$data, 'dynamicStatusList', this.status)
       }
+
+      this.customBoardStyle.innerHTML = this.form.board.map(() =>
+        `.tagStyle .el-tag {
+          padding: 10px;
+          color: #ffffff;
+          background-color: ${variables['secondary']};
+          border-radius: 12px;
+        }`).join('')
+
       this.isLoading = false
     },
     getAssignedTo(res) {
@@ -898,6 +943,16 @@ export default {
     handleClickFormMenu(item) {
       this.isDrawerVisible = !this.isDrawerVisible
       this.formType = item
+    },
+    async removeCustomBoard(boardId) {
+      const itemId = this.issue.board.find((item) => item.id === boardId).item.id
+      await removeBoardItemIssue(this.form.project_id, boardId, itemId, this.issueId)
+      this.$emit('updateIssueBoard')
+      this.$message({
+        title: this.$t('general.Success'),
+        message: this.$t('Notify.Deleted'),
+        type: 'success'
+      })
     }
   }
 }

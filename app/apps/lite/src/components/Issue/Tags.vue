@@ -7,7 +7,7 @@
       :value="dataLoaded && isFormCollapseOpen"
       :disabled="form.tags && form.tags.length > 0 "
       :enterable="false"
-      :content="$t('Issue.TypeToAddTags')"
+      :content="$t('Issue.TypeToAddTag')"
       placement="top"
     >
       <el-select
@@ -87,7 +87,7 @@ export default {
       isLoading: false,
       tag_name: '',
       tagsList: [],
-      isRepeated: false,
+      isDuplicate: false,
       cancelToken: null,
       isProjectHasTags: false
     }
@@ -116,7 +116,7 @@ export default {
       return CancelToken.token
     },
     async getSearchTags(query) {
-      this.isRepeated = false
+      this.isDuplicate = false
       this.tag_name = query || null
       const tags = await this.fetchTagsData(this.tag_name)
       this.getTagsList(this.tag_name, tags, query)
@@ -142,7 +142,7 @@ export default {
         const list = this.getTagsLabel(tags, sort, query)
         if (list.options.length > 0) tagsList.push(list)
       })
-      if (this.isRepeated) tagsList.shift()
+      if (this.isDuplicate) tagsList.shift()
       this.tagsList = tagsList
     },
     getTagsLabel(tags, tag_sort, query) {
@@ -150,7 +150,7 @@ export default {
       const addTag = [{ id: `tag__${query}`, name: query }]
       const showTags = this.getShowTags(tag_sort, tags, addTag)
       if (tag_sort === 'Result') {
-        this.isRepeated = showTags.map((item) => item.name).includes(this.tag_name)
+        this.isDuplicate = showTags.map((item) => item.name).includes(this.tag_name)
       }
       const name = `Issue.${tag_sort}`
       label.name = this.$t(name)

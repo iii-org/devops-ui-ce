@@ -1,29 +1,87 @@
 <template>
   <section>
-    <div
-      class="board"
-      :class="{'is-panel':relationIssue.visible}"
-    >
-      <Kanban
-        v-for="classObj in groupByValueOnBoard"
-        :id="'card' + classObj.id"
-        :key="classObj.id"
-        :board-object="classObj"
-        :list="classifyIssueList[classObj.id]"
-        :relative-list="relativeIssueList"
-        :status="status"
-        :group="group"
-        :dimension="groupBy.dimension"
-        :add-issue="saveIssue"
-        :element-ids="elementIds"
-        :project-id="projectId"
-        :filter-type="filterType"
-        @relationIssueId="onRelationIssueDialog($event, classObj.id)"
-        @update="updateIssueStatus"
-        @update-board="updateIssueBoard"
-        @update-drag="quickUpdateIssue"
-        @contextmenu="handleContextMenu"
-      />
+    <div class="flex">
+      <Draggable
+        :list="groupByValueOnBoard"
+        v-bind="$attrs"
+        class="board"
+        :class="{'is-panel':relationIssue.visible}"
+        :draggable="'.item'"
+        :disabled="!isDraggable"
+        :force-fallback="true"
+        @change="end($event)"
+      >
+        <Kanban
+          v-for="classObj in groupByValueOnBoard"
+          :id="'card' + classObj.id"
+          :key="classObj.id"
+          :class="!isSelectDefaultOption && classObj.id !== 'all' ? 'item' : ''"
+          :board-object="classObj"
+          :list="classifyIssueList[classObj.id]"
+          :relative-list="relativeIssueList"
+          :status="status"
+          :group="group"
+          :dimension="groupBy.dimension"
+          :add-issue="saveIssue"
+          :element-ids="elementIds"
+          :project-id="projectId"
+          :filter-type="filterType"
+          :group-by-value-on-board="groupByValueOnBoard"
+          :is-select-default-option="isSelectDefaultOption"
+          :board-id="boardId"
+          :params="params"
+          :classify-issue-list="classifyIssueList"
+          :is-draggable.sync="isDraggable"
+          @relationIssueId="onRelationIssueDialog($event, classObj.id)"
+          @update="updateIssueStatus"
+          @update-board="updateIssueBoard"
+          @update-drag="quickUpdateIssue"
+          @contextmenu="handleContextMenu"
+          @loadData="$emit('loadData')"
+        />
+        <el-card
+          v-if="!isSelectDefaultOption"
+          :body-style="{padding: 0}"
+          style="
+            min-width: 15rem;
+            height: 5rem;
+            margin: 10px 5px;
+          "
+        >
+          <el-link
+            v-if="!isEdited"
+            icon="el-icon-plus"
+            :underline="false"
+            class="flex items-center"
+            style="font-size: 1.2rem; height: 5rem;"
+            @click="isEdited = true"
+          >
+            {{ $t('general.Add') + $t('general.Title') }}
+          </el-link>
+          <template v-else>
+            <div class="text-right px-1">
+              <el-link
+                icon="el-icon-check"
+                :underline="false"
+                @click="createBoardItem"
+              />
+              <el-link
+                icon="el-icon-close"
+                :underline="false"
+                @click="resetBoardObject"
+              />
+            </div>
+            <CustomItem
+              :board-id="boardId"
+              :board-object="boardObject"
+              :group-by-value-on-board="groupByValueOnBoard"
+              :is-edited="isEdited"
+              @loadData="$emit('loadData')"
+              @resetBoardObject="resetBoardObject"
+            />
+          </template>
+        </el-card>
+      </Draggable>
     </div>
     <transition name="slide-fade">
       <div v-if="relationIssue.visible" class="rightPanel">
@@ -41,6 +99,7 @@
           :is-from-board="true"
           @popup="handleRelationIssueDialogBeforeClose"
           @delete="handleRelationDelete"
+          @updateIssueBoard="updateIssueBoard"
         />
       </div>
     </transition>
@@ -58,6 +117,7 @@
         :is-in-dialog="true"
         :is-from-board="false"
         @delete="handleRelationDelete"
+        @updateIssueBoard="updateIssueBoard"
       />
     </el-dialog>
     <ContextMenu
@@ -74,8 +134,16 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getIssue, addIssue, updateIssue } from '@/api/issue'
+import {
+  createBoardItem,
+  updateBoardItem,
+  createBoardItemIssue,
+  removeBoardItemIssue
+} from '@/api_v2/issueBoard'
 import Kanban from './Kanban'
+import CustomItem from './CustomItem'
 import { ContextMenu } from '@/components/Issue'
+import Draggable from 'vuedraggable'
 
 const contextMenu = {
   row: {
@@ -90,6 +158,8 @@ const contextMenu = {
 export default {
   name: 'Boards',
   components: {
+    CustomItem,
+    Draggable,
     Kanban,
     ContextMenu,
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail')
@@ -126,6 +196,10 @@ export default {
       type: Array,
       default: () => []
     },
+    tags: {
+      type: Array,
+      default: () => []
+    },
     elementIds: {
       type: Array,
       default: () => []
@@ -137,6 +211,26 @@ export default {
     filterType: {
       type: String,
       default: 'board'
+    },
+    getStatusSort: {
+      type: Array,
+      default: () => []
+    },
+    isSelectDefaultOption: {
+      type: Boolean,
+      default: false
+    },
+    customOptions: {
+      type: Array,
+      default: () => []
+    },
+    params: {
+      type: Object,
+      default: () => ({})
+    },
+    boardId: {
+      type: Number,
+      default: null
     }
   },
   data() {
@@ -180,7 +274,10 @@ export default {
         value: 'priority',
         placeholder: 'Priority',
         tag: true
-      }]
+      }],
+      isEdited: false,
+      isDraggable: true,
+      boardObject: { id: null, name: '', color: '#409EFF' }
     }
   },
   computed: {
@@ -190,12 +287,6 @@ export default {
         return this.getStatusSort.map((item) => item)
       }
       return this.groupBy.dimension === 'assigned_to' ? this.filterMe(this.groupBy.value) : this.groupBy.value
-    },
-    getStatusSort() {
-      const dimension = this[this.groupBy.dimension] || this.contextOptions[this.groupBy.dimension]
-      let sort = this.groupBy.dimension === 'status' ? this.filterClosedStatus(dimension) : dimension
-      sort = this.groupBy.dimension === 'assigned_to' ? this.filterMe(sort) : sort
-      return sort
     },
     isMobile() {
       return this.device === 'mobile'
@@ -222,11 +313,13 @@ export default {
     updateIssueBoard() {
       this.loadData()
     },
-    async saveIssue(data) {
+    async saveIssue(data, itemId) {
+      let issueId
       await addIssue(data)
-        .then((res) => {
+        .then(async (res) => {
           // noinspection JSCheckFunctionSignatures
           // this.showSuccessMessage()
+          issueId = res.data.id
           this.addTopicDialogVisible = false
           this.$refs['quickAddIssue'].form.name = ''
           return res
@@ -234,6 +327,10 @@ export default {
         .catch((error) => {
           return error
         })
+      if (!this.isSelectDefaultOption && itemId !== 'all') {
+        const formData = this.getFormData({ issue_id: issueId })
+        await createBoardItemIssue(this.projectId, this.boardId, itemId, formData)
+      }
     },
     showSuccessMessage() {
       this.$message({
@@ -245,14 +342,29 @@ export default {
     async updateIssueStatus(evt) {
       if (evt.event.hasOwnProperty('added')) {
         try {
-          const updatedData = { [`${this.groupBy.dimension}_id`]: evt.boardObject.id }
-          const issueId = evt.event.added.element.id
-          await this.updatedIssue(issueId, updatedData)
+          if (this.isSelectDefaultOption) {
+            const updatedData = { [`${this.groupBy.dimension}_id`]: evt.boardObject.id }
+            const issueId = evt.event.added.element.id
+            await this.updatedIssue(issueId, updatedData)
+          } else {
+            const issueId = evt.event.added.element.id
+            const issue = await getIssue(issueId)
+            if (issue.data.board.findIndex((board) => board.id === this.boardId) !== -1) {
+              const itemId = issue.data.board.find((board) => board.id === this.boardId).item.id
+              await removeBoardItemIssue(this.projectId, this.boardId, itemId, issueId)
+            }
+            if (evt.boardObject.id !== 'all') {
+              const formData = this.getFormData({ issue_id: issueId })
+              await createBoardItemIssue(this.projectId, this.boardId, evt.boardObject.id, formData)
+            }
+          }
         } catch (e) {
           // error
         } finally {
-          this.setProjectIssueList(evt)
-          this.$emit('getRelativeList')
+          if (this.isSelectDefaultOption) {
+            this.setProjectIssueList(evt)
+            this.$emit('getRelativeList')
+          }
         }
       }
     },
@@ -266,11 +378,12 @@ export default {
     async updatedIssue(id, updatedData) {
       const formData = this.getFormData(updatedData)
       const res = await updateIssue(id, formData)
-      await this.updateRelationIssue(this.projectIssueList, res.data)
+      this.updateRelationIssue(this.projectIssueList, res.data)
     },
     setProjectIssueList(evt) {
-      const idx = this.projectIssueList.findIndex((item) => item.id === evt.event.added.element.id)
-      const issue = this.projectIssueList.find((item) => item.id === evt.event.added.element.id)
+      const issueId = evt.event.added.element.id
+      const idx = this.projectIssueList.findIndex((item) => item.id === issueId)
+      const issue = this.projectIssueList.find((item) => item.id === issueId)
       issue[this.groupBy.dimension] = evt.boardObject
       this.$emit('updateIssueList', idx, issue)
     },
@@ -389,7 +502,6 @@ export default {
       this.isProjectDetailPopUp = false
       this.$set(this.relationIssue, 'visible', false)
       this.$set(this.relationIssue, 'id', null)
-      this.isProjectDetailPopUp = false
     },
     handleRightPanelVisible() {
       this.$set(this.relationIssue, 'visible', false)
@@ -423,6 +535,38 @@ export default {
       } else {
         done()
       }
+    },
+    async end(event) {
+      const formData = new FormData()
+      formData.append('index', event.moved.newIndex - 1)
+      const itemId = event.moved.element.id
+      await updateBoardItem(
+        this.projectId,
+        this.boardId,
+        itemId,
+        formData
+      )
+      this.$emit('loadData')
+    },
+    async createBoardItem() {
+      const { name, color } = this.boardObject
+      if (name) {
+        const itemForm = new FormData()
+        itemForm.append('item_name', name)
+        itemForm.append('color', color)
+        await createBoardItem(this.projectId, this.boardId, itemForm)
+        this.resetBoardObject()
+        this.loadData()
+      } else {
+        this.$message({
+          message: this.$t('Validation.Input', [this.$t('Issue.BoardName')]),
+          type: 'warning'
+        })
+      }
+    },
+    resetBoardObject() {
+      this.isEdited = false
+      this.boardObject = { name: '', color: '#409EFF' }
     }
   }
 }

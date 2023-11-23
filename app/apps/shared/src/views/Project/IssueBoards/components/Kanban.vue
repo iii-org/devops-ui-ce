@@ -4,15 +4,62 @@
     :style="fromWbs ? 'background: transparent' : ''"
     :class="getHeaderBarClassName(boardObject.name)"
   >
-    <div class="board-column-header" :style="!fromWbs ? '': 'height: 10px'">
-      <div class="header-bar" />
+    <div
+      class="board-column-header"
+      :style="!fromWbs ? '': 'height: 10px'"
+    >
+      <div
+        class="header-bar"
+        :style="{ backgroundColor: !isSelectDefaultOption ? boardObject.color : '' }"
+      />
+      <div
+        v-if="!isSelectDefaultOption && boardObject.id !== 'all'"
+        class="flex items-start float-right p-1"
+        @mouseenter="$emit('update:isDraggable', false)"
+        @mouseleave="$emit('update:isDraggable', true)"
+      >
+        <el-link
+          :icon="isEdited ? 'el-icon-check' : 'el-icon-edit'"
+          :underline="false"
+          @click="handleEdit()"
+        />
+        <el-link
+          icon="el-icon-close"
+          :underline="false"
+          @click="handleClose()"
+        />
+      </div>
       <el-row v-if="!fromWbs" class="flex">
         <el-col class="text-center">
-          {{ getTranslateHeader(boardObject.name) }} <strong>({{ list.length }})</strong>
+          <span
+            v-if="!isEdited"
+            :style="{'padding-left': boardObject.id !== 'all' ? '1.5rem' : ''}"
+          >
+            {{ getTranslateHeader(boardObject.name) }}
+            <strong v-if="boardObject.id !== 'all'">
+              ({{ list.length }})
+            </strong>
+          </span>
+          <CustomItem
+            v-else
+            :board-id="boardId"
+            :board-object="boardObject"
+            :group-by-value-on-board="groupByValueOnBoard"
+            :is-edited="isEdited"
+            @loadData="$emit('loadData')"
+            @mouseenter.native="$emit('update:isDraggable', false)"
+            @mouseleave.native="$emit('update:isDraggable', true)"
+          />
         </el-col>
       </el-row>
     </div>
-    <el-scrollbar>
+    <ul
+      v-infinite-scroll="loadMoreIssueList"
+      class="p-0 m-0"
+      style="overflow: auto; height: 95%;"
+      :infinite-scroll-disabled="isScrollDisabled"
+      :infinite-scroll-immediate="false"
+    >
       <Draggable
         :list="list"
         v-bind="$attrs"
@@ -136,10 +183,10 @@
                     <span
                       class="text"
                       style="
-                      font-size: 14px;
-                      max-width: 120px;
-                      display: inline-block;
-                    "
+                        font-size: 14px;
+                        max-width: 120px;
+                        display: inline-block;
+                      "
                     >
                       {{ element.assigned_to.name }}
                     </span>
@@ -291,7 +338,9 @@
             >
               <div class="detail user">
                 <em class="el-icon-user-solid" />
-                <div class="text">{{ element.assigned_to.name }}</div>
+                <div class="text">
+                  {{ element.assigned_to.name }}
+                </div>
               </div>
             </el-tooltip>
             <div
@@ -306,7 +355,12 @@
             class="no-info"
           />
         </div>
-        <div v-if="!fromWbs" slot="header">
+        <div
+          v-if="!fromWbs"
+          slot="header"
+          @mouseenter="$emit('update:isDraggable', false)"
+          @mouseleave="$emit('update:isDraggable', true)"
+        >
           <div
             :class="selectedProjectId === -1 ? 'board-item-ban' : 'board-item'"
             class="title board-item select-none"
@@ -315,7 +369,8 @@
             <em
               class="el-icon-plus ml-4 mr-5 add-button"
               :class="{ rotate: showDialog }"
-            /> {{ $t('Issue.AddIssue') }}
+            />
+            {{ $t('Issue.AddIssue') }}
           </div>
           <transition name="slide-down">
             <QuickAddIssueOnBoard
@@ -325,22 +380,31 @@
               :save-data="addIssue"
               :board-object="boardObject"
               :filter-type="filterType"
+              :is-select-default-option="isSelectDefaultOption"
               @after-add="showDialog = !showDialog"
             />
           </transition>
         </div>
+        <p
+          v-if="loading && !noMore"
+          v-loading="loading"
+          class="py-3"
+        />
       </Draggable>
-    </el-scrollbar>
+    </ul>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { getIssueFamily } from '@/api/issue'
+import { updateBoardItem, removeBoardItem } from '@/api_v2/issueBoard'
 import Draggable from 'vuedraggable'
 import { Priority, Tracker, Status } from '@/components/Issue'
 import QuickAddIssueOnBoard from './QuickAddIssueOnBoard'
 import colorVariables from '@/styles/theme/variables.scss'
+import { getProjectIssueList } from '@/api/projects'
+import CustomItem from './CustomItem'
 
 export default {
   name: 'Kanban',
@@ -349,7 +413,8 @@ export default {
     Tracker,
     Priority,
     Status,
-    Draggable
+    Draggable,
+    CustomItem
   },
   filters: {
     lengthFilter(value) {
@@ -415,6 +480,30 @@ export default {
     filterType: {
       type: String,
       default: 'board'
+    },
+    groupByValueOnBoard: {
+      type: Array,
+      default: () => []
+    },
+    isSelectDefaultOption: {
+      type: Boolean,
+      default: false
+    },
+    boardId: {
+      type: Number,
+      default: null
+    },
+    params: {
+      type: Object,
+      default: () => ({})
+    },
+    classifyIssueList: {
+      type: Object,
+      default: () => ({})
+    },
+    isDraggable: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -448,13 +537,18 @@ export default {
       errorMsg: [],
       timeoutId: -1,
       timeoutIdx: -1,
-      toClosedVersionError: {}
+      toClosedVersionError: {},
+      loading: false,
+      noMore: false,
+      isEdited: false,
+      originColor: ''
     }
   },
   computed: {
     ...mapGetters(['selectedProjectId', 'forceTracker', 'enableForceTracker', 'device']),
     getHeaderBarClassName() {
       return function (name) {
+        if (!this.isSelectDefaultOption) return
         return name.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
       }
     },
@@ -498,6 +592,9 @@ export default {
     },
     isMobile() {
       return this.device === 'mobile'
+    },
+    isScrollDisabled () {
+      return this.loading || this.noMore
     }
   },
   watch: {
@@ -805,6 +902,76 @@ export default {
         el.addEventListener('mouseout', cancel)
         el.addEventListener('touchend', cancel)
         el.addEventListener('touchcancel', cancel)
+      })
+    },
+    async handleEdit() {
+      if (!this.isEdited) {
+        this.originColor = this.boardObject.color
+        this.isEdited = true
+        return
+      }
+      const { id, name, color } = this.boardObject
+      if (name) {
+        const formData = new FormData()
+        formData.append('item_name', name)
+        formData.append('color', color)
+        await updateBoardItem(
+          this.projectId,
+          this.boardId,
+          id,
+          formData
+        ).then((res) => {
+          this.boardObject.name = res.data.name
+          this.boardObject.color = res.data.color
+        }).catch((error) => {
+          console.error(error)
+        }).finally(() => {
+          this.isEdited = false
+        })
+      } else {
+        this.$message({
+          message: this.$t('Validation.Input', [this.$t('Issue.BoardName')]),
+          type: 'warning'
+        })
+      }
+    },
+    handleClose() {
+      if (this.isEdited) {
+        this.boardObject.color = this.originColor
+        this.isEdited = false
+      } else {
+        this.removeKanban()
+      }
+    },
+    removeKanban() {
+      this.$confirm(
+        this.$t('Notify.confirmDeleteSth', { name: this.boardObject.name }),
+        this.$t('general.Warning'),
+        {
+          confirmButtonText: this.$t('general.Confirm'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'warning'
+        }).then(async() => {
+        await removeBoardItem(this.projectId, this.boardId, this.boardObject.id)
+        this.$emit('loadData')
+      }).catch()
+    },
+    async loadMoreIssueList() {
+      if (this.boardObject.id !== 'all' || this.list.length === 0 || this.noMore) return
+      this.loading = true
+      const length = Object.values(this.classifyIssueList)
+        .map((item) => item.length).reduce((a, b) => a + b)
+      this.params.limit = 5
+      this.params.offset = length
+      await getProjectIssueList(this.projectId, this.params).then((res) => {
+        const { issue_list } = res.data
+        if (issue_list.length !== 0) {
+          this.$set(this.classifyIssueList, 'all', this.list.concat(...issue_list))
+        } else {
+          this.noMore = true
+        }
+      }).finally(() => {
+        this.loading = false
       })
     }
   }

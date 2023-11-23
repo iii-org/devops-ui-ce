@@ -11,8 +11,16 @@
           $t('general.ReconnectByReload')"
       >
         <div style="float:left;">
-          <el-button slot="button" :disabled="isBoardLoading" :type="(socket.connected)? 'success': 'danger'" @click="onSocketConnect">
-            <div class="dot inline-block" :class="(socket.connected)? 'bg-success': 'bg-danger'" />
+          <el-button
+            slot="button"
+            :disabled="isBoardLoading"
+            :type="(socket.connected) ? 'success': 'danger'"
+            @click="onSocketConnect"
+          >
+            <div
+              class="dot inline-block"
+              :class="(socket.connected) ? 'bg-success': 'bg-danger'"
+            />
             {{ (socket.connected) ? $t('general.Connected') : $t('general.Disconnected') }}
           </el-button>
         </div>
@@ -49,8 +57,12 @@
         @clean-filter="cleanFilter"
       >
         <el-radio-group v-model="issueView">
-          <el-radio-button label="Board"><em class="ri-layout-column-line text-xl" /></el-radio-button>
-          <el-radio-button label="List"><em class="ri-list-check text-xl" /></el-radio-button>
+          <el-radio-button label="Board">
+            <em class="ri-layout-column-line text-xl" />
+          </el-radio-button>
+          <el-radio-button label="List">
+            <em class="ri-list-check text-xl" />
+          </el-radio-button>
         </el-radio-group>
         <el-divider direction="vertical" />
         <CustomFilter
@@ -97,34 +109,68 @@
           </el-popover>
         </span>
         <Columns
-          v-if="issueView === 'List'"
+          v-show="issueView === 'List'"
           :columns-options="columnsOptions"
           :display-fields.sync="displayFields"
           :filter-value="filterValue"
           :type="type"
         />
-
         <el-popover
-          v-show="socket.connected && issueView === 'Board'"
+          v-show="!socket.connected && issueView === 'Board'"
           placement="bottom"
           trigger="click"
         >
           <el-form v-loading="isBoardLoading">
             <el-form-item :label="$t('Issue.FilterDimensions.label')">
               <el-select
+                ref="groupByDimensionSelect"
                 v-model="groupBy.dimension"
                 class="mr-4"
                 filterable
                 @change="onChangeGroupByDimension($event, true)"
               >
-                <template v-for="item in filterOptions">
+                <el-option-group label="預設維度">
+                  <template v-for="item in filterOptions">
+                    <el-option
+                      v-if="filterDimensionsList(item.value)"
+                      :key="item.id"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </template>
+                </el-option-group>
+                <el-option-group
+                  v-if="customOptions.length > 0"
+                  label="自訂維度"
+                >
                   <el-option
-                    v-if="filterDimensionsList(item.value)"
+                    v-for="item in customOptions"
                     :key="item.id"
                     :label="item.label"
                     :value="item.value"
-                  />
-                </template>
+                  >
+                    <span class="flex justify-between items-center">
+                      {{ item.label }}
+                      <span @click="(e) => { e.stopPropagation() }">
+                        <el-popconfirm
+                          :title="$t('Issue.RemoveCustomFilter')"
+                          :confirm-button-text="$t('general.Remove')"
+                          :cancel-button-text="$t('general.Cancel')"
+                          icon="el-icon-info"
+                          icon-color="red"
+                          @confirm="deleteCustomBoard(item)"
+                          @cancel="$refs.groupByDimensionSelect.visible = true"
+                        >
+                          <el-link
+                            slot="reference"
+                            icon="el-icon-delete"
+                            type="danger"
+                          />
+                        </el-popconfirm>
+                      </span>
+                    </span>
+                  </el-option>
+                </el-option-group>
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('Issue.Display')">
@@ -140,6 +186,14 @@
                 @change="onChangeGroupByValue($event, true)"
               />
             </el-form-item>
+            <el-link
+              class="float-right"
+              icon="ri-add-line"
+              type="primary"
+              @click="customBoardDialogVisible = true"
+            >
+              看板View
+            </el-link>
           </el-form>
           <el-button
             slot="reference"
@@ -187,6 +241,10 @@
       :classify-issue-list="classifyIssueList"
       :project-issue-list="projectIssueList"
       :context-options="contextOptions"
+      :custom-board-dialog-visible.sync="customBoardDialogVisible"
+      :custom-sort="getStatusSort"
+      @addCustomOption="addCustomOption"
+      @addCustomBoard="addCustomBoard"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @loadData="loadData"
@@ -292,6 +350,7 @@ export default {
         type: '',
         elements: []
       },
+      customBoardDialogVisible: false,
       type: 'issue_list'
     }
   },

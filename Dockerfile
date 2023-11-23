@@ -1,32 +1,72 @@
-FROM dockerhub/library/node:16 AS build-stage
+FROM node:16 AS base
+
 WORKDIR /app
+
 # Install lerna globally using npm
 RUN npm i lerna -g
 
-# Copy your packages
-COPY app/apps/lite ./apps/lite
-COPY app/apps/shared ./apps/shared
-
-# Copies package.json and package-lock.json to Docker environment
+# Copy package settings to 'cache' by docker
 COPY app/package.json app/yarn.lock app/lerna.json ./
+
+# Copy source codes
+COPY app .
+
 # Installs all node packages across packages
 RUN yarn refresh
 RUN yarn
-# Copies everything over to Docker environment
+
+FROM node:16 AS git-process
+
+# Setting UI version
+ENV VERSION=ce-0.4.0
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /git
 
 COPY .git .
-COPY app .
-RUN git rev-parse HEAD > git_commit && echo "ce-0.4.0-dev" > git_tag && git log -1 --date=iso8601 --format="%ad" > git_date
-RUN echo -e "\nVUE_APP_COMMIT='$(cat git_commit)'\nVUE_APP_TAG='$(cat git_tag)'\nVUE_APP_DATE='$(cat git_date)'" >> apps/lite/.env.production
-RUN echo -e "\nVUE_APP_SER_TITLE='III DevOps Community'" >> apps/lite/.env.production
+COPY app/apps/lite/.env.production ./.env.production
 
-# Installs all node packages
-# RUN yarn
+RUN COMMIT_ID="$(git rev-parse HEAD)" && \
+    COMMIT_DATE="$(git log -1 --date=iso8601 --format="%ad")" && \
+    # Declare version tag
+    BRANCH="$(git rev-parse --abbrev-ref HEAD)" && \
+    # Fix detached HEAD issue, for gitlab-ci job
+    if [ "$BRANCH" == "HEAD" ]; then \
+        BRANCH="$(git show -s --pretty=%D HEAD | cut -d ',' -f 2 | awk '{gsub(" origin/", ""); print $0}')"; \
+    fi && \
+    case "$BRANCH" in \
+        "master") \
+            COMMIT_BRANCH="$VERSION" \
+            ;; \
+        "develop") \
+            COMMIT_BRANCH="$VERSION-dev" \
+            ;; \
+        *) \
+            COMMIT_BRANCH="$VERSION-$BRANCH" \
+            ;; \
+    esac && \
+    echo -e "\nVUE_APP_COMMIT='$COMMIT_ID'\nVUE_APP_TAG='$COMMIT_BRANCH'\nVUE_APP_DATE='$COMMIT_DATE'" >> .env.production && \
+    echo -e "\nVUE_APP_SER_TITLE='III DevOps Community'" >> .env.production
+
+FROM base AS final
+
+COPY --from=git-process /git/.env.production ./apps/lite/.env.production
+
 RUN yarn build:lite
 
-FROM dockerhub/library/nginx:1.24-alpine-perl
-COPY --from=build-stage /app/apps/lite/dist /usr/share/nginx/html
-COPY --from=build-stage /app/apps/lite/default.conf.template /etc/nginx/templates/default.conf.template
+FROM nginx:1.24-alpine
+
+# Copy built files from previous stage
+COPY --from=final /app/apps/lite/dist /usr/share/nginx/html
+COPY --from=git-process /git/.env.production /usr/share/nginx/html/.env
+
+COPY build/default.nginx /etc/nginx/templates/default.conf.template
+COPY build/entrypoint.sh /docker-entrypoint.d/40-injectvariable.sh
+RUN chmod 775 /docker-entrypoint.d/40-injectvariable.sh
+
 ENV API_URL=http://devopsapi-service:10009/
-RUN chmod -R 775 /usr/share/nginx/html
+#ENV API_URL_SSO=http://10.20.2.52:31850/
+#ENV KEYCLOACK_URL=https://keycloak.dev.iiidevops.org
+
 EXPOSE 80

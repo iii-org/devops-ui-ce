@@ -57,15 +57,17 @@
               :loading="LoadingConfirm"
               size="small"
               @click="handleSave"
-            >{{ $t('general.Save') }}</el-button>
+            >
+              {{ $t('general.Save') }}
+            </el-button>
             <el-button
               :disabled="LoadingConfirm"
               class="button-secondary-reverse"
               size="small"
               @click="advancedAddIssue"
-            >{{
-              $t('general.AdvancedSettings')
-            }}</el-button>
+            >
+              {{ $t('general.AdvancedSettings') }}
+            </el-button>
           </span>
         </el-form-item>
       </el-form>
@@ -88,6 +90,7 @@
         :save-data="saveData"
         import-from="board"
         :is-create="true"
+        :item-id="boardObject.id"
         @loading="loadingUpdate"
         @add-topic-visible="handleCloseDialog"
       />
@@ -144,6 +147,10 @@ export default {
     filterType: {
       type: String,
       default: 'board'
+    },
+    isSelectDefaultOption: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -222,7 +229,8 @@ export default {
         name: null,
         assigned_to_id: null,
         status_id: 1,
-        priority_id: 3
+        priority_id: 3,
+        tags: this.isSelectDefaultOption ? [] : [this.boardObject.tag_id]
       }
       const dimensions = ['fixed_version', 'tracker', 'assigned_to', 'tag', 'priority']
       dimensions.forEach((item) => {
@@ -236,7 +244,7 @@ export default {
         }
       })
       if (this.boardObject.id !== 'null' && !!this.boardObject.id && this.boardObject.id !== '') {
-        this.$set(this.form, this.groupBy.dimension + '_id', this.boardObject.id)
+        if (this.isSelectDefaultOption) this.$set(this.form, this.groupBy.dimension + '_id', this.boardObject.id)
       }
     },
     handleSave() {
@@ -265,7 +273,8 @@ export default {
       Object.keys(data).forEach((objKey) => {
         form.append(objKey, data[objKey])
       })
-      await this.saveData(form)
+      const itemId = this.boardObject.id
+      await this.saveData(form, itemId)
       this.LoadingConfirm = false
       const tracker_id = data.tracker_id
       this.setFilterValue()

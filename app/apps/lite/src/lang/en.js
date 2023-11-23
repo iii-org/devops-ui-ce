@@ -647,6 +647,8 @@ export default {
     },
     FilterDimensions: {
       label: 'Filter Dimensions',
+      default_dimension: 'Default Dimensions',
+      custom_dimension: 'Custom Dimensions',
       tags: 'Tag',
       status: 'Status',
       tracker: 'Type',
@@ -657,6 +659,10 @@ export default {
       due_date_start: '@:Issue.StartDate',
       due_date_end: '@:Issue.EndDate'
     },
+    BoardView: 'Board View',
+    BoardTitle: 'Board Title',
+    BoardName: 'Board Name',
+    Uncategorized: 'Uncategorized',
     Display: 'Display',
     DragTip: 'Drag to issue, it can change {key} to {value}.',
     GroupBy: 'Group by {filter}',
@@ -688,7 +694,7 @@ export default {
     WatcherList: 'Watcher List',
     ClickToEdit: 'Click to enter edit mode',
     DoubleClickToEdit: 'Double-click to enter edit mode',
-    TypeToAddTags: 'You can type here to add tags directly.'
+    TypeToAddTag: 'You can type here to add tag directly.'
   },
   Milestone: {
     Saving: 'Saving',
