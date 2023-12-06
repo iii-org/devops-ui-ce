@@ -251,6 +251,9 @@ export default {
       'userRole',
       'device'
     ]),
+    isLite() {
+      return process.env.VUE_APP_PROJECT === 'LITE'
+    },
     countRelationIssue() {
       let parent = 0
       let children = 0
@@ -558,11 +561,13 @@ export default {
           ? '' : description
       this.form.relation_ids = this.relations.length > 0 ? this.relations.map((item) => item.id) : []
       this.form.tags = this.tags.length > 0 ? this.tags.map((item) => item.id) : []
-      this.form.board = board.length > 0 ? board.map((item) => item.id) : []
-      this.form.boardList = board.length > 0 ? board.map((item) => {
-        item.name = '[ ' + item.name + ' ] ' + item.item.name
-        return item
-      }) : []
+      if (!this.isLite) {
+        this.form.board = board && board.length > 0 ? board.map((item) => item.id) : []
+        this.form.boardList = board && board.length > 0 ? board.map((item) => {
+          item.name = '[ ' + item.name + ' ] ' + item.item.name
+          return item
+        }) : []
+      }
       this.originForm = Object.assign({}, this.form)
     },
     async historyUpdate(isLoadIssueFamily = false) {
@@ -858,6 +863,7 @@ export default {
     },
     onConfirm() {
       this.storagePId = this.form.project_id
+      this.$refs.IssueDetails.$refs.IssueForm.updateIssue('project_id')
       this.resetForm()
       this.isShowDialog = false
     },

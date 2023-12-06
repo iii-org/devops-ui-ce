@@ -6,7 +6,7 @@
     >
       <el-table
         ref="issueList"
-        :data="listData"
+        :data="isSearch ? pagedData : listData"
         highlight-current-row
         size="mini"
         row-key="id"
@@ -141,8 +141,12 @@
             v-if="scope.row.assigned_to"
             slot-scope="scope"
           >
-            <span>{{ scope.row.assigned_to.name }}</span>
-            <span v-if="scope.row.assigned_to.login">({{ scope.row.assigned_to.login }})</span>
+            <span>
+              {{ scope.row.assigned_to.name }}
+            </span>
+            <span v-if="scope.row.assigned_to.login">
+              ({{ scope.row.assigned_to.login }})
+            </span>
           </template>
         </el-table-column>
         <el-table-column
@@ -158,8 +162,12 @@
             v-if="scope.row.author"
             slot-scope="scope"
           >
-            <span>{{ scope.row.author.name }}</span>
-            <span v-if="scope.row.author.login">({{ scope.row.author.login }})</span>
+            <span>
+              {{ scope.row.author.name }}
+            </span>
+            <span v-if="scope.row.author.login">
+              ({{ scope.row.author.login }})
+            </span>
           </template>
         </el-table-column>
         <template slot="empty">
@@ -257,6 +265,9 @@ export default {
         displayClosed: this.displayClosedProps,
         keyword: this.keywordProps
       }
+    },
+    isSearch() {
+      return this.keywordProps && this.keywordProps !== '' && this.keywordProps.length > 1
     }
   },
   watch: {
@@ -268,6 +279,15 @@ export default {
     },
     'listQuery.total'(value) {
       this.$emit('total', value)
+    },
+    filterConditionsProps: {
+      handler() {
+        this.resetListQuery()
+      },
+      deep: true
+    },
+    keywordProps() {
+      this.resetListQuery()
     }
   },
 
@@ -298,15 +318,23 @@ export default {
         this.cancelRequest()
       }
       this.listLoading = true
+      this.listData = []
       const getAPI = this.from === 'watcher_id' ? getUserWatchList : getUserIssueList
       await getAPI(this.userId, this.getParams())
         .then((res) => {
-          this.listData = res.data.issue_list
-          this.listData = this.listData.map((element) => ({
-            ...element,
-            showQuickAddIssue: false
-          }))
-          this.setNewListQuery(res.data.page)
+          if (this.isSearch) {
+            this.listData = res.data.map((element) => ({
+              ...element,
+              showQuickAddIssue: false
+            }))
+            this.setNewListQuery({ total: res.data.length })
+          } else {
+            this.listData = res.data.issue_list.map((element) => ({
+              ...element,
+              showQuickAddIssue: false
+            }))
+            this.setNewListQuery(res.data.page)
+          }
           this.listLoading = false
           this.$emit('list-data')
         })
@@ -341,12 +369,27 @@ export default {
       return result
     },
     setNewListQuery(pageInfo) {
-      const { offset, limit, current, total, pages } = pageInfo
-      if (pages !== 0 && current > pages) {
-        this.resetListQuery()
-      } else {
-        this.listQuery = { offset, limit, total, page: current }
-      }
+      const {
+        // offset,
+        // limit,
+        // current,
+        // pages,
+        total
+      } = pageInfo
+      // if (pages !== 0 && current > pages) {
+      //   this.resetListQuery()
+      // } else {
+      //   this.listQuery = { offset, limit, total, page: current }
+      // }
+      this.listQuery.total = total
+    },
+    async resetListQuery() {
+      this.listQuery.offset = 0
+      this.listQuery.page = 1
+      const storeListQuery = await this.getListQuery()
+      storeListQuery[`MyWork_${this.from}`] = this.listQuery
+      await this.setListQuery(storeListQuery)
+      await this.fetchData()
     },
     async setExpandedRow() {
       if (this.expandedRow.length > 0) {
@@ -360,7 +403,7 @@ export default {
     async handleSortChange({ prop, order }) {
       const orderBy = this.checkOrder(order)
       this.sort = orderBy ? `${prop}:${orderBy}` : orderBy
-      this.fetchData()
+      await this.fetchData()
       const storedSort = await this.getSort()
       storedSort[`MyWork_${this.from}`] = this.sort
       await this.setSort(storedSort)
@@ -376,18 +419,10 @@ export default {
       this.listQuery.offset = val.limit * val.page - val.limit
       this.listQuery.limit = val.limit
       this.listQuery.page = val.page
-      await this.fetchData()
+      if (!this.isSearch) await this.fetchData()
       const storeListQuery = await this.getListQuery()
       storeListQuery[`MyWork_${this.from}`] = this.listQuery
       await this.setListQuery(storeListQuery)
-    },
-    async resetListQuery() {
-      this.listQuery.offset = 0
-      this.listQuery.page = 1
-      const storeListQuery = await this.getListQuery()
-      storeListQuery[`MyWork_${this.from}`] = this.listQuery
-      await this.setListQuery(storeListQuery)
-      await this.fetchData()
     },
     getRowClass({ row }) {
       const result = []

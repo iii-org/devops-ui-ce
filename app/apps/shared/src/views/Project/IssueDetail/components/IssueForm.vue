@@ -151,7 +151,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="isFromBoard ? 8 : 24">
+          <el-col v-if="!isLite" :span="isFromBoard ? 8 : 24">
             <el-form-item
               label="自訂看板"
               prop="board"
@@ -588,6 +588,9 @@ export default {
       'device'
       // 'selectedProjectId'
     ]),
+    isLite() {
+      return process.env.VUE_APP_PROJECT === 'LITE'
+    },
     isParentIssueClosed() {
       if (Object.keys(this.parent).length <= 0) return false
       return this.parent.status.name === 'Closed'
@@ -856,6 +859,7 @@ export default {
       this.isLoading = false
     },
     updateSelect(type, forceClose = false) {
+      if (type === 'project_id') return
       this.$refs.form.validate((valid) => {
         if (!valid) return
         this.updateIssue(type, forceClose)

@@ -53,345 +53,347 @@
         </el-col>
       </el-row>
     </div>
-    <ul
-      v-infinite-scroll="loadMoreIssueList"
-      class="p-0 m-0"
-      style="overflow: auto; height: 95%;"
-      :infinite-scroll-disabled="isScrollDisabled"
-      :infinite-scroll-immediate="false"
-    >
-      <Draggable
-        :list="list"
-        v-bind="$attrs"
-        class="board-column-content"
-        :style="fromWbs ? 'border: 1px solid transparent' : ''"
-        :class="boardObject.name"
-        :move="canIssueMoved"
-        :disabled="disabled"
-        :draggable="'.item'"
-        :animation="120"
-        drag-class="dragClass"
-        ghost-class="ghostClass"
-        :force-fallback="true"
-        @change="end(boardObject, $event)"
+    <div class="overflow-auto el-scrollbar__view">
+      <ul
+        v-infinite-scroll="loadMoreIssueList"
+        :infinite-scroll-disabled="isScrollDisabled"
+        :infinite-scroll-immediate="false"
+        :class="boardObject.id !== 'all' || list < 10 ? 'el-scrollbar__view' :''"
+        class="p-0 m-0"
       >
-        <div
-          v-for="(element, idx) in list"
-          :id="element.id"
-          :key="element.id"
-          :ref="element.id"
-          class="board-item item"
-          @touchstart="disabled ? longPress(element, '', $event) : ''"
-          @drop="dropPanelLabels($event, idx, element.id)"
-          @dragover="allowDrop($event, idx)"
+        <Draggable
+          :list="list"
+          v-bind="$attrs"
+          class="board-column-content"
+          :style="fromWbs ? 'border: 1px solid transparent' : ''"
+          :class="boardObject.name"
+          :move="canIssueMoved"
+          :disabled="disabled"
+          :draggable="'.item'"
+          :animation="120"
+          drag-class="dragClass"
+          ghost-class="ghostClass"
+          :force-fallback="true"
+          @change="end(boardObject, $event)"
         >
-          <el-tooltip
-            :disabled="element.done_ratio === 0"
-            :content="`${element.done_ratio}%`"
-            placement="right"
+          <div
+            v-for="(element, idx) in list"
+            :id="element.id"
+            :key="element.id"
+            :ref="element.id"
+            class="board-item item"
+            @touchstart="disabled ? longPress(element, '', $event) : ''"
+            @drop="dropPanelLabels($event, idx, element.id)"
+            @dragover="allowDrop($event, idx)"
           >
-            <el-progress
-              v-if="element.done_ratio > 0"
-              class="progress-bar"
-              :percentage="element.done_ratio"
-              :status="getStatus(element)"
-              :show-text="false"
-              :stroke-width="4"
-            />
-          </el-tooltip>
-          <div @contextmenu="handleContextMenu(element, '', $event)">
-            <div class="title" :class="fromWbs ? 'cardTitle' : ''">
-              <span
-                class="text link-text-color"
-                :class="fromWbs ? 'msg-text truncate' : ''"
-                @click="handleClick(element)"
-              >
-                <el-tooltip
-                  v-if="fromWbs"
-                  placement="bottom-start"
-                  :open-delay="100"
-                  :content="element.name"
+            <el-tooltip
+              :disabled="element.done_ratio === 0"
+              :content="`${element.done_ratio}%`"
+              placement="right"
+            >
+              <el-progress
+                v-if="element.done_ratio > 0"
+                class="progress-bar"
+                :percentage="element.done_ratio"
+                :status="getStatus(element)"
+                :show-text="false"
+                :stroke-width="4"
+              />
+            </el-tooltip>
+            <div @contextmenu="handleContextMenu(element, '', $event)">
+              <div class="title" :class="fromWbs ? 'cardTitle' : ''">
+                <span
+                  class="text link-text-color"
+                  :class="fromWbs ? 'msg-text truncate' : ''"
+                  @click="handleClick(element)"
                 >
-                  <span>
+                  <el-tooltip
+                    v-if="fromWbs"
+                    placement="bottom-start"
+                    :open-delay="100"
+                    :content="element.name"
+                  >
+                    <span>
+                      {{ element.name }}
+                    </span>
+                  </el-tooltip>
+                  <span v-else>
                     {{ element.name }}
                   </span>
-                </el-tooltip>
-                <span v-else>
-                  {{ element.name }}
+                  <el-tag
+                    v-for="item in element.tags"
+                    :key="item.id"
+                    effect="plain"
+                    size="mini"
+                    class="tags"
+                  >
+                    {{ item.name }}
+                  </el-tag>
                 </span>
-                <el-tag
-                  v-for="item in element.tags"
-                  :key="item.id"
-                  effect="plain"
-                  size="mini"
-                  class="tags"
-                >
-                  {{ item.name }}
-                </el-tag>
-              </span>
-              <div class="action">
-                <div
-                  class="icon"
-                  @click.stop="handleContextMenu(element, '', $event)"
-                >
-                  <em class="el-icon-more" />
+                <div class="action">
+                  <div
+                    class="icon"
+                    @click.stop="handleContextMenu(element, '', $event)"
+                  >
+                    <em class="el-icon-more" />
+                  </div>
                 </div>
               </div>
+              <div class="issue-status-tags">
+                <span v-if="dimension !== 'status'">
+                  <Status
+                    v-if="element.status.name"
+                    :name="$t(`Issue.${element.status.name}`)"
+                    :type="element.status.name"
+                    size="mini"
+                    class="status"
+                  />
+                </span>
+                <span v-if="dimension !== 'priority'">
+                  <Priority
+                    v-if="element.priority.name"
+                    :name="$t(`Issue.${element.priority.name}`)"
+                    :type="element.priority.name"
+                    size="mini"
+                    class="priority"
+                    icon
+                  />
+                </span>
+                <span v-if="dimension !== 'tracker'">
+                  <Tracker
+                    :name="$t(`Issue.${element.tracker.name}`)"
+                    :type="element.tracker.name"
+                    class="tracker"
+                    is-hide-name
+                    :style="
+                      fromWbs ?
+                        'max-width: 80px; display: inline-block;'
+                        : ''
+                    "
+                  />
+                </span>
+                <el-tooltip
+                  v-if="Object.keys(element.assigned_to).length > 0"
+                  :content="element.assigned_to.login"
+                  placement="right-start"
+                  :disabled="!element.assigned_to.login"
+                >
+                  <span v-if="fromWbs" style="float:right;">
+                    <span class="detail user">
+                      <em class="el-icon-user-solid" />
+                      <span
+                        class="text"
+                        style="
+                        font-size: 14px;
+                        max-width: 120px;
+                        display: inline-block;
+                      "
+                      >
+                        {{ element.assigned_to.name }}
+                      </span>
+                    </span>
+                  </span>
+                </el-tooltip>
+              </div>
             </div>
-            <div class="issue-status-tags">
-              <span v-if="dimension !== 'status'">
-                <Status
-                  v-if="element.status.name"
-                  :name="$t(`Issue.${element.status.name}`)"
-                  :type="element.status.name"
-                  size="mini"
-                  class="status"
-                />
-              </span>
-              <span v-if="dimension !== 'priority'">
-                <Priority
-                  v-if="element.priority.name"
-                  :name="$t(`Issue.${element.priority.name}`)"
-                  :type="element.priority.name"
-                  size="mini"
-                  class="priority"
-                  icon
-                />
-              </span>
-              <span v-if="dimension !== 'tracker'">
-                <Tracker
-                  :name="$t(`Issue.${element.tracker.name}`)"
-                  :type="element.tracker.name"
-                  class="tracker"
-                  is-hide-name
-                  :style="
-                    fromWbs ?
-                      'max-width: 80px; display: inline-block;'
-                      : ''
-                  "
-                />
-              </span>
+            <div
+              v-if="element.family"
+              class="relation"
+            >
+              <el-collapse
+                v-model="element.show"
+                @change="onCollapseChange(element)"
+              >
+                <el-collapse-item name="relation">
+                  <template #title>
+                    <em class="el-icon-caret-right" /> {{ $t('Issue.RelatedIssue') }} {{ element | lengthFilter }}
+                  </template>
+                  <div
+                    v-if="element.family"
+                    class="parent"
+                  >
+                    <div
+                      v-if="element.hasOwnProperty('parent')"
+                      @contextmenu="handleContextMenu(element.parent, '', $event)"
+                    >
+                      <strong>{{ $t('Issue.ParentIssue') }}：</strong>
+                      <Status
+                        :name="$t(`Issue.${element.parent.status.name}`)"
+                        :type="element.parent.status.name"
+                        size="mini"
+                        tooltip
+                      />
+                      <el-link
+                        class="link-text-color"
+                        :underline="false"
+                        @click="handleClick(element.parent)"
+                      >
+                        {{ element.parent.name }}
+                        <el-tag
+                          v-for="item in element.parent.tags"
+                          :key="item.id"
+                          effect="plain"
+                          size="mini"
+                          class="tags"
+                        >
+                          {{ item.name }}
+                        </el-tag>
+                      </el-link>
+                    </div>
+                    <div v-if="element.hasOwnProperty('children') && element.children.length > 0">
+                      <strong>{{ $t('Issue.ChildrenIssue') }}：</strong>
+                      <ol class="children_list">
+                        <li
+                          v-for="(subElement, index) in element.children"
+                          :key="index"
+                          @contextmenu="handleContextMenu(subElement, '', $event)"
+                        >
+                          <Status
+                            :name="$t(`Issue.${subElement.status.name}`)"
+                            :type="subElement.status.name"
+                            size="mini"
+                            tooltip
+                          />
+                          <el-link
+                            class="link-text-color"
+                            :underline="false"
+                            @click="handleClick(subElement)"
+                          >
+                            {{ subElement.name }}
+                            <el-tag
+                              v-for="item in subElement.tags"
+                              :key="item.id"
+                              effect="plain"
+                              size="mini"
+                              class="tags"
+                            >
+                              {{ item.name }}
+                            </el-tag>
+                          </el-link>
+                        </li>
+                      </ol>
+                    </div>
+                    <div v-if="element.hasOwnProperty('relations') && element.relations.length > 0">
+                      <strong>{{ $t('Issue.RelatedIssue') }}：</strong>
+                      <ol class="children_list">
+                        <li
+                          v-for="(subElement, index) in element.relations"
+                          :key="index"
+                          @contextmenu="handleContextMenu(subElement, '', $event)"
+                        >
+                          <Status
+                            :name="$t(`Issue.${subElement.status.name}`)"
+                            :type="subElement.status.name"
+                            size="mini"
+                            tooltip
+                          />
+                          <el-link
+                            class="link-text-color"
+                            :underline="false"
+                            @click="handleClick(subElement)"
+                          >
+                            {{ subElement.name }}
+                            <el-tag
+                              v-for="item in subElement.tags"
+                              :key="item.id"
+                              effect="plain"
+                              size="mini"
+                              class="tags"
+                            >
+                              {{ item.name }}
+                            </el-tag>
+                          </el-link>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+            <div
+              v-if="(element.due_date || Object.keys(element.assigned_to).length > 0) && !fromWbs"
+              class="info"
+            >
+              <div
+                v-if="element.due_date"
+                class="detail due_date"
+                :class="getDateStatus(element)"
+              >
+                <em class="el-icon-date" />
+                <div
+                  class="text"
+                  :class="getDateStatus(element)"
+                >{{ element.due_date }}</div>
+              </div>
+              <div
+                v-else
+                class="detail due_date"
+              >
+                <em class="el-icon-date" />
+              </div>
               <el-tooltip
                 v-if="Object.keys(element.assigned_to).length > 0"
                 :content="element.assigned_to.login"
                 placement="right-start"
                 :disabled="!element.assigned_to.login"
               >
-                <span v-if="fromWbs" style="float:right;">
-                  <span class="detail user">
-                    <em class="el-icon-user-solid" />
-                    <span
-                      class="text"
-                      style="
-                        font-size: 14px;
-                        max-width: 120px;
-                        display: inline-block;
-                      "
-                    >
-                      {{ element.assigned_to.name }}
-                    </span>
-                  </span>
-                </span>
+                <div class="detail user">
+                  <em class="el-icon-user-solid" />
+                  <div class="text">
+                    {{ element.assigned_to.name }}
+                  </div>
+                </div>
               </el-tooltip>
-            </div>
-          </div>
-          <div
-            v-if="element.family"
-            class="relation"
-          >
-            <el-collapse
-              v-model="element.show"
-              @change="onCollapseChange(element)"
-            >
-              <el-collapse-item name="relation">
-                <template #title>
-                  <em class="el-icon-caret-right" /> {{ $t('Issue.RelatedIssue') }} {{ element | lengthFilter }}
-                </template>
-                <div
-                  v-if="element.family"
-                  class="parent"
-                >
-                  <div
-                    v-if="element.hasOwnProperty('parent')"
-                    @contextmenu="handleContextMenu(element.parent, '', $event)"
-                  >
-                    <strong>{{ $t('Issue.ParentIssue') }}：</strong>
-                    <Status
-                      :name="$t(`Issue.${element.parent.status.name}`)"
-                      :type="element.parent.status.name"
-                      size="mini"
-                      tooltip
-                    />
-                    <el-link
-                      class="link-text-color"
-                      :underline="false"
-                      @click="handleClick(element.parent)"
-                    >
-                      {{ element.parent.name }}
-                      <el-tag
-                        v-for="item in element.parent.tags"
-                        :key="item.id"
-                        effect="plain"
-                        size="mini"
-                        class="tags"
-                      >
-                        {{ item.name }}
-                      </el-tag>
-                    </el-link>
-                  </div>
-                  <div v-if="element.hasOwnProperty('children') && element.children.length > 0">
-                    <strong>{{ $t('Issue.ChildrenIssue') }}：</strong>
-                    <ol class="children_list">
-                      <li
-                        v-for="(subElement, index) in element.children"
-                        :key="index"
-                        @contextmenu="handleContextMenu(subElement, '', $event)"
-                      >
-                        <Status
-                          :name="$t(`Issue.${subElement.status.name}`)"
-                          :type="subElement.status.name"
-                          size="mini"
-                          tooltip
-                        />
-                        <el-link
-                          class="link-text-color"
-                          :underline="false"
-                          @click="handleClick(subElement)"
-                        >
-                          {{ subElement.name }}
-                          <el-tag
-                            v-for="item in subElement.tags"
-                            :key="item.id"
-                            effect="plain"
-                            size="mini"
-                            class="tags"
-                          >
-                            {{ item.name }}
-                          </el-tag>
-                        </el-link>
-                      </li>
-                    </ol>
-                  </div>
-                  <div v-if="element.hasOwnProperty('relations') && element.relations.length > 0">
-                    <strong>{{ $t('Issue.RelatedIssue') }}：</strong>
-                    <ol class="children_list">
-                      <li
-                        v-for="(subElement, index) in element.relations"
-                        :key="index"
-                        @contextmenu="handleContextMenu(subElement, '', $event)"
-                      >
-                        <Status
-                          :name="$t(`Issue.${subElement.status.name}`)"
-                          :type="subElement.status.name"
-                          size="mini"
-                          tooltip
-                        />
-                        <el-link
-                          class="link-text-color"
-                          :underline="false"
-                          @click="handleClick(subElement)"
-                        >
-                          {{ subElement.name }}
-                          <el-tag
-                            v-for="item in subElement.tags"
-                            :key="item.id"
-                            effect="plain"
-                            size="mini"
-                            class="tags"
-                          >
-                            {{ item.name }}
-                          </el-tag>
-                        </el-link>
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
-          </div>
-          <div
-            v-if="(element.due_date || Object.keys(element.assigned_to).length > 0) && !fromWbs"
-            class="info"
-          >
-            <div
-              v-if="element.due_date"
-              class="detail due_date"
-              :class="getDateStatus(element)"
-            >
-              <em class="el-icon-date" />
               <div
-                class="text"
-                :class="getDateStatus(element)"
-              >{{ element.due_date }}</div>
-            </div>
-            <div
-              v-else
-              class="detail due_date"
-            >
-              <em class="el-icon-date" />
-            </div>
-            <el-tooltip
-              v-if="Object.keys(element.assigned_to).length > 0"
-              :content="element.assigned_to.login"
-              placement="right-start"
-              :disabled="!element.assigned_to.login"
-            >
-              <div class="detail user">
+                v-else
+                class="detail user"
+              >
                 <em class="el-icon-user-solid" />
-                <div class="text">
-                  {{ element.assigned_to.name }}
-                </div>
               </div>
-            </el-tooltip>
+            </div>
             <div
               v-else
-              class="detail user"
-            >
-              <em class="el-icon-user-solid" />
-            </div>
+              class="no-info"
+            />
           </div>
           <div
-            v-else
-            class="no-info"
-          />
-        </div>
-        <div
-          v-if="!fromWbs"
-          slot="header"
-          @mouseenter="$emit('update:isDraggable', false)"
-          @mouseleave="$emit('update:isDraggable', true)"
-        >
-          <div
-            :class="selectedProjectId === -1 ? 'board-item-ban' : 'board-item'"
-            class="title board-item select-none"
-            @click="showDialog = !showDialog"
+            v-if="!fromWbs"
+            slot="header"
+            @mouseenter="$emit('update:isDraggable', false)"
+            @mouseleave="$emit('update:isDraggable', true)"
           >
-            <em
-              class="el-icon-plus ml-4 mr-5 add-button"
-              :class="{ rotate: showDialog }"
-            />
-            {{ $t('Issue.AddIssue') }}
+            <div
+              :class="selectedProjectId === -1 ? 'board-item-ban' : 'board-item'"
+              class="title board-item select-none"
+              @click="showDialog = !showDialog"
+            >
+              <em
+                class="el-icon-plus ml-4 mr-5 add-button"
+                :class="{ rotate: showDialog }"
+              />
+              {{ $t('Issue.AddIssue') }}
+            </div>
+            <transition name="slide-down">
+              <QuickAddIssueOnBoard
+                v-if="showDialog"
+                class="board-item quick-add"
+                :project-id="projectId"
+                :save-data="addIssue"
+                :board-object="boardObject"
+                :filter-type="filterType"
+                :is-select-default-option="isSelectDefaultOption"
+                @after-add="showDialog = !showDialog"
+              />
+            </transition>
           </div>
-          <transition name="slide-down">
-            <QuickAddIssueOnBoard
-              v-if="showDialog"
-              class="board-item quick-add"
-              :project-id="projectId"
-              :save-data="addIssue"
-              :board-object="boardObject"
-              :filter-type="filterType"
-              :is-select-default-option="isSelectDefaultOption"
-              @after-add="showDialog = !showDialog"
-            />
-          </transition>
-        </div>
-        <p
-          v-if="loading && !noMore"
-          v-loading="loading"
-          class="py-3"
-        />
-      </Draggable>
-    </ul>
+          <p
+            v-if="loading && !noMore"
+            v-loading="loading"
+            class="py-3"
+          />
+        </Draggable>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -403,7 +405,6 @@ import Draggable from 'vuedraggable'
 import { Priority, Tracker, Status } from '@/components/Issue'
 import QuickAddIssueOnBoard from './QuickAddIssueOnBoard'
 import colorVariables from '@/styles/theme/variables.scss'
-import { getProjectIssueList } from '@/api/projects'
 import CustomItem from './CustomItem'
 
 export default {
@@ -504,6 +505,10 @@ export default {
     isDraggable: {
       type: Boolean,
       default: true
+    },
+    allUnassignedIssueList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -541,7 +546,11 @@ export default {
       loading: false,
       noMore: false,
       isEdited: false,
-      originColor: ''
+      originObject: {
+        name: '',
+        color: ''
+      },
+      scrollTimes: 10
     }
   },
   computed: {
@@ -594,7 +603,7 @@ export default {
       return this.device === 'mobile'
     },
     isScrollDisabled () {
-      return this.loading || this.noMore
+      return this.boardObject.id !== 'all' || this.loading || this.noMore 
     }
   },
   watch: {
@@ -906,7 +915,9 @@ export default {
     },
     async handleEdit() {
       if (!this.isEdited) {
-        this.originColor = this.boardObject.color
+        console.log(this.boardObject)
+        this.originObject.name = this.boardObject.name
+        this.originObject.color = this.boardObject.color
         this.isEdited = true
         return
       }
@@ -915,19 +926,21 @@ export default {
         const formData = new FormData()
         formData.append('item_name', name)
         formData.append('color', color)
-        await updateBoardItem(
-          this.projectId,
-          this.boardId,
-          id,
-          formData
-        ).then((res) => {
-          this.boardObject.name = res.data.name
-          this.boardObject.color = res.data.color
-        }).catch((error) => {
+        try {
+          await updateBoardItem(
+            this.projectId,
+            this.boardId,
+            id,
+            formData
+          ).then((res) => {
+            this.boardObject.name = res.data.name
+            this.boardObject.color = res.data.color
+            this.isEdited = false
+          })
+        } catch (error) {
           console.error(error)
-        }).finally(() => {
-          this.isEdited = false
-        })
+          this.handleClose()
+        }
       } else {
         this.$message({
           message: this.$t('Validation.Input', [this.$t('Issue.BoardName')]),
@@ -937,7 +950,8 @@ export default {
     },
     handleClose() {
       if (this.isEdited) {
-        this.boardObject.color = this.originColor
+        this.boardObject.name = this.originObject.name
+        this.boardObject.color = this.originObject.color
         this.isEdited = false
       } else {
         this.removeKanban()
@@ -957,22 +971,12 @@ export default {
       }).catch()
     },
     async loadMoreIssueList() {
-      if (this.boardObject.id !== 'all' || this.list.length === 0 || this.noMore) return
+      if (this.scrollTimes >= this.allUnassignedIssueList.length) return
       this.loading = true
-      const length = Object.values(this.classifyIssueList)
-        .map((item) => item.length).reduce((a, b) => a + b)
-      this.params.limit = 5
-      this.params.offset = length
-      await getProjectIssueList(this.projectId, this.params).then((res) => {
-        const { issue_list } = res.data
-        if (issue_list.length !== 0) {
-          this.$set(this.classifyIssueList, 'all', this.list.concat(...issue_list))
-        } else {
-          this.noMore = true
-        }
-      }).finally(() => {
-        this.loading = false
-      })
+      const nextData = this.allUnassignedIssueList.slice(this.scrollTimes, this.scrollTimes + 10)
+      this.$set(this.classifyIssueList, 'all', this.list.concat(...nextData))
+      this.scrollTimes += 10
+      this.loading = false
     }
   }
 }
@@ -983,9 +987,9 @@ export default {
 
 .board-column {
   width: 280px;
-  margin: 10px 5px 10px 5px;
+  margin: 0px 5px 0px 5px;
   flex: 0 0 280px;
-  padding-bottom: 20px;
+  padding-bottom: 60px;
   @apply overflow-hidden bg-white rounded-md border-solid border border-gray-300;
 
   .board-column-header {

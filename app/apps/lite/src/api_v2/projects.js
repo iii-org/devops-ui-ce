@@ -50,6 +50,11 @@ export const getProjectIssueList = (project_id, params, config) =>
     params: { ...params },
     ...config
   })
+export const getProjectIssueListFromRedmineDB = (project_id, params, config) =>
+  request.get('/project/' + project_id + '/issues/simple_info', {
+    params: { ...params },
+    ...config
+  })
 export const getProjectIssueListByVersion = (project_id, params) =>
   request.get(`/v2/project/${project_id}/issues`, { params })
 export const addProjectMember = (project_id, data = { user_id: '' }) =>

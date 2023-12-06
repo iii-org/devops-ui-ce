@@ -32,6 +32,7 @@
           :params="params"
           :classify-issue-list="classifyIssueList"
           :is-draggable.sync="isDraggable"
+          :all-unassigned-issue-list="allUnassignedIssueList"
           @relationIssueId="onRelationIssueDialog($event, classObj.id)"
           @update="updateIssueStatus"
           @update-board="updateIssueBoard"
@@ -45,7 +46,7 @@
           style="
             min-width: 15rem;
             height: 5rem;
-            margin: 10px 5px;
+            margin: 0 5px;
           "
         >
           <el-link
@@ -104,6 +105,7 @@
       </div>
     </transition>
     <el-dialog
+      v-if="isProjectDetailPopUp"
       :visible.sync="isProjectDetailPopUp"
       width="90%"
       top="3vh"
@@ -220,10 +222,6 @@ export default {
       type: Boolean,
       default: false
     },
-    customOptions: {
-      type: Array,
-      default: () => []
-    },
     params: {
       type: Object,
       default: () => ({})
@@ -231,6 +229,10 @@ export default {
     boardId: {
       type: Number,
       default: null
+    },
+    allUnassignedIssueList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

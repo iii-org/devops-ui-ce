@@ -431,7 +431,14 @@
         @onCloseIssueMatrix="issueMatrixDialog.visible = false"
       />
     </el-dialog>
-    <el-dialog :visible.sync="$parent.isShowDialog" append-to-body destroy-on-close width="30%">
+    <el-dialog
+      :visible.sync="$parent.isShowDialog"
+      append-to-body
+      destroy-on-close
+      width="30%"
+      :close-on-click-modal="false"
+      @close="$parent.onCancel"
+    >
       <span>
         <em class="el-icon-warning" :style="$parent.getStyle('danger')" />
         {{ $t('Notify.ChangeProject') }}

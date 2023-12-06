@@ -24,6 +24,7 @@ export const addProjectVersion = (pId, data = { name: '', due_date: '', descript
 export const editProjectVersion = (pId, vId, data = { name: '', due_date: '', description: '', status: '' }) => request.put(`/project/${pId}/version/${vId}`, data)
 export const deleteProjectVersion = (pId, vId) => request.delete(`/project/${pId}/version/${vId}`)
 export const getProjectIssueList = (pId, params, config) => request.get('/project/' + pId + '/issues', { params: { ...params }, ...config })
+export const getProjectIssueListFromRedmineDB = (project_id, params, config) => request.get('/project/' + project_id + '/issues/simple_info', { params: { ...params }, ...config })
 export const getProjectIssueListByVersion = (pId, params) => request.get(`/project/${pId}/issues`, { params })
 export const addProjectMember = (pId, data = { user_id: '' }) => request.post(`/project/${pId}/member`, data)
 export const deleteProjectMember = (pId, user_id) => request.delete(`/project/${pId}/member/${user_id}`)

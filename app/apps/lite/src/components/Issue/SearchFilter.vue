@@ -381,8 +381,7 @@ export default {
         name: 'Overdued',
         is_closed: false
       }
-      const customStatus = [...status, overduedStatus]
-      return customStatus
+      return [...status, overduedStatus]
     },
     isMobile() {
       return this.device === 'mobile'

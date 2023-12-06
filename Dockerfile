@@ -18,7 +18,7 @@ RUN yarn
 FROM node:16 AS git-process
 
 # Setting UI version
-ENV VERSION=ce-0.4.0
+ENV VERSION=ce-0.5.0
 
 SHELL ["/bin/bash", "-c"]
 
@@ -65,8 +65,6 @@ COPY build/default.nginx /etc/nginx/templates/default.conf.template
 COPY build/entrypoint.sh /docker-entrypoint.d/40-injectvariable.sh
 RUN chmod 775 /docker-entrypoint.d/40-injectvariable.sh
 
-ENV API_URL=http://devopsapi-service:10009/
-#ENV API_URL_SSO=http://10.20.2.52:31850/
-#ENV KEYCLOACK_URL=https://keycloak.dev.iiidevops.org
+ENV API_URL=http://iii-devops-lite-api:10009/
 
 EXPOSE 80

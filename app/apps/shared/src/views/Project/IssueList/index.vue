@@ -129,7 +129,7 @@
       :layout="paginationLayout"
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
-      @pagination="handleCurrentChange"
+      @pagination="isSearch ? onPagination($event) : handleCurrentChange($event)"
     />
     <ContextMenu
       ref="contextmenu"
@@ -178,7 +178,7 @@ import { excelTranslate } from '@shared/utils/excelTableTranslate'
 import { ProjectListSelector } from '@shared/components'
 
 import {
-  // BasicData,
+  BasicData,
   Columns,
   IssueExpand,
   SearchFilter,
@@ -202,7 +202,7 @@ export default {
     IssueCard: () => import('./components/Mobile')
   },
   mixins: [
-    // BasicData,
+    BasicData,
     Columns,
     IssueExpand,
     SearchFilter,
@@ -333,6 +333,9 @@ export default {
     },
     paginationLayout() {
       return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+    },
+    isSearch() {
+      return this.keyword && this.keyword !== '' && this.keyword.length > 1
     }
   },
   watch: {
@@ -374,18 +377,27 @@ export default {
       await this.checkLastRequest()
       const cancelTokenSource = axios.CancelToken.source()
       this.lastIssueListCancelToken = cancelTokenSource
+      this.listData = []
       await getProjectIssueList(
         this.mainSelectedProjectId,
-        this.getParams(), {
-          cancelToken: cancelTokenSource.token
-        })
-        .then((res) => {
+        this.getParams(),
+        { cancelToken: cancelTokenSource.token }
+      ).then((res) => {
+        if (!res.data) return
+        if (this.isSearch) {
+          this.listData = res.data.map((element) => ({
+            ...element,
+            showQuickAddIssue: false
+          }))
+          this.setNewListQuery({ total: res.data.length })
+        } else {
           this.listData = res.data.issue_list.map((element) => ({
             ...element,
             showQuickAddIssue: false
           }))
           this.setNewListQuery(res.data.page)
-        })
+        }
+      })
       this.lastIssueListCancelToken = null
     },
     async loadDataAfterSetIssue(issueId = null) {

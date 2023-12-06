@@ -150,6 +150,8 @@
               v-model="groupBy.dimension"
               class="mr-4"
               filterable
+              popper-class="dimension"
+              :popper-append-to-body="true"
               @change="onChangeGroupByDimension($event, true)"
             >
               <el-option-group :label="$t('Issue.FilterDimensions.default_dimension')">
@@ -290,9 +292,9 @@
       :filter-type="'board'"
       :get-status-sort="getStatusSort"
       :is-select-default-option="isSelectDefaultOption"
-      :custom-options="customOptions"
       :params="getParams"
       :board-id="boardId"
+      :all-unassigned-issue-list="allUnassignedIssueList"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @updateData="updateData"
@@ -372,17 +374,18 @@
 import { mapGetters, mapActions } from 'vuex'
 import {
   getProjectIssueList,
+  getProjectIssueListFromRedmineDB,
   getProjectIssueListByTree,
   getProjectUserList,
   getProjectVersion,
   getTagsByProject
 } from '@/api/projects'
-
 import { getIssue } from '@/api_v2/issue'
 import {
   getAllBoard,
   createNewBoard,
   removeBoard,
+  getAllBoardItem,
   createBoardItem
 } from '@/api_v2/issueBoard'
 import { getHasSon, getProjectRelation } from '@/api_v2/projects'
@@ -484,7 +487,10 @@ export default {
         name: '',
         list: []
       },
-      customOptions: []
+      customOptions: [],
+      addIssueTemp: [],
+      connectIssueTemp: [],
+      allUnassignedIssueList: []
     }
   },
   computed: {
@@ -704,7 +710,6 @@ export default {
     this.isFirstLoad = true
     this.connectSocket()
     this.projectId = this.selectedProjectId
-    this.connectSocket()
     this.intervalTimer = window.setInterval(() => this.connectSocket(), 30000)
     // await this.fetchInitData()
   },
@@ -729,21 +734,33 @@ export default {
     ]),
     async loadData() {
       try {
-        if (!this.isLite) await this.fetchCustomBoard()
         await this.fetchData()
       } catch (e) {
         // null
       }
     },
-    async fetchCustomBoard() {
-      const boards = await getAllBoard(this.projectId)
-      this.customOptions = boards.data
-    },
     async fetchData() {
+      if (!this.isSelectDefaultOption && !this.isLite) await this.fetchCustomBoard()
       await this.resetClassifyIssue()
       this.projectIssueList = []
       await this.syncLoadFilterData()
       await this.getRelativeList()
+      if (this.isSelectDefaultOption && !this.isLite) await this.fetchCustomBoard()
+    },
+    async fetchCustomBoard() {
+      const boards = await getAllBoard(this.projectId)
+      const boardId = boards.data.find((item) => item.name === this.groupBy.dimension)?.id
+      if (boardId) {
+        const params = { ...this.getParams }
+        if (params.status_id === 'open') delete params.status_id
+        const items = (await getAllBoardItem(this.projectId, boardId, params)).data
+        this.customOptions = boards.data.map((board) => {
+          if (board.id === boardId) board.items = items
+          return board
+        })
+      } else {
+        this.customOptions = boards.data
+      }
     },
     async fetchInitData() {
       this.groupBy = await this.getGroupBy()
@@ -814,13 +831,11 @@ export default {
       const issueList = this.projectIssueList
       this.checkGroupByValueOnBoard()
       if (!this.isSelectDefaultOption) {
-        const params = { ...this.getParams, limit: 30, offset: 0 }
-        const res = await getProjectIssueList(this.projectId, params)
-        const existIssueListIds = issueList.map((issue) => issue.id)
-        const issue_list = res.data.issue_list.filter((item, index) => {
-          return !existIssueListIds.includes(item.id)
-        })
-        this.$set(this.classifyIssueList, 'all', issue_list)
+        const params = { ...this.getParams }
+        if (params.status_id === 'open') delete params.status_id
+        const res = await getProjectIssueListFromRedmineDB(this.projectId, params)
+        this.allUnassignedIssueList = res.data
+        this.$set(this.classifyIssueList, 'all', this.allUnassignedIssueList.slice(0, 10))
       }
       issueList.forEach((issue) => {
         if (issue) {
@@ -828,6 +843,7 @@ export default {
           if (this.isSelectDefaultOption) {
             dimensionName = issue[this.groupBy.dimension].id
           } else {
+            if (!issue.board) return
             dimensionName = issue.board.find((board) => board.id === this.boardId).item.id
           }
           if (!this.classifyIssueList[dimensionName]) return
@@ -1135,26 +1151,54 @@ export default {
         this.elementIds = data.map(s => s.id)
       })
       this.socket.on('delete_issue', async (data) => {
-        const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data.id) === parseInt(issue.id))
-        this.$delete(this.projectIssueList, findChangeIndex)
-        this.updateData()
-        // this.showUpdateMessage(data)
-      })
-      this.socket.on('add_issue', async data => {
-        for (const idx in data) {
-          if ((this.filterValue.project) && (this.filterValue.project === data[idx].project.id) || !this.filterValue.project) {
-            data[idx] = _this.socketDataFormat(data[idx])
-            const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
-            if (findChangeIndex !== -1) {
-              this.$set(this.projectIssueList, findChangeIndex, data[idx])
-            } else {
-              this.$set(this.projectIssueList, this.projectIssueList.length, data[idx])
-            }
-            this.updateData()
-            // this.showUpdateMessage(data[idx])
-          }
+        if (this.isSelectDefaultOption) {
+          const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data.id) === parseInt(issue.id))
+          this.$delete(this.projectIssueList, findChangeIndex)
+          this.updateData()
+          // this.showUpdateMessage(data)
+        } else {
+          const { id, item_ids } = data
+          const boardItems = Object.keys(this.classifyIssueList).filter((item) => item !== 'all').map((item) => parseInt(item))
+          const item_id = item_ids.filter((itemId) => boardItems.includes(itemId))[0]
+          const existIds = this.classifyIssueList[item_id || 'all'].map((item) => item.id)
+          if (!existIds.includes(id)) return
+          const index = this.classifyIssueList[item_id || 'all'].findIndex(issue => parseInt(id) === parseInt(issue.id))
+          this.classifyIssueList[item_id || 'all'].splice(index, 1)
         }
-        this.elementIds = data.map(s => s.id)
+      })
+      this.socket.on('add_issue', async (data) => {
+        if (this.isSelectDefaultOption) {
+          for (const idx in data) {
+            if ((this.filterValue.project) && (this.filterValue.project === data[idx].project.id) || !this.filterValue.project) {
+              data[idx] = _this.socketDataFormat(data[idx])
+              const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
+              if (findChangeIndex !== -1) {
+                this.$set(this.projectIssueList, findChangeIndex, data[idx])
+              } else {
+                this.$set(this.projectIssueList, this.projectIssueList.length, data[idx])
+              }
+              this.updateData()
+            // this.showUpdateMessage(data[idx])
+            }
+          }
+          this.elementIds = data.map(s => s.id)
+        } else {
+          if (this.addIssueTemp.includes(data[0].id)) return
+          this.addIssueTemp.push(data[0].id)
+          this.classifyIssueList['all'].unshift(data[0])
+        }
+      })
+      this.socket.on('disconnect_issue', async (data) => {})
+      this.socket.on('connect_issue', async (data) => {
+        const { id, item_id } = data
+        if (this.connectIssueTemp.includes(id)) return
+        this.connectIssueTemp.push(id)
+        const existIds = this.classifyIssueList[item_id].map((issue) => issue.id)
+        if (existIds.includes(id)) return
+        const res = await getIssue(id)
+        const index = this.classifyIssueList['all'].findIndex(issue => parseInt(id) === parseInt(issue.id))
+        this.classifyIssueList['all'].splice(index, 1)
+        this.classifyIssueList[item_id].push(res.data)
       })
       this.socket.on('disconnect', (reason) => {
         if (reason !== 'io client disconnect') {
@@ -1222,7 +1266,14 @@ export default {
       const boardName = this.customValueOnBoard.name
       const boardForm = new FormData()
       boardForm.append('board_name', boardName)
-      const board_id = (await createNewBoard(this.projectId, boardForm)).data.id
+      let board_id
+      try {
+        board_id = (await createNewBoard(this.projectId, boardForm)).data.id
+      } catch (error) {
+        console.error(error)
+        this.isLoading = false
+        return false
+      }
       const itemsArray = this.customValueOnBoard.list.map((item) => {
         if (!item.name) return
         const itemForm = new FormData()
@@ -1277,5 +1328,11 @@ export default {
 ::v-deep .fab-wrapper {
   right: 2.5vh !important;
   bottom: 2.5vh !important;
+}
+</style>
+
+<style lang="scss">
+.dimension .el-select-dropdown__wrap {
+  max-height: 20rem !important;
 }
 </style>

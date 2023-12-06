@@ -64,7 +64,9 @@
                     :value="displayClosedVersion"
                     @change="$emit('update:displayClosedVersion', $event)"
                   >
-                    <span class="text-xs">{{ $t('Issue.DisplayClosedVersion') }}</span>
+                    <span class="text-xs">
+                      {{ $t('Issue.DisplayClosedVersion') }}
+                    </span>
                   </el-checkbox>
                 </el-tag>
               </div>
@@ -93,7 +95,9 @@
             </el-form-item>
           </template>
           <el-form-item>
-            <label class="el-form-item__label mr-3">{{ $t('Issue.DisplayClosedIssue') }}</label>
+            <label class="el-form-item__label mr-3">
+              {{ $t('Issue.DisplayClosedIssue') }}
+            </label>
             <el-checkbox
               :value="displayClosedIssue"
               @change="$emit('update:displayClosedIssue', $event)"

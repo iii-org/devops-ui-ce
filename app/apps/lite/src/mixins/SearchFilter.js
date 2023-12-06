@@ -367,6 +367,10 @@ export default {
       ) {
         this.$delete(this.filterValue, this.groupBy.dimension)
       }
+      if (this.listQuery) {
+        this.listQuery.page = 1
+        this.listQuery.offset = 0
+      }
       await this.loadData()
     },
     onChangeFixedVersionStatus(value) {

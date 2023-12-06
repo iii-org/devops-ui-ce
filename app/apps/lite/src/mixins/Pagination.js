@@ -56,8 +56,8 @@ export default {
       if (this.remote) { return [] }
       const start = (this.listQuery.page - 1) * this.listQuery.limit
       const end = start + this.listQuery.limit
-      if (!this.filteredData) return
-      return this.filteredData.slice(start, end)
+      if (!this.filteredData && !this.listData) return
+      return this.filteredData?.slice(start, end) || this.listData?.slice(start, end)
     }
   },
   watch: {
@@ -112,19 +112,26 @@ export default {
       await this.storeListQuery()
     },
     setNewListQuery(pageInfo) {
-      const { offset, limit, current, total, pages } = pageInfo
-      if (pages !== 0 && current > pages) {
-        this.resetListQuery()
-      } else {
-        this.listQuery = { offset, limit, total, page: current }
-      }
+      const {
+        // offset,
+        // limit,
+        // current,
+        // pages,
+        total
+      } = pageInfo
+      // if (pages !== 0 && current > pages) {
+      //   this.resetListQuery()
+      // } else {
+      //   this.listQuery = { offset, limit, total, page: current }
+      // }
+      this.listQuery.total = total
     },
-    async resetListQuery() {
-      this.listQuery.offset = 0
-      this.listQuery.page = 1
-      await this.storeListQuery()
-      await this.loadData()
-    },
+    // async resetListQuery() {
+    //   this.listQuery.offset = 0
+    //   this.listQuery.page = 1
+    //   await this.storeListQuery()
+    //   await this.loadData()
+    // },
     async storeListQuery() {
       const key = this.storageName
       if (!key) return

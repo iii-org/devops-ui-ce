@@ -1,7 +1,7 @@
 <template>
   <el-table
     ref="issueList"
-    :data="parent.listData"
+    :data="parent.isSearch ? parent.pagedData : parent.listData"
     fit
     highlight-current-row
     size="mini"
