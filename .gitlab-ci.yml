@@ -28,11 +28,10 @@ Copy Code From EE:
       cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
       cp Mono/app/yarn.lock ./app/yarn.lock
       cp Mono/app/lerna.json ./app/lerna.json
-      mkdir build
-      cp Mono/build/entrypoint.sh ./build/entrypoint.sh
-      cp Mono/build/default.nginx ./build/default.nginx
       cp Mono/app/package_ce.json ./app/package.json
       cp Mono/app/postcss.config.js ./app/postcss.config.js
+      cp Mono/build/entrypoint.sh ./build/entrypoint.sh
+      cp Mono/build/default.nginx ./build/default.nginx
       cp -r Mono/app/apps/lite ./app/apps
       cp -r Mono/app/apps/shared ./app/apps
       cp -r Mono/iiidevops ./
