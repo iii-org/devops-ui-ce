@@ -17,14 +17,14 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Zap.high') }}</th>
           <th id="">{{ $t('Zap.medium') }}</th>
           <th id="">{{ $t('Zap.low') }}</th>
           <th id="">{{ $t('general.Info') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">Zap</td>
+          <td :data-label="$t('DevSecOps.Tools')">Zap</td>
           <template v-if="hasZapData">
             <td :data-label="$t('Zap.high')">
               <span v-if="hasEachItemData('3')">{{ zap[0].result['3'] }}</span>

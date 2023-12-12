@@ -210,7 +210,7 @@ export default {
     ZapReport
   },
   data() {
-    this.title = 'III DevOps'
+    this.title = 'III DevSecOps'
     return {
       listLoading: false,
       projectName: '',

@@ -17,7 +17,7 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Clair.size') }}</th>
           <th id="">{{ $t('Clair.critical') }}</th>
           <th id="">{{ $t('Clair.high') }}</th>
@@ -26,7 +26,7 @@
           <th id="">{{ $t('Docker.Fixable') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">{{ tool }}</td>
+          <td :data-label="$t('DevSecOps.Tools')">{{ tool }}</td>
           <template v-if="hasClairData">
             <td :data-label="$t('Clair.size')">
               <span v-if="hasEachItemData('size')">{{ clair[0].size }}</span>

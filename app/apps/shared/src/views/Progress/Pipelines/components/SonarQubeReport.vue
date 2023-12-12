@@ -17,7 +17,7 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('SonarQube.Bugs') }}</th>
           <th id="">{{ $t('SonarQube.Vulnerabilities') }}</th>
           <th id="">{{ $t('SonarQube.CodeSmells') }}</th>
@@ -25,7 +25,7 @@
           <th id="">{{ $t('SonarQube.Coverage') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">SonarQube</td>
+          <td :data-label="$t('DevSecOps.Tools')">SonarQube</td>
           <template v-if="hasSonarqubeData">
             <td :data-label="$t('SonarQube.Bugs')">
               <span v-if="hasEachItemData('bugs')">

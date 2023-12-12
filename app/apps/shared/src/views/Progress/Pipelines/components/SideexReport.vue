@@ -17,12 +17,12 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Sideex.suitesPassedRatio') }}</th>
           <th id="">{{ $t('Sideex.casesPassedRatio') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">Sideex</td>
+          <td :data-label="$t('DevSecOps.Tools')">Sideex</td>
           <template v-if="hasSideexData">
             <td :data-label="$t('Sideex.suitesPassedRatio')">
               <template>

@@ -35,7 +35,6 @@
           :all-unassigned-issue-list="allUnassignedIssueList"
           @relationIssueId="onRelationIssueDialog($event, classObj.id)"
           @update="updateIssueStatus"
-          @update-board="updateIssueBoard"
           @update-drag="quickUpdateIssue"
           @contextmenu="handleContextMenu"
           @loadData="$emit('loadData')"
@@ -100,7 +99,6 @@
           :is-from-board="true"
           @popup="handleRelationIssueDialogBeforeClose"
           @delete="handleRelationDelete"
-          @updateIssueBoard="updateIssueBoard"
         />
       </div>
     </transition>
@@ -119,7 +117,6 @@
         :is-in-dialog="true"
         :is-from-board="false"
         @delete="handleRelationDelete"
-        @updateIssueBoard="updateIssueBoard"
       />
     </el-dialog>
     <ContextMenu
@@ -311,9 +308,6 @@ export default {
     filterClosedStatus(statusList) {
       if (this.displayClosed) return statusList
       return statusList.filter((item) => item.is_closed === false)
-    },
-    updateIssueBoard() {
-      this.loadData()
     },
     async saveIssue(data, itemId) {
       let issueId

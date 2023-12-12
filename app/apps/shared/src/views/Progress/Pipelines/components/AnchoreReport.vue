@@ -17,7 +17,7 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Sbom.PackageCount') }}</th>
           <th id="">{{ $t('Sbom.CriticalSeverity') }}</th>
           <th id="">{{ $t('Sbom.HighSeverity') }}</th>
@@ -25,7 +25,7 @@
           <th id="">{{ $t('Sbom.LowSeverity') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">SBOM</td>
+          <td :data-label="$t('DevSecOps.Tools')">SBOM</td>
           <template v-if="hasAnchoreData">
             <td :data-label="$t('Sbom.PackageCount')">
               <span v-if="hasPackageCountData">{{ anchore[0].package_nums }}</span>

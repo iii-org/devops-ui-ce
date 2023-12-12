@@ -603,7 +603,7 @@ export default {
       return this.device === 'mobile'
     },
     isScrollDisabled () {
-      return this.boardObject.id !== 'all' || this.loading || this.noMore 
+      return this.boardObject.id !== 'all' || this.loading || this.noMore
     }
   },
   watch: {
@@ -915,7 +915,6 @@ export default {
     },
     async handleEdit() {
       if (!this.isEdited) {
-        console.log(this.boardObject)
         this.originObject.name = this.boardObject.name
         this.originObject.color = this.boardObject.color
         this.isEdited = true

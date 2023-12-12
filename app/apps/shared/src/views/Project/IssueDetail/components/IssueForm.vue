@@ -951,7 +951,6 @@ export default {
     async removeCustomBoard(boardId) {
       const itemId = this.issue.board.find((item) => item.id === boardId).item.id
       await removeBoardItemIssue(this.form.project_id, boardId, itemId, this.issueId)
-      this.$emit('updateIssueBoard')
       this.$message({
         title: this.$t('general.Success'),
         message: this.$t('Notify.Deleted'),

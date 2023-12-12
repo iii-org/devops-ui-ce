@@ -43,7 +43,7 @@ export default {
     // ReleaseVersion: '釋出版本',
     AutoTesting: '測試紀錄',
     // Postman: 'API 測試(Postman)',
-    // FromDevops: '來自 DevOps',
+    // FromDevops: '來自 DevSecOps',
     // FromCollection: '來自 Postman Collection',
     // CheckMarx: '白箱測試(CheckMarx)',
     SonarQube: '白箱測試(SonarQube)',
@@ -80,8 +80,8 @@ export default {
     // FailManagement: '異常管理',
     // TestCase: '測試個案',
     // TestResult: '測試彙整',
-    TestReport: 'III DevOps 測試彙整'
-    // Monitoring: 'III DevOps 服務監控',
+    TestReport: 'III DevSecOps 測試彙整'
+    // Monitoring: 'III DevSecOps 服務監控',
     // Deploy: '遠端部署',
     // ApplicationSetting: '部署服務設定',
     // DockerReport: 'Docker 測試彙整',
@@ -862,7 +862,7 @@ export default {
     CustomEnvWarning: '本專案為自定義環境，無法透過網頁進行設定',
     CustomRecommendWarning: '建議使用本平台之環境範本建置'
   },
-  DevOps: {
+  DevSecOps: {
     Id: '編號',
     Phase: '階段',
     Tools: '工具',
@@ -1025,7 +1025,7 @@ export default {
     TestFail: '測試失敗',
     TestTotal: '測試總計',
     StartTime: '開始時間',
-    DevOps: 'DevOps',
+    DevSecOps: 'DevSecOps',
     Postman: 'Postman'
   },
   Activities: {

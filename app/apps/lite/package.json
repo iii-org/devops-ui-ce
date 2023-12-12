@@ -1,7 +1,7 @@
 {
   "name": "@iiidevops/lite-ui",
   "version": "1.1.0",
-  "description": "III devops UI component",
+  "description": "III DevSecOps UI component",
   "author": "iii-org",
   "scripts": {
     "test:unit": "jest --clearCache && vue-cli-service test:unit",

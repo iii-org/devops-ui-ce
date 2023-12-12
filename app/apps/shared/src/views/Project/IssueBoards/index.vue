@@ -1143,9 +1143,17 @@ export default {
       this.socket.on('update_issue', async (data) => {
         for (const idx in data) {
           data[idx] = _this.socketDataFormat(data[idx])
-          const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
-          this.$set(this.projectIssueList, findChangeIndex, data[idx])
-          this.updateData()
+          if (this.isSelectDefaultOption) {
+            const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
+            this.$set(this.projectIssueList, findChangeIndex, data[idx])
+            this.updateData()
+          } else {
+            Object.keys(this.classifyIssueList).forEach((key) => {
+              const findChangeIndex = this.classifyIssueList[key].findIndex(obj => obj.id === data[idx].id)
+              if (findChangeIndex === -1) return
+              this.$set(this.classifyIssueList[key], findChangeIndex, data[idx])
+            })
+          }
           // this.showUpdateMessage(data[idx])
         }
         this.elementIds = data.map(s => s.id)
@@ -1181,16 +1189,24 @@ export default {
             // this.showUpdateMessage(data[idx])
             }
           }
-          this.elementIds = data.map(s => s.id)
         } else {
           if (this.addIssueTemp.includes(data[0].id)) return
           this.addIssueTemp.push(data[0].id)
           this.classifyIssueList['all'].unshift(data[0])
         }
+        this.elementIds = data.map(s => s.id)
       })
-      this.socket.on('disconnect_issue', async (data) => {})
+      this.socket.on('disconnect_issue', async (data) => {
+        const { id, item_id } = data
+        const res = await getIssue(id)
+        const findChangeIndex = this.classifyIssueList[item_id].findIndex(issue => parseInt(id) === parseInt(issue.id))
+        if (findChangeIndex === -1) return
+        this.classifyIssueList[item_id].splice(findChangeIndex, 1)
+        this.classifyIssueList['all'].unshift(res.data)
+      })
       this.socket.on('connect_issue', async (data) => {
         const { id, item_id } = data
+        this.elementIds = [id]
         if (this.connectIssueTemp.includes(id)) return
         this.connectIssueTemp.push(id)
         const existIds = this.classifyIssueList[item_id].map((issue) => issue.id)

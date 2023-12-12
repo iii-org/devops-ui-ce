@@ -911,9 +911,6 @@ export default {
         const element = document.getElementById('AddSubIssueWrapper')
         element.scrollIntoView({ behavior: 'smooth' })
       })
-    },
-    updateIssueBoard() {
-      this.$emit('updateIssueBoard')
     }
   }
 }

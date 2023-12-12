@@ -17,12 +17,12 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Cmas.MOEA') }}</th>
           <th id="">OWASP Mobile TOP 10</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">CMAS</td>
+          <td :data-label="$t('DevSecOps.Tools')">CMAS</td>
           <template v-if="hasCmasData">
             <td :data-label="$t('Cmas.MOEA')">
               <span v-if="hasEachItemData('MOEA')">

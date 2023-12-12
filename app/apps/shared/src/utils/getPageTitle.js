@@ -1,7 +1,7 @@
 import defaultSettings from '@/settings'
 import i18n from '@/lang'
 
-const appTitle = defaultSettings.title || 'III DevOps'
+const appTitle = defaultSettings.title || 'III DevSecOps'
 
 export default function getPageTitle(key) {
   const title = []

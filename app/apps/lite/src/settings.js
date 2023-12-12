@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: process.env.VUE_APP_SER_TITLE || 'III DevOps',
+  title: process.env.VUE_APP_SER_TITLE || 'III DevSecOps',
   type: process.env.VUE_APP_PROJECT || 'FULL',
 
   /**

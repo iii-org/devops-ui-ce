@@ -17,12 +17,12 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Postman.TestPass') }}</th>
           <th id="">{{ $t('Postman.TestFail') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">Postman</td>
+          <td :data-label="$t('DevSecOps.Tools')">Postman</td>
           <template v-if="hasPostmanData">
             <td :data-label="$t('Postman.TestPass')">
               <span v-if="hasEachItemData('success')">{{ postman[0].success }}</span>

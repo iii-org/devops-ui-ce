@@ -27,14 +27,14 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('CheckMarx.HighSeverity') }}</th>
           <th id="">{{ $t('CheckMarx.MediumSeverity') }}</th>
           <th id="">{{ $t('CheckMarx.LowSeverity') }}</th>
           <th id="">{{ $t('CheckMarx.InfoSeverity') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">CheckMarx</td>
+          <td :data-label="$t('DevSecOps.Tools')">CheckMarx</td>
           <template v-if="hasCheckMarxData">
             <td :data-label="$t('CheckMarx.HighSeverity')">
               <span v-if="hasEachItemData('highSeverity')">

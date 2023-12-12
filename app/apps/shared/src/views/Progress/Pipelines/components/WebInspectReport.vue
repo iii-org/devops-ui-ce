@@ -17,7 +17,7 @@
       </caption>
       <tbody>
         <tr>
-          <th id="">{{ $t('DevOps.Tools') }}</th>
+          <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('WebInspect.Critical') }}</th>
           <th id="">{{ $t('WebInspect.HighSeverity') }}</th>
           <th id="">{{ $t('WebInspect.MediumSeverity') }}</th>
@@ -26,7 +26,7 @@
           <th id="">{{ $t('WebInspect.BpSeverity') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevOps.Tools')">WebInspect</td>
+          <td :data-label="$t('DevSecOps.Tools')">WebInspect</td>
           <template v-if="hasWebInspectData">
             <td :data-label="$t('WebInspect.Critical')">
               <span v-if="hasEachItemData('criticalCount')">
