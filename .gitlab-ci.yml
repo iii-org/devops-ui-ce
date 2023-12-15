@@ -71,7 +71,7 @@ Test--Checkmarx source code scan:
     iiidevops: checkmarx
   only:
     refs:
-      - skip
+      - master
     variables:
       - $CI_PIPELINE_SOURCE != 'trigger'
 Build image:
