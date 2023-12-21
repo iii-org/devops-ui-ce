@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-inner">
+  <div v-loading="isLoading" class="tab-inner">
     <h3>{{ $t('Profile.ProfileBasicSetting') }}</h3>
     <el-form
       ref="userProfileForm"
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import { updateUser } from '@/api/user'
 
 export default {
@@ -112,7 +112,8 @@ export default {
           { required: true, message: this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.Email'), trigger: 'blur' },
           { type: 'email', message: this.$t('RuleMsg.Invalid') + this.$t('RuleMsg.Email'), trigger: ['blur', 'change'] }
         ]
-      }
+      },
+      isLoading: false
     }
   },
   computed: {
@@ -122,10 +123,12 @@ export default {
     }
   },
   methods: {
+    ...mapActions('user', ['setUserName']),
     submitUpdateUserProfile(formName) {
       if (!this.disableEdit) {
         this.$refs[formName].validate(async (valid) => {
           if (valid) {
+            this.isLoading = true
             const data = {
               name: this.userProfileForm.userName,
               department: this.userProfileForm.department,
@@ -134,11 +137,15 @@ export default {
               phone: this.userProfileForm.userPhone
             }
             await updateUser(this.userId, data)
-            this.$message({
-              title: this.$t('general.Success'),
-              message: this.$t('Notify.Updated'),
-              type: 'success'
-            })
+              .then(() => {
+                this.setUserName(this.userProfileForm.userName)
+                this.$message({
+                  title: this.$t('general.Success'),
+                  message: this.$t('Notify.Updated'),
+                  type: 'success'
+                })
+              })
+            this.isLoading = false
           } else {
             return false
           }

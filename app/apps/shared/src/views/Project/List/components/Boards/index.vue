@@ -23,7 +23,7 @@
       @loadData="loadData"
     />
     <el-dialog
-      title="新增看板View"
+      :title="$t('general.Add') + $t('Issue.CustomBoard')"
       :visible.sync="customBoardDialogVisible"
       top="3vh"
       append-to-body

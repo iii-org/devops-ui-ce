@@ -645,7 +645,7 @@ export default {
     FilterDimensions: {
       label: '篩選維度',
       default_dimension: '預設維度',
-      custom_dimension: '自訂維度',
+      custom_dimension: '自訂看板',
       tags: '議題標籤',
       status: '議題狀態',
       tracker: '議題類別',
@@ -656,9 +656,11 @@ export default {
       due_date_start: '@:Issue.EndDate(>=)',
       due_date_end: '@:Issue.EndDate(<=)'
     },
-    BoardView: '看板View',
+    CustomBoard: '自訂看板',
     BoardTitle: '看板標題',
     BoardName: '看板名稱',
+    BoardItem: '看板欄位',
+    ItemName: '欄位名稱',
     Uncategorized: '未分類',
     Display: '顯示',
     DragTip: '拖曳到議題，可以將 {key} 改變成 {value}',

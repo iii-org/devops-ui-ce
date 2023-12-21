@@ -8,6 +8,7 @@
     @closed="onDialogClosed"
   >
     <el-form
+      v-if="showDialog"
       ref="createProjectForm"
       :model="form"
       :rules="rules"
@@ -325,6 +326,14 @@ export default {
           this.$emit('update')
         })
       }
+    },
+    showDialog(val) {
+      if (!val) {
+        this.$nextTick(() => {
+          this.form = formTemplate()
+          this.clearTemplate()
+        })
+      }
     }
   },
   mounted() {
@@ -340,11 +349,6 @@ export default {
     },
     onDialogClosed() {
       this.showDialog = false
-      this.$nextTick(() => {
-        this.$refs.createProjectForm.resetFields()
-        this.form = formTemplate()
-        this.clearTemplate()
-      })
     },
     handleConfirm() {
       this.$refs.createProjectForm.validate((valid) => {

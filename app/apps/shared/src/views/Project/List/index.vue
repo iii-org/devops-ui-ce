@@ -141,7 +141,7 @@
                 </el-option-group>
                 <el-option-group
                   v-if="customOptions.length > 0"
-                  label="自訂維度"
+                  :label="$t('Issue.CustomBoard')"
                 >
                   <el-option
                     v-for="item in customOptions"
@@ -192,7 +192,7 @@
               type="primary"
               @click="customBoardDialogVisible = true"
             >
-              看板View
+              $t('Issue.CustomBoard')
             </el-link>
           </el-form>
           <el-button

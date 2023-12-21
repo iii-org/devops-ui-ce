@@ -1,52 +1,46 @@
 <template>
   <el-row class="flex justify-center items-center">
     <el-col
-      :md="20"
-      :sm="18"
-      :xs="16"
+      :md="23"
+      :sm="23"
+      :xs="23"
     >
       <el-input
         v-model="boardObject.name"
         :loading="isLoading"
-        style="width: 95%"
-        :placeholder="$t('Validation.Input',[$t('Issue.BoardName')])"
-        clearable
-      />
-    </el-col>
-    <el-col
-      :md="3"
-      :sm="4"
-      :xs="5"
-    >
-      <el-popover
-        placement="bottom"
-        trigger="click"
+        :placeholder="$t('Validation.Input',[$t('Issue.ItemName')])"
       >
-        <el-button
-          v-for="color in colors"
-          :key="color"
-          :style="{'background-color': color}"
-          size="mini"
-          circle
-          @click="handleColor(color)"
-        />
-        <el-color-picker
-          v-model="boardObject.color"
-          size="mini"
-          @change="handleColor"
-        />
-        <el-button
-          slot="reference"
-          :style="{'background-color': boardObject.color}"
-          circle
-        />
-      </el-popover>
+        <template slot="prepend">
+          {{ order + 1 }}
+        </template>
+        <template slot="suffix">
+          <el-popover
+            placement="bottom"
+            trigger="click"
+          >
+            <el-button
+              v-for="color in colors"
+              :key="color"
+              :style="{'background-color': color}"
+              @click="handleColor(color)"
+            />
+            <el-color-picker
+              v-model="boardObject.color"
+              @active-change="handleColor"
+            />
+            <el-button
+              slot="reference"
+              :style="{'background-color': boardObject.color}"
+            />
+          </el-popover>
+        </template>
+      </el-input>
     </el-col>
     <el-col
       v-if="!isEdited"
       :md="1"
-      :sm="2"
-      :xs="2"
+      :sm="1"
+      :xs="1"
       class="flex justify-center"
     >
       <el-tooltip
@@ -63,7 +57,8 @@
         >
           <em
             slot="reference"
-            class="el-icon-delete danger operate-button"
+            class="el-icon-delete"
+            :style="getStyle('danger')"
           />
         </el-popconfirm>
       </el-tooltip>
@@ -72,6 +67,8 @@
 </template>
 
 <script>
+import variables from '@/styles/theme/variables.scss'
+
 export default {
   name: 'CustomItem',
   props: {
@@ -96,16 +93,20 @@ export default {
     return {
       isLoading: false,
       colors: [
-        '#409EFF',
-        '#67C23A',
-        '#E6A23C',
-        '#F56C6C',
-        '#909399',
-        '#303133'
+        variables['primary'],
+        variables['success'],
+        variables['warning'],
+        variables['danger'],
+        variables['info'],
+        variables['light']
       ]
     }
   },
   methods: {
+    getStyle(colorCode) {
+      const color = variables[`${colorCode}`]
+      return { color, cursor: 'pointer' }
+    },
     handleColor(color) {
       this.boardObject.color = color || '#ffffff'
     },
@@ -141,6 +142,20 @@ export default {
     content: "\EFC5";
     font-size: 18px;
     color: #000;
+  }
+}
+
+::v-deep .el-input__suffix ,.el-popover {
+  display: flex;
+  align-items: center;
+
+  .el-button {
+    padding: 12px;
+    border-radius: 4px;
+  }
+
+  .el-color-picker {
+    height: 0;
   }
 }
 </style>

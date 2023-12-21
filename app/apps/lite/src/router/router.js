@@ -50,13 +50,9 @@ export function resetRouter() {
 }
 
 export async function loadRouter() {
+  resetRouter()
   const accessRoutes = await store.dispatch('permission/generateRoutes', store.getters.userRole)
   router.addRoutes(accessRoutes)
-}
-
-export function reloadRouter() {
-  resetRouter()
-  loadRouter()
 }
 
 export default router

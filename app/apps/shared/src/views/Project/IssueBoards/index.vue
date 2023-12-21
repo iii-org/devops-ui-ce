@@ -221,7 +221,7 @@
             type="primary"
             @click="customBoardDialogVisible = true"
           >
-            {{ $t('Issue.BoardView') }}
+            {{ $t('Issue.CustomBoard') }}
           </el-link>
         </el-form>
         <el-button
@@ -301,60 +301,67 @@
       @loadData="loadData"
     />
     <el-dialog
-      :title="$t('general.Add') + $t('Issue.BoardTitle')"
       :visible.sync="customBoardDialogVisible"
       top="3vh"
       append-to-body
       destroy-on-close
+      :show-close="false"
       :close-on-click-modal="false"
       :before-close="closeCustomBoardDialog"
     >
-      <div
-        v-loading="isLoading"
-        style="max-height: 25vh; overflow: auto;"
-      >
-        <CustomItem
-          v-for="(boardObject, index) in customValueOnBoard.list"
-          :key="boardObject.id"
-          v-loading="isLoading"
-          :order="index"
-          :board-object.sync="boardObject"
-          :group-by-value-on-board="customValueOnBoard.list"
-          class="mb-3"
-        />
-      </div>
-      <el-link
-        icon="ri-add-line"
-        type="primary"
-        :disabled="isLoading"
-        @click="addCustomBoard"
-      >
-        {{ $t('Issue.BoardTitle') }}
-      </el-link>
-      <el-row slot="footer">
-        <el-col :lg="14" :md="12" :sm="10" :xs="8">
-          <el-input
-            v-model="customValueOnBoard.name"
-            :placeholder="$t('RuleMsg.PleaseInput') + $t('Issue.BoardTitle')"
-          />
-        </el-col>
-        <el-col :lg="10" :md="12" :sm="14" :xs="16">
+      <el-row slot="title">
+        <span class="text-title">
+          {{ $t('general.Add') + $t('Issue.CustomBoard') }}
+        </span>
+        <span class="float-right">
           <el-button
-            class="buttonSecondaryReverse"
             :loading="isLoading"
+            class="buttonSecondaryReverse"
+            type="info"
+            size="small"
             @click="closeCustomBoardDialog"
           >
             {{ $t('general.Cancel') }}
           </el-button>
           <el-button
-            class="buttonPrimary"
             :loading="isLoading"
+            class="buttonPrimary"
+            type="success"
+            size="small"
             @click="confirmCustomBoardDialog"
           >
-            {{ $t('general.Confirm') }}
+            {{ $t('general.Save') }}
           </el-button>
-        </el-col>
+        </span>
       </el-row>
+      <div v-loading="isLoading" class="mb-3">
+        <div class="input">
+          <el-input
+            v-model="customValueOnBoard.name"
+            :placeholder="$t('RuleMsg.PleaseInput') + $t('Issue.BoardTitle')"
+          />
+        </div>
+        <div id="customContainer" style="max-height: 30vh; overflow: auto;">
+          <CustomItem
+            v-for="(boardObject, index) in customValueOnBoard.list"
+            :key="boardObject.id"
+            v-loading="isLoading"
+            :order="index"
+            :class="customValueOnBoard.list.length !== index + 1 ? 'mb-2' : null"
+            :board-object.sync="boardObject"
+            :group-by-value-on-board="customValueOnBoard.list"
+          />
+        </div>
+      </div>
+      <el-link
+        :disabled="isLoading"
+        :underline="false"
+        icon="ri-add-line"
+        type="primary"
+        @click="addCustomBoard"
+      >
+        {{ $t('general.Add') + $t('Issue.BoardItem') }}
+      </el-link>
     </el-dialog>
     <Fab
       v-if="!isSelectDefaultOption"
@@ -485,7 +492,11 @@ export default {
       customBoardDialogVisible: false,
       customValueOnBoard: {
         name: '',
-        list: []
+        list: [{
+          id: null,
+          name: '',
+          color: '#409EFF'
+        }]
       },
       customOptions: [],
       addIssueTemp: [],
@@ -1264,10 +1275,22 @@ export default {
         name: '',
         color: '#409EFF'
       })
+
+      this.$nextTick(() => {
+        const customContainer = document.getElementById('customContainer')
+        customContainer.scrollTop = customContainer.scrollHeight
+      })
     },
     closeCustomBoardDialog() {
       this.customBoardDialogVisible = false
-      this.customValueOnBoard.list.length = 0
+      this.customValueOnBoard = {
+        name: '',
+        list: [{
+          id: null,
+          name: '',
+          color: '#409EFF'
+        }]
+      }
     },
     async confirmCustomBoardDialog() {
       if (this.customValueOnBoard.name === '') {
@@ -1301,7 +1324,14 @@ export default {
         await this.fetchCustomBoard()
         this.customBoardDialogVisible = false
         this.customValueOnBoard.name = ''
-        this.customValueOnBoard.list.length = 0
+        this.customValueOnBoard = {
+          name: '',
+          list: [{
+            id: null,
+            name: '',
+            color: '#409EFF'
+          }]
+        }
       }).catch((error) => {
         console.error(error)
       }).finally(() => {
@@ -1344,6 +1374,20 @@ export default {
 ::v-deep .fab-wrapper {
   right: 2.5vh !important;
   bottom: 2.5vh !important;
+}
+
+::v-deep .el-dialog__body {
+  padding: 0 1rem 1rem;
+}
+
+::v-deep .input {
+  margin-bottom: 1rem;
+
+  .el-input__inner {
+    border-radius: 0;
+    border-width: 0 0 1px 0;
+    border-color: gray;
+  }
 }
 </style>
 

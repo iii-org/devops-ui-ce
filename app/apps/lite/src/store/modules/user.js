@@ -117,6 +117,9 @@ const actions = {
       commit('RESET_STATE')
       resolve()
     })
+  },
+  setUserName({ commit }, userName) {
+    commit('SET_USER_NAME', userName)
   }
 }
 

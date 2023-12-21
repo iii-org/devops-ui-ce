@@ -153,7 +153,7 @@
           </el-col>
           <el-col v-if="!isLite" :span="isFromBoard ? 8 : 24">
             <el-form-item
-              label="自訂看板"
+              :label="$t('Issue.CustomBoard')"
               prop="board"
             >
               <el-select

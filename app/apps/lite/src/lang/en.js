@@ -663,9 +663,11 @@ export default {
       due_date_start: '@:Issue.StartDate',
       due_date_end: '@:Issue.EndDate'
     },
-    BoardView: 'Board View',
+    CustomBoard: 'Custom Board',
     BoardTitle: 'Board Title',
     BoardName: 'Board Name',
+    BoardItem: 'Board Item',
+    ItemName: 'Item Name',
     Uncategorized: 'Uncategorized',
     Display: 'Display',
     DragTip: 'Drag to issue, it can change {key} to {value}.',
