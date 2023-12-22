@@ -31,6 +31,10 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'ProjectList',
   props: {
+    isCreate: {
+      type: Boolean,
+      default: false
+    },
     form: {
       type: Object,
       default: () => ({})
@@ -59,7 +63,7 @@ export default {
       }
       const filteredArray = this.projectOptions.filter((obj) => {
         const { is_lock, disabled, id } = obj
-        return !is_lock && !disabled && id !== this.selectedProjectId
+        return !is_lock && !disabled && (this.isCreate || id !== this.selectedProjectId)
       })
       const starred = filteredArray.filter((item) => item.starred)
       const projects = filteredArray.filter((item) => !item.starred)

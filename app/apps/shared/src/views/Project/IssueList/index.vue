@@ -178,7 +178,6 @@ import { excelTranslate } from '@shared/utils/excelTableTranslate'
 import { ProjectListSelector } from '@shared/components'
 
 import {
-  BasicData,
   Columns,
   IssueExpand,
   SearchFilter,
@@ -202,7 +201,6 @@ export default {
     IssueCard: () => import('./components/Mobile')
   },
   mixins: [
-    BasicData,
     Columns,
     IssueExpand,
     SearchFilter,
@@ -453,7 +451,7 @@ export default {
       } else {
         this.sort = orderBy
       }
-      this.loadData()
+      await this.loadData()
       const storedSort = await this.getSort()
       storedSort[this.storageName] = this.sort
       await this.setSort(storedSort)

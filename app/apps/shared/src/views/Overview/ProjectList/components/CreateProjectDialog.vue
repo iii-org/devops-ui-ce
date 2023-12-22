@@ -128,7 +128,7 @@
                 :sm="14"
                 :xs="24"
               >
-                <ProjectList :form="form" />
+                <ProjectList :form="form" :is-create="true" />
               </el-col>
               <el-col
                 :xl="6"

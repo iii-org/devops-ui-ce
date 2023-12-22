@@ -350,7 +350,7 @@ export default {
     async handleConfirm() {
       this.$refs.editProjectForm.validate(async valid => {
         if (!valid) return
-        this.handleConfirmEdit()
+        await this.handleConfirmEdit()
       })
     },
     async handleConfirmEdit() {
@@ -392,7 +392,7 @@ export default {
           this.handleEdit(sendData)
         }).catch(() => {})
       } else {
-        this.handleEdit(sendData)
+        await this.handleEdit(sendData)
       }
     },
     async handleEdit(sendData) {
