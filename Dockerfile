@@ -65,6 +65,7 @@ COPY build/default.nginx /etc/nginx/templates/default.conf.template
 COPY build/entrypoint.sh /docker-entrypoint.d/40-injectvariable.sh
 RUN chmod 775 /docker-entrypoint.d/40-injectvariable.sh
 
-ENV API_URL=http://iii-devops-lite-api:10009/
+#ENV API_URL=http://iii-devops-lite-api:10009/
+ENV API_URL=http://10.20.2.105:10009/
 
 EXPOSE 80
