@@ -670,11 +670,13 @@ export default {
         {
           name: 'addButton',
           icon: 'add',
+          tooltip: this.$t('general.Add') + this.$t('Issue.CustomBoard'),
           color: '#409eff'
         },
         {
           name: 'deleteButton',
           icon: 'delete',
+          tooltip: this.$t('general.Delete') + this.$t('Issue.ThisBoard'),
           color: '#F56C6C'
         }
         // {
@@ -1340,7 +1342,7 @@ export default {
       })
     },
     deleteCustomBoard() {
-      this.$confirm(this.$t('Issue.RemoveCustomFilter'), this.$t('general.Warning'), {
+      this.$confirm(this.$t('Issue.DeleteThisBoard'), this.$t('general.Warning'), {
         confirmButtonText: this.$t('general.Confirm'),
         cancelButtonText: this.$t('general.Cancel'),
         type: 'warning'

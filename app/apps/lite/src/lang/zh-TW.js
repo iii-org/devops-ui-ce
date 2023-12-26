@@ -656,6 +656,8 @@ export default {
       due_date_start: '@:Issue.EndDate(>=)',
       due_date_end: '@:Issue.EndDate(<=)'
     },
+    DeleteThisBoard: '確定移除此自訂看板嗎？',
+    ThisBoard: '此看板',
     CustomBoard: '自訂看板',
     BoardTitle: '看板標題',
     BoardName: '看板名稱',

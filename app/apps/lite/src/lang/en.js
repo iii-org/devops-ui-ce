@@ -663,6 +663,8 @@ export default {
       due_date_start: '@:Issue.StartDate',
       due_date_end: '@:Issue.EndDate'
     },
+    DeleteThisBoard: 'Are you sure to Delete this custom board',
+    ThisBoard: 'This Board',
     CustomBoard: 'Custom Board',
     BoardTitle: 'Board Title',
     BoardName: 'Board Name',
