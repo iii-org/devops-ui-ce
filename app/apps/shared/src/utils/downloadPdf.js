@@ -38,21 +38,26 @@ PDF.install = function(options) {
         doc.save(fullFileName)
       })
     } else {
-      // Get all stylesheets HTML
-      let stylesHtml = ''
-      for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-        stylesHtml += node.outerHTML
-      }
+      const headContent = document.head.outerHTML
       // Open the print window
       const winPrint = window.open(
         '',
         '',
         'left = 0, top = 0, width = 800, height = 900, toolbar = 0, scrollbars = 0, status = 0'
       )
-      winPrint.document.write(`${stylesHtml}${dom}`)
+      winPrint.document.write(`${headContent}${dom}`)
       winPrint.document.close()
       winPrint.focus()
-      winPrint.print()
+      // Set a timeout before calling print
+      const printTimeout = setTimeout(() => {
+        winPrint.print()
+      }, 500)
+
+      // Event listener to close the print window and clear the timeout after printing
+      winPrint.onafterprint = () => {
+        clearTimeout(printTimeout)
+        winPrint.close()
+      }
     }
   }
 }

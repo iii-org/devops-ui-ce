@@ -95,3 +95,17 @@ export const getDurationTime = (startTime, endTime) => {
   const e = dayjs.utc(endTime).unix()
   return dayjs.duration(e - s, 'seconds').humanize()
 }
+
+export const stringDurationToSeconds = (input) => {
+  const dayMatch = input.match(/(\d+)d/)
+  const hourMatch = input.match(/(\d+)h/)
+  const minuteMatch = input.match(/(\d+)m/)
+  const secondMatch = input.match(/(\d+)s/)
+
+  const days = dayMatch ? parseInt(dayMatch[1], 10) : 0
+  const hours = hourMatch ? parseInt(hourMatch[1], 10) : 0
+  const minutes = minuteMatch ? parseInt(minuteMatch[1], 10) : 0
+  const seconds = secondMatch ? parseInt(secondMatch[1], 10) : 0
+
+  return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds
+}

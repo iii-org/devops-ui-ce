@@ -429,12 +429,13 @@ export default {
     white-space: nowrap;
   }
   .watermark {
-    display: block;
+    display: grid;
     position: fixed;
     width: 100%;
+    height: 100%;
     font-size: 800%;
-    top: 35vh;
-    left: 35vw;
+    justify-content: center;
+    align-content: center;
     opacity: 0.2;
   }
   .title {
