@@ -616,6 +616,14 @@ export default {
       if (!val) {
         document.oncontextmenu = () => { return true }
       }
+    },
+    'classifyIssueList.all.length': {
+      handler() {
+        if (this.allUnassignedIssueList.length > 10 && this.classifyIssueList.all.length < 10) {
+          this.loadMoreIssueList()
+        }
+      },
+      deep: true
     }
   },
   beforeDestroy() {
