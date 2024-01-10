@@ -43,7 +43,7 @@
               <component :is="components" :name="$t(`Issue.${item.name}`)" :type="item.name" /> {{ item.message }}
             </template>
             <template v-else>
-              {{ item.name }}
+              {{ $te(`Issue.${item.name}`) ? $t(`Issue.${item.name}`) : item.name }}
             </template>
           </el-option>
         </el-select>
@@ -175,6 +175,14 @@ export default {
     assignedTo: {
       type: Array,
       default: () => []
+    },
+    editRowVersions: {
+      type: Array,
+      default: () => []
+    },
+    editRowAssignedTo: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -193,6 +201,10 @@ export default {
         return this.dynamicStatusList
       } else if (this.propKey === 'tracker' && this.isParentExist === false) {
         return this.strictOptions
+      } else if (this.propKey === 'fixed_version') {
+        return this.editRowVersions
+      } else if (this.propKey === 'assigned_to') {
+        return this.editRowAssignedTo
       } else {
         return this.options
       }

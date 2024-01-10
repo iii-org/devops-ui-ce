@@ -468,7 +468,6 @@ export default {
     window.onresize = () => {
       this.$nextTick(() => {
         this.resizeTable()
-        console.log('resize')
       })
     }
   },

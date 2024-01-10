@@ -17,6 +17,7 @@
         fit
         :row-class-name="getRowClass"
         :tree-props="{hasChildren: 'has_children'}"
+        @row-click="handleRowClick"
         @row-contextmenu="handleContextMenu"
         @cell-mouse-enter="handleCellMouseEnter"
         @cell-mouse-leave="handleCellMouseLeave"
@@ -98,6 +99,7 @@
           :options="fixedVersion"
           sortable
           :has-child-edit="true"
+          :edit-row-versions="editRowVersions"
           show-overflow-tooltip
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
@@ -157,6 +159,7 @@
           :edit-row-id="editRowId"
           :options="assignedTo"
           :has-child-edit="true"
+          :edit-row-assigned-to="editRowAssignedTo"
           show-overflow-tooltip
           sortable
           @edit="handleUpdateIssue"
@@ -321,11 +324,13 @@ import {
   WBSContextMenu,
   WBSDrawerMenu
 } from './components'
-import { getProjectIssueList } from '@/api_v2/projects'
+import { getProjectIssueList, getProjectVersion, getProjectUserList } from '@/api_v2/projects'
 import { getIssue, addIssue, deleteIssue, getIssueFamily, updateIssue } from '@/api/issue'
 import { CancelRequest } from '@/mixins'
 import { Tracker, Priority, Status } from '@/components/Issue'
 import ElTableInfiniteScroll from 'el-table-infinite-scroll'
+
+const defaultRowVersions = [{ id: 'null', name: 'VersionUndecided' }]
 
 export default {
   name: 'WBS',
@@ -410,7 +415,12 @@ export default {
         total: 0
       },
       scrollLoading: false,
-      existCreatedRow: {}
+      existCreatedRow: {},
+      editRowVersions: defaultRowVersions,
+      editRowAssignedTo: [
+        { id: 'null', name: 'Unassigned' },
+        { class: 'bg-yellow-100', id: this.userId, login: '-Me-', name: '<<我自己>>' }
+      ]
     }
   },
   computed: {
@@ -1174,6 +1184,27 @@ export default {
       ) {
         this.handleResetCreate({ row: this.existCreatedRow })
       }
+    },
+    async handleRowClick(row) {
+      const editRowVersions = cloneDeep(defaultRowVersions)
+      const editRowAssignedTo = cloneDeep([
+        { id: 'null', name: 'Unassigned' },
+        { class: 'bg-yellow-100', id: this.userId, login: '-Me-', name: '<<我自己>>' }
+      ])
+
+      const params = {
+        status: 'open,locked'
+      }
+      await Promise.allSettled([
+        getProjectVersion(row.project.id, params),
+        getProjectUserList(row.project.id)
+      ]).then((res) => {
+        const [fixed_version, assigned_to] = res.map((item) => item.value.data)
+        fixed_version.versions.forEach((version) => editRowVersions.push(version))
+        assigned_to.user_list.forEach((user) => editRowAssignedTo.push(user))
+      })
+      this.editRowVersions = editRowVersions
+      this.editRowAssignedTo = editRowAssignedTo
     }
   }
 }

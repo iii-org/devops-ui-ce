@@ -350,6 +350,7 @@
             :class="customValueOnBoard.list.length !== index + 1 ? 'mb-2' : null"
             :board-object.sync="boardObject"
             :group-by-value-on-board="customValueOnBoard.list"
+            @emitAddCustomBoard="(target) => addCustomBoard(target)"
           />
         </div>
       </div>
@@ -358,7 +359,7 @@
         :underline="false"
         icon="ri-add-line"
         type="primary"
-        @click="addCustomBoard"
+        @click="() => addCustomBoard()"
       >
         {{ $t('general.Add') + $t('Issue.BoardItem') }}
       </el-link>
@@ -1271,7 +1272,7 @@ export default {
     reloadPage() {
       window.location.reload()
     },
-    addCustomBoard() {
+    addCustomBoard(target) {
       this.customValueOnBoard.list.push({
         id: null,
         name: '',
@@ -1281,7 +1282,18 @@ export default {
       this.$nextTick(() => {
         const customContainer = document.getElementById('customContainer')
         customContainer.scrollTop = customContainer.scrollHeight
+
+        if (target) {
+          this.focusOnNextInput(target)
+        }
       })
+    },
+    focusOnNextInput(target) {
+      const siblingElement = target?.parentElement?.parentElement?.parentElement?.nextElementSibling
+      const inputElements = siblingElement.querySelectorAll('input')
+      if (inputElements) {
+        inputElements[0].focus()
+      }
     },
     closeCustomBoardDialog() {
       this.customBoardDialogVisible = false

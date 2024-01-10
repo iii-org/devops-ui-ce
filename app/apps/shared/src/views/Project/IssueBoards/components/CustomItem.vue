@@ -1,27 +1,22 @@
 <template>
   <el-row class="flex justify-center items-center">
-    <el-col
-      :md="23"
-      :sm="23"
-      :xs="23"
-    >
+    <el-col :md="23" :sm="23" :xs="23">
       <el-input
         v-model="boardObject.name"
         :loading="isLoading"
-        :placeholder="$t('Validation.Input',[$t('Issue.ItemName')])"
+        :placeholder="$t('Validation.Input', [$t('Issue.ItemName')])"
+        @keypress.enter.native="$emit('emitAddCustomBoard', $event.target)"
+        @keyup.delete.native="handleDelete(true, $event.target)"
       >
-        <template slot="prepend">
+        <template v-if="order !== null" slot="prepend">
           {{ order + 1 }}
         </template>
         <template slot="suffix">
-          <el-popover
-            placement="bottom"
-            trigger="click"
-          >
+          <el-popover placement="bottom" trigger="click">
             <el-button
               v-for="color in colors"
               :key="color"
-              :style="{'background-color': color}"
+              :style="{ 'background-color': color }"
               @click="handleColor(color)"
             />
             <el-color-picker
@@ -30,7 +25,7 @@
             />
             <el-button
               slot="reference"
-              :style="{'background-color': boardObject.color}"
+              :style="{ 'background-color': boardObject.color }"
             />
           </el-popover>
         </template>
@@ -43,10 +38,7 @@
       :xs="1"
       class="flex justify-center"
     >
-      <el-tooltip
-        placement="bottom"
-        :content="$t('general.Delete')"
-      >
+      <el-tooltip placement="bottom" :content="$t('general.Delete')">
         <el-popconfirm
           :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
@@ -110,8 +102,22 @@ export default {
     handleColor(color) {
       this.boardObject.color = color || '#ffffff'
     },
-    handleDelete() {
-      const index = this.groupByValueOnBoard.findIndex((item, index) => index === this.order)
+    handleDelete(isKeyPress = false, target) {
+      if (isKeyPress) {
+        if (!this.boardObject.name) {
+          this.deleteInput()
+          const siblingElement = target?.parentElement?.parentElement?.parentElement?.previousElementSibling
+          const inputElements = siblingElement.querySelectorAll('input')
+          inputElements[0].focus()
+        }
+        return
+      }
+      this.deleteInput()
+    },
+    deleteInput() {
+      const index = this.groupByValueOnBoard.findIndex(
+        (item, index) => index === this.order
+      )
       this.groupByValueOnBoard.splice(index, 1)
     }
   }
@@ -127,7 +133,7 @@ export default {
   margin-left: 4px !important;
 
   .el-icon-arrow-down:before {
-    font-family: 'remixicon' !important;
+    font-family: "remixicon" !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     content: "\EFC5";
@@ -136,7 +142,7 @@ export default {
   }
 
   .el-color-picker__empty:before {
-    font-family: 'remixicon' !important;
+    font-family: "remixicon" !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     content: "\EFC5";
@@ -145,7 +151,8 @@ export default {
   }
 }
 
-::v-deep .el-input__suffix ,.el-popover {
+::v-deep .el-input__suffix,
+.el-popover {
   display: flex;
   align-items: center;
 
