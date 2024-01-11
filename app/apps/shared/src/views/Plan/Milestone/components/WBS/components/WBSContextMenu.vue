@@ -22,7 +22,7 @@
             </span>
             <contextmenu-item
               v-for="contextMenuItem in getContextMenuItem(contextMenuOption)"
-              :key="`${contextMenuOption}-${contextMenuItem.id}`"
+              :key="`${contextMenuOption}-${contextMenuItem.login || contextMenuItem.id}`"
               :disabled="contextMenuOption !== 'tags' && contextMenuItem.disabled"
               :class="{
                 current: getCurrentSelectedValue(contextMenuOption, contextMenuItem),
@@ -161,15 +161,15 @@ export default {
       type: Array,
       default: () => []
     },
-    fixedVersion: {
-      type: Array,
-      default: () => {}
-    },
-    assignedTo: {
+    permission: {
       type: Array,
       default: () => []
     },
-    permission: {
+    editRowVersions: {
+      type: Array,
+      default: () => []
+    },
+    editRowAssignedTo: {
       type: Array,
       default: () => []
     }
@@ -295,9 +295,9 @@ export default {
         case 'status':
           return this.getDynamicStatus
         case 'assigned_to':
-          return this.contextMenuAssignedTo
+          return this.editRowAssignedTo
         case 'fixed_version':
-          return this.fixedVersion
+          return this.editRowVersions
         case 'done_ratio':
           return this.doneRatio
         default:

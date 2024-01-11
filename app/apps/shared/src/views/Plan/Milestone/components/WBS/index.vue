@@ -232,8 +232,8 @@
         :permission="permission"
         :columns="columns"
         :tags="tags"
-        :fixed-version="fixedVersion"
-        :assigned-to="assignedTo"
+        :edit-row-versions="editRowVersions"
+        :edit-row-assigned-to="editRowAssignedTo"
         @handleUpdateIssue="handleUpdateIssue"
         @handleRelationUpdate="handleRelationUpdate"
         @handleRelationDelete="handleRelationDelete"
@@ -800,6 +800,7 @@ export default {
     },
     handleContextMenu(row, column, event) {
       this.originSelectedRow = cloneDeep(row)
+      this.handleRowClick(row)
       if (!this.isMobile) {
         this.$refs?.contextmenu.handleContextMenu(row, column, event)
       } else {
