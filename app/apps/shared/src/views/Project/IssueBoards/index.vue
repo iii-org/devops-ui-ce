@@ -931,7 +931,7 @@ export default {
     async setIssueList(getIssueList) {
       await Promise.allSettled(getIssueList)
         .then((res) => {
-          const issueList = res.map((item) => item.value.data)
+          const issueList = res.map((item) => item?.value?.data)
           const list = [].concat(...issueList)
           this.$set(this.$data, 'projectIssueList', list)
         })

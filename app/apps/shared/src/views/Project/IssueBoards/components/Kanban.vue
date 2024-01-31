@@ -13,21 +13,33 @@
         :style="{ backgroundColor: !isSelectDefaultOption ? boardObject.color : '' }"
       />
       <div
-        v-if="!isSelectDefaultOption && boardObject.id !== 'all'"
+        v-if="!isSelectDefaultOption && boardObject.id !== 'all' && !fromWbs"
         class="flex items-start float-right p-1"
         @mouseenter="$emit('update:isDraggable', false)"
         @mouseleave="$emit('update:isDraggable', true)"
       >
-        <el-link
-          :icon="isEdited ? 'el-icon-check' : 'el-icon-edit'"
-          :underline="false"
-          @click="handleEdit()"
-        />
-        <el-link
-          icon="el-icon-close"
-          :underline="false"
-          @click="handleClose()"
-        />
+        <el-tooltip
+          placement="bottom"
+          :content="isEdited ? $t('general.Save') : $t('general.Edit')"
+        >
+          <em
+            :class="isEdited ? 'el-icon-check' : 'el-icon-edit-outline'"
+            class="primary table-button"
+            style="font-size: 14px;"
+            @click="handleEdit()"
+          />
+        </el-tooltip>
+        <el-tooltip
+          placement="bottom"
+          :content="isEdited ? $t('general.Cancel') : $t('general.Delete')"
+        >
+          <em
+            :class="isEdited ? 'el-icon-close' : 'el-icon-delete'"
+            class="danger table-button"
+            style="font-size: 14px;"
+            @click="handleClose()"
+          />
+        </el-tooltip>
       </div>
       <el-row v-if="!fromWbs" class="flex">
         <el-col class="text-center">
@@ -85,6 +97,7 @@
             @touchstart="disabled ? longPress(element, '', $event) : ''"
             @drop="dropPanelLabels($event, idx, element.id)"
             @dragover="allowDrop($event, idx)"
+            @contextmenu.capture="handleContextMenu(element, '', $event)"
           >
             <el-tooltip
               :disabled="element.done_ratio === 0"
@@ -100,7 +113,7 @@
                 :stroke-width="4"
               />
             </el-tooltip>
-            <div @contextmenu="handleContextMenu(element, '', $event)">
+            <div>
               <div class="title" :class="fromWbs ? 'cardTitle' : ''">
                 <span
                   class="text link-text-color"

@@ -14,14 +14,10 @@
         class="right-menu-item"
         :class="!isMobile ? 'hover-effect' : ''"
         trigger="click"
-        :style="isMobile ? 'margin-top: 18px; cursor: pointer;' : ''"
+        :style="isMobile ? 'cursor: pointer;' : ''"
       >
         <div>
-          <Avatar
-            v-if="isMobile"
-            :username="userName"
-            :size="32"
-          />
+          <el-avatar v-if="isMobile" class="align-middle" :src="userAvatar" :size="32" />
           <span v-else>
             {{ userName }}
             <em class="el-icon-caret-bottom" />
@@ -64,7 +60,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Breadcrumb, Hamburger, LangSelect, Avatar } from '@shared/components'
+import { Breadcrumb, Hamburger, LangSelect } from '@shared/components'
 import Notification from '@/components/Notification'
 
 export default {
@@ -72,11 +68,10 @@ export default {
     Breadcrumb,
     Hamburger,
     LangSelect,
-    Notification,
-    Avatar
+    Notification
   },
   computed: {
-    ...mapGetters(['sidebar', 'userName', 'device']),
+    ...mapGetters(['sidebar', 'userName', 'userAvatar', 'device']),
     isMobile() {
       return this.device === 'mobile'
     }

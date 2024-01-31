@@ -1,5 +1,7 @@
 import { getUserInfo, login } from '@/api/user'
 import { getToken, removeToken, setToken } from '@shared/utils/auth'
+import crypto from 'crypto'
+import { backgroundColor, fontColor } from '@shared/utils/AvatarColor'
 import { resetRouter, loadRouter } from '@/router/router'
 import VueJwtDecode from 'vue-jwt-decode'
 
@@ -8,8 +10,21 @@ const getDefaultState = () => {
     token: getToken(),
     userId: 0,
     userRole: '',
-    userName: ''
+    userName: '',
+    userAvatar: ''
   }
+}
+
+const generateAvatarUrl = (username, emailAddress) => {
+  const processedName = username.toString().replace(/( )+/g, '+')
+  const defaultImage = encodeURIComponent(
+    `https://ui-avatars.com/api/${processedName}/80/${backgroundColor(username)}/${fontColor(username)}`
+  )
+  const emailHash = crypto
+    .createHash('md5')
+    .update(emailAddress)
+    .digest('hex')
+  return `https://www.gravatar.com/avatar/${emailHash}?d=${defaultImage}`
 }
 
 const state = getDefaultState()
@@ -26,6 +41,9 @@ const mutations = {
   },
   SET_USER_NAME: (state, userName) => {
     state.userName = userName
+  },
+  SET_USER_AVATAR: (state, userAvatar) => {
+    state.userAvatar = userAvatar
   },
   SET_TOKEN: (state, token) => {
     state.token = token
@@ -73,6 +91,7 @@ const actions = {
       throw new Error('role is not exist in user info')
     }
     commit('SET_USER_NAME', user.name)
+    commit('SET_USER_AVATAR', generateAvatarUrl(user.name, user.email))
 
     await dispatch('projects/getMyProjectOptions', null, { root: true })
     await dispatch('projects/getSelectionOptions', null, { root: true })

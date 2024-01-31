@@ -147,6 +147,7 @@
       :close-on-click-modal="false"
       :modal-append-to-body="false"
       append-to-body
+      destroy-on-close
       :width="device === 'desktop' ? '50%' : '100%'"
       :top="device === 'desktop' ? '5px' : ''"
     >

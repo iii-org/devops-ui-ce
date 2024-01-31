@@ -9,6 +9,7 @@ const getters = {
   token: state => state.user.token,
   userId: state => state.user.userId,
   userName: state => state.user.userName,
+  userAvatar: state => state.user.userAvatar,
   userRole: state => state.user.userRole,
   isExcalidrawEnable: state => state.permission.isExcalidrawEnable,
   permission_routes: state => state.permission.routes,

@@ -247,6 +247,7 @@
         <el-tab-pane
           name="Board"
           label="Board"
+          style="overflow: auto; display: flex;"
           lazy
         >
           <Board

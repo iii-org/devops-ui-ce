@@ -75,7 +75,6 @@
       </div>
       <div
         class="header"
-        :style="displayClosed ? 'width: 1740px' : 'width: 1450px'"
       >
         <el-table
           v-if="groupBy.dimension === 'status'"
@@ -1070,10 +1069,7 @@ export default {
 .socket-button {
   height: 55px;
   width: 55px;
-  padding-top: 12px;
-  padding-right: 20px;
-  padding-bottom: 12px;
-  padding-left: 20px;
+  padding: 12px 20px !important;
 }
 
 ::v-deep .el-table .el-table__cell {

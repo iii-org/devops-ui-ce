@@ -1259,10 +1259,10 @@ $cursor-pointer-colors: (
 @each $key, $value in $cursor-pointer-colors {
   ::v-deep .el-tag--light.#{$key}:hover {
     @include background-border-color(
-      map-get(map-get($cursor-pointer-colors, $key), background-border-color),
-      map-get(map-get($cursor-pointer-colors, $key), background-border-color)
+      map-get($value, background-border-color),
+      map-get($value, background-border-color)
     );
-    color: map-get(map-get($cursor-pointer-colors, $key), color);
+    color: map-get($value, color);
   }
 }
 

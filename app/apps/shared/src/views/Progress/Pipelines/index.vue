@@ -315,9 +315,11 @@ export default {
         .then(async(res) => {
           this.lastUpdateTime = getLocalTime(res.datetime)
           await this.updatePipeExecs(res.data)
-          const { per_page, current, total } = res.data.pagination
-          this.listQuery = { limit: per_page, total, page: current }
-          if (this.listQuery.page === 1) this.setTimer(10000)
+          if (res.data) {
+            const { per_page, current, total } = res.data.pagination
+            this.listQuery = { limit: per_page, total, page: current }
+            if (this.listQuery.page === 1) this.setTimer(10000)
+          }
           this.isUpdating = false
           this.isLoading = false
           this.isExecuteLoad = false

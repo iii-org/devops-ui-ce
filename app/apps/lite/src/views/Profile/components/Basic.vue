@@ -1,6 +1,14 @@
 <template>
   <div v-loading="isLoading" class="tab-inner">
     <h3>{{ $t('Profile.ProfileBasicSetting') }}</h3>
+    <el-avatar :src="userAvatar" :size="70" />
+    <div class="text-sm mb-2">
+      <div class="flex">
+        <span class="mr-1">{{ $t('User.GravatarLink') }}</span>
+        <el-link href="https://gravatar.com/" target="_blank" type="primary">Gravatar.com</el-link>
+      </div>
+      <div class="notification-warning">{{ $t('User.GravatarNotification') }}</div>
+    </div>
     <el-form
       ref="userProfileForm"
       :model="userProfileForm"
@@ -117,7 +125,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userId']),
+    ...mapGetters(['userId', 'userAvatar']),
     source() {
       return this.fromAd ? this.$t('User.AD') : this.$t('User.SYSTEM')
     }

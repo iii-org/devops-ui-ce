@@ -43,8 +43,8 @@
           v-if="!isSelectDefaultOption"
           :body-style="{padding: 0}"
           style="
-            min-width: 15rem;
-            height: 5rem;
+            min-width: 278px;
+            height: 4.3rem;
             margin: 0 5px;
           "
         >
@@ -53,23 +53,33 @@
             icon="el-icon-plus"
             :underline="false"
             class="flex items-center"
-            style="font-size: 1.2rem; height: 5rem;"
+            style="font-size: 1.1rem; height: 4.3rem;"
             @click="isEdited = true"
           >
             {{ $t('general.Add') + $t('general.Title') }}
           </el-link>
           <template v-else>
-            <div class="text-right px-1">
-              <el-link
-                icon="el-icon-check"
-                :underline="false"
-                @click="createBoardItem"
-              />
-              <el-link
-                icon="el-icon-close"
-                :underline="false"
-                @click="resetBoardObject"
-              />
+            <div class="flex justify-end px-1 mt-1">
+              <el-tooltip
+                placement="bottom"
+                :content="$t('general.Save')"
+              >
+                <em
+                  class="el-icon-check primary table-button"
+                  style="font-size: 14px;"
+                  @click="createBoardItem"
+                />
+              </el-tooltip>
+              <el-tooltip
+                placement="bottom"
+                :content="$t('general.Cancel')"
+              >
+                <em
+                  class="el-icon-close danger table-button"
+                  style="font-size: 14px;"
+                  @click="resetBoardObject"
+                />
+              </el-tooltip>
             </div>
             <CustomItem
               :board-id="boardId"

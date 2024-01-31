@@ -96,12 +96,13 @@ const webinspectFormatter = (testResult) => {
   return ret
 }
 
-const sbomFormatter = (testResult) => {
+const sbomFormatter = (testResult, type) => {
   const ret = {}
   const status = testResult.status
+  const softwareName = type ? 'SBOM Code' : 'SBOM Image'
   if (Object.keys(testResult.result).length === 0) {
     Object.assign(ret, {
-      Software: 'sbom',
+      Software: softwareName,
       informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
       status: testResult.status
     })
@@ -109,7 +110,7 @@ const sbomFormatter = (testResult) => {
     const packageNums = testResult.result.package_nums
     const { Critical, High, Medium, Low } = testResult.result.scan_overview
     Object.assign(ret, {
-      Software: 'sbom',
+      Software: softwareName,
       runAt: testResult.run_at,
       informationText: [
         { status: i18n.t('Sbom.PackageCount'), count: packageNums },
@@ -228,14 +229,14 @@ const clairFormatter = (testResult) => {
   const status = testResult.status
   if (Object.keys(testResult.result).length === 0) {
     Object.assign(ret, {
-      Software: 'dockerImage',
+      Software: 'Docker Image',
       informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
       status
     })
   } else {
     const { Critical, High, Low, Medium, Negligible, Unknown } = testResult.result
     Object.assign(ret, {
-      Software: 'dockerImage',
+      Software: 'Docker Image',
       runAt: testResult.run_at,
       informationText: [
         { status: i18n.t('Docker.Critical'), count: Critical },

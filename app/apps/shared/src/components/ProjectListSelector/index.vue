@@ -245,7 +245,7 @@ export default {
       this.categoryProjectList = this.categoryProjectList.filter((item) => {
         item.options = item.options.filter((element) => {
           const { display, name } = element
-          return display.toLowerCase().indexOf(keyword) > -1 || name.toLowerCase().indexOf(keyword) > -1
+          return display.toString().toLowerCase().indexOf(keyword) > -1 || name.toString().toLowerCase().indexOf(keyword) > -1
         })
         return item.options.length > 0
       })

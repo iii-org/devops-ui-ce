@@ -124,6 +124,7 @@ export default {
         checkmarx: checkmarxFormatter,
         webinspect: webinspectFormatter,
         sbom: sbomFormatter,
+        sbom_code: sbomFormatter,
         sonarqube: sonarqubeFormatter,
         sideex: sideexFormatter,
         zap: zapFormatter,
@@ -131,7 +132,9 @@ export default {
         harbor: clairFormatter
       }
       keys.forEach(key => {
-        result.push(mapFormatter[key](testResult[key]))
+        if (key === 'sbom_code') {
+          result.push(mapFormatter[key](testResult[key], 'code'))
+        } else result.push(mapFormatter[key](testResult[key]))
       })
       return result
     },
