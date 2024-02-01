@@ -25,7 +25,7 @@
           <th id="">{{ $t('Sbom.LowSeverity') }}</th>
         </tr>
         <tr>
-          <td :data-label="$t('DevSecOps.Tools')">SBOM</td>
+          <td :data-label="$t('DevSecOps.Tools')">SBOM {{ anchore[0]?.scan_type === 'image' ? 'Image' : 'Code' }}</td>
           <template v-if="hasAnchoreData">
             <td :data-label="$t('Sbom.PackageCount')">
               <span v-if="hasPackageCountData">{{ anchore[0].package_nums }}</span>

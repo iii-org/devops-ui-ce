@@ -111,6 +111,13 @@
             :anchore="sbom"
             :list-loading="listLoading"
           />
+          <AnchoreReport
+            v-show="isIncludesName('sbom_code')"
+            ref="clair"
+            class="mb-5"
+            :anchore="sbom_code"
+            :list-loading="listLoading"
+          />
         </div>
         <!-- black box test -->
         <div v-show="isIncludesName('zap') || isIncludesName('webinspect')">
@@ -227,7 +234,8 @@ export default {
       cmas: [],
       postman: [],
       sideex: [],
-      sbom: []
+      sbom: [],
+      sbom_code: []
     }
   },
   computed: {

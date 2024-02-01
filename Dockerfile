@@ -18,7 +18,7 @@ RUN yarn
 FROM node:16 AS git-process
 
 # Setting UI version
-ENV VERSION=ce-0.6.0-dev
+ENV VERSION=ce-0.7.0-dev
 
 SHELL ["/bin/bash", "-c"]
 
