@@ -17,11 +17,7 @@
         :style="isMobile ? 'cursor: pointer;' : ''"
       >
         <div>
-          <el-avatar v-if="isMobile" class="align-middle" :src="userAvatar" :size="32" />
-          <span v-else>
-            {{ userName }}
-            <em class="el-icon-caret-bottom" />
-          </span>
+          <el-avatar class="align-middle" :src="userAvatar" :size="32" />
         </div>
         <el-dropdown-menu
           slot="dropdown"
@@ -129,6 +125,7 @@ export default {
       padding: 0 7px;
       height: 100%;
       font-size: 18px;
+      margin-right: 10px;
       color: $navbarRightText; /* theme_discussion right font color */
       cursor: pointer;
       &.hover-effect {

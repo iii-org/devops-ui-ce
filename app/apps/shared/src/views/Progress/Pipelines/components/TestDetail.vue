@@ -46,24 +46,34 @@
           <el-card
             :id="'preWindow' + index"
             class="mb-2"
-            :body-style="{
-              color: '#fff',
-              background: '#222',
-              lineHeight: 1,
-              fontSize: '13px',
-              height: isMobile ? '90vh' : '50vh',
-              overflow: 'auto',
-              'scroll-behavior': 'smooth'
-            }"
             shadow="never"
+            :body-style="{ padding: 0 }"
           >
-            <pre>
-              <div v-for="(msg, idx) in stage.message" :key="idx" v-html="msg" />
-            </pre>
-            <div v-if="stage.isLoading" class="loader-animation pt-2 pl-2">
-              <div class="dot" />
-              <div class="dot" />
-              <div class="dot" />
+            <div
+              :style="{
+                color: '#fff',
+                background: '#222',
+                lineHeight: 1,
+                fontSize: '13px',
+                height: isMobile ? '90vh' : '50vh',
+                overflow: 'auto',
+                'scroll-behavior': 'smooth'
+              }"
+              @scroll="onscroll"
+            >
+              <pre>
+                <div v-for="(msg, idx) in stage.message" :key="idx" v-html="msg" />
+              </pre>
+              <div v-if="stage.isLoading" class="loader-animation pt-2 pl-2">
+                <div class="dot" />
+                <div class="dot" />
+                <div class="dot" />
+              </div>
+              <em
+                v-if="!isScrollBottom"
+                class="el-icon-bottom scroll-down-button"
+                @click="scrollToBottom(index)"
+              />
             </div>
           </el-card>
         </el-card>
@@ -106,7 +116,8 @@ export default {
         transports: ['websocket']
       }),
       lockReconnect: false,
-      reconnectTimeoutObj: null
+      reconnectTimeoutObj: null,
+      isScrollBottom: true
     }
   },
   computed: {
@@ -133,6 +144,7 @@ export default {
       this.setLogMessageListener()
     },
     userClick(tab) {
+      this.isScrollBottom = true
       this.emitPipeLog(tab)
     },
     emitPipeLog(tab) {
@@ -152,12 +164,12 @@ export default {
         const stageIndex = this.stages.findIndex((stage) => stage.stage_id === repo_id)
         if (final) {
           this.stages[stageIndex].isLoading = false
-          if (stageIndex + 1 < this.stages.length) {
+          if (stageIndex + 1 < this.stages.length && this.isScrollBottom) {
             this.moveToRunningStage(stageIndex + 1)
           }
         }
         this.setLogMessage(stageIndex, data)
-        this.scrollToBottom(stageIndex)
+        if (this.isScrollBottom) this.scrollToBottom(stageIndex)
       })
       this.socket.on('reach_max_time', (boolean) => {
         if (boolean) this.reconnect()
@@ -260,10 +272,18 @@ export default {
           this.$el.querySelector(`#preWindow${index}`) &&
           this.$el.querySelector(`#preWindow${index}`).childNodes
         ) {
-          const target = this.$el.querySelector(`#preWindow${index}`).childNodes[1]
-          target.scrollTop = target.scrollHeight
+          const target = this.$el.querySelector(`#preWindow${index}`).childNodes[1].childNodes[0]
+          target.scrollTop = target.scrollHeight + 1000
         }
       })
+    },
+    onscroll(event) {
+      const { scrollTop, clientHeight, scrollHeight } = event.target
+      if (scrollTop + clientHeight < scrollHeight) {
+        this.isScrollBottom = false
+      } else {
+        this.isScrollBottom = true
+      }
     }
   }
 }
@@ -335,6 +355,16 @@ pre {
     color: #888;
     min-width: 40px;
   }
+}
+.scroll-down-button {
+  position: absolute;
+  bottom: 10%;
+  right: 50%;
+  padding: .5rem;
+  border-radius: 2rem;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
 }
 $tag-light-options: (
   created: $created,

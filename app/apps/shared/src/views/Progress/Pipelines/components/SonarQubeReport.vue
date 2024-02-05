@@ -18,6 +18,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t("Version.Version") }}</th>
           <th id="">{{ $t('SonarQube.Bugs') }}</th>
           <th id="">{{ $t('SonarQube.Vulnerabilities') }}</th>
           <th id="">{{ $t('SonarQube.CodeSmells') }}</th>
@@ -26,6 +27,7 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">SonarQube</td>
+          <td :data-label="$t('Version.Version')">{{ sonarqube[0]?.version_info ? sonarqube[0]?.version_info : '-' }}</td>
           <template v-if="hasSonarqubeData">
             <td :data-label="$t('SonarQube.Bugs')">
               <span v-if="hasEachItemData('bugs')">

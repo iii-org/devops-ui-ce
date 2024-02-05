@@ -1,7 +1,6 @@
 import { getUserInfo, login } from '@/api/user'
 import { getToken, removeToken, setToken } from '@shared/utils/auth'
-import crypto from 'crypto'
-import { backgroundColor, fontColor } from '@shared/utils/AvatarColor'
+import { generateAvatarUrl } from '@shared/utils/Avatar'
 import { resetRouter, loadRouter } from '@/router/router'
 import VueJwtDecode from 'vue-jwt-decode'
 
@@ -13,18 +12,6 @@ const getDefaultState = () => {
     userName: '',
     userAvatar: ''
   }
-}
-
-const generateAvatarUrl = (username, emailAddress) => {
-  const processedName = username.toString().replace(/( )+/g, '+')
-  const defaultImage = encodeURIComponent(
-    `https://ui-avatars.com/api/${processedName}/80/${backgroundColor(username)}/${fontColor(username)}`
-  )
-  const emailHash = crypto
-    .createHash('md5')
-    .update(emailAddress)
-    .digest('hex')
-  return `https://www.gravatar.com/avatar/${emailHash}?d=${defaultImage}`
 }
 
 const state = getDefaultState()

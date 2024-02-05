@@ -51,7 +51,7 @@ PDF.install = function(options) {
       // Set a timeout before calling print
       const printTimeout = setTimeout(() => {
         winPrint.print()
-      }, 500)
+      }, 1000)
 
       // Event listener to close the print window and clear the timeout after printing
       winPrint.onafterprint = () => {

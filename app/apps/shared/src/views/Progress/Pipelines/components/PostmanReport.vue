@@ -18,11 +18,13 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t("Version.Version") }}</th>
           <th id="">{{ $t('Postman.TestPass') }}</th>
           <th id="">{{ $t('Postman.TestFail') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">Postman</td>
+          <td :data-label="$t('Version.Version')">{{ postman[0]?.version_info ? postman[0]?.version_info : '-' }}</td>
           <template v-if="hasPostmanData">
             <td :data-label="$t('Postman.TestPass')">
               <span v-if="hasEachItemData('success')">{{ postman[0].success }}</span>

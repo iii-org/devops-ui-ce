@@ -18,6 +18,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
           <th id="">{{ $t('Sbom.PackageCount') }}</th>
           <th id="">{{ $t('Sbom.CriticalSeverity') }}</th>
           <th id="">{{ $t('Sbom.HighSeverity') }}</th>
@@ -26,6 +27,7 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">SBOM {{ anchore[0]?.scan_type === 'image' ? 'Image' : 'Code' }}</td>
+          <td :data-label="$t('Version.Version')">{{ anchore[0]?.version_info ? anchore[0]?.version_info : '-' }}</td>
           <template v-if="hasAnchoreData">
             <td :data-label="$t('Sbom.PackageCount')">
               <span v-if="hasPackageCountData">{{ anchore[0].package_nums }}</span>

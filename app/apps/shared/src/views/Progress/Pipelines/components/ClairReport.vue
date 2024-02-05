@@ -18,6 +18,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t("Version.Version") }}</th>
           <th id="">{{ $t('Clair.size') }}</th>
           <th id="">{{ $t('Clair.critical') }}</th>
           <th id="">{{ $t('Clair.high') }}</th>
@@ -27,6 +28,7 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">{{ tool }}</td>
+          <td :data-label="$t('Version.Version')">{{ clair[0]?.version_info ? clair[0]?.version_info : '-' }}</td>
           <template v-if="hasClairData">
             <td :data-label="$t('Clair.size')">
               <span v-if="hasEachItemData('size')">{{ clair[0].size }}</span>

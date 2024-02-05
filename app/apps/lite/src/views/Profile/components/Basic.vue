@@ -14,63 +14,75 @@
       :model="userProfileForm"
       :rules="userProfileRules"
       label-width="100px"
-      class="demo-ruleForm"
       :label-position="labelPosition"
     >
-      <el-form-item
-        v-if="'fromAd' in $data"
-        :label="$t('User.Source')"
-        class="form-input"
-      >
-        <el-input
-          v-model="source"
-          :disabled="true"
-        />
-      </el-form-item>
-      <el-form-item
-        :label="$t('general.Name')"
-        prop="userName"
-      >
-        <el-input
-          v-model="userProfileForm.userName"
-          :disabled="disableEdit"
-          class="form-input"
-        />
-      </el-form-item>
-      <el-form-item :label="$t('Profile.Department')">
-        <el-input
-          v-model="userProfileForm.department"
-          :disabled="disableEdit"
-          class="form-input"
-        />
-      </el-form-item>
-      <el-form-item :label="$t('Profile.Title')">
-        <el-input
-          v-model="userProfileForm.title"
-          :disabled="disableEdit"
-          class="form-input"
-        />
-      </el-form-item>
-      <el-form-item
-        label="Email"
-        prop="userEmail"
-      >
-        <el-input
-          v-model="userProfileForm.userEmail"
-          :disabled="disableEdit"
-          class="form-input"
-        />
-      </el-form-item>
-      <el-form-item
-        :label="$t('Profile.Phone')"
-        prop="userPhone"
-      >
-        <el-input
-          v-model="userProfileForm.userPhone"
-          :disabled="disableEdit"
-          class="form-input"
-        />
-      </el-form-item>
+      <el-row :gutter="10">
+        <el-col v-if="'fromAd' in $data" :xs="24" :sm="12" :md="8">
+          <el-form-item
+            :label="$t('User.Source')"
+            class="form-input"
+          >
+            <el-input
+              v-model="source"
+              :disabled="true"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-form-item
+            :label="$t('general.Name')"
+            prop="userName"
+          >
+            <el-input
+              v-model="userProfileForm.userName"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-form-item :label="$t('Profile.Department')">
+            <el-input
+              v-model="userProfileForm.department"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-form-item :label="$t('Profile.Title')">
+            <el-input
+              v-model="userProfileForm.title"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-form-item
+            label="Email"
+            prop="userEmail"
+          >
+            <el-input
+              v-model="userProfileForm.userEmail"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-form-item
+            :label="$t('Profile.Phone')"
+            prop="userPhone"
+          >
+            <el-input
+              v-model="userProfileForm.userPhone"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
     <el-row class="mt-4">
       <el-col :span="8">
@@ -167,8 +179,5 @@ export default {
 <style lang="scss" scoped>
 .tab-inner {
   padding: 0 25px;
-}
-.form-input {
-  width: 250px;
 }
 </style>

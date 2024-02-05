@@ -18,11 +18,13 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t("Version.Version") }}</th>
           <th id="">{{ $t('Cmas.MOEA') }}</th>
           <th id="">OWASP Mobile TOP 10</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">CMAS</td>
+          <td :data-label="$t('Version.Version')">{{ cmas[0]?.version_info ? cmas[0]?.version_info : '-' }}</td>
           <template v-if="hasCmasData">
             <td :data-label="$t('Cmas.MOEA')">
               <span v-if="hasEachItemData('MOEA')">

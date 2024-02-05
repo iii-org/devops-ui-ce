@@ -18,11 +18,13 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
+          <th id="">{{ $t("Version.Version") }}</th>
           <th id="">{{ $t('Sideex.suitesPassedRatio') }}</th>
           <th id="">{{ $t('Sideex.casesPassedRatio') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">Sideex</td>
+          <td :data-label="$t('Version.Version')">{{ sideex[0]?.version_info ? sideex[0]?.version_info : '-' }}</td>
           <template v-if="hasSideexData">
             <td :data-label="$t('Sideex.suitesPassedRatio')">
               <template>
