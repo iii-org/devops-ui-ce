@@ -4,13 +4,7 @@
       <caption>
         <div class="caption">
           <div />
-          <el-button
-            slot="link"
-            type="text"
-            icon="el-icon-position"
-            :disabled="!hasAnchoreData"
-            @click="openAnchore"
-          >
+          <el-button slot="link" type="text" icon="el-icon-position" :disabled="!hasAnchoreData" @click="openAnchore">
             {{ $t('TestReport.DetailReport') }}
           </el-button>
         </div>
@@ -30,8 +24,7 @@
           <td :data-label="$t('Version.Version')">{{ anchore[0]?.version_info ? anchore[0]?.version_info : '-' }}</td>
           <template v-if="hasAnchoreData">
             <td :data-label="$t('Sbom.PackageCount')">
-              <span v-if="hasPackageCountData">{{ anchore[0].package_nums }}</span>
-              <span v-else>-</span>
+              <span>{{ anchore[0].package_nums ?? '-' }}</span>
             </td>
             <td :data-label="$t('Sbom.CriticalSeverity')">
               <span v-if="hasEachItemData('Critical')">{{ anchore[0].scan_overview['Critical'] }}</span>
@@ -74,29 +67,24 @@ export default {
   },
   computed: {
     hasAnchoreData() {
-      return !!(this.anchore && this.anchore[0] &&
+      return !!(
+        this.anchore &&
+        this.anchore[0] &&
         this.anchore[0].hasOwnProperty('scan_overview') &&
-        this.anchore[0].scan_overview !== null)
+        this.anchore[0].scan_overview !== null
+      )
     },
     hasPackageCountData() {
       return this.anchore[0].package_nums
     },
     hasEachItemData() {
-      return key => !!(this.anchore &&
-        this.anchore[0]?.scan_overview &&
-        this.anchore[0].scan_overview.hasOwnProperty(key))
+      return (key) =>
+        !!(this.anchore && this.anchore[0]?.scan_overview && this.anchore[0].scan_overview.hasOwnProperty(key))
     }
   },
   methods: {
     openAnchore() {
-      const {
-        created_at,
-        commit,
-        branch,
-        id,
-        package_nums,
-        project_id
-      } = this.anchore[0]
+      const { created_at, commit, branch, id, package_nums, project_id } = this.anchore[0]
       sessionStorage.setItem('sbomTime', created_at)
       this.$router.push({
         name: 'SbomReportParent',

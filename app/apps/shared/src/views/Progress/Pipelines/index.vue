@@ -12,21 +12,16 @@
       </ProjectListSelector>
       <el-divider />
       <div class="flex justify-between items-center text-base text-info mb-2">
-        <div class="text-sm ml-2">
-          {{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}
-        </div>
+        <div class="text-sm ml-2">{{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}</div>
         <el-popover trigger="click">
-          <el-card
-            shadow="never"
-            :body-style="{ width: isMobile ? 'auto' : '460px' }"
-          >
+          <el-card shadow="never" :body-style="{ width: isMobile ? 'auto' : '460px' }">
             <PipelineSettingsTable @reexecute="handleReexecute" />
           </el-card>
           <el-button
             slot="reference"
             size="medium"
             icon="el-icon-s-tools"
-            style="padding: 5px;"
+            style="padding: 5px"
             :class="!isMobile ? 'link-text-color' : ''"
             :type="!isMobile ? 'text' : 'primary'"
             :circle="isMobile"
@@ -46,79 +41,43 @@
         :columns="tableColumns"
         fit
       >
-        <template v-slot:status="{row}">
-          <el-tag
-            class="mt-1"
-            size="small"
-            effect="dark"
-            :type="row.execution_state.toLowerCase()"
-          >
+        <template v-slot:status="{ row }">
+          <el-tag class="mt-1" size="small" effect="dark" :type="row.execution_state.toLowerCase()">
             {{ row.execution_state }}
           </el-tag>
           <div>
             {{ `(${row.status.success}/${row.status.total})` }}
-            <em
-              class="el-icon-circle-check"
-              :class="row.status.success === row.status.total ? 'text-success' : ''"
-            />
+            <em class="el-icon-circle-check" :class="row.status.success === row.status.total ? 'text-success' : ''" />
           </div>
         </template>
-        <template v-slot:branch="{row}">
+        <template v-slot:branch="{ row }">
           <div>
             {{ row.commit_branch }}
           </div>
-          <el-link
-            type="primary"
-            target="_blank"
-            style="font-size: 16px"
-            :href="row.commit_url"
-          >
-            <svg-icon
-              class="mr-1"
-              icon-class="ion-git-commit-outline"
-            />
+          <el-link type="primary" target="_blank" style="font-size: 16px" :href="row.commit_url">
+            <svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
             {{ row.commit_id }}
           </el-link>
         </template>
-        <template v-slot:commit_message="{row}">
+        <template v-slot:commit_message="{ row }">
           <div class="text-sm font-bold">{{ row.commit_message }}</div>
           <div>{{ row.transitioning_message }}</div>
         </template>
-        <template v-slot:actions="{row}">
-          <el-tooltip
-            :content="$t('PipeLines.ExecuteDetail')"
-            placement="bottom"
-          >
-            <em
-              class="ri-terminal-box-line primary table-button"
-              @click="onDetailsClick(row)"
-            />
+        <template v-slot:actions="{ row }">
+          <el-tooltip :content="$t('PipeLines.ExecuteDetail')" placement="bottom">
+            <em class="ri-terminal-box-line primary table-button" @click="onDetailsClick(row)" />
           </el-tooltip>
-          <el-tooltip
-            v-if="isAllowStop(row.execution_state)"
-            :content="$t('general.Stop')"
-            placement="bottom"
-          >
-            <em
-              class="ri-stop-circle-line warning table-button"
-              @click="onActionClick(row, 'stop')"
-            />
+          <el-tooltip v-if="isAllowStop(row.execution_state)" :content="$t('general.Stop')" placement="bottom">
+            <em class="ri-stop-circle-line warning table-button" @click="onActionClick(row, 'stop')" />
           </el-tooltip>
           <el-tooltip
             v-else-if="!isAllowStop(row.execution_state) && row.id === lastData.id"
             :content="$t('general.Rerun')"
             placement="bottom"
           >
-            <em
-              class="ri-refresh-line success table-button"
-              @click="onActionClick(row, 'rerun')"
-            />
+            <em class="ri-refresh-line success table-button" @click="onActionClick(row, 'rerun')" />
           </el-tooltip>
-          <el-tooltip
-            v-show="row.commit_id"
-            :content="$t('PipeLines.Report')"
-            placement="bottom"
-          >
+          <el-tooltip v-show="row.commit_id" :content="$t('PipeLines.Report')" placement="bottom">
             <span>
               <em
                 class="ri-survey-line primary table-button"
@@ -138,11 +97,7 @@
         :small="isMobile"
         @pagination="onPagination"
       />
-      <TestDetail
-        ref="testDetail"
-        :pipeline-infos="focusPipeline"
-        @loaded="isLoading = false"
-      />
+      <TestDetail ref="testDetail" :pipeline-infos="focusPipeline" @loaded="isLoading = false" />
     </el-col>
   </el-row>
 </template>
@@ -311,25 +266,26 @@ export default {
         this.selectedRepositoryId,
         { limit: this.listQuery.limit, start: this.listQuery.start },
         { cancelToken: this.cancelToken }
-      )
-        .then(async(res) => {
-          this.lastUpdateTime = getLocalTime(res.datetime)
-          await this.updatePipeExecs(res.data)
-          if (res.data) {
-            const { per_page, current, total } = res.data.pagination
-            this.listQuery = { limit: per_page, total, page: current }
-            if (this.listQuery.page === 1) this.setTimer(10000)
-          }
-          this.isUpdating = false
-          this.isLoading = false
-          this.isExecuteLoad = false
-        })
+      ).then(async (res) => {
+        this.lastUpdateTime = getLocalTime(res.datetime)
+        await this.updatePipeExecs(res.data)
+        if (res.data) {
+          const { per_page, current, total } = res.data.pagination
+          this.listQuery = { limit: per_page, total, page: current }
+          if (this.listQuery.page === 1) this.setTimer(10000)
+        }
+        this.isUpdating = false
+        this.isLoading = false
+        this.isExecuteLoad = false
+      })
     },
     updatePipeExecs(resData) {
       if (resData?.pipe_execs.length > 0) {
         this.listData = resData.pipe_execs.map((item) => {
           const result = { ...item }
-          if (result.execution_state === 'Success') result.execution_state = 'Finished'
+          if (result.execution_state === 'Success') {
+            result.execution_state = 'Finished'
+          }
           return result
         })
       } else {
@@ -381,11 +337,7 @@ export default {
       this.timer = null
     },
     handleToTestReport(row) {
-      const {
-        id,
-        commit_id: commitId,
-        commit_branch: commitBranch
-      } = row
+      const { id, commit_id: commitId, commit_branch: commitBranch } = row
       this.$router.push({
         name: 'TestReportParent',
         params: {

@@ -1,10 +1,12 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
+    :class="isMobile ? 'mobile' : ''"
     width="95%"
     top="3vh"
-    destroy-on-close
-    :class="isMobile ? 'mobile' : ''"
+    append-to-body
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
     @close="handleClose"
   >
     <template slot="title">
@@ -12,21 +14,10 @@
       <span class="mr-3"> {{ pipelineInfos.commitMessage }} </span>
     </template>
     <el-tabs v-model="activeStage" tab-position="left" @tab-click="userClick">
-      <el-tab-pane
-        v-for="(stage, index) in stages"
-        :key="index"
-        :name="stage.name"
-        :disabled="!stage.state"
-      >
+      <el-tab-pane v-for="(stage, index) in stages" :key="index" :name="stage.name" :disabled="!stage.state">
         <div slot="label" class="flex justify-between items-center tab-name">
           <span class="text-right name">{{ index + 1 }} {{ stage.name }}</span>
-          <el-tag
-            v-if="stage.state"
-            class="el-tag ml-2"
-            size="mini"
-            :type="stage.state.toLowerCase()"
-            effect="dark"
-          >
+          <el-tag v-if="stage.state" class="el-tag ml-2" size="mini" :type="stage.state.toLowerCase()" effect="dark">
             {{ stage.state }}
           </el-tag>
         </div>
@@ -43,12 +34,7 @@
             <em v-if="stage.isLoading" class="el-icon-loading font-bold text-warning" />
             <em v-else class="el-icon-check font-bold text-success" />
           </div>
-          <el-card
-            :id="'preWindow' + index"
-            class="mb-2"
-            shadow="never"
-            :body-style="{ padding: 0 }"
-          >
+          <el-card :id="'preWindow' + index" class="mb-2" shadow="never" :body-style="{ padding: 0 }">
             <div
               :style="{
                 color: '#fff',
@@ -69,21 +55,14 @@
                 <div class="dot" />
                 <div class="dot" />
               </div>
-              <em
-                v-if="!isScrollBottom"
-                class="el-icon-bottom scroll-down-button"
-                @click="scrollToBottom(index)"
-              />
+              <em v-if="!isScrollBottom" class="el-icon-bottom scroll-down-button" @click="scrollToBottom(index)" />
             </div>
           </el-card>
         </el-card>
       </el-tab-pane>
     </el-tabs>
     <span slot="footer">
-      <el-button
-        class="button-secondary-reverse"
-        @click="handleClose"
-      >
+      <el-button class="button-secondary-reverse" @click="handleClose">
         {{ $t('general.Close') }}
       </el-button>
     </span>
@@ -127,6 +106,20 @@ export default {
     },
     isMobile() {
       return this.device === 'mobile'
+    },
+    runningStageIndex() {
+      return this.stages.findIndex((item) => {
+        return item.state === 'Pending' ||
+        item.state === 'Running' ||
+        item.state === 'Created'
+      })
+    },
+    isPipelinesFinished() {
+      return this.stages.every((item) => {
+        return item.state === 'Success' ||
+        item.state === 'Failed' ||
+        item.state === 'Skipped'
+      })
     }
   },
   mounted() {
@@ -144,11 +137,11 @@ export default {
       this.setLogMessageListener()
     },
     userClick(tab) {
-      this.isScrollBottom = true
       this.emitPipeLog(tab)
     },
     emitPipeLog(tab) {
       const index = Number(tab.index)
+      this.checkIsScrollBottom(index)
       this.emitStages.push(index)
       const stage = this.stages[index]
       if (!stage?.isLoading) return
@@ -164,7 +157,7 @@ export default {
         const stageIndex = this.stages.findIndex((stage) => stage.stage_id === repo_id)
         if (final) {
           this.stages[stageIndex].isLoading = false
-          if (stageIndex + 1 < this.stages.length && this.isScrollBottom) {
+          if (stageIndex + 1 < this.stages.length && this.isScrollBottom && !this.isPipelinesFinished) {
             this.moveToRunningStage(stageIndex + 1)
           }
         }
@@ -176,12 +169,17 @@ export default {
       })
     },
     moveToRunningStage(index) {
-      const runningStageIndex = this.getRunningStageIndex()
-      if (runningStageIndex < 0) {
+      if (this.runningStageIndex < 0) {
         this.changeFocusTab(0)
       } else {
-        this.changeFocusTab(index || runningStageIndex, 1500)
+        this.changeFocusTab(index || this.runningStageIndex, 1500)
       }
+    },
+    changeFocusTab(index, timeout = 0) {
+      setTimeout(() => {
+        this.activeStage = this.stages[index].name
+        this.emitPipeLog({ index })
+      }, timeout)
     },
     setLogMessage(index, data) {
       if (data === undefined || data === '') return
@@ -192,26 +190,22 @@ export default {
         logs[logs.indexOf(msg)] = ansiUp.ansi_to_html(msg.replaceAll('&gt;', '>'))
       }
       if (logs[logs.length - 1] === '') logs.pop()
-      logs = logs.filter(a => !a.match(/section_end|section_start/g))
+      logs = logs.filter((a) => !a.match(/section_end|section_start/g))
       const target = this.stages[index].message
       const isHistoryMessage = target.length === logs.length || target[0] === 'Loading...'
       if (isHistoryMessage) {
         this.stages[index].message = logs
       } else {
-        if (logs.every(r => target.includes(r))) return
+        if (logs.every((r) => target.includes(r))) return
         this.stages[index].message = [...this.stages[index].message, ...logs]
       }
-    },
-    changeFocusTab(index, timeout = 0) {
-      setTimeout(() => {
-        this.activeStage = this.stages[index].name
-        this.emitPipeLog({ index })
-      }, timeout)
     },
     async fetchStages() {
       this.socket.connect()
       try {
-        const res = await getPipelinesConfig(this.selectedRepositoryId, { pipelines_exec_run: this.pipelineInfos.id })
+        const res = await getPipelinesConfig(this.selectedRepositoryId, {
+          pipelines_exec_run: this.pipelineInfos.id
+        })
         this.stages = res.data.map((stage) => {
           stage.message = ['Loading...']
           stage.isLoading = true
@@ -228,7 +222,9 @@ export default {
     },
     async updateStagesState() {
       if (!this.pipelineInfos?.id) return
-      await getPipelinesConfig(this.selectedRepositoryId, { pipelines_exec_run: this.pipelineInfos.id })
+      await getPipelinesConfig(this.selectedRepositoryId, {
+        pipelines_exec_run: this.pipelineInfos.id
+      })
         .then((res) => {
           if (res.data.length === 0) return
           res.data.forEach((stage, index) => {
@@ -243,16 +239,18 @@ export default {
       this.clearTimer()
       this.stages = []
       this.emitStages = []
-      this.dialogVisible = false
       this.activeStage = ''
+      this.$nextTick(() => {
+        this.dialogVisible = false
+      })
     },
     setTimer() {
       const isActive = this.stages.some((item) => {
-        return item.state === 'Pending' ||
-          item.state === 'Running' ||
-          item.state === 'Created'
+        return item.state === 'Pending' || item.state === 'Running' || item.state === 'Created'
       })
-      if (isActive) this.timer = setTimeout(() => this.updateStagesState(), 1000)
+      if (isActive) {
+        this.timer = setTimeout(() => this.updateStagesState(), 1000)
+      }
     },
     clearTimer() {
       clearTimeout(this.timer)
@@ -260,9 +258,7 @@ export default {
     },
     getRunningStageIndex() {
       return this.stages.findIndex((item) => {
-        return item.state === 'Pending' ||
-        item.state === 'Running' ||
-        item.state === 'Created'
+        return item.state === 'Pending' || item.state === 'Running' || item.state === 'Created'
       })
     },
     scrollToBottom(index) {
@@ -277,8 +273,26 @@ export default {
         }
       })
     },
+
+    checkIsScrollBottom(index) {
+      this.$nextTick(() => {
+        if (
+          this.$el &&
+          this.$el.querySelector(`#preWindow${index}`) &&
+          this.$el.querySelector(`#preWindow${index}`).childNodes
+        ) {
+          const { scrollTop, clientHeight, scrollHeight } = this.$el.querySelector(`#preWindow${index}`).childNodes[1].childNodes[0]
+          if (scrollTop + clientHeight < scrollHeight) {
+            this.isScrollBottom = false
+          } else {
+            this.isScrollBottom = true
+          }
+        }
+      })
+    },
     onscroll(event) {
       const { scrollTop, clientHeight, scrollHeight } = event.target
+      if (scrollHeight <= clientHeight) this.isScrollBottom = true
       if (scrollTop + clientHeight < scrollHeight) {
         this.isScrollBottom = false
       } else {
@@ -295,7 +309,8 @@ export default {
 @import 'src/styles/theme/mixin.scss';
 
 .mobile {
-  ::v-deep .el-tabs--left, ::v-deep .el-tabs__header.is-left {
+  ::v-deep .el-tabs--left,
+  ::v-deep .el-tabs__header.is-left {
     float: none;
   }
   ::v-deep .el-card {
@@ -304,14 +319,15 @@ export default {
   ::v-deep .el-card__body {
     padding: 10px;
   }
-  ::v-deep .el-dialog__header, ::v-deep .el-dialog__body {
+  ::v-deep .el-dialog__header,
+  ::v-deep .el-dialog__body {
     padding: 10px;
   }
   ::v-deep .el-tabs__item {
     padding: 0 5px;
   }
   ::v-deep .el-tabs__nav-wrap::after {
-      background: none;
+    background: none;
   }
   .tab-name {
     text-align-last: left;
@@ -332,10 +348,10 @@ export default {
     animation: blinking-dot 1s linear infinite;
     background: #fff;
     &:nth-child(2) {
-      animation-delay: 0.33s
+      animation-delay: 0.33s;
     }
     &:nth-child(3) {
-      animation-delay: 0.66s
+      animation-delay: 0.66s;
     }
   }
 }
@@ -350,8 +366,8 @@ pre {
     counter-increment: line;
     content: counter(line);
     display: inline-block;
-    padding: 0 .5em;
-    margin-right: .5em;
+    padding: 0 0.5em;
+    margin-right: 0.5em;
     color: #888;
     min-width: 40px;
   }
@@ -360,7 +376,7 @@ pre {
   position: absolute;
   bottom: 10%;
   right: 50%;
-  padding: .5rem;
+  padding: 0.5rem;
   border-radius: 2rem;
   background-color: #fff;
   color: #000;

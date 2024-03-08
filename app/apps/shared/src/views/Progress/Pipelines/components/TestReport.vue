@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" style="background: white;">
+  <div class="app-container" style="background: white">
     <div class="mr-3 flex justify-between">
       <div>
         <el-button
@@ -50,10 +50,10 @@
     <!--startprint-->
     <div ref="pdfPage" class="page">
       <div class="watermark">
-        <img src="@/assets/logo.png" alt="IIIDevOps logo">
+        <img src="@/assets/logo.png" alt="IIIDevOps logo" />
       </div>
       <div class="logo-container">
-        <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo">
+        <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo" />
         <h1 class="logo-title">
           {{ title }}
         </h1>
@@ -61,13 +61,13 @@
       <div class="text-center font-bold clearfix title">
         {{ $t('route.TestReport') }}
       </div>
-      <div :style="{padding: isMobile ? '0 10px' : '0 40px'}">
+      <div :style="{ padding: isMobile ? '0 10px' : '0 40px' }">
         <ul class="text-base mb-10 font-semibold">
           <li>{{ $t('general.project_name') }}: {{ projectName }}</li>
           <li>{{ $t('TestReport.TestTime') }}: {{ latestTime }}</li>
           <li>
-            {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}:
-            {{ routeData.branch }} / <em class="ri-git-commit-line" />
+            {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}: {{ routeData.branch }} /
+            <em class="ri-git-commit-line" />
             {{ routeData.commitId }}
           </li>
         </ul>
@@ -82,6 +82,7 @@
             class="mb-5"
             :sonarqube="sonarqube.data"
             :sonarqube-link="sonarqube.link"
+            :sonarqube-version="sonarqube.version"
             :list-loading="listLoading"
           />
           <CheckMarxReport
@@ -124,13 +125,7 @@
           <el-divider content-position="center">
             {{ $t('TestReport.BlackBoxTesting') }}
           </el-divider>
-          <ZapReport
-            v-show="isIncludesName('zap')"
-            ref="zap"
-            class="mb-5"
-            :zap="zap"
-            :list-loading="listLoading"
-          />
+          <ZapReport v-show="isIncludesName('zap')" ref="zap" class="mb-5" :zap="zap" :list-loading="listLoading" />
           <WebInspectReport
             v-show="isIncludesName('webinspect')"
             ref="webinspect"
@@ -144,41 +139,24 @@
           <el-divider content-position="center">
             {{ $t('TestReport.AppScriptTesting') }}
           </el-divider>
-          <CmasReport
-            ref="cmas"
-            class="mb-5"
-            :cmas="cmas"
-            :list-loading="listLoading"
-          />
+          <CmasReport ref="cmas" class="mb-5" :cmas="cmas" :list-loading="listLoading" />
         </div>
         <!-- api script test -->
         <div v-show="isIncludesName('postman')">
           <el-divider content-position="center">
             {{ $t('TestReport.ApiScriptTesting') }}
           </el-divider>
-          <PostmanReport
-            ref="postman"
-            class="mb-5"
-            :postman="postman"
-            :list-loading="listLoading"
-          />
+          <PostmanReport ref="postman" class="mb-5" :postman="postman" :list-loading="listLoading" />
         </div>
         <!-- web script test -->
         <div v-show="isIncludesName('sideex')">
           <el-divider content-position="center">
             {{ $t('TestReport.WebScriptTesting') }}
           </el-divider>
-          <SideexReport
-            ref="sideex"
-            class="mb-5"
-            :sideex="sideex"
-            :list-loading="listLoading"
-          />
+          <SideexReport ref="sideex" class="mb-5" :sideex="sideex" :list-loading="listLoading" />
         </div>
       </div>
-      <div class="footer">
-        {{ $t('general.DataGenerationTime') }}:{{ timeNow }}
-      </div>
+      <div class="footer">{{ $t('general.DataGenerationTime') }}:{{ timeNow }}</div>
     </div>
     <!--endprint-->
   </div>
@@ -224,7 +202,8 @@ export default {
       dataName: [],
       sonarqube: {
         data: [],
-        link: ''
+        link: '',
+        version: ''
       },
       checkmarx: [],
       clair: [],
@@ -324,6 +303,7 @@ export default {
     setSonarQubeData(sonarqube) {
       this.$set(this.sonarqube, 'data', this.handleSonarQubeData(sonarqube.history))
       this.$set(this.sonarqube, 'link', sonarqube.link)
+      this.$set(this.sonarqube, 'version', sonarqube.version_info)
     },
     handleSonarQubeData(data) {
       const ret = []
@@ -403,7 +383,7 @@ export default {
     line-height: 50px;
     font-size: 16px;
     vertical-align: middle;
-    font-family: "Audiowide", sans-serif;
+    font-family: 'Audiowide', sans-serif;
     color: #303133;
   }
 }

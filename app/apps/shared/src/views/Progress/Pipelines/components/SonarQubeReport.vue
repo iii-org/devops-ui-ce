@@ -4,13 +4,7 @@
       <caption>
         <div class="caption">
           <div />
-          <el-button
-            slot="link"
-            type="text"
-            icon="el-icon-position"
-            :disabled="!sonarqubeLink"
-            @click="openSonarQube"
-          >
+          <el-button slot="link" type="text" icon="el-icon-position" :disabled="!sonarqubeLink" @click="openSonarQube">
             {{ $t('TestReport.DetailReport') }}
           </el-button>
         </div>
@@ -18,7 +12,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
           <th id="">{{ $t('SonarQube.Bugs') }}</th>
           <th id="">{{ $t('SonarQube.Vulnerabilities') }}</th>
           <th id="">{{ $t('SonarQube.CodeSmells') }}</th>
@@ -27,7 +21,7 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">SonarQube</td>
-          <td :data-label="$t('Version.Version')">{{ sonarqube[0]?.version_info ? sonarqube[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">{{ sonarqubeVersion || '-' }}</td>
           <template v-if="hasSonarqubeData">
             <td :data-label="$t('SonarQube.Bugs')">
               <span v-if="hasEachItemData('bugs')">
@@ -54,9 +48,7 @@
                 {{ sonarqube[0].code_smells }}
               </span>
               <span v-else>-</span>
-              <span v-if="hasEachItemData('sqale_rating')">
-                ({{ convertRating(sonarqube[0].sqale_rating) }})
-              </span>
+              <span v-if="hasEachItemData('sqale_rating')"> ({{ convertRating(sonarqube[0].sqale_rating) }}) </span>
               <span v-else>(-)</span>
             </td>
             <td :data-label="$t('SonarQube.Duplicates')">
@@ -99,6 +91,10 @@ export default {
       type: String,
       default: ''
     },
+    sonarqubeVersion: {
+      type: String,
+      default: ''
+    },
     listLoading: {
       type: Boolean,
       default: false
@@ -116,7 +112,7 @@ export default {
       return !!(this.sonarqube && this.sonarqube[0])
     },
     hasEachItemData() {
-      return key => !!(this.sonarqube[0].hasOwnProperty(key))
+      return (key) => !!this.sonarqube[0].hasOwnProperty(key)
     }
   },
   methods: {
