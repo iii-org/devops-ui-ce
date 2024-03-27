@@ -72,17 +72,24 @@
         />
       </el-col>
       <el-col v-if="selectedUser.length > 0" class="el-card__footer">
-        <el-col :xs="8" :md="2">
+        <div style="display: inline-flex">
           <div class="selected_count">
             {{ $t('User.Selected') }}<span class="value">{{ selectedUser.length }}</span>
           </div>
-        </el-col>
-        <el-col :xs="16" :md="22" class="scroll-x">
-          <el-tag v-for="(item, idx) in selectedUser" :key="idx" class="item" closable @close="onRemoveMember(item)">
-            <strong>{{ idx + 1 }}</strong>
-            .{{ item.name }}
-          </el-tag>
-        </el-col>
+          <div>
+            <el-tag
+              v-for="(item, idx) in selectedUser"
+              :key="idx"
+              class="item"
+              closable
+              size="small"
+              @close="onRemoveMember(item)"
+            >
+              <span>{{ idx + 1 }}.</span>
+              {{ item.name }}
+            </el-tag>
+          </div>
+        </div>
       </el-col>
     </el-row>
   </el-dialog>
@@ -129,7 +136,7 @@ export default {
         keys: ['name', 'login', 'department', 'title']
       })
       const res = fuse.search('!' + this.keyword)
-      return res.map(items => items.item)
+      return res.map((items) => items.item)
     },
     isMobile() {
       return this.device === 'mobile'
@@ -143,7 +150,7 @@ export default {
       this.fetchData()
     },
     pagedData() {
-      this.selectedUser.forEach(row => {
+      this.selectedUser.forEach((row) => {
         this.$refs['userTable'].toggleRowSelection(row)
       })
     },
@@ -151,17 +158,13 @@ export default {
       if (!val) {
         this.keyword = ''
       }
-      await this.fetchData()
     }
-  },
-  async mounted() {
-    await this.fetchData()
   },
   methods: {
     async fetchData() {
       return getNotInProject(this.selectedProjectId)
-        .then(res => {
-          this.assignableUserList = res.data.user_list.map(user => ({
+        .then((res) => {
+          this.assignableUserList = res.data.user_list.map((user) => ({
             id: user.id,
             name: user.name,
             department: user.department,
@@ -170,17 +173,17 @@ export default {
             role_name: user.role_name
           }))
         })
-        .catch(e => {
+        .catch((e) => {
           return Promise.reject(e)
         })
     },
     toggleSelectAllMember(event) {
       if (event) {
-        this.$refs['userTable'].data.forEach(item => {
+        this.$refs['userTable'].data.forEach((item) => {
           this.onAddMember(item)
         })
       } else {
-        this.$refs['userTable'].data.forEach(item => {
+        this.$refs['userTable'].data.forEach((item) => {
           this.onRemoveMember(item)
         })
       }
@@ -214,7 +217,7 @@ export default {
     handleAddConfirm() {
       if (this.selectedUser.length > 0) {
         this.btnConfirmLoading = true
-        this.selectedUser.forEach(user => {
+        this.selectedUser.forEach((user) => {
           addProjectMember(this.selectedProjectId, { user_id: user.id })
             .then(() => {
               this.$message({
@@ -225,7 +228,7 @@ export default {
               this.fetchData()
               this.$emit('update')
             })
-            .catch(err => console.error(err))
+            .catch((err) => console.error(err))
             .then(() => {
               this.btnConfirmLoading = false
               this.dialogVisible = false
@@ -263,29 +266,28 @@ export default {
       outline: 0;
       margin: 0;
       font-weight: 500;
-      padding: 12px 10px;
-      font-size: 14px;
+      padding: 5px 6px;
+      font-size: 13px;
       border-radius: 4px;
+      height: fit-content;
 
       .value {
         @apply bg-danger text-white;
-        padding: 2px 5px;
+        padding: 0px 5px;
         margin-left: 5px;
         border-radius: 50%;
       }
     }
 
-    .scroll-x {
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-    }
-
     .item {
-      font-size: 16px;
-      margin: 0 10px;
+      font-size: 14px;
+      margin-bottom: 10px;
     }
   }
+}
+
+::v-deep .el-card__footer {
+  height: auto;
 }
 
 ::v-deep .pagination-container {
@@ -334,5 +336,4 @@ export default {
     margin: 0;
   }
 }
-
 </style>
