@@ -18,7 +18,7 @@ RUN yarn
 FROM node:16 AS git-process
 
 # Setting UI version
-ENV VERSION=ce-0.7.0-dev
+ENV VERSION=ce-0.8.0-dev
 
 SHELL ["/bin/bash", "-c"]
 
@@ -33,18 +33,18 @@ RUN COMMIT_ID="$(git rev-parse HEAD)" && \
     BRANCH="$(git rev-parse --abbrev-ref HEAD)" && \
     # Fix detached HEAD issue, for gitlab-ci job
     if [ "$BRANCH" == "HEAD" ]; then \
-        BRANCH="$(git show -s --pretty=%D HEAD | cut -d ',' -f 2 | awk '{gsub(" origin/", ""); print $0}')"; \
+    BRANCH="$(git show -s --pretty=%D HEAD | cut -d ',' -f 2 | awk '{gsub(" origin/", ""); print $0}')"; \
     fi && \
     case "$BRANCH" in \
-        "master") \
-            COMMIT_BRANCH="$VERSION" \
-            ;; \
-        "develop") \
-            COMMIT_BRANCH="$VERSION-dev" \
-            ;; \
-        *) \
-            COMMIT_BRANCH="$VERSION-$BRANCH" \
-            ;; \
+    "master") \
+    COMMIT_BRANCH="$VERSION" \
+    ;; \
+    "develop") \
+    COMMIT_BRANCH="$VERSION-dev" \
+    ;; \
+    *) \
+    COMMIT_BRANCH="$VERSION-$BRANCH" \
+    ;; \
     esac && \
     echo -e "\nVUE_APP_COMMIT='$COMMIT_ID'\nVUE_APP_TAG='$COMMIT_BRANCH'\nVUE_APP_DATE='$COMMIT_DATE'" >> .env.production && \
     echo -e "\nVUE_APP_SER_TITLE='III DevOps Community'" >> .env.production

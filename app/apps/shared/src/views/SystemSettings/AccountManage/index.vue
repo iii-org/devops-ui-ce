@@ -172,7 +172,8 @@ export default {
           prop: 'create_at',
           minWidth: 140,
           type: 'time',
-          align: 'center'
+          align: 'center',
+          sortable: 'custom'
         },
         {
           label: this.$t('User.LastLogin'),
