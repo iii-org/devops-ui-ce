@@ -397,7 +397,6 @@ export default {
       await this.getMyProjectList(this.params)
       this.listLoading = false
       this.listData = this.projectList
-      console.log(this.listData)
       const filteredArray = this.projectList.filter(obj => {
         return obj.is_lock !== true && obj.disabled !== true
       })

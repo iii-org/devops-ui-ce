@@ -25,7 +25,8 @@
   >
     <template v-for="col in columns">
       <el-table-column
-        v-if="!isMobile || (isMobile && !col.hideOnMobile)"
+        v-if="(!isMobile || (isMobile && !col.hideOnMobile)) &&
+          (displayFields.length === 0 || displayFields.indexOf(col.prop) >= 0)"
         :key="col.prop"
         :prop="col.prop"
         :label="col.label"
@@ -144,6 +145,10 @@ export default {
     columns: {
       type: Array,
       required: true
+    },
+    displayFields: {
+      type: Array,
+      default: () => []
     },
     fit: {
       type: Boolean,

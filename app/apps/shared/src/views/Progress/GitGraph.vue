@@ -209,22 +209,19 @@ export default {
               mypopup.style.left = tipX + 'px'
               mypopup.style.top = tipY + 'px'
               mypopup.style.display = 'block'
-              // Get calculated tooltip coordinates and size
               const tooltip_rect = mypopup.getBoundingClientRect()
-              // Corrections if out of window
               if ((tooltip_rect.x + tooltip_rect.width) >= window.innerWidth) {
-                tipX -= (tooltip_rect.x + tooltip_rect.width) - window.innerWidth + 10 // Simulate a "right: tipX" position
+                tipX -= (tooltip_rect.x + tooltip_rect.width) - window.innerWidth + 10
               }
               if ((tooltip_rect.y + tooltip_rect.height) >= window.innerHeight) {
-                tipY -= (tooltip_rect.y + tooltip_rect.height) - window.innerHeight + 10 // Align on the top
+                tipY -= (tooltip_rect.y + tooltip_rect.height) - window.innerHeight + 10
               }
               mypopup.style.top = tipY + 'px'
               mypopup.style.left = tipX + 'px'
-              // mypopup.querySelector('#title').innerHTML = el.innerHTML
               mypopup.querySelector('#user').innerHTML = commit.author.name
               mypopup.querySelector('#date').innerHTML = getLocalTime(commit.author.timestamp)
               mypopup.querySelector('#commit').innerHTML = commit.hash
-              mypopup.querySelector('#message').innerHTML = commit.message
+              mypopup.querySelector('#message').innerHTML = commit.message.replace(/\n/g, '<br>')
             })
             el.addEventListener('mouseout', () => {
               mypopup.style.display = 'none'

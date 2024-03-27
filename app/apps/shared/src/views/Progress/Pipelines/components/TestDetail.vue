@@ -10,14 +10,35 @@
     @close="handleClose"
   >
     <template slot="title">
-      <span class="text-title mr-4"> {{ $t('ProgressPipelines.TestDetail') }}</span>
-      <span class="mr-3"> {{ pipelineInfos.commitMessage }} </span>
+      <span class="text-title mr-4">
+        {{ $t('ProgressPipelines.TestDetail') }}
+      </span>
+      <span class="mr-3">
+        {{ pipelineInfos.commitMessage }}
+      </span>
     </template>
-    <el-tabs v-model="activeStage" tab-position="left" @tab-click="userClick">
-      <el-tab-pane v-for="(stage, index) in stages" :key="index" :name="stage.name" :disabled="!stage.state">
+    <el-tabs
+      v-model="activeStage"
+      tab-position="left"
+      @tab-click="userClick"
+    >
+      <el-tab-pane
+        v-for="(stage, index) in stages"
+        :key="index"
+        :name="stage.name"
+        :disabled="!stage.state"
+      >
         <div slot="label" class="flex justify-between items-center tab-name">
-          <span class="text-right name">{{ index + 1 }} {{ stage.name }}</span>
-          <el-tag v-if="stage.state" class="el-tag ml-2" size="mini" :type="stage.state.toLowerCase()" effect="dark">
+          <span class="text-right name">
+            {{ index + 1 }} {{ stage.name }}
+          </span>
+          <el-tag
+            v-if="stage.state"
+            class="el-tag ml-2"
+            :type="stage.state.toLowerCase()"
+            size="mini"
+            effect="dark"
+          >
             {{ stage.state }}
           </el-tag>
         </div>
@@ -30,11 +51,18 @@
         >
           <div class="text-title mb-3">
             <em class="el-icon-tickets mr-2" />
-            <span class="mr-3">{{ stage.name }}</span>
+            <span class="mr-3">
+              {{ stage.name }}
+            </span>
             <em v-if="stage.isLoading" class="el-icon-loading font-bold text-warning" />
             <em v-else class="el-icon-check font-bold text-success" />
           </div>
-          <el-card :id="'preWindow' + index" class="mb-2" shadow="never" :body-style="{ padding: 0 }">
+          <el-card
+            :id="'preWindow' + index"
+            class="mb-2"
+            shadow="never"
+            :body-style="{ padding: 0 }"
+          >
             <div
               :style="{
                 color: '#fff',
@@ -48,14 +76,28 @@
               @scroll="onscroll"
             >
               <pre>
-                <div v-for="(msg, idx) in stage.message" :key="idx" v-html="msg" />
+                <div
+                  v-for="(msg, idx) in stage.message"
+                  :key="idx"
+                  style="display: flex;"
+                >
+                  <div class="number">{{ idx+1 }}</div>
+                  <div style="white-space: pre-wrap;" v-html="msg" />
+              </div>
               </pre>
-              <div v-if="stage.isLoading" class="loader-animation pt-2 pl-2">
+              <div
+                v-if="stage.isLoading"
+                class="loader-animation pt-2 pl-2"
+              >
                 <div class="dot" />
                 <div class="dot" />
                 <div class="dot" />
               </div>
-              <em v-if="!isScrollBottom" class="el-icon-bottom scroll-down-button" @click="scrollToBottom(index)" />
+              <em
+                v-if="!isScrollBottom"
+                class="el-icon-bottom scroll-down-button"
+                @click="scrollToBottom(index)"
+              />
             </div>
           </el-card>
         </el-card>
@@ -273,7 +315,6 @@ export default {
         }
       })
     },
-
     checkIsScrollBottom(index) {
       this.$nextTick(() => {
         if (
@@ -292,7 +333,6 @@ export default {
     },
     onscroll(event) {
       const { scrollTop, clientHeight, scrollHeight } = event.target
-      if (scrollHeight <= clientHeight) this.isScrollBottom = true
       if (scrollTop + clientHeight < scrollHeight) {
         this.isScrollBottom = false
       } else {
@@ -361,15 +401,18 @@ pre {
   font-family: 'JetBrains Mono', monospace;
   div {
     min-height: 1.25rem;
+    line-height: 1.6;
   }
-  div:before {
-    counter-increment: line;
-    content: counter(line);
-    display: inline-block;
+  // div:before {
+  //   counter-increment: line;
+  //   content: counter(line);
+  //   display: inline-block;
+  // }
+  .number {
     padding: 0 0.5em;
     margin-right: 0.5em;
     color: #888;
-    min-width: 40px;
+    min-width: 50px;
   }
 }
 .scroll-down-button {

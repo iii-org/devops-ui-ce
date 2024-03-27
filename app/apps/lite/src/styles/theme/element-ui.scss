@@ -438,6 +438,10 @@ $tag-circle-options: (
   color: $linkTextColor !important;
 }
 
+.el-loading-mask {
+  border-radius: 8px;
+}
+
 /* theme color */
 $--color-primary: $primary;
 $--color-secondary: $secondary;

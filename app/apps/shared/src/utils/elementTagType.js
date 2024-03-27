@@ -54,14 +54,18 @@ export const webInspect = {
 
 export const checkMarx = {
   New: 'info',
-  Queued: 'slow',
-  Scanning: 'slow',
-  Failed: 'danger',
-  Finished: 'success',
-  default: 'slow',
-  Canceled: 'warning',
   PreScan: 'slow',
-  Deleted: 'danger'
+  Queued: 'slow',
+  Done: 'slow',
+  ChxQueued: 'slow',
+  Scanning: 'slow',
+  PostScan: 'slow',
+  Finished: 'success',
+  Canceled: 'warning',
+  Deleted: 'danger',
+  Failed: 'danger',
+  Timeout: 'danger',
+  default: 'slow'
 }
 
 export const sbom = {

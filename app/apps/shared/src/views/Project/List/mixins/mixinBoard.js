@@ -43,7 +43,6 @@ export default {
   computed: {
     ...mapGetters(['selectedProjectId', 'userId', 'tracker', 'status', 'priority', 'fixedVersionShowClosed']),
     groupByOptions() {
-      console.log('this.getStatusSort', this.getStatusSort)
       return this.getStatusSort.map((item, idx) => ({
         id: idx,
         label: this.getTranslateHeader(item.name),
@@ -177,7 +176,6 @@ export default {
             if (!this.classifyIssueList[dimensionName]) return
             if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
           } else if (issue.tags.length > 0) {
-            console.log('issue', issue)
             issue.tags.forEach((tag) => {
               const dimensionName = tag.id
               if (!this.classifyIssueList[dimensionName]) return

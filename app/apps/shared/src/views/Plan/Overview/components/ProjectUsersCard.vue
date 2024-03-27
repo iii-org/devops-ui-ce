@@ -29,25 +29,41 @@
       stripe
     >
       <el-table-column
-        prop="role_name"
-        :label="$t('Project.Title')"
-      >
-        <template slot-scope="scope">
-          {{ getRoleName(scope.row.id) }}
-        </template>
-      </el-table-column>>
-      <el-table-column
         prop="name"
         :label="$t('general.Name')"
       >
         <template slot-scope="scope">
-          {{ `${scope.row.name} (${scope.row.login})` }}
+          <div style="display: flex !important;align-items: center;">
+            <div class="avatar">
+              <el-avatar
+                :src="generateAvatarUrl(scope.row.name, scope.row.email)"
+                :size="36"
+              />
+            </div>
+            <div class="user">
+              <span class="font-bold">
+                <span class="font-bold">{{ scope.row.name }}</span>
+                <span
+                  class="badge"
+                >
+                  {{ scope.row.login }}
+                </span>
+              </span>
+              <span class="text-xs text-gray-400">{{ scope.row.email }}</span>
+            </div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="email"
-        :label="$t('general.Email')"
-      />
+        prop="role_name"
+        :label="$t('Project.Title')"
+        :width="160"
+        align="center"
+      >
+        <template slot-scope="scope">
+          {{ getRoleName(scope.row.id) }}
+        </template>
+      </el-table-column>
     </el-table>
     <AddMemberDialog
       ref="addMemberDialog"
@@ -59,6 +75,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import AddMemberDialog from '@/views/Plan/Settings/components/AddMemberDialog'
+import { generateAvatarUrl } from '@shared/utils/Avatar'
 
 export default {
   name: 'ProjectUsersCard',
@@ -78,6 +95,7 @@ export default {
     }
   },
   methods: {
+    generateAvatarUrl,
     getRoleName(id) {
       const isProjectOwner = id === this.selectedProject.owner_id
       return isProjectOwner ? this.$t('Member.ProjectOwner') : this.$t('Member.ProjectMember')
@@ -91,3 +109,32 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
+
+.avatar {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  border-radius: 0.75rem;
+  margin-right: 0.75rem;
+
+  border-radius: 50%;
+}
+.user {
+  flex-direction: column;
+  display: flex;
+}
+.badge {
+  font-size: .73rem;
+  margin-left: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  color: $primary;
+  background-color: #f4f4f4;
+  padding: 0 0.4rem;
+  line-height: 18px;
+  border-radius: 3px;
+}
+</style>

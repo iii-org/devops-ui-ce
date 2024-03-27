@@ -262,7 +262,7 @@ export default {
     ok: '確定',
     project_name: '專案名稱',
     owner_name: '專案經理',
-    Department: '部門',
+    Department: '組織',
     UserTitle: '職稱',
     Back: '返回',
     All: '全部',
@@ -945,7 +945,7 @@ export default {
     Password: '密碼',
     RepeatPassword: '重新輸入密碼',
     IsEnable: '是否啟用',
-    SearchAccount: '搜尋帳號或名稱',
+    SearchAccount: '搜尋帳號、名稱或部門',
     Role: '角色',
     Source: '帳號來源',
     AD: 'Active Directory',
@@ -955,7 +955,10 @@ export default {
     PasswordRule: '密碼需要8-20個字同時需要至少1個大寫1個小寫和1個數字',
     LastLogin: '上次登入',
     GravatarLink: '虛擬形象透過以下網站管理',
-    GravatarNotification: '使用您的帳戶電子郵件地址來註冊Gravatar帳戶，然後將您的頭像上傳至Gravatar.com。頭像將自動同步到系統中。'
+    GravatarNotification: '使用您的帳戶電子郵件地址來註冊Gravatar帳戶，然後將您的頭像上傳至Gravatar.com。頭像將自動同步到系統中。',
+    LastWeek: '最近一週',
+    LastMonth: '最近一個月',
+    LastThreeMonth: '最近三個月'
   },
   Profile: {
     Basic: '基本設定',
@@ -1183,7 +1186,8 @@ export default {
   Log: {
     duration: '消耗時間',
     fullLog: '報告',
-    testId: '測試編號'
+    testId: '測試編號',
+    WordWrap: '自動換行'
   },
   Clair: {
     size: '檔案大小',

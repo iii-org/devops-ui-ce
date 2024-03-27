@@ -25,7 +25,7 @@
         {{ $t('Dashboard.ADMIN.sync_date', [listData[0].sync_date]) }}
       </el-col>
     </el-row>
-    <component :is="showShadow">
+    <component :is="showShadow" shadow="never">
       <ElTableResponsive
         v-loading="listLoading"
         :data="tableData"
@@ -199,7 +199,6 @@ export default {
       this.listLoading = true
       const data = await this.data()
       this.listData = data
-      // this.$emit('update', this.listData[0].sync_date)
       this.$emit('update', '')
       this.detailData = data
       this.listLoading = false

@@ -3,19 +3,18 @@
     <ElTableResponsive
       :data="listData"
       :columns="tableColumns"
-      cell-class-name="items-center"
       row-class-name="cursor-pointer"
-      header-cell-class-name="items-center"
       stripe
       @row-click="showUnclosedIssuesDetail"
     >
       <template v-slot:user_name="{row}">
-        {{ `${row.user_name} (${row.user_login})` }}
+        {{ row.user_name }} <span class="badge">{{ row.user_login }}</span>
       </template>
     </ElTableResponsive>
     <el-dialog
       :visible.sync="unclosedIssuesDialog"
       :title="$t('Dashboard.ADMIN.IssueRank.DETAIL', [issueRankDetail['user_name']])"
+      destroy-on-close
       top="3vh"
       width="90vw"
       @close="closeHandler"
@@ -75,11 +74,15 @@ export default {
         },
         {
           label: this.$t('Dashboard.ADMIN.IssueRank.unclosed_count'),
-          prop: 'unclosed_count'
+          prop: 'unclosed_count',
+          width: 100,
+          align: 'center'
         },
         {
           label: this.$t('Dashboard.ADMIN.IssueRank.project_count'),
-          prop: 'project_count'
+          prop: 'project_count',
+          width: 100,
+          align: 'center'
         }
       ]
     }
@@ -124,3 +127,20 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
+
+.badge {
+  font-size: .8rem;
+  margin-left: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  color: $primary;
+  background-color: #f4f4f4;
+  padding: 0 0.4rem;
+  line-height: 20px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+</style>

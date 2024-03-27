@@ -936,7 +936,7 @@ export default {
     Password: 'Password',
     RepeatPassword: 'Repeat Password',
     IsEnable: 'Is Enable',
-    SearchAccount: 'Search Account or Name',
+    SearchAccount: 'Search Account,Name or Department',
     Role: 'Role',
     Source: 'Source',
     AD: 'Active Directory',
@@ -946,18 +946,21 @@ export default {
     PasswordRule: 'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number',
     LastLogin: 'Last Login',
     GravatarLink: 'Avatars are managed through',
-    GravatarNotification: 'Use your account email address to register a Gravatar account, and then upload your avatar to Gravatar.com. The avatar will be automatically synchronized to the system.'
+    GravatarNotification: 'Use your account email address to register a Gravatar account, and then upload your avatar to Gravatar.com. The avatar will be automatically synchronized to the system.',
+    LastWeek: 'Last Week',
+    LastMonth: 'Last Month',
+    LastThreeMonth: 'Last Three Month'
   },
   Profile: {
-    Basic: 'Basic',
-    ProfileBasicSetting: 'Profile Basic Setting',
-    Notice: 'Notification Setting',
-    MessageReceptionSetting: 'Message Reception Setting',
+    Basic: 'Account Details',
+    ProfileBasicSetting: 'Account Details',
+    Notice: 'Notification Settings',
+    MessageReceptionSetting: 'Message Reception Settings',
     Department: '@:general.Department',
     Title: '@:general.UserTitle',
     Phone: 'Phone',
     Security: 'Security',
-    ProfileSecuritySetting: 'Profile Security Setting',
+    ProfileSecuritySetting: 'Security Settings',
     NewPassword: 'New Password',
     RepeatNewPassword: 'Repeat New Password',
     PasswordRule: 'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number.',
@@ -1176,7 +1179,8 @@ export default {
   Log: {
     duration: 'Duration',
     fullLog: 'Report',
-    testId: 'Test ID'
+    testId: 'Test ID',
+    WordWrap: 'Word Wrap'
   },
   Clair: {
     size: 'Size',

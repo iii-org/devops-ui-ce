@@ -16,8 +16,8 @@ export const getUserInfo = async (userId) => {
   const res = await request.get(`/user/${userId}`)
   return new User(res.data)
 }
-export const getUser = async (params) => {
-  const res = await request.get(`/user/list`, { params })
+export const getUser = async (data) => {
+  const res = await request.post(`/user/list`, data)
   const userList = []
   for (const user of res.data.user_list) {
     userList.push(new User(user))

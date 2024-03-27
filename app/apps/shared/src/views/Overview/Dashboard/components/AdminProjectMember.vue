@@ -12,6 +12,7 @@
     <el-dialog
       :visible.sync="dialogVisible.projectMember"
       :title="$t('Dashboard.ADMIN.ProjectMembers.NAME')"
+      destroy-on-close
       top="3vh"
       :width="isMobile ? '90vw' : '75vw'"
       @close="closeHandler"
@@ -29,7 +30,7 @@
           {{ $t('Dashboard.ADMIN.sync_date', [listData[0].sync_date]) }}
         </el-col>
       </el-row>
-      <el-card>
+      <el-card shadow="never">
         <el-table
           v-if="listData.length > 0"
           ref="tableData"

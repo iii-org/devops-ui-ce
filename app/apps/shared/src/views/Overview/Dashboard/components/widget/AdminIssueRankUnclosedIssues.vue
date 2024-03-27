@@ -22,7 +22,7 @@
         {{ $t('Dashboard.ADMIN.sync_date', [listData[0].sync_date]) }}
       </el-col>
     </el-row>
-    <el-card>
+    <el-card shadow="never">
       <ElTableResponsive
         v-if="listData.length > 0"
         :data="pagedData"

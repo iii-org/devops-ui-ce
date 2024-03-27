@@ -127,6 +127,15 @@ export default {
 @import 'src/styles/theme/variables.scss';
 @import 'src/styles/theme/mixin.scss';
 
+::v-deep {
+  .el-card {
+    height: 100%;
+    .el-card__body {
+    height: 100%;
+    }
+  }
+}
+
 /* To make el-tab content fill space, or table will not expand */
 ::v-deep .el-tabs__content {
   height: 100%;
@@ -142,7 +151,7 @@ export default {
   &:hover {
     color: $linkTextColor;
   }
-  &.is-active{
+  &.is-active {
     color: $linkTextColor !important;
   }
 }
@@ -163,7 +172,7 @@ export default {
   @include background-border-color($linkTextColor, $linkTextColor);
 }
 
-::v-deep .el-radio__input.is-checked+.el-radio__label {
+::v-deep .el-radio__input.is-checked + .el-radio__label {
   color: $linkTextColor;
 }
 
@@ -171,6 +180,7 @@ export default {
   border-color: $linkTextColor;
 }
 .mobile {
+  height: auto;
   ::v-deep .el-card__body {
     padding: 0;
   }
@@ -195,10 +205,9 @@ export default {
     width: 100%;
     padding: 0;
   }
-  ::v-deep .el-tabs__item{
+  ::v-deep .el-tabs__item {
     padding: 0 12px !important;
     height: 50px;
   }
 }
-
 </style>

@@ -12,6 +12,7 @@
     <el-dialog
       :visible.sync="dialogVisible.passingRate"
       :title="$t('Dashboard.ADMIN.PassingRate.DETAIL')"
+      destroy-on-close
       top="3vh"
       width="90vw"
       @close="closeHandler"
@@ -31,7 +32,7 @@
           {{ $t('Dashboard.ADMIN.sync_date', [listData[0].sync_date]) }}
         </el-col>
       </el-row>
-      <el-card v-loading="listLoading">
+      <el-card v-loading="listLoading" shadow="never">
         <ElTableResponsive
           ref="tableData"
           :data="pagedData"

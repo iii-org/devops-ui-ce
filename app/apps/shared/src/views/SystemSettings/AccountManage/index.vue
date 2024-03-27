@@ -9,12 +9,12 @@
         <em class="el-icon-plus" />
         {{ $t('User.AddUser') }}
       </el-button>
-      <el-input
-        v-model="keyword"
-        prefix-icon="el-icon-search"
-        :placeholder="$t('User.SearchAccount')"
-        :style="{ width: isMobile ? 'auto' : '250px' }"
-        :size="isMobile ? 'small' : 'medium'"
+      <SearchFilter
+        :list-loading="listLoading"
+        :is-mobile="isMobile"
+        :params="params"
+        :display-fields="displayFields"
+        @load-data="loadData"
       />
     </div>
     <el-divider />
@@ -22,13 +22,38 @@
       v-loading="listLoading"
       :data="userList"
       :columns="tableColumns"
+      :display-fields="displayFields"
       :element-loading-text="$t('Loading')"
-      :cell-style="{ 'text-align': 'center' }"
       :header-cell-style="{ 'text-align': 'center' }"
+      :row-class-name="getRowClass"
       fit
       highlight-current-row
       @row-click="clickEvent"
+      @sort-change="handleSortChange"
     >
+      <template v-slot:avatar="{ row }">
+        <div style="display: flex !important; align-items: center;">
+          <div class="avatar">
+            <el-avatar
+              :src="generateAvatarUrl(row.name, row.email)"
+              :size="36"
+              :class="row.status === 'disable' ? 'grey-out' : ''"
+            />
+          </div>
+          <div class="user">
+            <span class="font-bold">
+              <span class="font-bold">{{ row.name }}</span>
+              <span
+                class="badge"
+                :style="row.status === 'disable' ? 'color: #b4b4b4' : ''"
+              >
+                {{ row.login }}
+              </span>
+            </span>
+            <span class="text-xs text-gray-400">{{ row.email }}</span>
+          </div>
+        </div>
+      </template>
       <template v-slot:actions="{ row }">
         <el-tooltip
           placement="bottom"
@@ -81,22 +106,24 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deleteUser, getUser, getUserInfo } from '@/api/user'
-import { BasicData, SearchBar, Pagination } from '@/mixins'
+import { getUser, getUserInfo, deleteUser } from '@/api/user'
+import { BasicData, Pagination } from '@/mixins'
 import { ElTableResponsive } from '@shared/components'
+import { generateAvatarUrl } from '@shared/utils/Avatar'
+import SearchFilter from './components/SearchFilter'
 import UserDialog from './components/UserDialog'
 
 export default {
   name: 'AccountManage',
   components: {
+    SearchFilter,
     UserDialog,
     ElTableResponsive
   },
-  mixins: [BasicData, SearchBar, Pagination],
+  mixins: [BasicData, Pagination],
   data() {
     return {
       storageName: 'participate',
-      storageType: ['SearchBar'],
       userDialogVisible: false,
       dialogTitle: '',
       editUserId: 0,
@@ -106,7 +133,8 @@ export default {
         per_page: 10,
         search: this.keyword
       },
-      userList: []
+      userList: [],
+      displayFields: ['avatar', 'department', 'phone', 'last_login', 'actions']
     }
   },
   computed: {
@@ -120,63 +148,52 @@ export default {
     tableColumns() {
       return [
         {
-          label: this.$t('User.Account'),
-          prop: 'login',
-          minWidth: 170
+          label: this.$t('Activities.User'),
+          prop: 'avatar',
+          minWidth: 280,
+          slot: 'avatar',
+          sortable: 'custom'
         },
         {
-          label: this.$t('general.Name'),
-          prop: 'name',
-          minWidth: 200
+          label: this.$t('general.Department'),
+          prop: 'department',
+          minWidth: 140,
+          align: 'center',
+          sortable: 'custom'
         },
         {
-          label: 'Email',
-          prop: 'email',
-          minWidth: 280
+          label: this.$t('User.Phone'),
+          prop: 'phone',
+          width: 160,
+          align: 'center'
         },
         {
           label: this.$t('general.CreateTime'),
           prop: 'create_at',
           minWidth: 140,
-          type: 'time'
-        },
-        {
-          label: this.$t('User.Phone'),
-          prop: 'phone',
-          width: 160
-        },
-        {
-          label: this.$t('general.Status'),
-          prop: 'status',
-          minWidth: 120,
-          type: 'tag',
-          i18nKey: 'Status',
-          location: 'accountManage'
+          type: 'time',
+          align: 'center'
         },
         {
           label: this.$t('User.LastLogin'),
           prop: 'last_login',
           minWidth: 140,
-          type: 'time'
+          type: 'time',
+          align: 'center',
+          sortable: 'custom'
         },
         {
           label: this.$t('general.Actions'),
           prop: 'actions',
           minWidth: 120,
-          slot: 'actions'
+          slot: 'actions',
+          align: 'center'
         }
       ]
     }
   },
-  watch: {
-    async keyword(value) {
-      this.params.search = value
-      this.params.page = 1
-      this.storeKeyword()
-      await this.loadData()
-    }
-  },
   methods: {
+    generateAvatarUrl,
     async fetchData() {
       const allUser = await getUser(this.params)
       this.listQuery = allUser.page
@@ -238,7 +255,73 @@ export default {
         name: 'ParticipateProject',
         params: { userId: user_id }
       })
+    },
+    getRowClass({ row }) {
+      if (row.status === 'disable') {
+        return 'grey-out'
+      }
+      return ''
+    },
+    handleSortChange({ column, prop, order }) {
+      if (order) {
+        this.params.sort = prop === 'avatar' ? 'account' : prop
+        this.params.desc = order !== 'ascending'
+      } else {
+        delete this.params.sort
+        delete this.params.desc
+      }
+      this.loadData()
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import 'src/styles/theme/variables.scss';
+
+.avatar {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  border-radius: 0.75rem;
+  margin-right: 0.75rem;
+  overflow: hidden;
+  margin-left: 0.75rem;
+  border-radius: 50%;
+}
+
+.user {
+  flex-direction: column;
+  display: flex;
+}
+
+.badge {
+  font-size: .73rem;
+  margin-left: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  color: $primary;
+  background-color: #f4f4f4;
+  padding: 0 0.4rem;
+  line-height: 18px;
+  border-radius: 3px;
+}
+
+.grey-out {
+  opacity: 0.4;
+  filter: alpha(opacity=40);
+  filter: grayscale(100%);
+  color: #b4b4b4 !important;
+}
+
+::v-deep {
+  .grey-out {
+    border-color: #cbcbcb !important;
+    color: #b4b4b4 !important;
+  }
+
+  .el-table--medium .el-table__cell {
+    padding: 6px 0 !important;
+  }
+}
+</style>

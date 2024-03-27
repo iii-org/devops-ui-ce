@@ -26,6 +26,7 @@
     <el-dialog
       :visible.sync="detailDialog"
       :title="$t('Dashboard.ADMIN.ProjectList.NAME')"
+      destroy-on-close
       top="3vh"
       width="90vw"
     >
