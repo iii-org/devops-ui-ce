@@ -343,7 +343,7 @@ export default {
     ...mapActions('projects', ['addNewProject']),
     async init() {
       if (this.checkOwnerRequired) {
-        const userList = await getUserListByFilter({ role_ids: 3 }) // pm
+        const userList = await getUserListByFilter({ role_ids: '3' }) // pm
         this.userList = userList.data.user_list
       }
     },

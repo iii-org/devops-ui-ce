@@ -7,6 +7,7 @@
         <navbar />
       </div>
       <app-main />
+      <Popup />
     </div>
   </div>
 </template>
@@ -14,10 +15,12 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import Popup from '@shared/components/Popup'
 
 export default {
   name: 'Layout',
   components: {
+    Popup,
     Navbar,
     Sidebar,
     AppMain

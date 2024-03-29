@@ -8,7 +8,6 @@ export const updateUser = (userId, data) => request.put(`/user/${userId}`, data)
 export const deleteUser = (userId) => request.delete(`/user/${userId}`)
 export const getK8SConfig = (userId) => request.get(`/user/${userId}/config`)
 export const getRoleList = () => request.get('/user/role/list')
-export const getUserListByFilter = (params) => request.get('/user/list', { params })
 export const getUserIssueList = (userId, params, config) => request.get(`/user/${userId}/issues`, { params, ...config })
 export const getUserWatchList = (userId, params, config) => request.get(`/user/${userId}/issues/watch/list`, { params, ...config })
 export const getRoutes = () => request.get(`/router`)
@@ -16,6 +15,7 @@ export const getUserInfo = async (userId) => {
   const res = await request.get(`/user/${userId}`)
   return new User(res.data)
 }
+export const getUserListByFilter = (data) => request.post('/user/list', data)
 export const getUser = async (data) => {
   const res = await request.post(`/user/list`, data)
   const userList = []
@@ -28,7 +28,7 @@ export const getUser = async (data) => {
   }
 }
 export const getAllUser = async () => {
-  const res = await request.get(`/user/list`)
+  const res = await request.post(`/user/list`)
   const userList = []
   for (const user of res.data.user_list) {
     userList.push({ id: user.id, name: user.name, login: user.login })
