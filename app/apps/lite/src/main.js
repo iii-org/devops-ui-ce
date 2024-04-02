@@ -42,7 +42,7 @@ Vue.use(Vue2TouchEvents)
 
 // Vue Filters
 // check https://v2.vuejs.org/v2/guide/filters.html to see more details
-Object.keys(filters).forEach(key => {
+Object.keys(filters).forEach((key) => {
   Vue.filter(key, filters[key])
 })
 
@@ -53,5 +53,5 @@ new Vue({
   router,
   store,
   i18n,
-  render: h => h(App)
+  render: (h) => h(App)
 })

@@ -4,9 +4,9 @@ import request from '@shared/utils/request'
 export const getDeployedHostsLists = () => request.get(`/v2/deploy/clusters`)
 export const getDeployedHostsByList = (cluster_id) => request.get(`/v2/deploy/clusters/${cluster_id}`)
 export const addDeployHosts = (data) =>
-  request.post(`/v2/deploy/clusters`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+  request.post(`/v2/deploy/clusters`, data, { headers: { 'Content-Type': 'multipart/form-data' }})
 export const updateDeployHostsById = (cluster_id, data) =>
-  request.put(`/v2/deploy/clusters/${cluster_id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+  request.put(`/v2/deploy/clusters/${cluster_id}`, data, { headers: { 'Content-Type': 'multipart/form-data' }})
 
 // registry
 export const getRegistryHostsLists = () => request.get(`/v2/deploy/registries`)
