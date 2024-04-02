@@ -12,7 +12,6 @@ COPY app/package.json app/yarn.lock app/lerna.json ./
 COPY app .
 
 # Installs all node packages across packages
-RUN yarn refresh
 RUN yarn
 
 FROM node:16 AS git-process
