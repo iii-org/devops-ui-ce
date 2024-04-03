@@ -26,21 +26,44 @@
 
 <script>
 export default {
+  data() {
+    return {
+      timeout: null
+    }
+  },
   computed: {
     language() {
       return this.$store.getters.language
     }
   },
+  beforeDestroy() {
+    window.clearTimeout(this.timeout)
+  },
   methods: {
     handleSetLanguage(lang) {
-      this.$i18n.locale = lang
-      this.$dayjs.locale(lang.toLowerCase())
-      this.$store.dispatch('app/setLanguage', lang)
-      this.$message({
-        title: this.$t('general.Success'),
-        message: this.$t('Notify.SwitchLanguage'),
-        type: 'success'
-      })
+      this.resetLanguage()
+      window.clearTimeout(this.timeout)
+      this.timeout = window.setTimeout(() => {
+        this.$i18n.locale = lang
+        this.$dayjs.locale(lang.toLowerCase())
+        this.$store.dispatch('app/setLanguage', lang)
+        this.$message({
+          title: this.$t('general.Success'),
+          message: this.$t('Notify.SwitchLanguage'),
+          type: 'success'
+        })
+      }, 50)
+    },
+    resetLanguage() {
+      const iframe = document.querySelector('.skiptranslate').children[0].contentWindow
+      if (iframe) {
+        const resetButton = iframe.document.getElementById(':1.restore')
+        if (resetButton) {
+          resetButton.click()
+        }
+      } else {
+        console.error('Reset button not found')
+      }
     }
   }
 }

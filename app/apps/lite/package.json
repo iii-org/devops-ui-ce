@@ -52,6 +52,7 @@
     "vue-dragscroll": "^3.0.1",
     "vue-echarts": "^6.0.0-rc.4",
     "vue-fab": "^2.3.1",
+    "vue-google-translate": "0.0.11",
     "vue-gtag": "^1.11.0",
     "vue-i18n": "^8.22.1",
     "vue-input-autowidth": "^1.0.11",

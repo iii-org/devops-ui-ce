@@ -41,7 +41,7 @@
               :style="{width: isMobile ? '100%' : '95%'}"
               :class="isAbled(commit.issues) ? 'hasArrow' : 'noArrow'"
             >
-              <el-collapse-item :name="commit.id">
+              <el-collapse-item :name="commit.id" :disabled="!isAbled(commit.issues)">
                 <template slot="title">
                   <div
                     :class="isAbled(commit.issues) ? 'cursor-pointer' : 'initial'"
@@ -399,6 +399,9 @@ export default {
 ::v-deep {
   .el-timeline {
     padding-left: 16px;
+  }
+  .el-collapse-item.is-disabled .el-collapse-item__header {
+    cursor: default !important;
   }
 }
 </style>

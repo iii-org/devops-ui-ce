@@ -10,6 +10,7 @@
     <div class="flex right-menu items-center">
       <Notification />
       <lang-select class="right-menu-item hover-effect" />
+      <GoogleTranslate class="right-menu-item hover-effect" />
       <el-dropdown
         class="right-menu-item"
         :class="!isMobile ? 'hover-effect' : ''"
@@ -56,7 +57,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Breadcrumb, Hamburger, LangSelect } from '@shared/components'
+import { Breadcrumb, Hamburger, LangSelect, GoogleTranslate } from '@shared/components'
 import Notification from '@/components/Notification'
 
 export default {
@@ -64,7 +65,8 @@ export default {
     Breadcrumb,
     Hamburger,
     LangSelect,
-    Notification
+    Notification,
+    GoogleTranslate
   },
   computed: {
     ...mapGetters(['sidebar', 'userName', 'userAvatar', 'device']),
@@ -125,7 +127,7 @@ export default {
       padding: 0 7px;
       height: 100%;
       font-size: 18px;
-      margin-right: 10px;
+      // margin-right: 10px;
       color: $navbarRightText; /* theme_discussion right font color */
       cursor: pointer;
       &.hover-effect {

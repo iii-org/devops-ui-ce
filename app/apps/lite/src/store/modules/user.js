@@ -78,7 +78,7 @@ const actions = {
       throw new Error('role is not exist in user info')
     }
     commit('SET_USER_NAME', user.name)
-    commit('SET_USER_AVATAR', generateAvatarUrl(user.name, user.email))
+    commit('SET_USER_AVATAR', generateAvatarUrl(user.name, user.email, 160))
 
     await dispatch('projects/getMyProjectOptions', null, { root: true })
     await dispatch('projects/getSelectionOptions', null, { root: true })

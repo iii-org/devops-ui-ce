@@ -241,6 +241,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/mixin.scss';
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
 
 .wheel-item-container {
   position: relative;

@@ -37,14 +37,14 @@ export function fontColor (username) {
   return lightenColor(backgroundColor(username))
 }
 
-export function generateAvatarUrl (username, emailAddress) {
+export function generateAvatarUrl (username, emailAddress, size = 80) {
   const processedName = username.toString().replace(/( )+/g, '+')
   const defaultImage = encodeURIComponent(
-    `https://ui-avatars.com/api/${processedName}/80/${backgroundColor(username).replace('#', '')}/${fontColor(username).replace('#', '')}`
+    `https://ui-avatars.com/api/${processedName}/${size}/${backgroundColor(username).replace('#', '')}/${fontColor(username).replace('#', '')}`
   )
   const emailHash = crypto
     .createHash('md5')
     .update(emailAddress)
     .digest('hex')
-  return `https://www.gravatar.com/avatar/${emailHash}?d=${defaultImage}`
+  return `https://www.gravatar.com/avatar/${emailHash}?d=${defaultImage}&s=${size}`
 }

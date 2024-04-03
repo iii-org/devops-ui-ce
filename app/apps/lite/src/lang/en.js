@@ -339,7 +339,8 @@ export default {
     Share: 'Share',
     ExpiredDays: 'Expired Days',
     ProjectSettings: 'Project Settings',
-    Notifications: 'Notifications'
+    Notifications: 'Notifications',
+    Reset: 'Reset'
   },
   Notify: {
     Updated: 'update successful',

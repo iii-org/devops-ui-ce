@@ -15626,6 +15626,11 @@ vue-fab@^2.3.1:
     vue-clickaway "^2.1.0"
     vue-ripple-directive "^1.0.0"
 
+vue-google-translate@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/vue-google-translate/-/vue-google-translate-0.0.11.tgz#d0d28e0e870b5e00550e470a4212a11120efa692"
+  integrity sha512-Pic5CP3Le6QdR48mkCJyiUydhYNoNuca7K+hW4stz6V4Qs+R9twgpJrrQSLoy/g7l2VkPebU6RNeFT8UGDagsg==
+
 vue-gtag@^1.11.0:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/vue-gtag/-/vue-gtag-1.16.1.tgz#edb2f20ab4f6c4d4d372dfecf8c1fcc8ab890181"

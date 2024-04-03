@@ -1,7 +1,7 @@
 <template>
   <div v-loading="isLoading" class="tab-inner">
     <h3>{{ $t('Profile.ProfileBasicSetting') }}</h3>
-    <el-avatar :src="userAvatar" :size="70" />
+    <el-avatar :src="userAvatar" :size="100" />
     <div class="text-sm mb-2">
       <div class="flex">
         <span class="mr-1">{{ $t('User.GravatarLink') }}</span>

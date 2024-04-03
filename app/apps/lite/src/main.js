@@ -31,6 +31,7 @@ dayjs.extend(utc)
 dayjs.extend(duration)
 
 dayjs.locale(getLanguage().toLowerCase())
+document.documentElement.setAttribute('lang', getLanguage())
 Vue.prototype.$dayjs = dayjs
 
 Vue.use(permission)

@@ -339,7 +339,8 @@ export default {
     Share: '分享',
     ExpiredDays: '逾期天數',
     ProjectSettings: '專案設定',
-    Notifications: '通知'
+    Notifications: '通知',
+    Reset: '重設'
   },
   Notify: {
     Updated: '已更新',

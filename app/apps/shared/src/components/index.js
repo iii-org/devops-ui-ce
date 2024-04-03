@@ -10,6 +10,7 @@ import ElSelectAll from './ElSelectAll'
 import ElTableColumnTag from './ElTableColumnTag'
 import ElTableColumnTime from './ElTableColumnTime'
 import ElTableResponsive from './ElTableResponsive'
+import GoogleTranslate from './GoogleTranslate'
 import NoData from './NoData'
 
 export {
@@ -25,5 +26,6 @@ export {
   ElTableColumnTag,
   ElTableColumnTime,
   ElTableResponsive,
+  GoogleTranslate,
   NoData
 }
