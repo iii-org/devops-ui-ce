@@ -9,7 +9,6 @@
     <breadcrumb class="breadcrumb-container" />
     <div class="flex right-menu items-center">
       <Notification />
-      <lang-select class="right-menu-item hover-effect" />
       <GoogleTranslate class="right-menu-item hover-effect" />
       <el-dropdown
         :class="!isMobile ? 'hover-effect' : ''"
@@ -57,14 +56,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Breadcrumb, Hamburger, LangSelect, GoogleTranslate } from '@shared/components'
+import { Breadcrumb, Hamburger, GoogleTranslate } from '@shared/components'
 import Notification from '@/components/Notification'
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
-    LangSelect,
     Notification,
     GoogleTranslate
   },

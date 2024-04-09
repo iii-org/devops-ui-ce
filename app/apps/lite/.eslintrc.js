@@ -275,5 +275,13 @@ module.exports = {
       }
     ],
     'array-bracket-spacing': [2, 'never']
-  }
+  },
+  overrides: [
+    {
+      files: ['*.json'],
+      rules: {
+        quotes: ['off']
+      }
+    }
+  ]
 }

@@ -340,7 +340,7 @@ export default {
     ExpiredDays: '逾期天數',
     ProjectSettings: '專案設定',
     Notifications: '通知',
-    Reset: '重設'
+    PlatformLanguage: '平台語言'
   },
   Notify: {
     Updated: '已更新',

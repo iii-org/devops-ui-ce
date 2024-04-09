@@ -1,18 +1,41 @@
 <template>
   <el-popover
     placement="bottom"
-    width="200"
+    width="230"
     trigger="click"
     popper-class="translate-popper"
   >
-    <svg-icon slot="reference" icon-class="google-translate" class="text-md" />
-    <el-button type="text" @click="resetLanguage">{{ $t('general.Reset') }}</el-button>
-    <Translator :countries="countries" />
+    <em slot="reference" class="ri-translate-2" />
+    <div class="text-xs font-bold mb-1">{{ $t('general.PlatformLanguage') }}</div>
+    <div class="grid p-1 list notranslate" @click="handleSetLanguage('zh-TW')">
+      <span class="language-item">
+        <img
+          alt="台灣 flag icon`"
+          src="https://cdn.jsdelivr.net/gh/lewis-kori/vue-google-translate/src/assets/images/flags/__Chinese (Traditional).png"
+          class="flag"
+        >
+        <span class="language__text">中文(台灣)</span>
+      </span>
+    </div>
+    <div class="grid p-1 list notranslate" @click="handleSetLanguage('en')">
+      <span class="language-item">
+        <img
+          alt="台灣 flag icon`"
+          src="https://cdn.jsdelivr.net/gh/lewis-kori/vue-google-translate/src/assets/images/flags/__English.png"
+          class="flag"
+        >
+        <span class="language__text">English</span>
+      </span>
+    </div>
+    <el-divider />
+    <div class="text-xs font-bold mb-1">Google Translate</div>
+    <Translator :countries="countries" class="notranslate" />
   </el-popover>
 </template>
 
 <script>
 import { Translator } from 'vue-google-translate'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -187,14 +210,37 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapGetters(['language'])
+  },
+  beforeDestroy() {
+    window.clearTimeout(this.timeout)
+    window.clearTimeout(this.timeout2)
+  },
   methods: {
+    handleSetLanguage(lang) {
+      this.resetLanguage()
+      window.clearTimeout(this.timeout)
+      this.timeout = window.setTimeout(() => {
+        this.$i18n.locale = lang
+        this.$dayjs.locale(lang.toLowerCase())
+        this.$store.dispatch('app/setLanguage', lang)
+        document.documentElement.lang = lang
+        this.$message({
+          title: this.$t('general.Success'),
+          message: this.$t('Notify.SwitchLanguage'),
+          type: 'success'
+        })
+      }, 50)
+    },
     resetLanguage() {
       const iframe = document.querySelector('.skiptranslate').children[0].contentWindow
       if (iframe) {
         const resetButton = iframe.document.getElementById(':1.restore')
         if (resetButton) resetButton.click()
-      } else {
-        console.error('Reset button not found')
+        this.timeout2 = window.setTimeout(() => {
+          document.documentElement.lang = this.language
+        }, 50)
       }
     }
   }
@@ -205,22 +251,58 @@ export default {
 .translate-popper {
   max-height: 50vh;
   overflow: auto;
+  padding: 8px;
   div {
+    .md\:grid-cols-2, .lg\:grid-cols-3 {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
     .shadow {
       box-shadow: none !important;
       div {
+        padding: 0.25rem !important;
+        &:hover {
+          background-color: #f2f2f2;
+          cursor: pointer;
+          border-radius: 6px;
+        }
         span > span {
           align-items: center;
           .flag {
             height: 30px;
+            filter: drop-shadow(0px 0px 2px grey);
           }
           .language__text {
             word-break: break-word;
             margin-top: 0;
+            color: #606266;
+          }
+          &:hover {
+            text-decoration: none !important;
           }
         }
       }
     }
   }
+}
+</style>
+<style lang="scss" scoped>
+.language-item {
+  display: flex;
+  align-items: center;
+}
+.language__text {
+  color: #606266;
+  padding-left: 5px;
+  text-decoration: none;
+  word-break: break-word;
+}
+.flag {
+  height: 30px;
+  filter: drop-shadow(0px 0px 2px grey);
+}
+.list:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+  border-radius: 6px;
 }
 </style>

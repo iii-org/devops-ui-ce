@@ -340,7 +340,7 @@ export default {
     ExpiredDays: 'Expired Days',
     ProjectSettings: 'Project Settings',
     Notifications: 'Notifications',
-    Reset: 'Reset'
+    PlatformLanguage: 'Platform Language'
   },
   Notify: {
     Updated: 'update successful',

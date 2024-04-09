@@ -125,7 +125,13 @@ export default {
 <style lang="scss" scoped>
 .nest-menu {
   ::v-deep li {
-    padding-left: 46px !important;
+    padding-left: 52px !important;
+    &:before {
+      position: relative;
+      left: -6px;
+      content: "\25C9";
+      font-size: 8px;
+    }
   }
 }
 </style>

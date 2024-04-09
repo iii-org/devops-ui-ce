@@ -1,201 +1,201 @@
 [
   {
-    'path': '/',
-    'name': 'LandingPage',
-    'redirect': {
-      'name': 'Dashboard'
+    "path": "/",
+    "name": "LandingPage",
+    "redirect": {
+      "name": "Dashboard"
     },
-    'meta': {
-      'roles': [
-        'Administrator'
+    "meta": {
+      "roles": [
+        "Administrator"
       ]
     },
-    'hidden': true
+    "hidden": true
   },
   {
-    'path': '/overview',
-    'component': 'layout',
-    'name': 'Overviews',
-    'redirect': {
-      'name': 'Dashboard'
+    "path": "/overview",
+    "component": "layout",
+    "name": "Overviews",
+    "redirect": {
+      "name": "Dashboard"
     },
-    'meta': {
-      'icon': 'ri-dashboard-2-fill',
-      'title': 'Overview',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "icon": "ri-dashboard-2-fill",
+      "title": "Overview",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'dashboard',
-        'name': 'Dashboard',
-        'component': 'views/Overview/Dashboard/roles/admin',
-        'meta': {
-          'title': 'Dashboard',
-          'roles': [
-            'Administrator'
+        "path": "dashboard",
+        "name": "Dashboard",
+        "component": "views/Overview/Dashboard/roles/admin",
+        "meta": {
+          "title": "Dashboard",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'projectList',
-        'name': 'ProjectList',
-        'component': 'views/Overview/ProjectList/ProjectListPM',
-        'meta': {
-          'title': 'ProjectList',
-          'roles': [
-            'Administrator'
+        "path": "projectList",
+        "name": "ProjectList",
+        "component": "views/Overview/ProjectList/ProjectListPM",
+        "meta": {
+          "title": "ProjectList",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/project/:projectName?',
-    'component': 'layout',
-    'name': 'Works',
-    'redirect': {
-      'name': 'Overview'
+    "path": "/project/:projectName?",
+    "component": "layout",
+    "name": "Works",
+    "redirect": {
+      "name": "Overview"
     },
-    'meta': {
-      'title': 'Works',
-      'icon': 'ri-briefcase-3-fill',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "title": "Works",
+      "icon": "ri-briefcase-3-fill",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'overview',
-        'name': 'Overview',
-        'component': 'views/Plan/Overview',
-        'meta': {
-          'title': 'ProjectOverview',
-          'roles': [
-            'Administrator'
+        "path": "overview",
+        "name": "Overview",
+        "component": "views/Plan/Overview",
+        "meta": {
+          "title": "ProjectOverview",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'milestone',
-        'name': 'Milestone',
-        'component': 'views/Plan/Milestone',
-        'meta': {
-          'title': 'Milestone',
-          'roles': [
-            'Administrator'
+        "path": "milestone",
+        "name": "Milestone",
+        "component": "views/Plan/Milestone",
+        "meta": {
+          "title": "Milestone",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'issue-boards/:projectName?',
-        'name': 'IssueBoards',
-        'component': 'views/Project/IssueBoards',
-        'meta': {
-          'title': 'Kanban',
-          'roles': [
-            'Administrator'
+        "path": "issue-boards/:projectName?",
+        "name": "IssueBoards",
+        "component": "views/Project/IssueBoards",
+        "meta": {
+          "title": "Kanban",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'issues',
-        'name': 'IssueLists',
-        'component': 'layout/components/parentBlank',
-        'redirect': {
-          'name': 'IssueList'
+        "path": "issues",
+        "name": "IssueLists",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "IssueList"
         },
-        'meta': {
-          'title': 'IssueList',
-          'roles': [
-            'Administrator'
+        "meta": {
+          "title": "IssueList",
+          "roles": [
+            "Administrator"
           ]
         },
-        'children': [
+        "children": [
           {
-            'path': '',
-            'name': 'IssueList',
-            'hidden': true,
-            'component': 'views/Project/IssueList',
-            'meta': {
-              'roles': [
-                'Administrator'
+            "path": "",
+            "name": "IssueList",
+            "hidden": true,
+            "component": "views/Project/IssueList",
+            "meta": {
+              "roles": [
+                "Administrator"
               ]
             }
           },
           {
-            'path': ':issueId',
-            'name': 'IssueDetail',
-            'hidden': true,
-            'component': 'views/Project/IssueDetail',
-            'meta': {
-              'title': 'IssueDetail',
-              'roles': [
-                'Administrator'
+            "path": ":issueId",
+            "name": "IssueDetail",
+            "hidden": true,
+            "component": "views/Project/IssueDetail",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "Administrator"
               ]
             }
           }
         ]
       },
       {
-        'path': 'projectSettings',
-        'name': 'ProjectSettings',
-        'component': 'layout/components/parentBlank',
-        'redirect': {
-          'name': 'ProjectSetting'
+        "path": "projectSettings",
+        "name": "ProjectSettings",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "ProjectSetting"
         },
-        'meta': {
-          'title': 'ProjectSettings',
-          'roles': [
-            'Administrator'
+        "meta": {
+          "title": "ProjectSettings",
+          "roles": [
+            "Administrator"
           ]
         },
-        'children': [
+        "children": [
           {
-            'path': '',
-            'name': 'ProjectSetting',
-            'hidden': true,
-            'component': 'views/Plan/Settings/index',
-            'meta': {
-              'roles': [
-                'Administrator'
+            "path": "",
+            "name": "ProjectSetting",
+            "hidden": true,
+            "component": "views/Plan/Settings/index",
+            "meta": {
+              "roles": [
+                "Administrator"
               ]
             }
           },
           {
-            'path': 'participateProject/:userId',
-            'name': 'ParticipateProject',
-            'hidden': true,
-            'component': 'views/SystemSettings/AccountManage/components/ParticipateProject',
-            'meta': {
-              'title': 'ParticipateProject',
-              'roles': [
-                'Administrator'
+            "path": "participateProject/:userId",
+            "name": "ParticipateProject",
+            "hidden": true,
+            "component": "views/SystemSettings/AccountManage/components/ParticipateProject",
+            "meta": {
+              "title": "ParticipateProject",
+              "roles": [
+                "Administrator"
               ]
             }
           },
           {
-            'path': 'advanceBranchSettings',
-            'name': 'AdvanceBranchSettings',
-            'hidden': true,
-            'component': 'views/Plan/Settings/components/AdvanceBranchSettings',
-            'meta': {
-              'title': 'AdvanceBranchSettings',
-              'roles': [
-                'Administrator'
+            "path": "advanceBranchSettings",
+            "name": "AdvanceBranchSettings",
+            "hidden": true,
+            "component": "views/Plan/Settings/components/AdvanceBranchSettings",
+            "meta": {
+              "title": "AdvanceBranchSettings",
+              "roles": [
+                "Administrator"
               ]
             }
           },
           {
-            'path': 'issueTransfer/:userId',
-            'name': 'IssueTransfer',
-            'hidden': true,
-            'component': 'views/Plan/Settings/ProjectIssueTransfer',
-            'meta': {
-              'title': 'IssueTransfer',
-              'roles': [
-                'Administrator'
+            "path": "issueTransfer/:userId",
+            "name": "IssueTransfer",
+            "hidden": true,
+            "component": "views/Plan/Settings/ProjectIssueTransfer",
+            "meta": {
+              "title": "IssueTransfer",
+              "roles": [
+                "Administrator"
               ]
             }
           }
@@ -204,236 +204,236 @@
     ]
   },
   {
-    'path': '/progress/:projectName?',
-    'component': 'layout',
-    'name': 'Progress',
-    'redirect': {
-      'name': 'DevBranch'
+    "path": "/progress/:projectName?",
+    "component": "layout",
+    "name": "Progress",
+    "redirect": {
+      "name": "DevBranch"
     },
-    'meta': {
-      'title': 'DevProgress',
-      'icon': 'ri-refresh-fill',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "title": "DevProgress",
+      "icon": "ri-refresh-fill",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'git-graph',
-        'name': 'GitGraph',
-        'component': 'views/Progress/GitGraph',
-        'meta': {
-          'title': 'GitGraph',
-          'roles': [
-            'Administrator'
+        "path": "git-graph",
+        "name": "GitGraph",
+        "component": "views/Progress/GitGraph",
+        "meta": {
+          "title": "GitGraph",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'dev-branch',
-        'name': 'DevBranch',
-        'component': 'views/Progress/DevBranch',
-        'meta': {
-          'title': 'DevBranch',
-          'roles': [
-            'Administrator'
+        "path": "dev-branch",
+        "name": "DevBranch",
+        "component": "views/Progress/DevBranch",
+        "meta": {
+          "title": "DevBranch",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'pipeline',
-        'name': 'Pipeline',
-        'component': 'views/Progress/Pipelines',
-        'meta': {
-          'title': 'Pipelines',
-          'roles': [
-            'Administrator'
+        "path": "pipeline",
+        "name": "Pipeline",
+        "component": "views/Progress/Pipelines",
+        "meta": {
+          "title": "Pipelines",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/scan/:projectName?',
-    'component': 'layout',
-    'name': 'Scan',
-    'redirect': {
-      'name': 'Sonarqube'
+    "path": "/scan/:projectName?",
+    "component": "layout",
+    "name": "Scan",
+    "redirect": {
+      "name": "Sonarqube"
     },
-    'meta': {
-      'title': 'AutoTesting',
-      'icon': 'ri-shield-check-fill',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "title": "AutoTesting",
+      "icon": "ri-shield-check-fill",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'sonarqube',
-        'name': 'Sonarqube',
-        'component': 'views/Scan/SonarQube',
-        'meta': {
-          'title': 'SonarQube',
-          'roles': [
-            'Administrator'
+        "path": "sonarqube",
+        "name": "Sonarqube",
+        "component": "views/Scan/SonarQube",
+        "meta": {
+          "title": "SonarQube",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/activities/:projectName?',
-    'component': 'layout',
-    'name': 'Activities',
-    'redirect': {
-      'name': 'ProjectActivities'
+    "path": "/activities/:projectName?",
+    "component": "layout",
+    "name": "Activities",
+    "redirect": {
+      "name": "ProjectActivities"
     },
-    'meta': {
-      'icon': 'ri-survey-fill',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "icon": "ri-survey-fill",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'project-activities',
-        'name': 'ProjectActivities',
-        'component': 'views/Activities/ProjectActivities',
-        'meta': {
-          'title': 'ProjectActivities',
-          'roles': [
-            'Administrator'
+        "path": "project-activities",
+        "name": "ProjectActivities",
+        "component": "views/Activities/ProjectActivities",
+        "meta": {
+          "title": "ProjectActivities",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/system-settings',
-    'component': 'layout',
-    'name': 'Admin',
-    'redirect': {
-      'name': 'AccountManage'
+    "path": "/system-settings",
+    "component": "layout",
+    "name": "Admin",
+    "redirect": {
+      "name": "AccountManage"
     },
-    'meta': {
-      'title': 'Admin',
-      'icon': 'ri-settings-5-fill',
-      'roles': [
-        'Administrator'
+    "meta": {
+      "title": "Admin",
+      "icon": "ri-settings-5-fill",
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': 'account-manage',
-        'component': 'views/SystemSettings/AccountManage',
-        'name': 'AccountManage',
-        'meta': {
-          'title': 'AccountManage',
-          'roles': [
-            'Administrator'
+        "path": "account-manage",
+        "component": "views/SystemSettings/AccountManage",
+        "name": "AccountManage",
+        "meta": {
+          "title": "AccountManage",
+          "roles": [
+            "Administrator"
           ]
         }
       },
       {
-        'path': 'system-arguments',
-        'name': 'SystemArguments',
-        'component': 'views/SystemSettings/SystemArguments',
-        'meta': {
-          'title': 'SystemArguments',
-          'roles': [
-            'Administrator'
+        "path": "system-arguments",
+        "name": "SystemArguments",
+        "component": "views/SystemSettings/SystemArguments",
+        "meta": {
+          "title": "SystemArguments",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/profile',
-    'component': 'layout',
-    'name': 'UserProfile',
-    'redirect': {
-      'name': 'Profile'
+    "path": "/profile",
+    "component": "layout",
+    "name": "UserProfile",
+    "redirect": {
+      "name": "Profile"
     },
-    'hidden': true,
-    'meta': {
-      'roles': [
-        'Administrator'
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': '',
-        'component': 'views/Profile',
-        'name': 'Profile',
-        'meta': {
-          'title': 'Profile',
-          'icon': 'ri-user-fill',
-          'roles': [
-            'Administrator'
+        "path": "",
+        "component": "views/Profile",
+        "name": "Profile",
+        "meta": {
+          "title": "Profile",
+          "icon": "ri-user-fill",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/system-version',
-    'component': 'layout',
-    'name': 'SystemVersions',
-    'redirect': {
-      'name': 'SystemVersion'
+    "path": "/system-version",
+    "component": "layout",
+    "name": "SystemVersions",
+    "redirect": {
+      "name": "SystemVersion"
     },
-    'hidden': true,
-    'meta': {
-      'roles': [
-        'Administrator'
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': '',
-        'component': 'views/SystemVersion',
-        'name': 'SystemVersion',
-        'meta': {
-          'title': 'SystemVersion',
-          'icon': 'ri-user-fill',
-          'roles': [
-            'Administrator'
+        "path": "",
+        "component": "views/SystemVersion",
+        "name": "SystemVersion",
+        "meta": {
+          "title": "SystemVersion",
+          "icon": "ri-user-fill",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '/test-report',
-    'name': 'TestReportParent',
-    'component': 'layout',
-    'redirect': {
-      'name': 'TestReport'
+    "path": "/test-report",
+    "name": "TestReportParent",
+    "component": "layout",
+    "redirect": {
+      "name": "TestReport"
     },
-    'hidden': true,
-    'meta': {
-      'roles': [
-        'Administrator'
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Administrator"
       ]
     },
-    'children': [
+    "children": [
       {
-        'path': ':projectId/:commitBranch/:commitId',
-        'component': 'views/Progress/Pipelines/components/TestReport',
-        'name': 'TestReport',
-        'meta': {
-          'title': 'TestReport',
-          'roles': [
-            'Administrator'
+        "path": ":projectId/:commitBranch/:commitId",
+        "component": "views/Progress/Pipelines/components/TestReport",
+        "name": "TestReport",
+        "meta": {
+          "title": "TestReport",
+          "roles": [
+            "Administrator"
           ]
         }
       }
     ]
   },
   {
-    'path': '*',
-    'name': 'ErrorPage',
-    'redirect': '/404',
-    'hidden': true
+    "path": "*",
+    "name": "ErrorPage",
+    "redirect": "/404",
+    "hidden": true
   }
 ]

@@ -1,7 +1,6 @@
 import './assets/tailwind.css'
 import Breadcrumb from './components/Breadcrumb'
 import Hamburger from './components/Hamburger'
-import LangSelect from './components/LangSelect'
 import ProjectListSelector from './components/ProjectListSelector'
 import Avatar from './components/Avatar'
 import NoData from './components/NoData'
@@ -81,7 +80,6 @@ import { ProjectListPM, ProjectListQA, ProjectListRD } from './views/Overview/Pr
 export {
   Breadcrumb,
   Hamburger,
-  LangSelect,
   ProjectListSelector,
   Avatar,
   NoData,

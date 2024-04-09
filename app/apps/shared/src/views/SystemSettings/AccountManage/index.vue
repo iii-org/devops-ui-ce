@@ -32,7 +32,7 @@
       @sort-change="handleSortChange"
     >
       <template v-slot:avatar="{ row }">
-        <div style="display: flex !important; align-items: center;">
+        <div :class="isMobile && 'mobile'" style="display: flex; align-items: center;">
           <div class="avatar">
             <el-avatar
               :src="generateAvatarUrl(row.name, row.email)"
@@ -323,6 +323,12 @@ export default {
 
   .el-table--medium .el-table__cell {
     padding: 6px 0 !important;
+  }
+}
+.mobile {
+  display: block !important;
+  .avatar {
+    display: contents;
   }
 }
 </style>
