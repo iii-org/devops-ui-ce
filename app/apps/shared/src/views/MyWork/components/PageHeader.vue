@@ -18,8 +18,8 @@
           </el-button>
         </template>
         <el-button
-          v-if="focusedProjectId"
           v-permission="['Administrator','Project Manager', 'Engineer']"
+          v-if="focusedProjectId"
           class="button-primary"
           icon="el-icon-plus"
           size="medium"
@@ -31,11 +31,11 @@
 
       <CustomFilter
         :ref="`customFilter_${activeTab}`"
-        type="my_work"
         :project-id="projectId"
         :active-tab="activeTab"
         :selection-options="contextOptions"
         :selected-id="selectedCustomId"
+        type="my_work"
         @apply-filter="applyCustomFilter"
         @clear="clearFilter"
         @on-filter-click="onFilterClick"
@@ -85,8 +85,8 @@
                   :value="option.id"
                 >
                   <component
-                    :is="condition.value"
                     v-if="condition.tag"
+                    :is="condition.value"
                     :name="$t(`Issue.${option.name}`)"
                     :type="option.name"
                   />
@@ -107,10 +107,10 @@
 
         <SaveFilterButton
           ref="saveFilterButton"
-          type="my_work"
           :project-id="projectId"
           :filter-value="filterValueClone"
           :active-tab="activeTab"
+          type="my_work"
           @update="onCustomFilterAdded"
         />
 
@@ -140,8 +140,8 @@
         v-else-if="searchVisible"
         ref="keywordInput"
         :value="keyword"
-        prefix-icon="el-icon-search"
         :placeholder="$t('Issue.SearchNameOrAssignee')"
+        prefix-icon="el-icon-search"
         style="width: 250px"
         clearable
         @blur="searchVisible = !searchVisible"
@@ -162,11 +162,11 @@
     </ProjectListSelector>
     <div v-if="device === 'mobile'" style="margin: 10px 5px 0 5px">
       <Fab
+        :actions="fabActions"
         position="bottom-right"
         bg-color="#409eff"
         icon-size="small"
         main-icon="more_vert"
-        :actions="fabActions"
         @addButton="$emit('add-issue')"
         @searchButton="handleFloatingSearchButton"
         @filterButton="handleFloatingFilterButton"
@@ -184,12 +184,12 @@
           <el-card shadow="never">
             <CustomFilter
               :ref="`customFilter_${activeTab}`"
-              type="my_work"
               :project-id="projectId"
               :active-tab="activeTab"
               :selection-options="contextOptions"
               :from-drawer="true"
               :selected-id="selectedCustomId"
+              type="my_work"
               @apply-filter="applyCustomFilter"
               @clear="clearFilter"
               @on-filter-click="onFilterClick"
@@ -242,11 +242,11 @@
           </el-card>
           <SaveFilterButton
             ref="saveFilterButton"
-            type="my_work"
-            class="save"
             :project-id="projectId"
             :filter-value="filterValueClone"
             :active-tab="activeTab"
+            type="my_work"
+            class="save"
             @update="onCustomFilterAdded"
           />
         </div>
@@ -261,8 +261,8 @@
       >
         <el-input
           :value="keyword"
-          prefix-icon="el-icon-search"
           :placeholder="$t('Issue.SearchNameOrAssignee')"
+          prefix-icon="el-icon-search"
           class="search"
           clearable
           @input="$emit('update:keyword', $event)"

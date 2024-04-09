@@ -10,13 +10,13 @@
         {{ $t("Dashboard.TestStatus") }}
       </span>
       <el-button
-        type="text"
         :class="
           Object.keys(projectTestObj).length === 0 ? '' : 'link-text-color'
         "
+        :disabled="Object.keys(projectTestObj).length === 0"
+        type="text"
         icon="el-icon-refresh"
         size="mini"
-        :disabled="Object.keys(projectTestObj).length === 0"
         @click="updateProjectTestList()"
       >
         {{ $t("general.Refresh") }}
@@ -31,8 +31,8 @@
       <el-col
         v-for="result in testResultList"
         :key="result.Software"
-        class="mb-3"
         :span="24"
+        class="mb-3"
       >
         <el-card shadow="never">
           <div
@@ -45,9 +45,9 @@
             <em class="el-icon-right cursor-pointer" />
           </div>
           <el-tooltip
-            placement="right"
             :open-delay="200"
             :content="getLocalTime(result.runAt)"
+            placement="right"
           >
             <span class="text-sm">
               <em class="mr-1 ri-time-line" />

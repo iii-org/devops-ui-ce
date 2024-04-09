@@ -3,8 +3,8 @@
     ref="chart"
     :style="{ height, width }"
     :option="option"
-    autoresize
     :theme="isLite ? 'macarons' : 'vintage'"
+    autoresize
   />
 </template>
 

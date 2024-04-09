@@ -1,14 +1,14 @@
 <template>
-  <div class="app-container" :class="isMobile ? 'mobile' : ''">
+  <div :class="isMobile ? 'mobile' : ''" class="app-container">
     <ProjectListSelector :show-button="!isMobile">
       <el-tooltip
         v-if="issueView === 'Board'"
         slot="button"
-        placement="bottom"
         :open-delay="100"
         :content="socket.connected ?
           $t('general.SocketConnected') :
-          $t('general.ReconnectByReload')"
+        $t('general.ReconnectByReload')"
+        placement="bottom"
       >
         <div style="float:left;">
           <el-button
@@ -18,21 +18,21 @@
             @click="onSocketConnect"
           >
             <div
-              class="dot inline-block"
               :class="(socket.connected) ? 'bg-success': 'bg-danger'"
+              class="dot inline-block"
             />
             {{ (socket.connected) ? $t('general.Connected') : $t('general.Disconnected') }}
           </el-button>
         </div>
       </el-tooltip>
       <el-button
+        v-permission="['Administrator','Project Manager', 'Engineer']"
         v-else
         id="btn-add-issue"
         slot="button"
-        v-permission="['Administrator','Project Manager', 'Engineer']"
+        :disabled="isDisabled"
         class="button-secondary"
         icon="el-icon-plus"
-        :disabled="isDisabled"
         @click="handleQuickAddClose"
       >
         {{ $t('Issue.AddIssue') }}
@@ -67,14 +67,14 @@
         <el-divider direction="vertical" />
         <CustomFilter
           ref="customFilter"
-          type="issue_board"
           :group-by="groupBy"
           :selection-options="contextOptions"
+          type="issue_board"
           @apply-filter="applyCustomFilter"
         />
         <span
-          slot="download"
           v-permission="['QA']"
+          slot="download"
         >
           <el-divider direction="vertical" />
           <el-popover
@@ -177,11 +177,11 @@
               <ElSelectAll
                 ref="groupByValue"
                 :value="groupBy.value"
+                :loading="isBoardLoading"
+                :options="groupByOptions"
                 filterable
                 multiple
                 collapse-tags
-                :loading="isBoardLoading"
-                :options="groupByOptions"
                 value-key="id"
                 @change="onChangeGroupByValue($event, true)"
               />

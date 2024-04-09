@@ -37,12 +37,12 @@
             </div>
             <div class="flex justify-between">
               <span class="truncate" style="width: 250px;">
-                <strong>#<span v-html="highLight(item.id.toString())" /></strong> -
-                <span v-html="highLight(item.name)" />
+                <strong>#<span v-html="highLight(item.id.toString())"></span></strong> -
+                <span v-html="highLight(item.name)"></span>
               </span>
               <span style="color: #8492a6; font-size: 13px"
                     v-html="highLight((item.assigned_to)?item.assigned_to.name:null)"
-              />
+              ></span>
             </div>
           </el-tooltip>
         </el-option>

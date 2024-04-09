@@ -2,8 +2,8 @@
   <div class="app-container account-manage-table">
     <div class="flex justify-between">
       <el-button
-        class="button-primary"
         :size="isMobile ? 'small' : 'medium'"
+        class="button-primary"
         @click="showUserDialog('', 'Add User')"
       >
         <em class="el-icon-plus" />
@@ -44,8 +44,8 @@
             <span class="font-bold">
               <span class="font-bold">{{ row.name }}</span>
               <span
-                class="badge"
                 :style="row.status === 'disable' ? 'color: #b4b4b4' : ''"
+                class="badge"
               >
                 {{ row.login }}
               </span>
@@ -56,8 +56,8 @@
       </template>
       <template v-slot:actions="{ row }">
         <el-tooltip
-          placement="bottom"
           :content="$t('general.Participate')"
+          placement="bottom"
         >
           <em
             class="ri-edit-box-line success table-button"
@@ -65,8 +65,8 @@
           />
         </el-tooltip>
         <el-tooltip
-          placement="bottom"
           :content="$t('general.Delete')"
+          placement="bottom"
         >
           <el-popconfirm
             :title="$t('Notify.confirmDelete')"

@@ -1,5 +1,5 @@
 <template>
-  <el-card class="mb-3" :shadow="shadow">
+  <el-card :shadow="shadow" class="mb-3">
     <div class="flex justify-between items-center font-semibold">
       <div>
         <em class="el-icon-data-analysis mx-1" />
@@ -26,9 +26,9 @@
     </div>
     <el-empty
       v-if="Object.keys(selectedData).length === 0"
-      style="height: 400px"
       :image-size="200"
       :description="$t('general.NoData')"
+      style="height: 400px"
     />
     <HorizontalBar
       v-else

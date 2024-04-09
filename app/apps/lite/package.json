@@ -6,6 +6,7 @@
   "scripts": {
     "test:unit": "jest --clearCache && vue-cli-service test:unit",
     "lint": "eslint --ext .js,.vue src",
+    "lint:fix": "eslint --fix \"src/**/*.{js,vue}\"",
     "build:css": "node bin/generate-tailwind-theme.js",
     "build:prod": "yarn run build:css && vue-cli-service build",
     "build:stage": "yarn run build:css && vue-cli-service build --mode staging",

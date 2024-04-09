@@ -1,8 +1,8 @@
 <template>
   <div style="height: 400px">
     <v-chart
-      class="chart"
       :option="option"
+      class="chart"
       theme="isLite ? 'macarons' : 'vintage'"
       autoresize
     />

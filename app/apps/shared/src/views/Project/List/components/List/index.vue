@@ -2,8 +2,8 @@
   <div :class="isMobile ? 'mobile' : ''">
     <div
       ref="wrapper"
-      class="wrapper"
       :class="{'show-quick':quickAddTopicDialogVisible}"
+      class="wrapper"
     >
       <el-row
         v-loading="listLoading"

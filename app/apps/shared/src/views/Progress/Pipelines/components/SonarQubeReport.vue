@@ -4,7 +4,7 @@
       <caption>
         <div class="caption">
           <div />
-          <el-button slot="link" type="text" icon="el-icon-position" :disabled="!sonarqubeLink" @click="openSonarQube">
+          <el-button slot="link" :disabled="!sonarqubeLink" type="text" icon="el-icon-position" @click="openSonarQube">
             {{ $t('TestReport.DetailReport') }}
           </el-button>
         </div>

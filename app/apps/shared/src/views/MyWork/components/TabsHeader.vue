@@ -11,8 +11,8 @@
       class="dashboard-card"
     >
       <div
-        class="item"
         :class="{'active': activeTab === tab.id, [tab.id]: tab.id}"
+        class="item"
         @click="$emit('update:active-tab', tab.id)"
       >
         <p class="font-bold m-1">

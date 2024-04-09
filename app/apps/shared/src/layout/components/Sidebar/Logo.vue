@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-logo-container" :class="{'collapse':collapse}">
+  <div :class="{'collapse':collapse}" class="sidebar-logo-container">
     <transition name="sidebarLogoFade">
       <router-link
         v-if="collapse"
@@ -28,8 +28,8 @@
         </div>
         <div>
           <h1
-            class="sidebar-title"
             :class="isLite ? 'lite' : ''"
+            class="sidebar-title"
           >
             {{ defaultSettings.title }}
           </h1>

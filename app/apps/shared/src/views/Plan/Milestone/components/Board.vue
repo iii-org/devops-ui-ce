@@ -1,11 +1,11 @@
 <template>
   <section>
     <el-tooltip
-      placement="left"
       :open-delay="100"
       :content="socket.connected ?
         $t('general.SocketConnected') :
-        $t('general.ReconnectByReload')"
+      $t('general.ReconnectByReload')"
+      placement="left"
     >
       <transition name="el-fade-in">
         <div
@@ -17,10 +17,10 @@
         >
           <el-button
             slot="button"
+            :type="(socket.connected)? 'success': 'danger'"
             icon="el-icon-connection"
             circle
             class="socket-button"
-            :type="(socket.connected)? 'success': 'danger'"
             @click="onSocketConnect"
           />
         </div>
@@ -28,9 +28,9 @@
     </el-tooltip>
     <el-tooltip
       v-if="socket.disconnected"
-      placement="left"
       :open-delay="100"
       :content="$t('general.Reload')"
+      placement="left"
     >
       <transition name="el-fade-in">
         <div
@@ -58,8 +58,8 @@
           :key="headerName.id"
         >
           <div
-            class="board-column"
             :class="getHeaderBarClassName(headerName.name)"
+            class="board-column"
             style="margin-top: 0"
           >
             <div class="board-column-header">
@@ -77,14 +77,14 @@
         class="header"
       >
         <el-table
+          v-loading="listLoading"
           v-if="groupBy.dimension === 'status'"
           ref="issueList"
-          v-loading="listLoading"
-          row-key="id"
           :element-loading-text="$t('Loading')"
           :data="listData"
           :tree-props="{ children: 'child' }"
           :row-class-name="setClassName"
+          row-key="id"
           @row-contextmenu="handleContextMenu"
           @expand-change="getBoardData"
           @row-click="handleRowClick"
@@ -93,7 +93,7 @@
             <template slot-scope="{row}">
               <el-row
                 v-loading="row.hasOwnProperty('isLoadingFamily')
-                  && row.isLoadingFamily"
+                && row.isLoadingFamily"
               >
                 <div class="header resizeHeight">
                   <Kanban
@@ -145,15 +145,15 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="assigned_to.name"
             :label="$t('Issue.assigned_to')"
+            prop="assigned_to.name"
             width="200px"
             align="center"
           />
           <el-table-column
+            :label="$t('Issue.EndDate')"
             width="120px"
             prop="due_date"
-            :label="$t('Issue.EndDate')"
             align="center"
           >
             <template slot-scope="scope">
@@ -180,14 +180,14 @@
           </template>
         </el-table>
         <el-table
+          v-loading="listLoading"
           v-else
           ref="assigneeList"
           :key="tableKey"
-          v-loading="listLoading"
-          row-key="id"
           :element-loading-text="$t('Loading')"
           :data="assigneeVersionData"
           :tree-props="{ children: 'child' }"
+          row-key="id"
           @expand-change="getAssigneeData"
           @row-click="handleRowClick"
         >
@@ -195,7 +195,7 @@
             <template slot-scope="{row}">
               <el-row
                 v-loading="row.hasOwnProperty('isLoadingFamily')
-                  && row.isLoadingFamily"
+                && row.isLoadingFamily"
               >
                 <div class="header resizeHeight">
                   <Kanban
@@ -222,9 +222,9 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="name"
             :label="groupBy.dimension === 'assigned_to' ?
-              $t('Issue.assigned_to') : $t('Issue.fixed_version')"
+            $t('Issue.assigned_to') : $t('Issue.fixed_version')"
+            prop="name"
           >
             <template slot-scope="{row}">
               {{ groupBy.dimension === 'fixed_version'

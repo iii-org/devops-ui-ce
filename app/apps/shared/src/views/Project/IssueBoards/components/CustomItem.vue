@@ -38,19 +38,19 @@
       :xs="1"
       class="flex justify-center"
     >
-      <el-tooltip placement="bottom" :content="$t('general.Delete')">
+      <el-tooltip :content="$t('general.Delete')" placement="bottom">
         <el-popconfirm
           :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
+          :title="$t('Notify.confirmDelete')"
           icon="el-icon-info"
           icon-color="red"
-          :title="$t('Notify.confirmDelete')"
           @confirm="handleDelete"
         >
           <em
             slot="reference"
-            class="el-icon-delete"
             :style="getStyle('danger')"
+            class="el-icon-delete"
           />
         </el-popconfirm>
       </el-tooltip>

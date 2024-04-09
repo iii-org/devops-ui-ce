@@ -11,9 +11,9 @@
         :collapse="isCollapse"
         :background-color="variables.menuBg"
         :text-color="variables.menuText"
-        unique-opened
         :active-text-color="variables.menuActiveText"
         :collapse-transition="false"
+        unique-opened
         mode="vertical"
       >
         <sidebar-item

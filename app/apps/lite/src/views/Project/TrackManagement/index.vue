@@ -36,7 +36,7 @@
                 :disabled="selectedProjectId === -1 || allDataLoading"
                 @click="downloadExcel(allDownloadData)"
               >
-                <em class="el-icon-download" />
+                <em class="el-icon-download"></em>
                 {{ $t('Dashboard.ADMIN.ProjectList.all_download') }}
               </el-menu-item>
               <el-menu-item
@@ -44,7 +44,7 @@
                 :disabled="selectedProjectId === -1"
                 @click="downloadExcel(selectedTrackList)"
               >
-                <em class="el-icon-download" />
+                <em class="el-icon-download"></em>
                 {{ $t('Dashboard.ADMIN.ProjectList.excel_download') }}
               </el-menu-item>
             </el-menu>

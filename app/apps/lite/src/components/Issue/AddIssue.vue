@@ -17,7 +17,7 @@
         <em
           class="el-icon-document-copy success table-button"
           @click="$emit('import')"
-        />
+        ></em>
       </el-tooltip>
       : {{ parentName }}
     </div>

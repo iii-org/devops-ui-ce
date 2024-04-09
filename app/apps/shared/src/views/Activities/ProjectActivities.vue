@@ -4,10 +4,10 @@
       <ProjectListSelector>
         <el-input
           v-model="keyword"
-          prefix-icon="el-icon-search"
           :placeholder="$t('Activities.SearchPlaceholder')"
           :style="{ width: isMobile ? 'auto' : '250px' }"
           :size="isMobile ? 'small' : 'medium'"
+          prefix-icon="el-icon-search"
         />
       </ProjectListSelector>
       <el-divider />

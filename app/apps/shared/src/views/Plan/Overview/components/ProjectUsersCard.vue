@@ -9,8 +9,8 @@
       </div>
       <el-button
         v-permission="['Administrator','Project Manager','QA']"
-        class="button-secondary"
         :size="isMobile ? 'small' : 'medium'"
+        class="button-secondary"
         icon="el-icon-plus"
         @click="showDialog"
       >
@@ -29,8 +29,8 @@
       stripe
     >
       <el-table-column
-        prop="name"
         :label="$t('general.Name')"
+        prop="name"
       >
         <template slot-scope="scope">
           <div style="display: flex !important;align-items: center;">
@@ -55,9 +55,9 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="role_name"
         :label="$t('Project.Title')"
         :width="160"
+        prop="role_name"
         align="center"
       >
         <template slot-scope="scope">

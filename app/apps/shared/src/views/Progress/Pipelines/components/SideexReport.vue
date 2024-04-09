@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!showSideexReport"
             type="text"
             icon="el-icon-position"
-            :disabled="!showSideexReport"
             @click="openSideex"
           >
             {{ $t('TestReport.DetailReport') }}

@@ -1,6 +1,6 @@
 <template>
   <div class="wheel-item-container">
-    <div class="wheel-item-line" />
+    <div class="wheel-item-line"></div>
     <div class="wheel-item-list">
       <div ref="list">
         <div

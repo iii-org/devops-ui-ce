@@ -7,12 +7,12 @@
       <el-table
         ref="issueList"
         :data="isSearch ? pagedData : listData"
-        highlight-current-row
-        size="mini"
-        row-key="id"
         :expand-row-keys="expandedRow"
         :tree-props="{ children: 'child' }"
         :row-class-name="getRowClass"
+        highlight-current-row
+        size="mini"
+        row-key="id"
         @row-contextmenu="handleContextMenu"
         @cell-click="handleCellClick"
         @expand-change="getIssueFamilyData"
@@ -33,8 +33,8 @@
               />
             </el-row>
             <IssueExpand
-              style="margin-right: 20px;"
               :issue="row"
+              style="margin-right: 20px;"
               @update="fetchData"
               @on-context-menu="onContextMenu"
               @handle-expand-row="collapseExpandRow"
@@ -99,8 +99,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          align="center"
           :label="$t('Issue.Priority')"
+          align="center"
           width="150"
           prop="priority"
           sortable="custom"
@@ -114,8 +114,8 @@
           </template>
         </el-table-column>
         <el-table-column
-          align="center"
           :label="$t('general.Status')"
+          align="center"
           width="150"
           prop="status"
           sortable="custom"
@@ -130,8 +130,8 @@
         </el-table-column>
         <el-table-column
           v-if="from === 'author_id'"
-          align="center"
           :label="$t('Issue.Assignee')"
+          align="center"
           min-width="180"
           prop="assigned_to"
           sortable="custom"
@@ -151,8 +151,8 @@
         </el-table-column>
         <el-table-column
           v-if="from === 'assigned_to_id'"
-          align="center"
           :label="$t('Issue.Author')"
+          align="center"
           min-width="180"
           prop="author"
           sortable="custom"

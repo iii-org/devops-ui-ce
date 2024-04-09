@@ -1,8 +1,8 @@
 <template>
   <el-col
     v-loading="listLoading"
-    class="inner"
     :style="{height:height}"
+    class="inner"
   >
     <template v-if="listData.length>0">
       <transition-group
@@ -26,7 +26,7 @@
                 <em class="ri-git-commit-line" />{{ firstEightCommitId(commit.commit_id) }} :
               </a>
               {{ commit.author_name }} @ {{ commit.pj_name }}
-              <el-tooltip effect="dark" :content="$t('Issue.EditIssueHook')" placement="bottom">
+              <el-tooltip :content="$t('Issue.EditIssueHook')" effect="dark" placement="bottom">
                 <a
                   class="el-link el-link--primary"
                   @click="toggleIssueSingleCommitDialog(commit)"
@@ -48,10 +48,10 @@
         <div slot="title">
           {{ $t('Issue.CommitIssueHookSetting') }}
           <el-button
+            :disabled="!isEnabledSaveSingleCommitHookBtn"
             class="float-right button-primary"
             style="margin-right: 2em;"
             size="small"
-            :disabled="!isEnabledSaveSingleCommitHookBtn"
             @click="toggleSaveSingleCommitDialog"
           >
             {{ $t('general.Save') }}
@@ -87,10 +87,10 @@
             #{{ issueId }} - {{ issueName }}
           </span>
           <el-button
+            :disabled="!isEnabledSaveMultiCommitHookBtn"
             class="float-right button-primary"
             style="margin-right: 2em;"
             size="small"
-            :disabled="!isEnabledSaveMultiCommitHookBtn"
             @click="toggleSaveMultiCommitDialog"
           >
             {{ $t('general.Save') }}
@@ -135,7 +135,7 @@
           </el-timeline-item>
         </transition-group>
       </el-dialog>
-      <el-tooltip effect="dark" :content="$t('Issue.BatchEditIssueHook')" placement="bottom">
+      <el-tooltip :content="$t('Issue.BatchEditIssueHook')" effect="dark" placement="bottom">
         <a
           size="mini"
           class="el-link el-link--primary"

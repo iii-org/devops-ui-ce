@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!hasCmasData"
             type="text"
             icon="el-icon-download"
-            :disabled="!hasCmasData"
             @click="openCmas"
           >
             {{ $t('TestReport.DetailReport') }}

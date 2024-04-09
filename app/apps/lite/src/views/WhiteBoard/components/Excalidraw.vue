@@ -57,7 +57,7 @@
             :height="excalidrawHeight"
             width="100%"
             title="Excalidraw"
-          />
+          ></iframe>
         </div>
       </el-collapse-item>
     </el-collapse>

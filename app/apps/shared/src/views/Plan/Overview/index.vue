@@ -1,11 +1,11 @@
 <template>
   <div
-    id="project-overview"
     v-loading="isLoading"
+    id="project-overview"
     :element-loading-text="$t('Loading')"
-    class="app-container"
     :class="isMobile ? 'mobile' : ''"
     :gutter="10"
+    class="app-container"
   >
     <el-backtop target="#project-overview" />
     <ProjectListSelector>
@@ -28,7 +28,7 @@
       />
     </ProjectListSelector>
     <el-divider />
-    <el-row class="row" :gutter="12">
+    <el-row :gutter="12" class="row">
       <el-col :xs="24" :md="12">
         <IssueTrackingStatusCard
           ref="issueStatus"
@@ -44,7 +44,7 @@
         />
       </el-col>
     </el-row>
-    <el-row class="row" :gutter="12">
+    <el-row :gutter="12" class="row">
       <el-col :xs="24" :md="12">
         <ProjectUsersCard
           ref="projectUserList"
@@ -63,8 +63,8 @@
     </el-row>
     <el-dialog
       :visible.sync="fullIssuePriority"
-      top="5vh"
       :width="isMobile ? '95%' : '75%'"
+      top="5vh"
     >
       <WorkloadCard
         :statistics-obj="statisticsObj"
@@ -73,8 +73,8 @@
     </el-dialog>
     <el-dialog
       :visible.sync="isShowProjectSettingDialog"
-      top="5vh"
       :width="isMobile ? '95%' : '75%'"
+      top="5vh"
       destroy-on-close
       @close="handleCloseDialog"
     >

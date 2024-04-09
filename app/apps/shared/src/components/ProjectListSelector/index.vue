@@ -31,15 +31,15 @@
           </div>
         </el-col>
         <el-col :style="{width: device === 'mobile' ? '100%' : 'auto'}">
-          <el-tooltip placement="top" :disabled="tooltipContent === ''" :content="tooltipContent">
+          <el-tooltip :disabled="tooltipContent === ''" :content="tooltipContent" placement="top">
             <el-select
               ref="selectProject"
               v-model="projectValue"
               :placeholder="$t('Project.SelectProject')"
               :filter-method="setFilter"
+              :clearable="clearable"
               filterable
               class="project"
-              :clearable="clearable"
               @click.native="checkUnsavedChanges"
               @blur="selectVisible = false"
               @change="setChange"
@@ -96,10 +96,10 @@
               </div>
               <el-link
                 v-if="!isLite"
-                target="_blank"
-                class="item"
                 :underline="false"
                 :href="projectInformation.harbor_url"
+                target="_blank"
+                class="item"
               >
                 <svg-icon
                   icon-class="harbor"

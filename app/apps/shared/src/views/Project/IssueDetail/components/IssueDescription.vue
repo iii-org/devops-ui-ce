@@ -2,14 +2,14 @@
   <el-row>
     <el-row v-loading="isLoading">
       <el-row
-        class="flex justify-between"
         :class="device === 'mobile' ? 'pb-1' : 'py-3'"
         :type="device === 'mobile' ? 'flex' : ''"
         :justify="device === 'mobile' ? 'space-between' : 'start'"
+        class="flex justify-between"
       >
         <span
-          class="flex items-center"
           :style="{ 'flex-basis': isShowZoom ? '75%' : '100%' }"
+          class="flex items-center"
         >
           <span
             :class="device === 'mobile' ? 'flex' : ''"
@@ -58,8 +58,8 @@
           class="flex w-1/4"
         >
           <el-link
-            icon="el-icon-zoom-out"
             :underline="false"
+            icon="el-icon-zoom-out"
             @click="zoomOut()"
           />
           <el-slider
@@ -68,8 +68,8 @@
             @change="zoom()"
           />
           <el-link
-            icon="el-icon-zoom-in"
             :underline="false"
+            icon="el-icon-zoom-in"
             @click="zoomIn()"
           />
         </span>
@@ -80,10 +80,10 @@
           id="descriptionEditor"
           ref="mdEditor"
           :height="viewerHeight"
-          preview-style="tab"
-          initial-edit-type="wysiwyg"
           :initial-value="editorValue"
           :options="editorOptions"
+          preview-style="tab"
+          initial-edit-type="wysiwyg"
           @change="onChange"
           @keyup.native="onKeyEvent"
           @keydown.native="onKeyEvent"
@@ -100,16 +100,16 @@
           placement="top"
         >
           <el-input
-            class="p-3 mr-1"
             :class="isButtonDisabled ? 'cursor-not-allowed' : 'cursor-text description'"
             :placeholder="$t('general.Input', { item: $t('Issue.Description') })"
+            class="p-3 mr-1"
             @click.native="checkEnableEditor"
           />
         </el-tooltip>
       </el-col>
       <el-drawer
-        v-else-if="edit && device === 'mobile'"
         v-loading="isLoading"
+        v-else-if="edit && device === 'mobile'"
         :visible.sync="toggleDrawer"
         :show-close="false"
         direction="btt"
@@ -147,11 +147,11 @@
         <Editor
           id="descriptionEditor"
           ref="mdEditor"
+          :initial-value="editorValue"
+          :options="editorOptions"
           height="auto"
           preview-style="tab"
           initial-edit-type="wysiwyg"
-          :initial-value="editorValue"
-          :options="editorOptions"
           @change="onChange"
           @keyup.native="onKeyEvent"
           @keydown.native="onKeyEvent"
@@ -161,7 +161,7 @@
         v-else-if="value !== ''"
         :class="device === 'mobile' ?
           'border-solid border-2 border-grey-500 rounded' :
-          !edit ? 'description' : ''"
+        !edit ? 'description' : ''"
         :style="{ cursor: isButtonDisabled ? 'not-allowed' : 'text' }"
         @dblclick.native.capture="checkEnableEditor"
       >
@@ -176,8 +176,8 @@
             ref="mdViewer"
             :key="componentKey"
             :initial-value="editorValue"
-            class="px-1"
             :class="ellipsisStatus ? 'ellipsis truncate' : null"
+            class="px-1"
             @load="addLinkTarget(); isFolded()"
           />
         </el-tooltip>
@@ -193,9 +193,9 @@
       <el-link
         v-if="isViewerFolded && !edit"
         :icon="ellipsisStatus ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"
+        :underline="false"
         class="table m-auto my-3"
         type="info"
-        :underline="false"
         @click="ellipsisStatus = !ellipsisStatus"
       >
         {{ device === 'desktop' ? ellipsisStatus ? $t('general.Expand') : $t('general.Fold') : '' }}

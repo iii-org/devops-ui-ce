@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!hasWebInspectData"
             type="text"
             icon="el-icon-tickets"
-            :disabled="!hasWebInspectData"
             @click="openWebInspect"
           >
             {{ $t('TestReport.DetailReport') }}

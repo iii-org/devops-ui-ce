@@ -2,19 +2,19 @@
   <el-col v-loading="loading">
     <v-chart
       v-if="chartData.length > 0"
-      class="chart"
       :option="projectMembersOptions"
-      autoresize
       :theme="isLite ? 'macarons' : 'vintage'"
+      class="chart"
+      autoresize
       @click="onClickChart"
     />
     <NoData v-else />
     <el-dialog
       :visible.sync="dialogVisible.projectMember"
       :title="$t('Dashboard.ADMIN.ProjectMembers.NAME')"
+      :width="isMobile ? '90vw' : '75vw'"
       destroy-on-close
       top="3vh"
-      :width="isMobile ? '90vw' : '75vw'"
       @close="closeHandler"
     >
       <el-row type="flex" align="middle">
@@ -46,14 +46,14 @@
             </template>
           </el-table-column>
           <el-table-column
-            show-overflow-tooltip
             :label="$t('Dashboard.ADMIN.ProjectMembers.project_name')"
+            show-overflow-tooltip
             prop="project_name"
             sortable
           />
           <el-table-column
-            show-overflow-tooltip
             :label="$t('Dashboard.ADMIN.ProjectMembers.owner_name')"
+            show-overflow-tooltip
             prop="owner_name"
             sortable
           >
@@ -67,14 +67,14 @@
             sortable
           />
           <el-table-column
-            show-overflow-tooltip
             :label="$t('Dashboard.ADMIN.ProjectMembers.start_date')"
+            show-overflow-tooltip
             prop="start_date"
             sortable
           />
           <el-table-column
-            show-overflow-tooltip prop="end_date"
-            :label="$t('Dashboard.ADMIN.ProjectMembers.end_date')"
+            :label="$t('Dashboard.ADMIN.ProjectMembers.end_date')" show-overflow-tooltip
+            prop="end_date"
             sortable
           />
         </el-table>

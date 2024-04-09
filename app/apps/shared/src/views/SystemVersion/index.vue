@@ -2,8 +2,8 @@
   <div class="app-container">
     <VersionUpdater />
     <div
-      class="items-center bg-gray-600 text-white py-3 px-4 rounded mb-5"
       :class="!isMobile ? 'flex justify-between' : ''"
+      class="items-center bg-gray-600 text-white py-3 px-4 rounded mb-5"
     >
       <div class="text-title">
         <span>

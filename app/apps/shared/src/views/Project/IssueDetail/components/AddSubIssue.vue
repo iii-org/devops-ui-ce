@@ -23,8 +23,8 @@
         <el-row v-else>
           <el-col :span="20">
             <SettingRelationIssue
-              :key="reloadSettingRelation"
               ref="settingRelationIssue"
+              :key="reloadSettingRelation"
               :row.sync="parentData"
               :target="'Children'"
               :show-parent="false"
@@ -33,8 +33,8 @@
           </el-col>
           <el-col :span="4">
             <el-button
-              type="success"
               :loading="isLoading"
+              type="success"
               style="padding: 9px 8px; margin-top: 44px; margin-left: 10px;"
               icon="el-icon-check"
               size="small"
@@ -43,8 +43,8 @@
           </el-col>
         </el-row>
         <el-link
-          type="primary"
           :underline="false"
+          type="primary"
           @click="isCreateSubIssue = !isCreateSubIssue"
         >
           {{ isCreateSubIssue ? $t('general.AddExistingIssue') : $t('general.AddNewSubIssue') }}
@@ -58,13 +58,13 @@
           <el-col :span="18">
             <el-select
               v-model="form.parent_id"
-              style="width: 100%"
               :placeholder="$t('Issue.SearchNameOrAssignee')"
+              :remote-method="getSearchIssue"
+              :loading="issueLoading"
+              style="width: 100%"
               clearable
               filterable
               remote
-              :remote-method="getSearchIssue"
-              :loading="issueLoading"
               @focus="getSearchIssue()"
               @change="updateParentIssue()"
             >
@@ -131,14 +131,14 @@
           <el-col :span="20">
             <el-select
               v-model="form.relation_ids"
-              style="width: 100%"
               :placeholder="$t('Issue.SearchNameOrAssignee')"
+              :loading="issueLoading"
+              :remote-method="getSearchRelationIssue"
+              style="width: 100%"
               clearable
               filterable
               remote
               multiple
-              :loading="issueLoading"
-              :remote-method="getSearchRelationIssue"
               @focus="getSearchRelationIssue()"
             >
               <el-option-group

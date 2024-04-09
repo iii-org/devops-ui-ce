@@ -1,8 +1,8 @@
 <template>
   <el-row
     v-loading="isLoadingTemplate"
-    class="loading-template"
     :gutter="10"
+    class="loading-template"
   >
     <el-col :span="24">
       <el-divider content-position="left">

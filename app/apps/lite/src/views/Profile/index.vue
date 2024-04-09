@@ -10,7 +10,7 @@
       >
         <el-tab-pane name="basic">
           <span slot="label">
-            <em v-if="isMobile" class="ri-user-line text-xl align-middle" />
+            <em v-if="isMobile" class="ri-user-line text-xl align-middle"></em>
             <span v-else>{{ $t('Profile.Basic') }}</span>
           </span>
           <Basic
@@ -22,7 +22,7 @@
         </el-tab-pane>
         <el-tab-pane name="security">
           <span slot="label">
-            <em v-if="isMobile" class="ri-shield-user-line text-xl align-middle" />
+            <em v-if="isMobile" class="ri-shield-user-line text-xl align-middle"></em>
             <span v-else>{{ $t('Profile.Security') }}</span>
           </span>
           <Security

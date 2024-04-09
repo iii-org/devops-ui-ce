@@ -2,8 +2,8 @@
   <el-table
     v-loading="memberData.loading"
     :data="categoryByRole"
-    row-key="user_id"
     :show-header="false"
+    row-key="user_id"
   >
     <el-table-column
       :label="$t('Member.Role')"
@@ -34,8 +34,8 @@
         <el-tag
           v-for="(user,idx) in scope.row.user_name"
           :key="idx"
-          class="ml-1 rounded-md"
           :type="mapType(scope.row.role_name)"
+          class="ml-1 rounded-md"
           effect="dark"
           size="small"
         >

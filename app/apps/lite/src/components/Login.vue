@@ -11,7 +11,7 @@
           label-position="left"
         >
           <div class="login-form-title">
-            <img src="@/assets/logo.png" class="sidebar-logo" alt="">
+            <img src="@/assets/logo.png" class="sidebar-logo" alt="" />
             <span :class="isLite ? 'lite' : ''" class="align-middle">{{ defaultSettings.title }}</span>
           </div>
           <el-form-item prop="username">
@@ -45,7 +45,7 @@
             {{ $t('general.Login') }}
           </el-button>
         </el-form>
-        <div class="login-more" />
+        <div class="login-more"></div>
       </div>
     </div>
   </div>

@@ -39,13 +39,13 @@
             placement="bottom"
             :content="$t('general.Edit')"
           >
-            <em class="ri-edit-box-line success table-button" @click="handleEdit(row)" />
+            <em class="ri-edit-box-line success table-button" @click="handleEdit(row)"></em>
           </el-tooltip>
           <el-tooltip
             placement="bottom"
             :content="$t('general.Delete')"
           >
-            <em class="ri-delete-bin-2-line danger table-button" @click="handleDelete(row)" />
+            <em class="ri-delete-bin-2-line danger table-button" @click="handleDelete(row)"></em>
           </el-tooltip>
         </template>
       </ElTableResponsive>

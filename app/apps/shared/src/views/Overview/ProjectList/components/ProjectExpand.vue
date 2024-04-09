@@ -3,9 +3,9 @@
     <h4 class="ml-5 my-1">{{ $t('general.ChildrenProject') }}</h4>
     <el-tree
       :data="children"
-      node-key="id"
       :indent="34"
       :expand-on-click-node="false"
+      node-key="id"
       icon-class="el-icon-arrow-right"
     >
       <div
@@ -36,12 +36,12 @@
               <el-popover
                 v-if="data.git_url"
                 :disabled="data.disabled || data.is_lock"
+                :open-delay="300"
+                :close-delay="50"
                 class="mr-1"
                 placement="top"
                 width="400"
                 trigger="hover"
-                :open-delay="300"
-                :close-delay="50"
               >
                 <p
                   :id="`copy-${data.id}`"
@@ -81,11 +81,11 @@
               <!-- harbor button -->
               <el-link
                 v-if="data.harbor_url"
-                target="_blank"
-                style="font-size: 18px; padding: 0 2px;"
                 :underline="false"
                 :disabled="data.disabled || data.is_lock"
                 :href="data.harbor_url"
+                target="_blank"
+                style="font-size: 18px; padding: 0 2px;"
               >
                 <svg-icon icon-class="harbor" />
               </el-link>
@@ -121,9 +121,9 @@
         <!-- issue status -->
         <template>
           <el-tooltip
-            placement="bottom"
             :disabled="!data.is_lock"
             :content="data.lock_reason"
+            placement="bottom"
           >
             <el-tag
               v-if="data.is_lock"
@@ -147,8 +147,8 @@
         <template>
           <el-tooltip
             v-if="userRole !== 'QA' && data.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Edit')"
+            placement="bottom"
           >
             <em
               class="ri-edit-box-line success table-button"
@@ -157,8 +157,8 @@
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Delete')"
+            placement="bottom"
           >
             <span>
               <em
@@ -170,8 +170,8 @@
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock === true"
-            placement="bottom"
             :content="$t('general.ForceDelete')"
+            placement="bottom"
           >
             <span>
               <em
@@ -183,15 +183,15 @@
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock === true"
-            placement="bottom"
             :content="$t('general.Fix')"
+            placement="bottom"
           >
             <em class="ri-refresh-line primary table-button" @click.stop="$emit('handleFix', data.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="data.is_lock !== true"
-            placement="bottom"
             :content="!data.disabled ? $t('general.Disable') : $t('general.Enable')"
+            placement="bottom"
           >
             <span>
               <em

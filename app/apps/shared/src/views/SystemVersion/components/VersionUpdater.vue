@@ -11,8 +11,8 @@
           {{ notifyTitle }}（{{ updateVersionName }}）
         </span>
         <el-link
-          type="primary"
           :underline="false"
+          type="primary"
           @click="dialogVisible = true"
         >
           {{ $t("general.MoreInfo") }}

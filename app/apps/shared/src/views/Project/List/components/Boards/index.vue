@@ -16,8 +16,8 @@
       :tags="tags"
       :element-ids="elementIds"
       :project-id="projectId"
-      filter-type="issue_board"
       :custom-sort="customSort"
+      filter-type="issue_board"
       @getRelativeList="getRelativeList"
       @updateIssueList="updateIssueList"
       @loadData="loadData"
@@ -25,17 +25,17 @@
     <el-dialog
       :title="$t('general.Add') + $t('Issue.CustomBoard')"
       :visible.sync="customBoardDialogVisible"
+      :close-on-click-modal="false"
+      :before-close="closeCustomBoardDialog"
       top="3vh"
       append-to-body
       destroy-on-close
-      :close-on-click-modal="false"
-      :before-close="closeCustomBoardDialog"
     >
       <div style="max-height: 25vh; overflow: auto;">
         <CustomItem
+          v-loading="isLoading"
           v-for="(boardObject, index) in customValueOnBoard"
           :key="boardObject.id"
-          v-loading="isLoading"
           :order="index"
           :board-object.sync="boardObject"
           :custom-value-on-board="customValueOnBoard"
@@ -68,15 +68,15 @@
           :xs="14"
         >
           <el-button
-            class="buttonSecondaryReverse"
             :loading="isLoading"
+            class="buttonSecondaryReverse"
             @click="closeCustomBoardDialog"
           >
             {{ $t('general.Cancel') }}
           </el-button>
           <el-button
-            class="buttonPrimary"
             :loading="isLoading"
+            class="buttonPrimary"
             @click="confirmCustomBoardDialog"
           >
             {{ $t('general.Confirm') }}

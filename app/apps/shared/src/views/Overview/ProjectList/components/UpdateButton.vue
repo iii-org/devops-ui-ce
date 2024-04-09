@@ -1,9 +1,9 @@
 <template>
   <el-button
+    :loading="listLoading"
     size="small"
     icon="el-icon-refresh"
     class="button-primary-reverse"
-    :loading="listLoading"
     @click="updateProjectList"
   >
     {{ $t('Dashboard.ADMIN.UpdateNow') }}

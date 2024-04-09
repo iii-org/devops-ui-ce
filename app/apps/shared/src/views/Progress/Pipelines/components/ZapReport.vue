@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!hasZapData"
             type="text"
             icon="el-icon-position"
-            :disabled="!hasZapData"
             @click="openZap"
           >
             {{ $t('TestReport.DetailReport') }}

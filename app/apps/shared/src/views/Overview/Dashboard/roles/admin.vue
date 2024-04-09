@@ -6,10 +6,10 @@
       </div>
       <div>
         <el-button
+          :disabled="status.is_lock"
           size="small"
           icon="el-icon-refresh"
           class="button-primary-reverse"
-          :disabled="status.is_lock"
           @click="getSyncRedmine"
         >
           {{ $t('Dashboard.ADMIN.UpdateNow') }}
@@ -19,15 +19,15 @@
     <el-row v-show="isLoading || projectCount > 0">
       <el-col :class="isMobile ? 'mobile' : ''">
         <el-row
+          :gutter="12"
           type="flex"
           class="flex-wrap"
-          :gutter="12"
         >
           <el-col v-if="status.is_lock">
             <el-alert
+              :closable="false"
               type="warning"
               class="mb-4 loading"
-              :closable="false"
             >
               <h2 slot="title">
                 <em class="el-icon-loading" /> {{ $t('Dashboard.ADMIN.syncing') }}
@@ -88,9 +88,9 @@
           </el-col>
         </el-row>
         <el-row
+          :gutter="12"
           type="flex"
           class="flex-wrap"
-          :gutter="12"
         >
           <el-col
             :xs="24"
@@ -143,9 +143,9 @@
           </el-col>
         </el-row>
         <el-row
+          :gutter="12"
           type="flex"
           class="flex-wrap"
-          :gutter="12"
         >
           <el-col
             :xs="24"

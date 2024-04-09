@@ -22,9 +22,9 @@
       type="text"
       class="header-text-color"
     >
-      <em class="ri-layout-column-fill align-middle" />
+      <em class="ri-layout-column-fill align-middle"></em>
       <span v-if="!isMobile">{{ $t('Milestone.Display') }}</span>
-      <em class="el-icon-arrow-down el-icon--right" />
+      <em class="el-icon-arrow-down el-icon--right"></em>
     </el-button>
   </el-popover>
 </template>

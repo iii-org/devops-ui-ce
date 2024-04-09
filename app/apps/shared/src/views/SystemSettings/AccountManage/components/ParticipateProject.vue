@@ -36,8 +36,8 @@
     >
       <template v-slot:actions="{ row }">
         <el-tooltip
-          placement="bottom"
           :content="$t('general.Participate')"
+          placement="bottom"
         >
           <em
             v-if="$route.params.user_id !== row.owner_id"
@@ -46,8 +46,8 @@
           />
         </el-tooltip>
         <el-tooltip
-          placement="bottom"
           :content="$t('Issue.Issue')"
+          placement="bottom"
         >
           <em
             class="ri-file-copy-2-line success table-button"
@@ -55,23 +55,23 @@
           />
         </el-tooltip>
         <el-tooltip
-          placement="bottom"
           :content="$t('general.Remove')"
           :disabled="isDisabled"
+          placement="bottom"
         >
           <el-popconfirm
             :confirm-button-text="$t('general.Remove')"
             :cancel-button-text="$t('general.Cancel')"
-            icon="el-icon-info"
-            popper-class="danger"
             :title="$t('Member.confirmRemove')"
             :disabled="isDisabled"
+            icon="el-icon-info"
+            popper-class="danger"
             @confirm="handleDelete(row.id)"
           >
             <span slot="reference">
               <em
-                class="ri-delete-bin-2-line table-button"
                 :class="isDisabled ? 'disabled' : 'danger'"
+                class="ri-delete-bin-2-line table-button"
               />
             </span>
           </el-popconfirm>

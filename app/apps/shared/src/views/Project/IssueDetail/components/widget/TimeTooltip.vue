@@ -1,9 +1,9 @@
 <template>
   <el-tooltip
     v-if="time"
-    placement="top"
     :open-delay="200"
     :content="getLocalTime(time)"
+    placement="top"
   >
     <span class="text-sm">
       {{ getRelativeTime(time) }}

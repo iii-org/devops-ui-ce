@@ -1,15 +1,15 @@
 <template>
-  <el-form ref="issueForm" v-loading="isLoading" :model="form" :rules="issueFormRules">
+  <el-form v-loading="isLoading" ref="issueForm" :model="form" :rules="issueFormRules">
     <el-form-item v-if="target==='Parent'" :label="$t('Issue.ParentIssue')" prop="parent_id">
       <el-select
         v-model="form.parent_id"
-        style="width: 100%"
         :placeholder="$t('Issue.SearchNameOrAssignee')"
+        :remote-method="getSearchIssue"
+        :loading="issueLoading"
+        style="width: 100%"
         clearable
         filterable
         remote
-        :remote-method="getSearchIssue"
-        :loading="issueLoading"
       >
         <el-option-group
           v-for="group in issueList"
@@ -68,15 +68,15 @@
     <el-form-item v-else :label="$t('Issue.ChildrenIssue')" prop="children_id">
       <el-select
         v-model="form.children_id"
-        style="width: 100%"
         :placeholder="$t('Issue.SearchNameOrAssignee')"
+        :remote-method="getSearchIssue"
+        :loading="issueLoading"
+        :size="showParent ? '' : 'small'"
+        style="width: 100%"
         clearable
         filterable
         remote
         multiple
-        :remote-method="getSearchIssue"
-        :loading="issueLoading"
-        :size="showParent ? '' : 'small'"
       >
         <el-option-group
           v-for="group in issueList"

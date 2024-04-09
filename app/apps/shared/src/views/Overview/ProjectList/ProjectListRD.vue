@@ -40,9 +40,9 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="center"
         :label="$t('Project.NameIdentifier')"
         :show-overflow-tooltip="true"
+        align="center"
         min-width="230"
       >
         <template slot-scope="scope">
@@ -52,12 +52,12 @@
               <el-popover
                 v-if="scope.row.git_url"
                 :disabled="scope.row.disabled || scope.row.is_lock"
+                :open-delay="300"
+                :close-delay="50"
                 class="mr-1"
                 placement="top"
                 width="400"
                 trigger="hover"
-                :open-delay="300"
-                :close-delay="50"
               >
                 <p
                   :id="`copy-${scope.$index}`"
@@ -97,11 +97,11 @@
               <!-- harbor button -->
               <el-link
                 v-if="scope.row.harbor_url"
-                target="_blank"
-                style="font-size: 18px; padding: 0 3px;"
                 :underline="false"
                 :disabled="scope.row.disabled || scope.row.is_lock"
                 :href="scope.row.harbor_url"
+                target="_blank"
+                style="font-size: 18px; padding: 0 3px;"
               >
                 <svg-icon icon-class="harbor" />
               </el-link>
@@ -127,8 +127,8 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="center"
         :label="$t('Project.WorkloadValue')"
+        align="center"
         width="120"
       >
         <template slot-scope="scope">
@@ -136,35 +136,35 @@
         </template>
       </el-table-column>
       <ElTableColumnTime
-        prop="next_d_time"
         :label="$t('Project.UpcomingDeadline')"
+        prop="next_d_time"
       />
       <el-table-column
-        align="center"
         :label="$t('Project.LastTest')"
+        align="center"
         width="190"
       >
         <template slot-scope="scope">
           <span v-if="scope.row.last_test_time === ''">No Test</span>
           <el-tooltip
             v-else
-            placement="bottom"
             :content="getLocalTime(scope.row.last_test_time)"
+            placement="bottom"
           >
             <span>{{ getRelativeTime(scope.row.last_test_time) }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
-        align="center"
         :label="$t('Project.LastTestResult')"
+        align="center"
         width="170"
       >
         <template slot-scope="scope">
           <el-tag
             v-if="scope.row.last_test_result !== undefined"
-            class="el-tag--circle"
             :type="returnTagType(scope.row)"
+            class="el-tag--circle"
             size="large"
             effect="dark"
           >
@@ -182,20 +182,20 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="center"
         :label="$t('general.owner_name')"
+        align="center"
         prop="owner_name"
       />
       <el-table-column
-        align="center"
         :label="$t('ProjectSettings.Status')"
+        align="center"
       >
         <template slot-scope="scope">
           <el-tooltip
-            placement="bottom"
             :disabled="(!permission(scope.row)) || scope.row.is_lock!==true"
             :open-delay="200"
             :content="scope.row.lock_reason"
+            placement="bottom"
           >
             <el-tag v-if="scope.row.is_lock" type="info">
               {{ $t('errorDetail.locked') }}

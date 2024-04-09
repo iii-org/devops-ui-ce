@@ -130,7 +130,7 @@
               <em
                 class="ri-edit-box-line success table-button"
                 @click="handleEdit(row)"
-              />
+              ></em>
             </el-tooltip>
             <el-tooltip
               placement="bottom"
@@ -144,7 +144,7 @@
                 popper-class="danger"
                 @confirm="handleDelete(row.id)"
               >
-                <em slot="reference" class="ri-delete-bin-2-line danger table-button" />
+                <em slot="reference" class="ri-delete-bin-2-line danger table-button"></em>
               </el-popconfirm>
             </el-tooltip>
           </div>
@@ -156,7 +156,7 @@
               <em
                 class="ri-checkbox-circle-line primary table-button"
                 @click="handleSaveFile(row)"
-              />
+              ></em>
             </el-tooltip>
             <el-tooltip
               placement="bottom"
@@ -165,7 +165,7 @@
               <em
                 class="ri-close-circle-line danger table-button"
                 @click="handleCancelFile(row)"
-              />
+              ></em>
             </el-tooltip>
           </div>
         </template>

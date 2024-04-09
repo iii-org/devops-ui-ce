@@ -11,8 +11,8 @@
     </ProjectListSelector>
     <el-divider />
     <ElTableResponsive
-      ref="table"
       v-loading="listLoading"
+      ref="table"
       :data="pagedData"
       :columns="tableColumns"
       :element-loading-text="$t('Loading')"
@@ -26,15 +26,15 @@
       </template>
       <template v-slot:expand="{row}">
         <el-skeleton
-          v-if=" row.timelineLoading"
           v-loading="row.timelineLoading"
+          v-if=" row.timelineLoading"
         />
         <el-timeline v-else>
           <el-timeline-item
             v-for="commit in row.gitCommitLog"
             :key="commit.id"
-            class="pb-0 !important"
             :hide-timestamp="true"
+            class="pb-0 !important"
           >
             <el-collapse
               v-model="collapseExpandedRow"
@@ -50,9 +50,9 @@
                   >
                     <div class="truncate">
                       <el-link
+                        :href="commit.gitlab_url"
                         type="primary"
                         target="_blank"
-                        :href="commit.gitlab_url"
                       >
                         <svg-icon
                           class="mr-1"
@@ -70,19 +70,19 @@
                         {{ id }}
                       </span>
                       <el-tooltip
+                        :content="commit.commit_title"
                         class="item"
                         placement="bottom"
                         effect="light"
-                        :content="commit.commit_title"
                       >
                         <span>&nbsp;{{ commit.commit_title }}</span>
                       </el-tooltip>
                     </div>
                     <div style="min-width: 90px;">
                       <el-tooltip
+                        :content="getLocalTime(commit.commit_time)"
                         placement="bottom"
                         effect="light"
-                        :content="getLocalTime(commit.commit_time)"
                       >
                         <span>
                           {{ getRelativeTime(commit.commit_time) }}
@@ -103,10 +103,10 @@
                       </span>
                       <Status
                         v-if="issue.status.name"
-                        class="ml-1"
-                        size="mini"
                         :name="$t(`Issue.${issue.status.name}`)"
                         :type="issue.status.name"
+                        class="ml-1"
+                        size="mini"
                       />
                       <el-tag
                         v-if="issue.assigned_to"
@@ -126,7 +126,7 @@
               </el-collapse-item>
             </el-collapse>
           </el-timeline-item>
-          <div class="flex justify-center mt-2" :class="isMobile ? '' : ' w-75'">
+          <div :class="isMobile ? '' : ' w-75'" class="flex justify-center mt-2">
             <el-button
               round
               size="mini"
@@ -141,10 +141,10 @@
       </template>
       <template v-slot:commit="{row}">
         <el-link
+          :href="row.commit_url"
           type="primary"
           target="_blank"
           style="font-size: 16px"
-          :href="row.commit_url"
         >
           <svg-icon
             class="mr-1"

@@ -1,9 +1,9 @@
 <template>
   <el-select
     v-model="selected"
-    multiple
     v-bind="$attrsAll"
     :value-key="valueKey"
+    multiple
     v-on="$listenserAll"
     @change="onChange"
   >

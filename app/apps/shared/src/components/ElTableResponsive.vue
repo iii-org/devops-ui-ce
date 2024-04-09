@@ -26,7 +26,7 @@
     <template v-for="col in columns">
       <el-table-column
         v-if="(!isMobile || (isMobile && !col.hideOnMobile)) &&
-          (displayFields.length === 0 || displayFields.indexOf(col.prop) >= 0)"
+        (displayFields.length === 0 || displayFields.indexOf(col.prop) >= 0)"
         :key="col.prop"
         :prop="col.prop"
         :label="col.label"
@@ -38,7 +38,7 @@
         :show-overflow-tooltip="(col.showOverflowTooltip || false) && !isMobile"
         :type="col.type === 'expand' ? col.type : ''"
       >
-        <template v-if="col.headerLabel" v-slot:header>
+        <template v-slot:header v-if="col.headerLabel">
           <slot :name="`header-${col.headerLabel}`" />
         </template>
         <template slot-scope="scope">
@@ -46,9 +46,9 @@
           <span :class="isMobile ? 'text-right' :''">
             <el-tooltip
               v-if="col.type === 'time'"
-              placement="top"
               :open-delay="200"
               :content="getLocalTime(access(col.prop, scope.row))"
+              placement="top"
             >
               <span>{{ getRelativeTime(access(col.prop, scope.row)) }}</span>
             </el-tooltip>
@@ -71,8 +71,8 @@
             <slot v-else-if="col.slot" :name="col.slot" :row="scope.row" />
             <span
               v-else
-              class="cell"
               :class="col.showOverflowTooltip ? 'show-tooltip' : ''"
+              class="cell"
             >
               <span v-if="access(col.prop, scope.row) !== ''">{{ access(col.prop, scope.row) }}</span>
               <span v-else>-</span>

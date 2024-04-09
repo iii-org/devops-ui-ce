@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar" :class="isMobile ? 'mobile' : ''">
+  <div :class="isMobile ? 'mobile' : ''" class="navbar">
     <hamburger
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -12,13 +12,13 @@
       <lang-select class="right-menu-item hover-effect" />
       <GoogleTranslate class="right-menu-item hover-effect" />
       <el-dropdown
-        class="right-menu-item"
         :class="!isMobile ? 'hover-effect' : ''"
-        trigger="click"
         :style="isMobile ? 'cursor: pointer;' : ''"
+        class="right-menu-item"
+        trigger="click"
       >
         <div>
-          <el-avatar class="align-middle" :src="userAvatar" :size="32" />
+          <el-avatar :src="userAvatar" :size="32" class="align-middle" />
         </div>
         <el-dropdown-menu
           slot="dropdown"

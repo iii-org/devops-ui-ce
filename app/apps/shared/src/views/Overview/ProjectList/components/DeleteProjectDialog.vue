@@ -35,16 +35,16 @@
     <span slot="footer" class="dialog-footer">
       <el-button
         id="dialog-btn-cancel"
-        class="button-secondary-reverse"
         :loading="isLoading"
+        class="button-secondary-reverse"
         @click="showDialog = false"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
         id="dialog-btn-delete"
-        type="danger"
         :loading="isLoading"
+        type="danger"
         @click="handleDeleteModal"
       >
         {{ $t('general.Delete') }}

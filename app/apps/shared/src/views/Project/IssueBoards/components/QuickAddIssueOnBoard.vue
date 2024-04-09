@@ -34,9 +34,9 @@
         <el-form-item prop="assigned_to_id">
           <el-select
             v-model="form.assigned_to_id"
+            :placeholder="$t('Issue.SelectMember')"
             style="width: 100%"
             clearable
-            :placeholder="$t('Issue.SelectMember')"
             filterable
           >
             <el-option
@@ -53,8 +53,8 @@
         <el-form-item>
           <span class="flex justify-between">
             <el-button
-              class="button-primary"
               :loading="LoadingConfirm"
+              class="button-primary"
               size="small"
               @click="handleSave"
             >
@@ -75,9 +75,9 @@
     <el-dialog
       :title="$t('Issue.AddIssue')"
       :visible.sync="addTopicDialogVisible"
+      :close-on-click-modal="false"
       width="50%"
       top="5px"
-      :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @close="handleClose"
@@ -88,9 +88,9 @@
         :parent-id="parentId"
         :prefill="form"
         :save-data="saveData"
-        import-from="board"
         :is-create="true"
         :item-id="boardObject.id"
+        import-from="board"
         @loading="loadingUpdate"
         @add-topic-visible="handleCloseDialog"
       />

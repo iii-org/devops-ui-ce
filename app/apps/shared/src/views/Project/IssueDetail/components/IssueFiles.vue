@@ -33,11 +33,11 @@
       >
         <span>
           <el-button
+            :loading="isLoading"
+            :disabled="isButtonDisabled"
             class="button-primary"
             size="mini"
             icon="el-icon-download"
-            :loading="isLoading"
-            :disabled="isButtonDisabled"
             @click="handleDownload(file)"
           >
             <span v-if="device === 'desktop'">{{ $t('File.Download') }}</span>
@@ -46,18 +46,18 @@
         <el-popconfirm
           :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
+          :title="$t('Issue.DeleteFile')"
           icon="el-icon-info"
           popper-class="danger"
-          :title="$t('Issue.DeleteFile')"
           @confirm="deleteIssueFile(file)"
         >
           <el-button
             slot="reference"
+            :loading="isLoading"
+            :disabled="isButtonDisabled"
             type="danger"
             size="mini"
             icon="el-icon-delete"
-            :loading="isLoading"
-            :disabled="isButtonDisabled"
           >
             <span v-if="device === 'desktop'">{{ $t('general.Delete') }}</span>
           </el-button>
@@ -80,12 +80,12 @@
       <div v-touch:swipe="swipeHandler">
         <el-carousel
           ref="carousel"
-          trigger="click"
-          indicator-position="none"
           :arrow="imageArray.length === 1 ? 'never' : 'hover'"
           :autoplay="false"
           :initial-index="imageIndex"
           :height="device === 'desktop' ? imageHeight+'px' : 'calc(100vh - 150px)'"
+          trigger="click"
+          indicator-position="none"
           @change="changeCarousel"
         >
           <el-carousel-item v-for="item in imageArray" :key="item.id">
@@ -93,8 +93,8 @@
               ref="image"
               :src="item.src"
               :alt="item.filename"
-              style="display: block; margin: auto; max-width: 100%;"
               :class="device === 'mobile' ? 'carousel-image' : ''"
+              style="display: block; margin: auto; max-width: 100%;"
               @load="resizeImageHeight"
             >
           </el-carousel-item>
@@ -103,8 +103,8 @@
       <span slot="footer">
         <el-button v-if="device === 'desktop'" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
         <el-button
-          class="button-primary"
           :class="device === 'mobile' ? 'w-full' : ''"
+          class="button-primary"
           @click="downloadImage"
         >
           <span>{{ $t('File.Download') }}</span>

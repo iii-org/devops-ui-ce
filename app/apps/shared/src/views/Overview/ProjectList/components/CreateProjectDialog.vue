@@ -3,8 +3,8 @@
     :title="$t('Project.AddProject')"
     :visible.sync="showDialog"
     :width="isMobile ? '95%' : '70%'"
-    top="3vh"
     :close-on-click-modal="false"
+    top="3vh"
     @closed="onDialogClosed"
   >
     <el-form
@@ -79,10 +79,10 @@
             >
               <el-date-picker
                 v-model="form.due_date"
+                :picker-options="pickerOptions(form.start_date)"
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
-                :picker-options="pickerOptions(form.start_date)"
               />
             </el-form-item>
           </el-col>
@@ -115,8 +115,8 @@
             >
               <el-input
                 v-model="form.description"
-                type="textarea"
                 :placeholder="$t('general.PleaseInput') + $t('general.Description')"
+                type="textarea"
               />
             </el-form-item>
           </el-col>
@@ -174,8 +174,8 @@
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
-        class="button-primary"
         :loading="isLoading"
+        class="button-primary"
         @click="handleConfirm"
       >
         {{ $t('general.Confirm') }}

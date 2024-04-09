@@ -39,11 +39,11 @@
     <el-col v-show="edit || isDrawer">
       <Editor
         ref="mdEditor"
+        :options="editorOptions"
+        :height="isDrawer ? '40vh' : '12rem'"
         preview-style="tab"
         initial-edit-type="wysiwyg"
-        :options="editorOptions"
         class="mx-3"
-        :height="isDrawer ? '40vh' : '12rem'"
         @change="onChange"
         @keyup.native="onKeyEvent"
         @keydown.native="onKeyEvent"
@@ -60,9 +60,9 @@
         placement="top"
       >
         <el-input
-          class="p-3 mr-1"
           :class="isButtonDisabled ? 'cursor-not-allowed' : 'cursor-text notes'"
           :placeholder="$t('general.Input', { item: $t('Issue.Notes') })"
+          class="p-3 mr-1"
           @click.native="checkEnableEditor"
         />
       </el-tooltip>

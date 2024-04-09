@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!hasPostmanData"
             type="text"
             icon="el-icon-tickets"
-            :disabled="!hasPostmanData"
             @click="openPostman"
           >
             {{ $t('TestReport.DetailReport') }}

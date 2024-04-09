@@ -13,7 +13,7 @@
           :inactive-text="$t('general.Disable')"
         />
       </span>
-      <el-link type="primary" target="_blank" :href="slackLink">
+      <el-link :href="slackLink" type="primary" target="_blank">
         <em
           v-if="isMobile"
           class="ri-slack-fill text-lg rounded text-white bg-primary p-1"
@@ -26,43 +26,43 @@
       ref="slackNotification"
       :model="form"
       :rules="rules"
-      class="pt-2"
       :label-width="!isMobile ? '100px' : ''"
       :label-position="isMobile ? 'top' : 'right'"
+      class="pt-2"
     >
       <el-divider content-position="left">{{ $t('Project.TriggerCondition') }}</el-divider>
-      <el-row class="py-3" :class="isMobile ? '' : 'mx-3'" :gutter="10">
-        <el-col class="mb-5" :lg="10" :md="24">
+      <el-row :class="isMobile ? '' : 'mx-3'" :gutter="10" class="py-3">
+        <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.commit_events" class="flex">
             <div>Push</div>
             <div class="text-xs" style="color: #303133">Trigger event for pushes to the repository.</div>
           </el-checkbox>
         </el-col>
-        <el-col class="mb-5" :lg="14" :md="24">
+        <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.merge_requests_events" class="flex">
             <div>Merge request</div>
             <div class="text-xs" style="color: #303133">Trigger event when a merge request is created, updated, or merged.</div>
           </el-checkbox>
         </el-col>
-        <el-col class="mb-5" :lg="10" :md="24">
+        <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.note_events" class="flex">
             <div>Note</div>
             <div class="text-xs" style="color: #303133">Trigger event for new comments.</div>
           </el-checkbox>
         </el-col>
-        <el-col class="mb-5" :lg="14" :md="24">
+        <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.tag_push_events" class="flex">
             <div>Tag push</div>
             <div class="text-xs" style="color: #303133">Trigger event for new tags pushed to the repository.</div>
           </el-checkbox>
         </el-col>
-        <el-col class="mb-5" :lg="10" :md="24">
+        <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.pipeline_events" class="flex">
             <div>Pipeline</div>
             <div class="text-xs" style="color: #303133">Trigger event when a pipeline status changes.</div>
           </el-checkbox>
         </el-col>
-        <el-col class="mb-5" :lg="14" :md="24">
+        <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.notify_only_broken_pipelines" class="flex">
             <div>Notify only broken pipelines</div>
             <div class="text-xs" style="color: #303133">Do not send notifications for successful pipelines.</div>
@@ -70,13 +70,13 @@
         </el-col>
       </el-row>
       <el-divider content-position="left">{{ $t('ProjectSettings.GeneralSettings') }}</el-divider>
-      <el-row class="py-2" :class="isMobile ? '' : 'mx-3'">
+      <el-row :class="isMobile ? '' : 'mx-3'" class="py-2">
         <el-col>
           <el-form-item label="WebHook" prop="webhook" style="line-height: 24px;">
             <el-input v-model="form.webhook" />
             <span class="text-xs">
               * 請⾄Slack(
-              <el-link type="primary" target="_blank" class="text-xs" :href="slackHookLink">{{ slackHookLink }}</el-link>
+              <el-link :href="slackHookLink" type="primary" target="_blank" class="text-xs">{{ slackHookLink }}</el-link>
               )建立聊天Channel 並產⽣WebHook，並貼⾄上⽅輸入框
             </span>
           </el-form-item>
@@ -102,16 +102,16 @@
       <span class="float-right">
         <el-button
           :size="isMobile ? 'small' : 'medium'"
-          class="button-secondary-reverse"
           :loading="isLoading"
+          class="button-secondary-reverse"
           @click="handleCancel"
         >
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
           :size="isMobile ? 'small' : 'medium'"
-          class="button-primary"
           :loading="isLoading"
+          class="button-primary"
           @click="handleConfirm"
         >
           {{ $t('general.Confirm') }}
@@ -122,7 +122,7 @@
       <div class="notification-warning">
         <span>
           Please goto
-          <el-link type="primary" target="_blank" :href="slackLink">{{ $t('general.AdvancedSettings') }}</el-link>
+          <el-link :href="slackLink" type="primary" target="_blank">{{ $t('general.AdvancedSettings') }}</el-link>
           to modify the data
         </span>
       </div>

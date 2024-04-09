@@ -1,9 +1,9 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    width="50%"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
+    width="50%"
     append-to-body
     modal-append-to-body
     @close="closeDialog"

@@ -67,7 +67,7 @@
               v-permission="['Administrator','QA']"
               class="ri-survey-line primary table-button"
               @click="handleParticipateDialog(row.id)"
-            />
+            ></em>
           </el-tooltip>
           <el-tooltip
             placement="bottom"
@@ -77,7 +77,7 @@
               v-permission="['Administrator','Project Manager', 'QA']"
               class="ri-file-copy-2-line success table-button"
               @click="handleIssueClick(row)"
-            />
+            ></em>
           </el-tooltip>
           <el-tooltip
             placement="bottom"
@@ -88,7 +88,7 @@
                 class="ri-delete-bin-2-line table-button"
                 :class="row.id === userId ? 'disabled' : 'danger'"
                 @click="handleDeleteClick(row)"
-              />
+              ></em>
             </span>
           </el-tooltip>
         </template>

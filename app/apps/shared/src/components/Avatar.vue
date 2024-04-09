@@ -1,7 +1,7 @@
 <template>
-  <div class="vue-avatar--wrapper" :style="[style, customStyle]" aria-hidden="true">
+  <div :style="[style, customStyle]" class="vue-avatar--wrapper" aria-hidden="true">
     <!-- this img is not displayed; it is used to detect failure-to-load of div background image -->
-    <img v-if="isImage" style="display: none" alt="" :src="src" @error="onImgError">
+    <img v-if="isImage" :src="src" style="display: none" alt="" @error="onImgError" >
     <span v-show="!isImage">{{ userInitial }}</span>
   </div>
 </template>
@@ -44,7 +44,8 @@ export default {
       default: () => {}
     },
     inline: {
-      type: Boolean
+      type: Boolean,
+      default: false
     },
     size: {
       type: Number,
@@ -65,13 +66,28 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       backgroundColors: [
-        '#F44336', '#FF4081', '#9C27B0', '#673AB7',
-        '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688',
-        '#4CAF50', '#8BC34A', '#CDDC39', /* '#FFEB3B' , */ '#FFC107',
-        '#FF9800', '#FF5722', '#795548', '#9E9E9E', '#607D8B'],
+        '#F44336',
+        '#FF4081',
+        '#9C27B0',
+        '#673AB7',
+        '#3F51B5',
+        '#2196F3',
+        '#03A9F4',
+        '#00BCD4',
+        '#009688',
+        '#4CAF50',
+        '#8BC34A',
+        '#CDDC39',
+        /* '#FFEB3B' , */ '#FFC107',
+        '#FF9800',
+        '#FF5722',
+        '#795548',
+        '#9E9E9E',
+        '#607D8B'
+      ],
       imgError: false
     }
   },
@@ -99,7 +115,7 @@ export default {
         width: `${this.size}px`,
         height: `${this.size}px`,
         borderRadius: this.rounded ? '50%' : 0,
-        lineHeight: `${(this.size + Math.floor(this.size / 20))}px`,
+        lineHeight: `${this.size + Math.floor(this.size / 20)}px`,
         fontWeight: 'bold',
         alignItems: 'center',
         justifyContent: 'center',
@@ -114,13 +130,11 @@ export default {
         font: `${Math.floor(this.size / 2.5)}px/${this.size}px Helvetica, Arial, sans-serif`,
         color: this.fontColor
       }
-      const backgroundAndFontStyle = (this.isImage)
-        ? imgBackgroundAndFontStyle
-        : initialBackgroundAndFontStyle
+      const backgroundAndFontStyle = this.isImage ? imgBackgroundAndFontStyle : initialBackgroundAndFontStyle
       Object.assign(style, backgroundAndFontStyle)
       return style
     },
-    userInitial () {
+    userInitial() {
       if (!this.isImage) {
         const initials = this.initials || this.parser(this.username, getInitials)
         return initials
@@ -129,7 +143,7 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     if (!this.isImage) {
       this.$emit('avatar-initials', this.username, this.userInitial)
     }
@@ -138,24 +152,20 @@ export default {
   methods: {
     initial: getInitials,
 
-    onImgError (evt) {
+    onImgError(evt) {
       this.imgError = true
     },
-    randomBackgroundColor (seed, colors) {
-      return colors[seed % (colors.length)]
+    randomBackgroundColor(seed, colors) {
+      return colors[seed % colors.length]
     },
-    lightenColor (hex) {
+    lightenColor(hex) {
       if (hex[0] === '#') {
         hex = hex.slice(1)
       }
       const r = parseInt(hex.substring(0, 2), 16)
       const g = parseInt(hex.substring(2, 2), 16)
       const b = parseInt(hex.substring(4, 2), 16)
-      const hsp = Math.sqrt(
-        0.299 * (r * r) +
-        0.587 * (g * g) +
-        0.114 * (b * b)
-      )
+      const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
       const theshold = 160
       // sets the foreground color
       if (hsp > theshold) return '#000000'

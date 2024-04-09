@@ -1,7 +1,7 @@
 <template>
   <el-alert
-    type="warning"
     :closable="false"
+    type="warning"
   >
     <h1>
       <svg

@@ -1,16 +1,16 @@
 <template>
   <div
-    class="board-column"
     :style="fromWbs ? 'background: transparent' : ''"
     :class="getHeaderBarClassName(boardObject.name)"
+    class="board-column"
   >
     <div
-      class="board-column-header"
       :style="!fromWbs ? '': 'height: 10px'"
+      class="board-column-header"
     >
       <div
-        class="header-bar"
         :style="{ backgroundColor: !isSelectDefaultOption ? boardObject.color : '' }"
+        class="header-bar"
       />
       <div
         v-if="!isSelectDefaultOption && boardObject.id !== 'all' && !fromWbs"
@@ -19,8 +19,8 @@
         @mouseleave="$emit('update:isDraggable', true)"
       >
         <el-tooltip
-          placement="bottom"
           :content="isEdited ? $t('general.Save') : $t('general.Edit')"
+          placement="bottom"
         >
           <em
             :class="isEdited ? 'el-icon-check' : 'el-icon-edit-outline'"
@@ -30,8 +30,8 @@
           />
         </el-tooltip>
         <el-tooltip
-          placement="bottom"
           :content="isEdited ? $t('general.Cancel') : $t('general.Delete')"
+          placement="bottom"
         >
           <em
             :class="isEdited ? 'el-icon-close' : 'el-icon-delete'"
@@ -76,16 +76,16 @@
         <Draggable
           :list="list"
           v-bind="$attrs"
-          class="board-column-content"
           :style="fromWbs ? 'border: 1px solid transparent' : ''"
           :class="boardObject.name"
           :move="canIssueMoved"
           :disabled="disabled"
           :draggable="'.item'"
           :animation="120"
+          :force-fallback="true"
+          class="board-column-content"
           drag-class="dragClass"
           ghost-class="ghostClass"
-          :force-fallback="true"
           @change="end(boardObject, $event)"
         >
           <div
@@ -106,25 +106,25 @@
             >
               <el-progress
                 v-if="element.done_ratio > 0"
-                class="progress-bar"
                 :percentage="element.done_ratio"
                 :status="getStatus(element)"
                 :show-text="false"
                 :stroke-width="4"
+                class="progress-bar"
               />
             </el-tooltip>
             <div>
-              <div class="title" :class="fromWbs ? 'cardTitle' : ''">
+              <div :class="fromWbs ? 'cardTitle' : ''" class="title">
                 <span
-                  class="text link-text-color"
                   :class="fromWbs ? 'msg-text truncate' : ''"
+                  class="text link-text-color"
                   @click="handleClick(element)"
                 >
                   <el-tooltip
                     v-if="fromWbs"
-                    placement="bottom-start"
                     :open-delay="100"
                     :content="element.name"
+                    placement="bottom-start"
                   >
                     <span>
                       {{ element.name }}
@@ -176,20 +176,20 @@
                   <Tracker
                     :name="$t(`Issue.${element.tracker.name}`)"
                     :type="element.tracker.name"
-                    class="tracker"
-                    is-hide-name
                     :style="
                       fromWbs ?
                         'max-width: 80px; display: inline-block;'
                         : ''
                     "
+                    class="tracker"
+                    is-hide-name
                   />
                 </span>
                 <el-tooltip
                   v-if="Object.keys(element.assigned_to).length > 0"
                   :content="element.assigned_to.login"
-                  placement="right-start"
                   :disabled="!element.assigned_to.login"
+                  placement="right-start"
                 >
                   <span v-if="fromWbs" style="float:right;">
                     <span class="detail user">
@@ -237,8 +237,8 @@
                         tooltip
                       />
                       <el-link
-                        class="link-text-color"
                         :underline="false"
+                        class="link-text-color"
                         @click="handleClick(element.parent)"
                       >
                         {{ element.parent.name }}
@@ -268,8 +268,8 @@
                             tooltip
                           />
                           <el-link
-                            class="link-text-color"
                             :underline="false"
+                            class="link-text-color"
                             @click="handleClick(subElement)"
                           >
                             {{ subElement.name }}
@@ -301,8 +301,8 @@
                             tooltip
                           />
                           <el-link
-                            class="link-text-color"
                             :underline="false"
+                            class="link-text-color"
                             @click="handleClick(subElement)"
                           >
                             {{ subElement.name }}
@@ -329,13 +329,13 @@
             >
               <div
                 v-if="element.due_date"
-                class="detail due_date"
                 :class="getDateStatus(element)"
+                class="detail due_date"
               >
                 <em class="el-icon-date" />
                 <div
-                  class="text"
                   :class="getDateStatus(element)"
+                  class="text"
                 >{{ element.due_date }}</div>
               </div>
               <div
@@ -347,8 +347,8 @@
               <el-tooltip
                 v-if="Object.keys(element.assigned_to).length > 0"
                 :content="element.assigned_to.login"
-                placement="right-start"
                 :disabled="!element.assigned_to.login"
+                placement="right-start"
               >
                 <div class="detail user">
                   <em class="el-icon-user-solid" />
@@ -381,27 +381,27 @@
               @click="showDialog = !showDialog"
             >
               <em
-                class="el-icon-plus ml-4 mr-5 add-button"
                 :class="{ rotate: showDialog }"
+                class="el-icon-plus ml-4 mr-5 add-button"
               />
               {{ $t('Issue.AddIssue') }}
             </div>
             <transition name="slide-down">
               <QuickAddIssueOnBoard
                 v-if="showDialog"
-                class="board-item quick-add"
                 :project-id="projectId"
                 :save-data="addIssue"
                 :board-object="boardObject"
                 :filter-type="filterType"
                 :is-select-default-option="isSelectDefaultOption"
+                class="board-item quick-add"
                 @after-add="showDialog = !showDialog"
               />
             </transition>
           </div>
           <p
-            v-if="loading && !noMore"
             v-loading="loading"
+            v-if="loading && !noMore"
             class="py-3"
           />
         </Draggable>

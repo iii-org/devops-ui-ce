@@ -41,9 +41,9 @@
       </div>
     </el-collapse-transition>
     <table class="table">
-      <caption />
+      <caption></caption>
       <tr>
-        <th />
+        <th></th>
         <th>{{ $t('ProjectSettings.Index') }}</th>
         <th>{{ $t('ProjectSettings.Tag') }}</th>
         <th>{{ $t('general.Actions') }}</th>
@@ -93,7 +93,7 @@
               <em
                 :class="row.mouseover ? 'ri-edit-box-line info table-button' : ''"
                 @click.stop="row.edit = true"
-              />
+              ></em>
             </template>
           </td>
           <td class="align-center">
@@ -104,7 +104,7 @@
               <em
                 class="ri-delete-bin-2-line danger table-button"
                 @click.stop="handleTagDelete(row)"
-              />
+              ></em>
             </el-tooltip>
           </td>
         </tr>

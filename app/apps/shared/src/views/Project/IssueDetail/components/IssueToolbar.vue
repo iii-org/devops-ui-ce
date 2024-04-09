@@ -8,9 +8,9 @@
             placement="bottom"
           >
             <el-button
+              :disabled="isButtonDisabled"
               size="mini"
               class="px-2 py-1 m-0 icon"
-              :disabled="isButtonDisabled"
               @click="uploadDialogVisible = true"
             >
               <em class="el-icon-upload content" />
@@ -21,9 +21,9 @@
             placement="bottom"
           >
             <el-button
+              :disabled="isButtonDisabled"
               size="mini"
               class="px-2 py-1 m-0 icon"
-              :disabled="isButtonDisabled"
               @click="$emit('add-sub-issue')"
             >
               <em class="el-icon-document-add content" />
@@ -36,9 +36,9 @@
           placement="bottom"
         >
           <el-button
+            :disabled="isButtonDisabled"
             size="mini"
             class="px-2 py-1 m-0 icon"
-            :disabled="isButtonDisabled"
             @click="toggleExcalidrawDialog"
           >
             <em class="el-icon-monitor content" />
@@ -50,9 +50,9 @@
           placement="bottom"
         >
           <el-button
+            :disabled="isButtonDisabled"
             size="mini"
             class="px-2 py-1 m-0 icon"
-            :disabled="isButtonDisabled"
             @click="handleCollectionDialog"
           >
             <em class="el-icon-folder content" />
@@ -64,10 +64,10 @@
           placement="bottom"
         >
           <el-button
-            size="mini"
-            class="px-2 py-1 m-0 icon"
             :class="isOpenMatrix ? 'button-info' : ''"
             :disabled="isOpenMatrix || isButtonDisabled"
+            size="mini"
+            class="px-2 py-1 m-0 icon"
             @click="$emit('toggle-issue-matrix')"
           >
             <em class="el-icon-data-line content" />
@@ -100,8 +100,8 @@
       append-to-body
     >
       <IssueFileUploader
-        ref="IssueFileUploader"
         v-loading="isLoading"
+        ref="IssueFileUploader"
         :issue-id="issueId"
       />
       <div class="flex justify-between mt-2">
@@ -113,8 +113,8 @@
         </div>
         <div>
           <el-button
-            class="button-primary"
             :loading="isLoading"
+            class="button-primary"
             @click="handleUploadClose"
           >
             {{ $t('general.Save') }}
@@ -131,22 +131,22 @@
       append-to-body
     >
       <el-input
-        v-model="excalidrawName"
         v-loading="isLoading"
+        v-model="excalidrawName"
         :placeholder="$t('RuleMsg.PleaseInput') + $t('Excalidraw.Name')"
       />
       <span slot="footer" class="dialog-footer">
         <el-button
-          class="button-secondary-reverse"
           :loading="isLoading"
+          class="button-secondary-reverse"
           @click="toggleExcalidrawDialog"
         >
           {{ $t('general.Close') }}
         </el-button>
         <el-button
-          type="primary"
           :loading="isLoading"
           :disabled="!excalidrawName"
+          type="primary"
           @click="handleCreateExcalidraw"
         >
           {{ $t('general.Add') }}

@@ -3,10 +3,10 @@
     v-model="form.parent_id"
     :placeholder="$t('Project.SelectProject')"
     :filter-method="setFilter"
+    :disabled="disabledEngineerRole"
     filterable
     clearable
     style="width:100%"
-    :disabled="disabledEngineerRole"
     @clear="form.is_inheritance_member=false"
     @change="$emit('change')"
   >

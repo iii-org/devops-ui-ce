@@ -3,9 +3,9 @@
     <el-row v-if="!isDrawer" v-show="visible">
       <el-form
         ref="quickAddIssueForm"
-        inline
         :model="formData"
         :rules="formRules"
+        inline
         class="quick-add"
         size="small"
       >
@@ -42,9 +42,9 @@
           <el-button
             :type="isTable ? 'success' : 'primary'"
             :style="isTable ? 'padding: 8px;' : ''"
-            size="small"
             :icon="isTable ? 'el-icon-check' : ''"
             :loading="isLoading"
+            size="small"
             class="button-save"
             @click="onSaveClick"
           >
@@ -98,8 +98,8 @@
             </div>
             <el-input
               v-model="formData.name"
-              size="small"
               :placeholder="$t('Issue.name')"
+              size="small"
             />
           </el-form-item>
           <el-divider />
@@ -133,9 +133,9 @@
           {{ $t('general.AdvancedSettings') }}
         </el-link>
         <el-button
+          :loading="isLoading"
           type="primary"
           class="save"
-          :loading="isLoading"
           @click="onSaveClick"
         >
           {{ $t('general.Save') }}
@@ -146,10 +146,10 @@
       :visible.sync="showDialog"
       :close-on-click-modal="false"
       :modal-append-to-body="false"
-      append-to-body
-      destroy-on-close
       :width="device === 'desktop' ? '50%' : '100%'"
       :top="device === 'desktop' ? '5px' : ''"
+      append-to-body
+      destroy-on-close
     >
       <template slot="title">
         <el-row slot="title" type="flex" align="middle">
@@ -170,9 +170,9 @@
         :parent-name="parent.name"
         :prefill="formData"
         :save-data="handleIssueSave"
-        import-from="list"
         :is-create="Object.keys(parent).length === 0"
         :tracker-list="trackerList"
+        import-from="list"
         @loading="loadingUpdate"
         @add-topic-visible="closeDialog"
         @import="handleAdvancedImport"

@@ -1,9 +1,9 @@
 <template>
   <el-dialog
     :visible="isIssueDialog"
+    :width="device === 'desktop' ? (hasChildrenIssue ? '60vw' : '30vw') : '95%'"
     append-to-body
     destroy-on-close
-    :width="device === 'desktop' ? (hasChildrenIssue ? '60vw' : '30vw') : '95%'"
     @close="handleCancel()"
   >
     <template v-if="!isLoading && issue.name">

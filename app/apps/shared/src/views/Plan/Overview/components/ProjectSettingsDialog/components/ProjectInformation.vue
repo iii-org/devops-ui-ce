@@ -35,8 +35,8 @@
             <el-form-item :label="$t('Project.Owner')" prop="owner_id">
               <el-select
                 v-model="form.owner_id"
-                style="width: 100%"
                 :disabled="disabledEditOwner"
+                style="width: 100%"
               >
                 <el-option
                   v-for="item in assignedList"
@@ -53,10 +53,10 @@
             <el-form-item :label="$t('Project.StartDate')" prop="start_date">
               <el-date-picker
                 v-model="form.start_date"
+                :disabled="disabledEngineerRole"
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
-                :disabled="disabledEngineerRole"
                 @change="checkDueDate"
               />
             </el-form-item>
@@ -65,11 +65,11 @@
             <el-form-item :label="$t('general.DueDate')" prop="due_date">
               <el-date-picker
                 v-model="form.due_date"
+                :disabled="disabledEngineerRole"
+                :picker-options="pickerOptions(form.start_date)"
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
-                :disabled="disabledEngineerRole"
-                :picker-options="pickerOptions(form.start_date)"
               />
             </el-form-item>
           </el-col>
@@ -77,9 +77,9 @@
             <el-form-item :label="$t('general.Description')" prop="description">
               <el-input
                 v-model="form.description"
-                type="textarea"
                 :disabled="disabledEngineerRole"
                 :placeholder="$t('general.PleaseInput') + $t('RuleMsg.Description')"
+                type="textarea"
               />
             </el-form-item>
           </el-col>
@@ -142,16 +142,16 @@
     <span v-if="!disabledEngineerRole" class="float-right">
       <el-button
         :size="isMobile ? 'small' : 'medium'"
-        class="button-secondary-reverse"
         :loading="isLoading"
+        class="button-secondary-reverse"
         @click="handleCancel"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
         :size="isMobile ? 'small' : 'medium'"
-        class="button-primary"
         :loading="isLoading"
+        class="button-primary"
         @click="handleConfirm"
       >
         {{ $t('general.Confirm') }}
@@ -406,7 +406,7 @@ export default {
         if (this.form.argumentsForm.length > 0) {
           sendData.data.arguments = this.form.argumentsForm.reduce((arr, cur) =>
             Object.assign(arr, { [cur.key]: cur.value })
-          , {})
+            , {})
         }
         this.$confirm(this.$t('Notify.confirmEditProject'), this.$t('general.Warning'), {
           confirmButtonText: this.$t('general.Confirm'),

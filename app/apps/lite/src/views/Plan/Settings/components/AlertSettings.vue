@@ -53,7 +53,7 @@
         <template slot-scope="scope">
           <el-button size="mini" @click="toggleUsage(scope.row)">
             <div class="flex items-center">
-              <span class="dot" :class="scope.row.disabled ? 'bg-success' : 'bg-danger'" />
+              <span class="dot" :class="scope.row.disabled ? 'bg-success' : 'bg-danger'"></span>
               <span class="ml-2" :class="scope.row.disabled ? 'text-success' : 'text-danger'">
                 {{ !scope.row.disabled ? $t('general.Disable') : $t('general.Enable') }}
               </span>

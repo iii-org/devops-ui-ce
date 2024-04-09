@@ -6,9 +6,9 @@
     </div>
     <el-empty
       v-if="Object.keys(dataCollection).length === 0"
-      style="height: 400px"
       :image-size="200"
       :description="$t('general.NoData')"
+      style="height: 400px"
     />
     <Doughnut
       v-else

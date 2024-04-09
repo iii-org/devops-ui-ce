@@ -50,10 +50,10 @@
     <!--startprint-->
     <div ref="pdfPage" class="page">
       <div class="watermark">
-        <img src="@/assets/logo.png" alt="IIIDevOps logo" />
+        <img src="@/assets/logo.png" alt="IIIDevOps logo" >
       </div>
       <div class="logo-container">
-        <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo" />
+        <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo" >
         <h1 class="logo-title">
           {{ title }}
         </h1>
@@ -79,18 +79,18 @@
           <SonarQubeReport
             v-show="isIncludesName('sonarqube')"
             ref="sonarqube"
-            class="mb-5"
             :sonarqube="sonarqube.data"
             :sonarqube-link="sonarqube.link"
             :sonarqube-version="sonarqube.version"
             :list-loading="listLoading"
+            class="mb-5"
           />
           <CheckMarxReport
             v-show="isIncludesName('checkmarx')"
             ref="checkmarx"
-            class="mb-5"
             :checkmarx="checkmarx"
             :list-loading="listLoading"
+            class="mb-5"
           />
         </div>
         <!-- ISO weakness test -->
@@ -101,23 +101,23 @@
           <ClairReport
             v-show="isIncludesName('harbor')"
             ref="clair"
-            class="mb-5"
             :clair="clair"
             :list-loading="listLoading"
+            class="mb-5"
           />
           <AnchoreReport
             v-show="isIncludesName('sbom')"
             ref="clair"
-            class="mb-5"
             :anchore="sbom"
             :list-loading="listLoading"
+            class="mb-5"
           />
           <AnchoreReport
             v-show="isIncludesName('sbom_code')"
             ref="clair"
-            class="mb-5"
             :anchore="sbom_code"
             :list-loading="listLoading"
+            class="mb-5"
           />
         </div>
         <!-- black box test -->
@@ -125,13 +125,13 @@
           <el-divider content-position="center">
             {{ $t('TestReport.BlackBoxTesting') }}
           </el-divider>
-          <ZapReport v-show="isIncludesName('zap')" ref="zap" class="mb-5" :zap="zap" :list-loading="listLoading" />
+          <ZapReport v-show="isIncludesName('zap')" ref="zap" :zap="zap" :list-loading="listLoading" class="mb-5" />
           <WebInspectReport
             v-show="isIncludesName('webinspect')"
             ref="webinspect"
-            class="mb-5"
             :webinspect="webinspect"
             :list-loading="listLoading"
+            class="mb-5"
           />
         </div>
         <!-- app script test -->
@@ -139,21 +139,21 @@
           <el-divider content-position="center">
             {{ $t('TestReport.AppScriptTesting') }}
           </el-divider>
-          <CmasReport ref="cmas" class="mb-5" :cmas="cmas" :list-loading="listLoading" />
+          <CmasReport ref="cmas" :cmas="cmas" :list-loading="listLoading" class="mb-5" />
         </div>
         <!-- api script test -->
         <div v-show="isIncludesName('postman')">
           <el-divider content-position="center">
             {{ $t('TestReport.ApiScriptTesting') }}
           </el-divider>
-          <PostmanReport ref="postman" class="mb-5" :postman="postman" :list-loading="listLoading" />
+          <PostmanReport ref="postman" :postman="postman" :list-loading="listLoading" class="mb-5" />
         </div>
         <!-- web script test -->
         <div v-show="isIncludesName('sideex')">
           <el-divider content-position="center">
             {{ $t('TestReport.WebScriptTesting') }}
           </el-divider>
-          <SideexReport ref="sideex" class="mb-5" :sideex="sideex" :list-loading="listLoading" />
+          <SideexReport ref="sideex" :sideex="sideex" :list-loading="listLoading" class="mb-5" />
         </div>
       </div>
       <div class="footer">{{ $t('general.DataGenerationTime') }}:{{ timeNow }}</div>

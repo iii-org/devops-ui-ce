@@ -8,8 +8,8 @@
           </div>
           <el-select
             v-model="isDisabled"
-            multiple
             :placeholder="$t('Issue.SelectStatus')"
+            multiple
             @change="onChangeFilter"
           >
             <el-option
@@ -35,8 +35,8 @@
     <el-input
       v-if="searchVisible"
       v-model="keyword"
-      style="width: 250px"
       :placeholder="$t('Project.SearchProjectNameOrIdOrManager')"
+      style="width: 250px"
       prefix-icon="el-icon-search"
       clearable
       @blur="searchVisible=!searchVisible"

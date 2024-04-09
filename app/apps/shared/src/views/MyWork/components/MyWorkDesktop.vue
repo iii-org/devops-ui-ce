@@ -7,7 +7,7 @@
         :name="tab.id"
       >
         <span slot="label" class="tab-header">
-          <em class="tab-icon" :class="tabIcon(tab.id)" />
+          <em :class="tabIcon(tab.id)" class="tab-icon" />
           <span>{{ $t(`MyWork.${tab.name}`) }}</span>
           <span class="font-bold">
             ({{ tab.count !== '-' ? tab.count : 0 }})
@@ -30,8 +30,8 @@
     </el-tabs>
 
     <CreateProjectDialog
-      ref="createProjectDialog"
       v-permission="['Administrator', 'Project Manager']"
+      ref="createProjectDialog"
       @update="$router.push({name: 'ProjectList'})"
     />
   </div>

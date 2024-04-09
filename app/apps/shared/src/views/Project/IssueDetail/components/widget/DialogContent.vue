@@ -3,9 +3,9 @@
     <el-row
       v-if="note.notes && !filterJson(note.notes)"
       :span="24"
+      :justify="right|justifyRight"
       type="flex"
       align="bottom"
-      :justify="right|justifyRight"
     >
       <el-col
         v-if="right"
@@ -14,20 +14,20 @@
         <TimeTooltip :time="note.created_on" />
       </el-col>
       <el-col
-        class="dialog"
         :class="{right:right}"
+        class="dialog"
       >
         <div
-          class="author"
           :class="{'text-right':right}"
+          class="author"
         >
           {{ note.user.name }}
         </div>
         <div class="content">
           <Viewer
             ref="viewer"
-            class="text"
             :initial-value="note.notes"
+            class="text"
           />
         </div>
       </el-col>

@@ -78,17 +78,17 @@
     />
     <el-dialog
       :visible.sync="isAssignDialog"
+      :title="$t('Issue.IssueNeedAssigneeWarning')"
       append-to-body
       destroy-on-close
       width="30%"
-      :title="$t('Issue.IssueNeedAssigneeWarning')"
       @close="handleReset(editedRow, editedArrayId)"
     >
       <el-select
         v-model="assigned_to_id"
+        :placeholder="$t('RuleMsg.PleaseSelect')"
         style="width: 100%"
         clearable
-        :placeholder="$t('RuleMsg.PleaseSelect')"
         filterable
         @change="handleEdit(editedRow, editedArrayId, false, false, true)"
       >

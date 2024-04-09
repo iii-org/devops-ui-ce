@@ -21,9 +21,9 @@
         <el-popconfirm
           :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
+          :title="$t('Issue.UnlinkIssueCollection')"
           icon="el-icon-info"
           popper-class="danger"
-          :title="$t('Issue.UnlinkIssueCollection')"
           @confirm="deleteIssueCollection(file)"
         >
           <el-button

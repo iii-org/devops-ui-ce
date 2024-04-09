@@ -9,7 +9,7 @@
     >
       <el-tab-pane :label="$t('System.SystemConfigs')" name="configs">
         <span slot="label">
-          <em v-if="isMobile" class="ri-tools-line text-xl align-middle" />
+          <em v-if="isMobile" class="ri-tools-line text-xl align-middle"></em>
           <span v-else>{{ $t('System.SystemConfigs') }}</span>
         </span>
         <SystemConfigs ref="configs" />

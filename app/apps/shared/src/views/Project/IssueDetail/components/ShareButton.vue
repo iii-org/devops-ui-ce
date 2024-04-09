@@ -6,22 +6,22 @@
     trigger="click"
   >
     <el-form
-      ref="form"
       v-loading="isLoading"
+      ref="form"
       :model="shareForm"
     >
       <el-form-item
-        prop="user"
         :rules="{ required: true, message: $t('Notify.NoEmpty'), trigger: 'blur' }"
+        prop="user"
       >
         <el-select
           v-model="shareForm.user"
           :placeholder="$t('RuleMsg.PleaseSelect') + $t('RuleMsg.Member')"
+          :filter-method="setAssignTo"
           collapse-tags
           clearable
           multiple
           filterable
-          :filter-method="setAssignTo"
         >
           <el-option
             v-for="user in assigned_to"
@@ -42,9 +42,9 @@
       </el-form-item>
       <span class="flex justify-between">
         <el-link
+          :underline="false"
           icon="el-icon-copy-document"
           size="mini"
-          :underline="false"
           @click="$emit('copyUrl')"
         >
           {{ $t('general.CopyUrl') }}

@@ -3,8 +3,8 @@
     ref="form"
     :model="form"
     :rules="issueFormRules"
-    label-position="top"
     :disabled="isButtonDisabled"
+    label-position="top"
   >
     <el-form-item v-if="formType === 'done_ratio'" :prop="formType">
       <el-slider

@@ -6,9 +6,9 @@
           <div />
           <el-button
             slot="link"
+            :disabled="!hasClairData"
             type="text"
             icon="el-icon-position"
-            :disabled="!hasClairData"
             @click="openClair"
           >
             {{ $t('TestReport.DetailReport') }}

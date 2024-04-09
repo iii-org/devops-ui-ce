@@ -14,9 +14,9 @@
           class="gantt-chart"
         >
           <el-button
-            type="text"
             :disabled="isExportGantt"
             :icon="isExportGantt ? 'el-icon-loading' : 'el-icon-full-screen'"
+            type="text"
             @click="downloadPng"
           >
             {{ $t('Milestone.PreviewGantt') }}
@@ -50,9 +50,9 @@
     <el-dialog
       :title="$t('Issue.AddIssue')"
       :visible.sync="addTopicDialog.visible"
+      :close-on-click-modal="false"
       width="50%"
       top="5px"
-      :close-on-click-modal="false"
       destroy-on-close
       append-to-body
       @close="handleClose"
@@ -88,11 +88,11 @@
     </el-dialog>
     <el-dialog
       :visible.sync="relationIssue.visible"
+      :before-close="handleRelationIssueDialogBeforeClose"
       width="90%"
       top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="handleRelationIssueDialogBeforeClose"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"
@@ -105,24 +105,24 @@
     </el-dialog>
     <el-dialog
       :visible.sync="isDownload"
+      :append-to-body="false"
       width="95%"
       top="3vh"
-      :append-to-body="false"
       @closed="isDownload = false"
     >
       <template slot="title">
         <el-button
-          type="text"
           :disabled="isExportGantt"
           :icon="isExportGantt ? 'el-icon-loading' : 'el-icon-download'"
+          type="text"
           @click="exportPdf"
         >
           {{ $t('File.Download') }} PNG
         </el-button>
       </template>
       <gantt-elastic
-        ref="ganttDownload"
         v-loading="listLoading || isExportGantt"
+        ref="ganttDownload"
         :tasks="listData"
         :options="optionsDownload"
       />

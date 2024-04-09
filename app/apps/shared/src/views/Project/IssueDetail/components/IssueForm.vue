@@ -2,13 +2,13 @@
   <div>
     <div v-if="device === 'desktop'">
       <el-form
-        ref="form"
         v-loading="isLoading"
+        ref="form"
         :element-loading-text="$t('Loading')"
         :model="form"
         :rules="issueFormRules"
-        label-position="top"
         :disabled="isButtonDisabled"
+        label-position="top"
       >
         <el-row :gutter="10">
           <el-col v-if="hasRelations" :span="isFromBoard ? 8 : 24">
@@ -61,8 +61,8 @@
             >
               <el-select
                 v-model="form.fixed_version_id"
-                style="width: 100%"
                 :placeholder="$t('RuleMsg.PleaseSelect')"
+                style="width: 100%"
                 clearable
                 @change="updateSelect('fixed_version_id')"
               >
@@ -133,9 +133,9 @@
             >
               <el-select
                 v-model="form.assigned_to_id"
+                :placeholder="$t('RuleMsg.PleaseSelect')"
                 style="width: 100%"
                 clearable
-                :placeholder="$t('RuleMsg.PleaseSelect')"
                 filterable
                 @change="updateSelect('assigned_to_id')"
               >
@@ -158,12 +158,12 @@
             >
               <el-select
                 v-model="form.board"
+                :placeholder="$t('general.NoData')"
                 class="tagStyle"
                 style="width: 100%"
                 filterable
                 multiple
                 collapse-tags
-                :placeholder="$t('general.NoData')"
                 @remove-tag="removeCustomBoard"
               >
                 <el-option
@@ -269,12 +269,12 @@
             >
               <el-date-picker
                 v-model="form.start_date"
-                type="date"
-                value-format="yyyy-MM-dd"
-                style="width: 100%"
                 :disabled="childrenIssue.length > 0"
                 :placeholder="$t('RuleMsg.PleaseSelect')"
                 :picker-options="startDateOptions(form.due_date)"
+                type="date"
+                value-format="yyyy-MM-dd"
+                style="width: 100%"
                 @change="checkStartDate"
               />
             </el-form-item>
@@ -286,12 +286,12 @@
             >
               <el-date-picker
                 v-model="form.due_date"
-                type="date"
-                value-format="yyyy-MM-dd"
-                style="width: 100%"
                 :disabled="childrenIssue.length > 0"
                 :placeholder="$t('RuleMsg.PleaseSelect')"
                 :picker-options="dueDateOptions(form.start_date)"
+                type="date"
+                value-format="yyyy-MM-dd"
+                style="width: 100%"
                 @change="checkDueDate"
               />
             </el-form-item>
@@ -309,10 +309,10 @@
           <span>
             <Status
               v-if="currentStatus?.name"
-              class="mx-1"
-              size="mini"
               :name="$t(`Issue.${currentStatus?.name}`)"
               :type="currentStatus?.name"
+              class="mx-1"
+              size="mini"
             />
             <em class="el-icon-arrow-right align-middle" />
           </span>
@@ -419,17 +419,17 @@
     </div>
     <el-dialog
       :visible.sync="isAssignDialog"
+      :title="$t('Issue.IssueNeedAssigneeWarning')"
       append-to-body
       destroy-on-close
       width="30%"
-      :title="$t('Issue.IssueNeedAssigneeWarning')"
       @close="handleCancelAssignDialog()"
     >
       <el-select
         v-model="form.assigned_to_id"
+        :placeholder="$t('RuleMsg.PleaseSelect')"
         style="width: 100%"
         clearable
-        :placeholder="$t('RuleMsg.PleaseSelect')"
         filterable
         @change="updateAssignDialog()"
       >

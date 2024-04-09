@@ -7,11 +7,11 @@
     <ProjectListSelector>
       <el-tooltip
         slot="button"
-        placement="bottom"
         :open-delay="100"
         :content="socket.connected ?
           $t('general.SocketConnected') :
-          $t('general.ReconnectByReload')"
+        $t('general.ReconnectByReload')"
+        placement="bottom"
       >
         <div style="float: left;">
           <el-button
@@ -22,8 +22,8 @@
             @click="onSocketConnect"
           >
             <div
-              class="dot inline-block"
               :class="(socket.connected) ? 'bg-success' : 'bg-danger'"
+              class="dot inline-block"
             />
             {{ (socket.connected) ? $t('general.Connected') : $t('general.Disconnected') }}
           </el-button>
@@ -32,9 +32,9 @@
       <el-tooltip
         v-if="socket.disconnected"
         slot="button"
-        placement="bottom"
         :open-delay="100"
         :content="$t('general.Reload')"
+        placement="bottom"
       >
         <el-button
           class="mx-2 button-primary-reverse"
@@ -48,9 +48,9 @@
       <CustomFilter
         v-if="socket.connected"
         ref="customFilter"
-        type="issue_board"
         :group-by="groupBy"
         :selection-options="contextOptions"
+        type="issue_board"
         @apply-filter="applyCustomFilter"
       />
       <el-popover
@@ -85,11 +85,11 @@
                 v-model="filterValue[dimension.value]"
                 :placeholder="$t(`Issue.Select${dimension.placeholder}`)"
                 :disabled="projectId === -1"
+                :multiple="dimension.value === 'tags'"
+                :collapse-tags="dimension.value === 'tags'"
                 filterable
                 clearable
                 value-key="id"
-                :multiple="dimension.value === 'tags'"
-                :collapse-tags="dimension.value === 'tags'"
                 @change="onChangeFilter"
               >
                 <el-option
@@ -100,8 +100,8 @@
                   :value="item.id"
                 >
                   <component
-                    :is="dimension.value"
                     v-if="dimension.tag"
+                    :is="dimension.value"
                     :name="$t(`Issue.${item.name}`)"
                     :type="item.name"
                   />
@@ -121,9 +121,9 @@
         </el-form>
         <SaveFilterButton
           ref="saveFilterButton"
-          type="issue_board"
           :filter-value="filterValueClone"
           :group-by="groupBy"
+          type="issue_board"
           @update="onCustomFilterAdded"
         />
         <el-button
@@ -148,10 +148,10 @@
             <el-select
               ref="groupByDimensionSelect"
               v-model="groupBy.dimension"
+              :popper-append-to-body="true"
               class="mr-4"
               filterable
               popper-class="dimension"
-              :popper-append-to-body="true"
               @change="onChangeGroupByDimension($event, true)"
             >
               <el-option-group :label="$t('Issue.FilterDimensions.default_dimension')">
@@ -205,11 +205,11 @@
             <ElSelectAll
               ref="groupByValue"
               :value="groupBy.value"
+              :loading="isLoading"
+              :options="groupByOptions"
               filterable
               multiple
               collapse-tags
-              :loading="isLoading"
-              :options="groupByOptions"
               value-key="id"
               @change="onChangeGroupByValue($event, true)"
             />
@@ -244,18 +244,18 @@
         v-if="searchVisible && socket.connected"
         id="input-search"
         v-model="keyword"
-        prefix-icon="el-icon-search"
         :placeholder="$t('Issue.SearchNameOrAssignee')"
+        :disabled="isLoading"
+        prefix-icon="el-icon-search"
         style="width: 250px;"
         clearable
-        :disabled="isLoading"
         @blur="searchVisible=!searchVisible"
         @change="onChangeFilter"
       />
       <el-button
         v-if="!searchVisible && socket.connected"
-        type="text"
         :loading="isLoading"
+        type="text"
         class="header-text-color"
         icon="el-icon-search"
         @click="searchVisible=!searchVisible"
@@ -265,10 +265,10 @@
       <template v-if="isFilterChanged && socket.connected">
         <el-divider direction="vertical" />
         <el-button
+          :loading="isLoading"
           size="small"
           icon="el-icon-close"
           class="button-secondary-reverse"
-          :loading="isLoading"
           @click="cleanFilter"
         >
           {{ $t('Issue.CleanFilter') }}
@@ -302,12 +302,12 @@
     />
     <el-dialog
       :visible.sync="customBoardDialogVisible"
-      top="3vh"
-      append-to-body
-      destroy-on-close
       :show-close="false"
       :close-on-click-modal="false"
       :before-close="closeCustomBoardDialog"
+      top="3vh"
+      append-to-body
+      destroy-on-close
     >
       <el-row slot="title">
         <span class="text-title">
@@ -343,9 +343,9 @@
         </div>
         <div id="customContainer" style="max-height: 30vh; overflow: auto;">
           <CustomItem
+            v-loading="isLoading"
             v-for="(boardObject, index) in customValueOnBoard.list"
             :key="boardObject.id"
-            v-loading="isLoading"
             :order="index"
             :class="customValueOnBoard.list.length !== index + 1 ? 'mb-2' : null"
             :board-object.sync="boardObject"
@@ -366,11 +366,11 @@
     </el-dialog>
     <Fab
       v-if="!isSelectDefaultOption"
+      :actions="fabActions"
       position="bottom-right"
       bg-color="#409eff"
       icon-size="small"
       main-icon="more_vert"
-      :actions="fabActions"
       @addButton="customBoardDialogVisible = true"
       @deleteButton="deleteCustomBoard()"
     />

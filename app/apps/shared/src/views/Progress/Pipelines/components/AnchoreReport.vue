@@ -4,7 +4,7 @@
       <caption>
         <div class="caption">
           <div />
-          <el-button slot="link" type="text" icon="el-icon-position" :disabled="!hasAnchoreData" @click="openAnchore">
+          <el-button slot="link" :disabled="!hasAnchoreData" type="text" icon="el-icon-position" @click="openAnchore">
             {{ $t('TestReport.DetailReport') }}
           </el-button>
         </div>

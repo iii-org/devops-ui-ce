@@ -1,9 +1,9 @@
 <template>
   <el-dialog
     :visible.sync="showDialog"
+    :close-on-click-modal="false"
     width="70vw"
     top="3vh"
-    :close-on-click-modal="false"
     @closed="onDialogClosed"
   >
     <div slot="title">
@@ -50,8 +50,8 @@
             <el-form-item :label="$t('Project.Owner')" prop="owner_id">
               <el-select
                 v-model="form.owner_id"
-                style="width: 100%"
                 :disabled="disabledEditOwner"
+                style="width: 100%"
               >
                 <el-option
                   v-for="item in assignedList"
@@ -79,10 +79,10 @@
             <el-form-item :label="$t('general.DueDate')" prop="due_date">
               <el-date-picker
                 v-model="form.due_date"
+                :picker-options="pickerOptions(form.start_date)"
                 type="date"
                 value-format="yyyy-MM-dd"
                 style="width: 100%"
-                :picker-options="pickerOptions(form.start_date)"
               />
             </el-form-item>
           </el-col>
@@ -90,8 +90,8 @@
             <el-form-item :label="$t('general.Description')" prop="description">
               <el-input
                 v-model="form.description"
-                type="textarea"
                 :placeholder="$t('general.PleaseInput') + $t('RuleMsg.Description')"
+                type="textarea"
               />
             </el-form-item>
           </el-col>
@@ -148,15 +148,15 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button
-        class="button-secondary-reverse"
         :loading="isLoading"
+        class="button-secondary-reverse"
         @click="onDialogClosed"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
-        class="button-primary"
         :loading="isLoading"
+        class="button-primary"
         @click="handleConfirm"
       >
         {{ $t('general.Confirm') }}
@@ -382,7 +382,7 @@ export default {
         if (this.form.argumentsForm.length > 0) {
           sendData.data.arguments = this.form.argumentsForm.reduce((arr, cur) =>
             Object.assign(arr, { [cur.key]: cur.value })
-          , {})
+            , {})
         }
         this.$confirm(this.$t('Notify.confirmEditProject'), this.$t('general.Warning'), {
           confirmButtonText: this.$t('general.Confirm'),

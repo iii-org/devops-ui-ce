@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" :class="device === 'mobile' ? 'mobile' : ''">
+  <div :class="device === 'mobile' ? 'mobile' : ''" class="app-container">
     <PageHeader
       ref="pageHeader"
       :project-id.sync="projectId"

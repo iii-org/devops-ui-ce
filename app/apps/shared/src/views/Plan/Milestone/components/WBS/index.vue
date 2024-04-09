@@ -2,21 +2,21 @@
   <div>
     <div :style="{minHeight: `${tableHeight}px`}" class="relative">
       <el-table
-        ref="WBS"
         v-el-table-infinite-scroll="fetchMoreData"
         v-loading="listLoading"
+        ref="WBS"
         :infinite-scroll-disabled="infiniteScrollDisabled"
         :data="listData"
         :element-loading-text="$t('Loading')"
         :height="tableHeight"
         :row-style="rowStyle"
+        :load="getIssueFamilyData"
+        :row-class-name="getRowClass"
+        :tree-props="{hasChildren: 'has_children'}"
         class="table-css"
         row-key="id"
         lazy
-        :load="getIssueFamilyData"
         fit
-        :row-class-name="getRowClass"
-        :tree-props="{hasChildren: 'has_children'}"
         @row-click="handleRowClick"
         @row-contextmenu="handleContextMenu"
         @cell-mouse-enter="handleCellMouseEnter"
@@ -26,16 +26,16 @@
       >
         <WBSInputColumn
           v-if="columns.indexOf('name')>=0"
-          min-width="250px"
           :label="$t('Issue.name')"
-          prop="name"
           :edit-row-id="editRowId"
+          :has-child-edit="true"
+          :show-icon-row-id="showIconRowId"
+          min-width="250px"
+          prop="name"
           required
           fixed
           show-overflow-tooltip
           sortable
-          :has-child-edit="true"
-          :show-icon-row-id="showIconRowId"
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
           @reset-edit="handleResetEdit"
@@ -56,17 +56,17 @@
         </el-table-column>
         <WBSSelectColumn
           v-if="columns.indexOf('tracker')>=0"
-          width="125px"
           :label="$t('Issue.tracker')"
-          prop-key="tracker"
-          prop="tracker.id"
           :edit-row-id="editRowId"
           :components="Tracker"
           :options="tracker"
           :strict-options="strictTracker"
           :is-parent-exist="isParentExist"
-          sortable
           :has-child-edit="true"
+          width="125px"
+          prop-key="tracker"
+          prop="tracker.id"
+          sortable
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
           @reset-edit="handleResetEdit"
@@ -74,16 +74,16 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('status')>=0"
-          width="125px"
           :label="$t('Issue.status')"
-          prop-key="status"
-          prop="status.id"
           :edit-row-id="editRowId"
           :components="Status"
           :options="status"
           :assigned-to="assignedTo"
-          sortable
           :has-child-edit="true"
+          width="125px"
+          prop-key="status"
+          prop="status.id"
+          sortable
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
           @reset-edit="handleResetEdit"
@@ -91,15 +91,15 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('fixed_version')>=0"
-          min-width="110px"
           :label="$t('Issue.fixed_version')"
-          prop-key="fixed_version"
-          prop="fixed_version.id"
           :edit-row-id="editRowId"
           :options="fixedVersion"
-          sortable
           :has-child-edit="true"
           :edit-row-versions="editRowVersions"
+          min-width="110px"
+          prop-key="fixed_version"
+          prop="fixed_version.id"
+          sortable
           show-overflow-tooltip
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
@@ -108,10 +108,10 @@
         />
         <WBSDateColumn
           v-if="columns.indexOf('StartDate')>=0"
-          min-width="125px"
           :label="$t('Issue.StartDate')"
-          prop="start_date"
           :edit-row-id="editRowId"
+          min-width="125px"
+          prop="start_date"
           show-overflow-tooltip
           sortable
           before-date-column="due_date"
@@ -122,10 +122,10 @@
         />
         <WBSDateColumn
           v-if="columns.indexOf('EndDate')>=0"
-          min-width="125px"
           :label="$t('Issue.EndDate')"
-          prop="due_date"
           :edit-row-id="editRowId"
+          min-width="125px"
+          prop="due_date"
           show-overflow-tooltip
           sortable
           after-date-column="start_date"
@@ -136,13 +136,13 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('priority')>=0"
-          min-width="110px"
           :label="$t('Issue.priority')"
-          prop-key="priority"
-          prop="priority.id"
           :edit-row-id="editRowId"
           :components="Priority"
           :options="priority"
+          min-width="110px"
+          prop-key="priority"
+          prop="priority.id"
           show-overflow-tooltip
           sortable
           @edit="handleUpdateIssue"
@@ -152,14 +152,14 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('assigned_to')>=0"
-          min-width="125px"
           :label="$t('Issue.assigned_to')"
-          prop-key="assigned_to"
-          prop="assigned_to.id"
           :edit-row-id="editRowId"
           :options="assignedTo"
           :has-child-edit="true"
           :edit-row-assigned-to="editRowAssignedTo"
+          min-width="125px"
+          prop-key="assigned_to"
+          prop="assigned_to.id"
           show-overflow-tooltip
           sortable
           @edit="handleUpdateIssue"
@@ -169,14 +169,14 @@
         />
         <WBSInputColumn
           v-if="columns.indexOf('done_ratio')>=0"
-          width="130px"
           :label="$t('Issue.DoneRatio_sm')"
-          prop="done_ratio"
           :edit-row-id="editRowId"
-          number
-          sortable
           :min="0"
           :max="100"
+          width="130px"
+          prop="done_ratio"
+          number
+          sortable
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
           @reset-edit="handleResetEdit"
@@ -184,15 +184,15 @@
         />
         <WBSInputColumn
           v-if="columns.indexOf('points')>=0"
-          width="100px"
           :label="$t('Issue.points')"
           :has-child-edit="true"
-          prop="point"
           :edit-row-id="editRowId"
-          number
-          sortable
           :min="0"
           :max="100"
+          width="100px"
+          prop="point"
+          number
+          sortable
           @edit="handleUpdateIssue"
           @create="handleCreateIssue"
           @reset-edit="handleResetEdit"
@@ -204,9 +204,9 @@
           :description="$t('general.NoData')"
         />
         <tr
+          v-loading="scrollLoading"
           v-if="scrollLoading"
           slot="append"
-          v-loading="scrollLoading"
         >
           <td class="add-issue-inline w-screen text-center" />
         </tr>
@@ -259,8 +259,8 @@
       <el-dialog
         :visible.sync="relationDialog.visible"
         :close-on-click-modal="false"
-        width="80%"
         :show-close="false"
+        width="80%"
         append-to-body
       >
         <div slot="title">
@@ -290,12 +290,12 @@
       </el-dialog>
       <el-dialog
         :visible.sync="issueMatrixDialog.visible"
+        :close-on-click-modal="false"
+        :title="$t('Issue.TraceabilityMatrix')+'(#'+issueMatrixDialog.row.id+' - '+ issueMatrixDialog.row.name+')'"
         width="80%"
         top="20px"
         append-to-body
         destroy-on-close
-        :close-on-click-modal="false"
-        :title="$t('Issue.TraceabilityMatrix')+'(#'+issueMatrixDialog.row.id+' - '+ issueMatrixDialog.row.name+')'"
       >
         <IssueMatrix
           v-if="issueMatrixDialog.visible"

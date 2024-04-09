@@ -2,8 +2,8 @@
   <el-row v-if="data.length>0">
     <el-row
       ref="dialog"
-      class="dialog_wrapper"
       :style="{height:height}"
+      class="dialog_wrapper"
     >
       <el-radio-group
         v-model="status"

@@ -2,11 +2,11 @@
   <el-dialog
     :visible.sync="dialogVisible"
     :class="isMobile ? 'mobile' : ''"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
     width="95%"
     top="3vh"
     append-to-body
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
     @close="handleClose"
   >
     <template slot="title">
@@ -34,8 +34,8 @@
           </span>
           <el-tag
             v-if="stage.state"
-            class="el-tag ml-2"
             :type="stage.state.toLowerCase()"
+            class="el-tag ml-2"
             size="mini"
             effect="dark"
           >
@@ -59,9 +59,9 @@
           </div>
           <el-card
             :id="'preWindow' + index"
+            :body-style="{ padding: 0 }"
             class="mb-2"
             shadow="never"
-            :body-style="{ padding: 0 }"
           >
             <div
               :style="{

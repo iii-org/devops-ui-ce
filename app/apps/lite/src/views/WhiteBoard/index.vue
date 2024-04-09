@@ -18,7 +18,7 @@
           style="font-size: 12px;"
           class="text-danger"
         >
-          <em class="ri-error-warning-fill ri-lg" />
+          <em class="ri-error-warning-fill ri-lg"></em>
           {{ $t('Notify.ExcalidrawAliveWarning') }}
         </span>
       </div>
@@ -91,7 +91,7 @@
           :content="$t('general.Edit')"
           placement="bottom"
         >
-          <em class="ri-edit-box-line success table-button" @click="handleEdit(row, true)" />
+          <em class="ri-edit-box-line success table-button" @click="handleEdit(row, true)"></em>
         </el-tooltip>
         <el-popconfirm
           :title="$t('Notify.confirmDelete')"
@@ -106,7 +106,7 @@
             :content="$t('general.Delete')"
             placement="bottom"
           >
-            <em class="ri-delete-bin-2-line danger table-button" />
+            <em class="ri-delete-bin-2-line danger table-button"></em>
           </el-tooltip>
         </el-popconfirm>
         <el-tooltip
@@ -117,7 +117,7 @@
             v-if="isProjectOwnerOrAdministrator"
             class="el-icon-time primary table-button"
             @click="handleRestore(row)"
-          />
+          ></em>
         </el-tooltip>
       </template>
     </ElTableResponsive>

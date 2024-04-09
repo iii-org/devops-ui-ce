@@ -3,13 +3,13 @@
     :title="$t(`User.${dialogTitle}`)"
     :visible="dialogVisible"
     :width="width"
-    class="scroll-dialog"
     :close-on-click-modal="false"
+    class="scroll-dialog"
     @close="handleClose('userForm')"
   >
     <el-form
-      ref="userForm"
       v-loading="dialogLoading"
+      ref="userForm"
       :model="userForm"
       :rules="userFormRules"
       :label-width="isMobile ? 'auto' :'30%'"
@@ -74,12 +74,12 @@
       <el-form-item :label="$t('User.IsEnable')" prop="status">
         <el-switch
           v-model="userForm.status"
+          :active-text="$t('general.Enable')"
+          :inactive-text="$t('general.Disable')"
           class="mt-2"
           active-value="enable"
           inactive-value="disable"
           inactive-color="gray"
-          :active-text="$t('general.Enable')"
-          :inactive-text="$t('general.Disable')"
         />
       </el-form-item>
       <el-form-item
@@ -88,12 +88,12 @@
       >
         <el-switch
           v-model="userForm.temporary"
-          class="mt-2"
           :active-value="true"
           :inactive-value="false"
-          inactive-color="gray"
           :active-text="$t('general.Enable')"
           :inactive-text="$t('general.Disable')"
+          class="mt-2"
+          inactive-color="gray"
         />
       </el-form-item>
     </el-form>

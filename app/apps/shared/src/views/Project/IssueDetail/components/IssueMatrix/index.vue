@@ -1,14 +1,14 @@
 <template>
   <div
-    ref="wrapper"
     v-loading="isLoading"
+    ref="wrapper"
     class="wrapper"
   >
     <el-alert
       v-if="getPercentProgress < 100"
+      :closable="false"
       type="warning"
       class="mb-4 loading"
-      :closable="false"
     >
       <h2 slot="title"><em class="el-icon-loading" /> {{ $t('Loading') }}</h2>
       <el-progress :percentage="getPercentProgress" />
@@ -84,26 +84,26 @@
         </el-button>
       </el-popover>
       <el-button
+        :disabled="selectedProjectId === -1 || chartLoading"
         icon="el-icon-download"
         class="button-primary-reverse"
-        :disabled="selectedProjectId === -1 || chartLoading"
         @click="downloadSVG"
       >{{ $t('Track.DownloadSVG') }}</el-button>
     </div>
     <div
+      v-dragscroll
       v-show="data.length > 0"
       ref="matrix"
-      v-dragscroll
-      class="mermaid-wrapper"
       :style="{ height:`${tableHeight}px` }"
+      class="mermaid-wrapper"
     >
       <VueMermaid
         v-if="data.length > 0"
         ref="mermaid"
         :nodes="data"
-        type="flowchart LR"
         :class="`w-${zoom}`"
         :config="{ securityLevel: 'loose', flowChart:{ htmlLabels: true }, logLevel: 5 }"
+        type="flowchart LR"
         @nodeClick="editNode"
       />
       <div class="toolbar">
@@ -121,11 +121,11 @@
     />
     <el-dialog
       :visible.sync="relationIssue.visible"
+      :before-close="handleRelationIssueDialogBeforeClose"
       width="90%"
       top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="handleRelationIssueDialogBeforeClose"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"

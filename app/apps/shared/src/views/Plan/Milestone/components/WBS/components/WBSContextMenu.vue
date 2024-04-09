@@ -11,9 +11,9 @@
         <contextmenu-item v-permission="permission" divider />
         <template v-for="contextMenuOption in contextMenuOptions">
           <contextmenu-submenu
+            v-permission="permission"
             v-if="!hasColumn(contextMenuOption)"
             :key="contextMenuOption"
-            v-permission="permission"
             :disabled="isContextSubmenuDisabled(contextMenuOption)"
           >
             <span slot="title">
@@ -88,9 +88,9 @@
             {{ $t('Issue.AddToCalendar') }}
           </span>
           <contextmenu-item
+            v-permission="permission"
             v-for="contextMenuCalendarOption in contextMenuCalendarOptions"
             :key="contextMenuCalendarOption.id"
-            v-permission="permission"
             @click="addToCalendar(contextMenuCalendarOption.id, contextMenu.row)"
           >
             <svg-icon :icon-class="contextMenuCalendarOption.id" class="text-md" />
@@ -109,11 +109,11 @@
     </contextmenu>
     <el-dialog
       :visible.sync="relationIssue.visible"
+      :before-close="handleRelationIssueDialogBeforeClose"
       width="90%"
       top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="handleRelationIssueDialogBeforeClose"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"

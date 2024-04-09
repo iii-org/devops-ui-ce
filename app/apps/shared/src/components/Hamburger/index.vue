@@ -1,8 +1,8 @@
 <template>
   <div style="padding: 0 15px;" @click="toggleClick">
     <em
-      class="ri-indent-increase text-xl hamburger"
       :class="{'is-active':isActive}"
+      class="ri-indent-increase text-xl hamburger"
     />
   </div>
 </template>

@@ -4,9 +4,9 @@
       <el-col :span="12">
         <el-select
           v-model="searchStatus"
-          value-key="user_id"
           :style="{ width: 'auto' }"
           :size="isMobile ? 'small' : 'medium'"
+          value-key="user_id"
         >
           <el-option :label="$t('Dashboard.ADMIN.ProjectList.all')" value="" />
           <el-option :label="$t('Dashboard.ADMIN.ProjectList.overdue')" value="overdue" />
@@ -31,9 +31,9 @@
         :data="tableData"
         :columns="tableColumns"
         :row-class-name="tableRowClassName"
+        :height="tableHeightDialog"
         cell-class-name="items-center"
         header-cell-class-name="items-center"
-        :height="tableHeightDialog"
         @sort-change="onSortChange"
       >
         <template v-slot:owner_name="{row}">

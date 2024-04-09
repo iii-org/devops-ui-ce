@@ -56,10 +56,10 @@
           </div>
           <el-date-picker
             v-model="filterValue.create_at"
-            type="datetimerange"
             :picker-options="pickerOptions"
             :start-placeholder="$t('Issue.StartDate')"
             :end-placeholder="$t('Issue.EndDate')"
+            type="datetimerange"
             range-separator="-"
             align="right"
           />
@@ -70,10 +70,10 @@
           </div>
           <el-date-picker
             v-model="filterValue.last_login"
-            type="datetimerange"
             :picker-options="pickerOptions"
             :start-placeholder="$t('Issue.StartDate')"
             :end-placeholder="$t('Issue.EndDate')"
+            type="datetimerange"
             range-separator="-"
             align="right"
           />
@@ -93,10 +93,10 @@
     <el-input
       v-if="searchVisible"
       v-model="keyword"
-      prefix-icon="el-icon-search"
       :placeholder="$t('User.SearchAccount')"
       :style="{width: isMobile ? 'auto' : '250px'}"
       :size="isMobile ? 'small' : 'medium'"
+      prefix-icon="el-icon-search"
       clearable
       @blur="searchVisible=!searchVisible"
     />

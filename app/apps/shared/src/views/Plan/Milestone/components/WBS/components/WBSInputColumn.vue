@@ -87,7 +87,7 @@
           >
             {{ row[prop] }}
           </div>
-          <el-tooltip v-if="showIconRowId === row.id" placement="bottom" :content="$t('general.Edit')">
+          <el-tooltip v-if="showIconRowId === row.id" :content="$t('general.Edit')" placement="bottom">
             <em class="ri-edit-box-line info table-button" @click.self="$emit('onCellClick', row, column)" />
           </el-tooltip>
           <el-tag v-for="item in row['tags']" :key="item.id"> [{{ item.name }}] </el-tag>

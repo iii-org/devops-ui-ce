@@ -22,11 +22,11 @@
                 <em
                   v-show="filter.isApplying"
                   class="el-icon-check text-success mr-1"
-                />
+                ></em>
                 <span :class="filter.isApplying ? 'text-success' : ''">{{ filter.name }}</span>
               </div>
               <div>
-                <em class="ri-edit-box-line success table-button" @click="onEditClick(filter.id)" />
+                <em class="ri-edit-box-line success table-button" @click="onEditClick(filter.id)"></em>
                 <el-popconfirm
                   :confirm-button-text="$t('general.Remove')"
                   :cancel-button-text="$t('general.Cancel')"
@@ -35,7 +35,7 @@
                   :title="$t('Issue.RemoveCustomFilter')"
                   @confirm="removeFilter(filter.id)"
                 >
-                  <em slot="reference" class="ri-delete-bin-2-line danger table-button" />
+                  <em slot="reference" class="ri-delete-bin-2-line danger table-button"></em>
                 </el-popconfirm>
               </div>
             </div>
@@ -226,7 +226,7 @@
           type="text"
         >
           {{ $t('Issue.CustomFilter') }}
-          <em class="el-icon-arrow-down" />
+          <em class="el-icon-arrow-down"></em>
         </el-button>
       </el-popover>
       <el-divider direction="vertical" />

@@ -1,14 +1,14 @@
 <template>
-  <div class="app-container" :class="isMobile ? 'mobile' : ''">
+  <div :class="isMobile ? 'mobile' : ''" class="app-container">
     <ProjectListSelector :show-button="!isMobile">
       <el-button
+        v-permission="['Administrator','Project Manager', 'Engineer']"
         id="btn-add-issue"
         slot="button"
-        v-permission="['Administrator','Project Manager', 'Engineer']"
-        class="button-primary"
-        icon="el-icon-plus"
         :size="isMobile ? 'small' : 'medium'"
         :disabled="isDisabled"
+        class="button-primary"
+        icon="el-icon-plus"
         @click="handleQuickAddClose"
       >
         {{ $t('Issue.AddIssue') }}
@@ -33,13 +33,13 @@
       >
         <CustomFilter
           ref="customFilter"
-          type="issue_list"
           :selection-options="contextOptions"
+          type="issue_list"
           @apply-filter="applyCustomFilter"
         />
         <span
-          slot="download"
           v-permission="['QA']"
+          slot="download"
         >
           <el-divider direction="vertical" />
           <el-popover
@@ -96,8 +96,8 @@
     </component>
     <div
       ref="wrapper"
-      class="wrapper"
       :class="{'show-quick':quickAddTopicDialogVisible}"
+      class="wrapper"
     >
       <el-row
         v-loading="listLoading"

@@ -7,8 +7,8 @@
     <div class="rightPanel-background" />
     <div class="rightPanel">
       <div
-        class="handle-button"
         :style="{'top':buttonTop+'px','background-color':'#85c1e9'}"
+        class="handle-button"
         @click="handleShow"
       >
         <em

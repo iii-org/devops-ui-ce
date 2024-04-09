@@ -25,12 +25,12 @@
     <Pagination
       v-if="listData && listData.length > 0"
       ref="pagination"
-      class="pagination"
       :total="listQuery.total"
       :page="listQuery.page"
       :limit="listQuery.limit"
       :layout="'total, prev, pager, next'"
       :pager-count="5"
+      class="pagination"
       small
       @pagination="handlePaginationChange"
     />

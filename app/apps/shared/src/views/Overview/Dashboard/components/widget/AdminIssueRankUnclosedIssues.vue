@@ -4,9 +4,9 @@
       <el-col :span="12">
         <el-select
           v-model="searchUser"
-          value-key="user_id"
           :style="{ width: 'auto' }"
           :size="isMobile ? 'small' : 'medium'"
+          value-key="user_id"
         >
           <el-option v-for="item in user" :key="item.user_id" :label="item.user_name" :value="item.user_id" />
         </el-select>

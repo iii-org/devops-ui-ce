@@ -201,7 +201,7 @@
               <em
                 class="ri-file-transfer-line success table-button"
                 @click="onTransferClick(scope.row.id)"
-              />
+              ></em>
             </el-tooltip>
             <el-tooltip
               placement="bottom"
@@ -212,7 +212,7 @@
                   class="ri-delete-bin-2-line table-button"
                   :class="!scope.row.is_closable ? 'disabled' : 'danger'"
                   @click="onCloseClick(scope.row)"
-                />
+                ></em>
               </span>
             </el-tooltip>
           </template>

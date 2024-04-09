@@ -2,13 +2,13 @@
   <el-table
     ref="issueList"
     :data="parent.isSearch ? parent.pagedData : parent.listData"
+    :expand-row-keys="parent.expands"
+    :tree-props="{ children: 'child' }"
+    :row-class-name="parent.getRowClass"
     fit
     highlight-current-row
     size="mini"
     row-key="id"
-    :expand-row-keys="parent.expands"
-    :tree-props="{ children: 'child' }"
-    :row-class-name="parent.getRowClass"
     @cell-click="parent.handleClick"
     @expand-change="parent.getIssueFamilyData"
     @sort-change="parent.handleSortChange"
@@ -39,8 +39,8 @@
           />
         </el-row>
         <IssueExpand
-          class="mx-3"
           :issue="row"
+          class="mx-3"
           @on-context-menu="parent.onContextMenu"
           @update="parent.loadDataAfterSetIssue"
         />
@@ -111,8 +111,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('priority') >= 0"
-      align="center"
       :label="$t('Issue.Priority')"
+      align="center"
       width="110"
       prop="priority"
       sortable="custom"
@@ -127,8 +127,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('status') >= 0"
-      align="center"
       :label="$t('general.Status')"
+      align="center"
       width="120"
       prop="status"
       sortable="custom"
@@ -143,8 +143,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('assigned_to') >= 0"
-      align="center"
       :label="$t('Issue.Assignee')"
+      align="center"
       min-width="180"
       prop="assigned_to"
       sortable="custom"
@@ -164,8 +164,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('fixed_version') >= 0"
-      align="center"
       :label="$t('Issue.fixed_version')"
+      align="center"
       min-width="140"
       prop="fixed_version"
       sortable="custom"
@@ -182,8 +182,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('StartDate') >= 0"
-      align="center"
       :label="$t('Issue.StartDate')"
+      align="center"
       min-width="120"
       prop="start_date"
       sortable="custom"
@@ -200,8 +200,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('EndDate') >= 0"
-      align="center"
       :label="$t('Issue.EndDate')"
+      align="center"
       min-width="120"
       prop="due_date"
       sortable="custom"
@@ -218,8 +218,8 @@
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('DoneRatio') >= 0"
-      align="center"
       :label="$t('Issue.DoneRatio')"
+      align="center"
       min-width="130"
       prop="done_ratio"
       sortable="custom"

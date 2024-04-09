@@ -1,9 +1,9 @@
 <template>
   <div style="height: 400px; width: auto;">
     <v-chart
-      class="chart"
       :option="option"
       :theme="isLite ? 'macarons' : 'vintage'"
+      class="chart"
       autoresize
     />
   </div>

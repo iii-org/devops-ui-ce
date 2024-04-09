@@ -12,11 +12,11 @@
         <el-popover>
           <el-date-picker
             v-model="selectedDate"
+            :start-placeholder="getThisYear[0]"
+            :end-placeholder="getThisYear[1]"
             type="daterange"
             align="right"
             range-separator="~"
-            :start-placeholder="getThisYear[0]"
-            :end-placeholder="getThisYear[1]"
             value-format="yyyy-MM-dd"
             @change="handleDatePicked"
           />
@@ -36,8 +36,8 @@
           v-if="searchVisible"
           id="input-search"
           v-model="keyword"
-          prefix-icon="el-icon-search"
           :placeholder="$t('Project.SearchProjectNameOrManagerOrOrganization')"
+          prefix-icon="el-icon-search"
           style="width: 250px;"
           @blur="searchVisible = !searchVisible"
         />
@@ -184,8 +184,8 @@
         </template>
       </el-table-column>
       <el-table-column
-        align="center"
         :label="$t('Project.IssueProgress')"
+        align="center"
         width="140"
       >
         <template slot-scope="scope">
@@ -198,9 +198,9 @@
           </div>
           <el-progress
             :percentage="getProgressRatio(scope.row.closed_count, scope.row.total_count)"
-            status="warning"
             :show-text="false"
             :stroke-width="4"
+            status="warning"
           />
         </template>
       </el-table-column>
@@ -245,15 +245,15 @@
         <template slot-scope="scope">
           <el-tooltip
             v-if="userRole !== 'QA' && scope.row.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Edit')"
+            placement="bottom"
           >
             <em class="ri-edit-box-line success table-button" @click="handleEdit(scope.row)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Delete')"
+            placement="bottom"
           >
             <span>
               <em

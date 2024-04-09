@@ -1,7 +1,7 @@
 <template>
   <div>
     <span v-if="!isDrawer">
-      <slot />
+      <slot></slot>
       <el-popover
         popper-class="popper"
         placement="bottom"
@@ -95,7 +95,7 @@
           class="header-text-color"
         >
           {{ isMobile ? '': displayFilterValue }}
-          <em class="el-icon-arrow-down el-icon--right" />
+          <em class="el-icon-arrow-down el-icon--right"></em>
         </el-button>
       </el-popover>
       <el-divider direction="vertical" />
@@ -130,7 +130,7 @@
           <span v-if="!isMobile">{{ $t('Issue.CleanFilter') }}</span>
         </el-button>
       </template>
-      <slot name="download" />
+      <slot name="download"></slot>
     </span>
     <div v-if="isDrawer" style="margin: 10px 5px 0 5px">
       <Fab

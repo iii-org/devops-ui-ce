@@ -3,10 +3,10 @@
     <ProjectListSelector>
       <el-button
         slot="button"
-        class="button-secondary"
-        icon="ri-external-link-fill"
         :size="isMobile ? 'small' : 'medium'"
         :disabled="selectedProjectId === -1"
+        class="button-secondary"
+        icon="ri-external-link-fill"
         @click="openSonarQube"
       >
         <span v-if="!isMobile" class="ml-1">{{ $t('SonarQube.ViewReport') }}</span>
@@ -16,8 +16,8 @@
         v-model="keyword"
         :placeholder="$t('Git.searchBranchOrCommitId')"
         :size="isMobile ? 'small' : 'medium'"
-        style="float: right;"
         :style="{ width: isMobile ? 'auto' : '250px' }"
+        style="float: right;"
         prefix-icon="el-icon-search"
       />
     </ProjectListSelector>
@@ -25,13 +25,13 @@
     <ElTableResponsive
       v-loading="listLoading"
       :element-loading-text="$t('Loading')"
-      fit
-      highlight-current-row
       :data="pagedData"
       :columns="tableColumns"
+      fit
+      highlight-current-row
     >
       <template v-slot:commit_id="{ row }">
-        <el-link type="primary" target="_blank" style="font-size: 16px" :href="row.issue_link">
+        <el-link :href="row.issue_link" type="primary" target="_blank" style="font-size: 16px">
           <svg-icon v-if="row.commit_id" class="mr-1" icon-class="ion-git-commit-outline" />
           <span>{{ row.commit_id }}</span>
         </el-link>

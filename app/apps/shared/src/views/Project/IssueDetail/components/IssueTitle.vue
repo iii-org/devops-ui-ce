@@ -1,19 +1,19 @@
 <template>
   <span
-    v-if="edit"
     v-loading="isLoading"
+    v-if="edit"
     class="p-3"
   >
     <span class="el-input inline">
       <input
-        v-model="newValue"
         v-autowidth="{
           maxWidth: isFromBoard ? '480px' : '960px',
           minWidth: '120px',
           comfortZone: 0
         }"
-        type="text"
+        v-model="newValue"
         :placeholder="$t('general.Title')"
+        type="text"
         class="el-input__inner text-xl"
       >
       <el-button

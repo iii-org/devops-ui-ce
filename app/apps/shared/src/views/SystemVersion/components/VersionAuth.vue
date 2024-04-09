@@ -67,21 +67,21 @@
       @close="$refs.form.resetFields();"
     >
       <el-form
-        ref="form"
         v-loading="isLoading"
+        ref="form"
         :model="form"
       >
         <el-form-item
-          prop="secretKey"
           :rules="[
             { required: true, message: $t('Notify.NoEmpty')}
           ]"
+          prop="secretKey"
         >
           <el-input
             v-model="form.secretKey"
             :placeholder="$t('RuleMsg.PleaseInput') + $t('SystemVersion.VerificationCode')"
-            type="textarea"
             :rows="5"
+            type="textarea"
           />
         </el-form-item>
       </el-form>
@@ -93,8 +93,8 @@
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
-          type="primary"
           :disabled="isLoading"
+          type="primary"
           @click="confirm"
         >
           {{ $t('general.Confirm') }}

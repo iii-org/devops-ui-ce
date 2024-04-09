@@ -4,11 +4,11 @@
       <Draggable
         :list="groupByValueOnBoard"
         v-bind="$attrs"
-        class="board"
         :class="{'is-panel':relationIssue.visible}"
         :draggable="'.item'"
         :disabled="!isDraggable"
         :force-fallback="true"
+        class="board"
         @change="end($event)"
       >
         <Kanban
@@ -50,8 +50,8 @@
         >
           <el-link
             v-if="!isEdited"
-            icon="el-icon-plus"
             :underline="false"
+            icon="el-icon-plus"
             class="flex items-center"
             style="font-size: 1.1rem; height: 4.3rem;"
             @click="isEdited = true"
@@ -61,8 +61,8 @@
           <template v-else>
             <div class="flex justify-end px-1 mt-1">
               <el-tooltip
-                placement="bottom"
                 :content="$t('general.Save')"
+                placement="bottom"
               >
                 <em
                   class="el-icon-check primary table-button"
@@ -71,8 +71,8 @@
                 />
               </el-tooltip>
               <el-tooltip
-                placement="bottom"
                 :content="$t('general.Cancel')"
+                placement="bottom"
               >
                 <em
                   class="el-icon-close danger table-button"
@@ -96,8 +96,8 @@
     <transition name="slide-fade">
       <div v-if="relationIssue.visible" class="rightPanel">
         <div
-          class="handle-button"
           :style="{'background-color':'#85c1e9'}"
+          class="handle-button"
           @click="handleRightPanelVisible"
         >
           <em class="el-icon-d-arrow-right" />
@@ -115,11 +115,11 @@
     <el-dialog
       v-if="isProjectDetailPopUp"
       :visible.sync="isProjectDetailPopUp"
+      :before-close="handleRelationIssueDialogBeforeClose"
       width="90%"
       top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="handleRelationIssueDialogBeforeClose"
     >
       <ProjectIssueDetail
         ref="children"

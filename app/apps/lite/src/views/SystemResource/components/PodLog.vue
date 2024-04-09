@@ -21,14 +21,14 @@
         class="button-secondary-reverse"
         @click="scrollTo('top')"
       >
-        <em v-if="isMobile" class="ri-skip-up-fill" />
+        <em v-if="isMobile" class="ri-skip-up-fill"></em>
         <span v-else>{{ $t('general.ScrollToTop') }}</span>
       </el-button>
       <el-button
         class="button-secondary-reverse"
         @click="scrollTo('bottom')"
       >
-        <em v-if="isMobile" class="ri-skip-down-fill" />
+        <em v-if="isMobile" class="ri-skip-down-fill"></em>
         <span v-else>{{ $t('general.ScrollToBottom') }}</span>
       </el-button>
       <el-button class="button-primary" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>

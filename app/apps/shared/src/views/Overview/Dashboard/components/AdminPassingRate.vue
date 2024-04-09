@@ -2,10 +2,10 @@
   <div v-loading="loading">
     <v-chart
       v-if="chartData.length > 0"
-      class="chart"
       :option="passingRateOptions"
-      autoresize
       :theme="isLite ? 'macarons' : 'vintage'"
+      class="chart"
+      autoresize
       @click="onClickChart"
     />
     <NoData v-else />
@@ -21,10 +21,10 @@
         <el-col :span="12">
           <el-input
             v-model="keyword"
-            class="ob-search-input ob-shadow search-input"
             :style="{ width: isMobile ? 'auto' : '250px' }"
             :size="isMobile ? 'small' : 'medium'"
             :placeholder="$t('Project.SearchProjectName')"
+            class="ob-search-input ob-shadow search-input"
             clearable
           />
         </el-col>

@@ -6,25 +6,25 @@
           v-model="keyword"
           :size="isMobile ? 'small' : 'medium'"
           :style="{ width: isMobile ? '150px' : '250px' }"
-          prefix-icon="el-icon-search"
           :placeholder="$t('ProgressPipelines.SearchCommitMessage')"
+          prefix-icon="el-icon-search"
         />
       </ProjectListSelector>
       <el-divider />
       <div class="flex justify-between items-center text-base text-info mb-2">
         <div class="text-sm ml-2">{{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}</div>
         <el-popover trigger="click">
-          <el-card shadow="never" :body-style="{ width: isMobile ? 'auto' : '460px' }">
+          <el-card :body-style="{ width: isMobile ? 'auto' : '460px' }" shadow="never">
             <PipelineSettingsTable @reexecute="handleReexecute" />
           </el-card>
           <el-button
             slot="reference"
-            size="medium"
-            icon="el-icon-s-tools"
-            style="padding: 5px"
             :class="!isMobile ? 'link-text-color' : ''"
             :type="!isMobile ? 'text' : 'primary'"
             :circle="isMobile"
+            size="medium"
+            icon="el-icon-s-tools"
+            style="padding: 5px"
           >
             <span v-if="!isMobile">{{ $t('ProgressPipelines.PipeLineSettings') }}</span>
           </el-button>
@@ -42,19 +42,19 @@
         fit
       >
         <template v-slot:status="{ row }">
-          <el-tag class="mt-1" size="small" effect="dark" :type="row.execution_state.toLowerCase()">
+          <el-tag :type="row.execution_state.toLowerCase()" class="mt-1" size="small" effect="dark">
             {{ row.execution_state }}
           </el-tag>
           <div>
             {{ `(${row.status.success}/${row.status.total})` }}
-            <em class="el-icon-circle-check" :class="row.status.success === row.status.total ? 'text-success' : ''" />
+            <em :class="row.status.success === row.status.total ? 'text-success' : ''" class="el-icon-circle-check" />
           </div>
         </template>
         <template v-slot:branch="{ row }">
           <div>
             {{ row.commit_branch }}
           </div>
-          <el-link type="primary" target="_blank" style="font-size: 16px" :href="row.commit_url">
+          <el-link :href="row.commit_url" type="primary" target="_blank" style="font-size: 16px">
             <svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
             {{ row.commit_id }}
           </el-link>
@@ -80,8 +80,8 @@
           <el-tooltip v-show="row.commit_id" :content="$t('PipeLines.Report')" placement="bottom">
             <span>
               <em
-                class="ri-survey-line primary table-button"
                 :class="row.execution_state === 'Finished' ? 'primary' : 'disabled'"
+                class="ri-survey-line primary table-button"
                 @click="handleToTestReport(row)"
               />
             </span>

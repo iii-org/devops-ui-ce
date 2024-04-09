@@ -76,12 +76,12 @@
               <el-popover
                 v-if="scope.row.git_url"
                 :disabled="scope.row.disabled || scope.row.is_lock"
+                :open-delay="300"
+                :close-delay="50"
                 class="mr-1"
                 placement="top"
                 width="400"
                 trigger="hover"
-                :open-delay="300"
-                :close-delay="50"
               >
                 <p
                   :id="`copy-${scope.$index}`"
@@ -121,11 +121,11 @@
               <!-- harbor button -->
               <el-link
                 v-if="scope.row.harbor_url"
-                target="_blank"
-                style="font-size: 18px; padding: 0 3px;"
                 :underline="false"
                 :disabled="scope.row.disabled || scope.row.is_lock"
                 :href="scope.row.harbor_url"
+                target="_blank"
+                style="font-size: 18px; padding: 0 3px;"
               >
                 <svg-icon icon-class="harbor" style="font-size: 18px;" />
               </el-link>
@@ -150,15 +150,15 @@
         </template>
       </el-table-column>
       <ElTableColumnTag
+        :label="$t('Project.IssueStatus')"
         prop="project_status"
         i18n-key="Project"
-        :label="$t('Project.IssueStatus')"
         location="projectListPM"
         min-width="130"
       />
       <el-table-column
-        align="center"
         :label="$t('Project.IssueProgress')"
+        align="center"
         width="140"
       >
         <template slot-scope="scope">
@@ -171,32 +171,32 @@
           </div>
           <el-progress
             :percentage="returnProgress(scope.row.closed_count, scope.row.total_count)"
-            status="warning"
             :show-text="false"
             :stroke-width="4"
+            status="warning"
           />
         </template>
       </el-table-column>
       <ElTableColumnTime
-        prop="updated_time"
         :label="$t('Project.IssueUpdate')"
+        prop="updated_time"
       />
       <el-table-column
-        align="center"
         :label="$t('general.owner_name')"
+        align="center"
         prop="owner_name"
         min-width="90"
       />
       <el-table-column
-        align="center"
         :label="$t('ProjectSettings.Status')"
+        align="center"
         min-width="100px"
       >
         <template slot-scope="scope">
           <el-tooltip
-            placement="bottom"
             :disabled="!scope.row.is_lock"
             :content="scope.row.lock_reason"
+            placement="bottom"
           >
             <el-tag v-if="scope.row.is_lock" type="info">
               {{ $t('errorDetail.locked') }}
@@ -216,15 +216,15 @@
         <template slot-scope="scope">
           <el-tooltip
             v-if="userRole !== 'QA' && scope.row.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Edit')"
+            placement="bottom"
           >
             <em class="ri-edit-box-line success table-button" @click="handleEdit(scope.row)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
-            placement="bottom"
             :content="$t('general.Delete')"
+            placement="bottom"
           >
             <span>
               <em
@@ -236,8 +236,8 @@
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock === true"
-            placement="bottom"
             :content="$t('general.ForceDelete')"
+            placement="bottom"
           >
             <span>
               <em
@@ -249,15 +249,15 @@
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock === true"
-            placement="bottom"
             :content="$t('general.Fix')"
+            placement="bottom"
           >
             <em class="ri-refresh-line primary table-button" @click="handleFix(scope.row.id)" />
           </el-tooltip>
           <el-tooltip
             v-if="scope.row.is_lock !== true"
-            placement="bottom"
             :content="!scope.row.disabled ? $t('general.Disable') : $t('general.Enable')"
+            placement="bottom"
           >
             <span>
               <em
@@ -297,9 +297,9 @@
     <el-dialog
       v-if="isShowProjectSettingDialog"
       :visible.sync="isShowProjectSettingDialog"
+      :width="isMobile ? '95%' : '75%'"
       destroy-on-close
       top="5vh"
-      :width="isMobile ? '95%' : '75%'"
       @close="handleCloseDialog"
     >
       <ProjectSettingsDialog

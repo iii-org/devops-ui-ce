@@ -5,7 +5,7 @@
       :content="name"
       placement="bottom"
     >
-      <em v-if="name" :class="mapTagType(type)" class="point" />
+      <em v-if="name" :class="mapTagType(type)" class="point"></em>
     </el-tooltip>
     <span v-if="!isHideName" class="break-normal">{{ name }}</span>
   </span>

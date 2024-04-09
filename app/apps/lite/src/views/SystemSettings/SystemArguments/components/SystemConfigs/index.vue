@@ -30,7 +30,7 @@
           <em
             class="ri-edit-box-line success table-button"
             @click="row.method"
-          />
+          ></em>
         </el-tooltip>
       </template>
     </ElTableResponsive>

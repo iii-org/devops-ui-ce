@@ -4,9 +4,9 @@
       <el-table-column
         v-for="(column, idx) in Object.keys(pagedData[0])"
         :key="idx"
-        sortable
         :prop="column"
         :label="column"
+        sortable
       />
     </el-table>
     <Pagination

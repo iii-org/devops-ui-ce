@@ -4,17 +4,17 @@
       <el-row slot="button">
         <el-col>
           <el-button
-            icon="el-icon-plus"
             :size="isMobile ? 'small' : 'medium'"
+            icon="el-icon-plus"
             class="button-primary"
             @click="handleQuickAddClose"
           >
             <span v-if="!isMobile">{{ $t('Issue.AddIssue') }}</span>
           </el-button>
           <el-tooltip
-            placement="bottom"
             :open-delay="100"
             :content="$t('general.Reload')"
+            placement="bottom"
           >
             <el-button
               class="ml-2"
@@ -83,10 +83,10 @@
           <el-button
             v-if="activeTab === 'WBS' || activeTab === 'Gantt'"
             slot="reference"
+            :disabled="selectedProjectId === -1"
             icon="el-icon-download"
             class="button-primary-reverse"
             size="small"
-            :disabled="selectedProjectId === -1"
           >
             <span v-if="!isMobile">{{ $t('File.Download') }}</span>
           </el-button>
@@ -117,11 +117,11 @@
               <ElSelectAll
                 ref="groupByValue"
                 :value="groupBoardBy.value"
+                :loading="listLoading"
+                :options="groupByValueList"
                 filterable
                 multiple
                 collapse-tags
-                :loading="listLoading"
-                :options="groupByValueList"
                 value-key="id"
                 @change="onChangeGroupByValue($event)"
               />
@@ -145,11 +145,11 @@
               <ElSelectAll
                 ref="groupByRow"
                 :value="groupBoardBy.list"
+                :loading="listLoading"
+                :options="groupByRow"
                 filterable
                 multiple
                 collapse-tags
-                :loading="listLoading"
-                :options="groupByRow"
                 value-key="id"
                 @change="onChangeGroupByRow($event)"
               />
@@ -196,11 +196,11 @@
     </component>
     <div
       ref="wrapper"
-      class="wrapper"
       :class="{
         'show-quick':quickAddTopicDialogVisible,
         'is-panel':issueDetail.visible
       }"
+      class="wrapper"
     >
       <el-tabs
         v-model="activeTab"
@@ -267,8 +267,8 @@
       <transition name="slide-fade">
         <div v-if="issueDetail.visible" class="rightPanel">
           <div
-            class="handle-button"
             :style="{'background-color':'#85c1e9'}"
+            class="handle-button"
             @click="handleRightPanelVisible"
           >
             <em class="el-icon-d-arrow-right" />
@@ -286,11 +286,11 @@
       </transition>
       <el-dialog
         :visible.sync="isProjectDetailPopUp"
+        :before-close="handleRelationIssueDialogBeforeClose"
         width="90%"
         top="3vh"
         append-to-body
         destroy-on-close
-        :before-close="handleRelationIssueDialogBeforeClose"
       >
         <ProjectIssueDetail
           ref="issueDetailDialog"

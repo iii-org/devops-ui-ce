@@ -1,8 +1,8 @@
 <template>
   <div
-    class="app-container"
     :class="isInDialog ? 'in-dialog' : ''"
     :style="isFromBoard ? 'padding: 0' : ''"
+    class="app-container"
   >
     <el-card
       v-loading="isLoading"
@@ -18,8 +18,8 @@
         >
           <el-row>
             <el-col
-              class="text-xl mr-3"
               :style="isFromBoard ? 'max-width: 500px;' : ''"
+              class="text-xl mr-3"
             >
               <el-button
                 v-if="!isInDialog"
@@ -32,13 +32,13 @@
                 {{ $t('general.Back') }}
               </el-button>
               <span
-                class="align-middle"
                 :class="form.status_id === 6 ? 'grey-title' : ''"
+                class="align-middle"
               >
                 <Status
                   v-if="form.status_id === 6"
-                  class="mx-1"
                   :name="$t(`Issue.Closed`)"
+                  class="mx-1"
                   type="Closed"
                 />
                 <Tracker
@@ -112,16 +112,16 @@
                 :form="form"
               />
               <el-tooltip
-                v-if="!isFromBoard"
                 v-permission="['Administrator','Project Manager','QA']"
+                v-if="!isFromBoard"
                 :content="$t('general.Delete')"
                 placement="bottom"
               >
                 <el-button
-                  circle
-                  size="small"
                   :type="isButtonDisabled ? 'info' : 'danger'"
                   :disabled="isButtonDisabled"
+                  circle
+                  size="small"
                   @click="$parent.isDeleteIssueDialog = true"
                 >
                   <em class="el-icon-delete" />
@@ -171,8 +171,8 @@
                 v-if="isAddSubIssue"
                 id="AddSubIssueWrapper"
                 ref="AddSubIssueWrapper"
-                class="mb-3"
                 :span="24"
+                class="mb-3"
               >
                 <AddSubIssue
                   ref="AddSubIssue"
@@ -221,8 +221,8 @@
                   />
                 </el-collapse-item>
                 <el-collapse-item
-                  v-if="testFiles.length > 0"
                   v-loading="isLoadingTestFile"
+                  v-if="testFiles.length > 0"
                   name="testFiles"
                 >
                   <div slot="title" class="text-sm font-bold">
@@ -235,8 +235,8 @@
                   />
                 </el-collapse-item>
                 <el-collapse-item
-                  v-if="countRelationIssue > 0"
                   v-loading="isLoadingFamily"
+                  v-if="countRelationIssue > 0"
                   name="relatedIssue"
                 >
                   <div slot="title" class="text-sm font-bold">
@@ -259,7 +259,6 @@
                   </div>
                   <IssueForm
                     ref="IssueForm"
-                    class="mx-3 text-xs"
                     :is-button-disabled="isButtonDisabled"
                     :issue="issue"
                     :issue-id="issueId"
@@ -271,6 +270,7 @@
                     :children-issue="children"
                     :is-issue-edited="isIssueEdited"
                     :is-form-collapse-open="relationVisible === 'issueForm'"
+                    class="mx-3 text-xs"
                     @update="$parent.historyUpdate"
                   />
                 </el-collapse-item>
@@ -354,9 +354,9 @@
         </el-col>
         <el-col
           v-show="isIssueFormOpened"
-          class="issueOptionHeight"
           :span="24"
           :sm="8"
+          class="issueOptionHeight"
         >
           <IssueForm
             v-if="!isFromBoard"
@@ -376,18 +376,18 @@
       </el-row>
     </el-card>
     <el-backtop
-      target=".issueHeight"
       :visibility-height="500"
       :right="issueFormWidth"
       :bottom="50"
+      target=".issueHeight"
     />
     <el-dialog
       :visible.sync="relationIssue.visible"
+      :before-close="$parent.handleRelationIssueDialogBeforeClose"
       width="90%"
       top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="$parent.handleRelationIssueDialogBeforeClose"
     >
       <IssueDetail
         v-if="relationIssue.visible"
@@ -402,8 +402,8 @@
     <el-dialog
       :visible.sync="relatedCollectionDialogVisible"
       :close-on-click-modal="false"
-      width="80%"
       :show-close="false"
+      width="80%"
       custom-class="relatedCollectionDialog"
       append-to-body
       destroy-on-close
@@ -417,11 +417,11 @@
     </el-dialog>
     <el-dialog
       :visible.sync="issueMatrixDialog.visible"
+      :title="$t('Issue.TraceabilityMatrix') + '(#' + issue.id + ' - ' + issue.name + ')'"
       width="80%"
       top="20px"
       append-to-body
       destroy-on-close
-      :title="$t('Issue.TraceabilityMatrix') + '(#' + issue.id + ' - ' + issue.name + ')'"
     >
       <IssueMatrix
         v-if="issueMatrixDialog.visible"
@@ -432,14 +432,14 @@
     </el-dialog>
     <el-dialog
       :visible.sync="$parent.isShowDialog"
+      :close-on-click-modal="false"
       append-to-body
       destroy-on-close
       width="30%"
-      :close-on-click-modal="false"
       @close="$parent.onCancel"
     >
       <span>
-        <em class="el-icon-warning" :style="$parent.getStyle('danger')" />
+        <em :style="$parent.getStyle('danger')" class="el-icon-warning" />
         {{ $t('Notify.ChangeProject') }}
       </span>
       <span slot="footer">

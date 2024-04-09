@@ -56,7 +56,7 @@
         </ol>
       </li>
     </ul>
-    <slot />
+    <slot></slot>
   </el-row>
 </template>
 

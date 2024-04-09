@@ -11,7 +11,7 @@
           @click="$parent.handleBackPage"
         />
         <span :class="form.status_id === 6 ? 'grey-title' : ''" class="align-middle">
-          <Status v-if="form.status_id === 6" class="mx-1" :name="$t(`Issue.Closed`)" type="Closed" />
+          <Status v-if="form.status_id === 6" :name="$t(`Issue.Closed`)" class="mx-1" type="Closed" />
           <Tracker v-if="tracker" :name="$t(`Issue.${tracker}`)" :type="tracker" />
           <span v-else>{{ $t('Issue.Issue') }}</span>
           <span>#{{ issueId }} - </span>
@@ -21,7 +21,7 @@
       </el-col>
     </el-row>
     <div>
-      <el-tabs v-model="activeTab" v-loading="isLoading" type="border-card" tab-position="bottom" stretch>
+      <el-tabs v-loading="isLoading" v-model="activeTab" type="border-card" tab-position="bottom" stretch>
         <el-tab-pane name="form">
           <em slot="label" class="ri-survey-line text-xl align-middle" />
           <div class="card">
@@ -41,7 +41,6 @@
             </el-card>
             <IssueForm
               ref="IssueForm"
-              class="content"
               :is-button-disabled="isButtonDisabled"
               :issue="issue"
               :issue-id="issueId"
@@ -51,6 +50,7 @@
               :parent="parent"
               :children-issue="children"
               :is-issue-edited="isIssueEdited"
+              class="content"
               @update="$parent.historyUpdate"
             />
           </div>
@@ -107,8 +107,8 @@
               </div>
               <el-divider />
               <IssueNotesDialog
-                height="auto"
                 :data="journals"
+                height="auto"
                 @show-parent-issue="$parent.onRelationIssueDialog"
               />
             </div>
@@ -117,11 +117,11 @@
       </el-tabs>
     </div>
     <Fab
+      :actions="fabActions"
       position="bottom-right"
       bg-color="#409eff"
       icon-size="small"
       main-icon="more_vert"
-      :actions="fabActions"
       @addComment="handleAddComment"
       @addToCalendar="isCalDrawerVisible = !isCalDrawerVisible"
       @copyIssue="$parent.copyUrl"

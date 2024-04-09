@@ -4,11 +4,11 @@
       <template v-if="row.create">
         <el-date-picker
           v-model="row[prop]"
+          :picker-options="pickerOptions(row)"
           type="date"
           value-format="yyyy-MM-dd"
           clearable
           style="width: 100%"
-          :picker-options="pickerOptions(row)"
           @keyup.enter.native="handlerCreate(row, $index)"
           @keyup.esc.native="handlerResetCreate(row, $index)"
         />
@@ -20,11 +20,11 @@
       >
         <el-date-picker
           v-model="row[prop]"
+          :picker-options="pickerOptions(row)"
           type="date"
           value-format="yyyy-MM-dd"
           clearable
           style="width: 100%"
-          :picker-options="pickerOptions(row)"
           @change="handlerEdit(row, $index)"
           @keyup.enter.native="handlerEdit(row, $index)"
           @keyup.esc.native="handlerReset(row, $index)"

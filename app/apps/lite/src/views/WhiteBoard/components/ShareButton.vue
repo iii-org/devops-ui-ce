@@ -58,7 +58,7 @@
           @click="sendMentionMessage()"
         >
           {{ $t('Inbox.Send') }}
-          <em class="el-icon-s-promotion" />
+          <em class="el-icon-s-promotion"></em>
         </el-button>
       </span>
     </el-form>
@@ -71,7 +71,7 @@
       <em
         class="el-icon-share info table-button"
         @click="$emit('loadData')"
-      />
+      ></em>
     </el-tooltip>
   </el-popover>
 </template>

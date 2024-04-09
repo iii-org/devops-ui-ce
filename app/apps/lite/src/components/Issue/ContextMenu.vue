@@ -12,7 +12,7 @@
           v-permission="permission"
           :disabled="(column.value === 'priority' ? row.has_children : false) || isForceParent"
         >
-          <span slot="title"><em :class="mapTagType(column.value)" class="mr-2" />{{ column.label }}</span>
+          <span slot="title"><em :class="mapTagType(column.value)" class="mr-2"></em>{{ column.label }}</span>
           <contextmenu-item
             v-for="item in getOptionsData(column.value)"
             :key="getId(column.value, item)"
@@ -20,15 +20,15 @@
             :class="{ current: getContextMenuCurrentValue(column, item), [item.class]: item.class }"
             @click="onUpdate(column.value + '_id', item)"
           >
-            <em v-if="getContextMenuCurrentValue(column, item)" class="ri-check-line" />
-            <em v-if="item.id === 'null'" class="ri-close-circle-line" />
-            <em :class="mapTagType(item.name)" class="point text-xs" />{{ getSelectionLabel(item) }} {{ item.message }}
+            <em v-if="getContextMenuCurrentValue(column, item)" class="ri-check-line"></em>
+            <em v-if="item.id === 'null'" class="ri-close-circle-line"></em>
+            <em :class="mapTagType(item.name)" class="point text-xs"></em>{{ getSelectionLabel(item) }} {{ item.message }}
           </contextmenu-item>
         </contextmenu-submenu>
         <contextmenu-submenu
           v-permission="permission"
         >
-          <span slot="title"><em class="ri-bookmark-2-fill mr-2" />{{ $t('Issue.FilterDimensions.tags') }}</span>
+          <span slot="title"><em class="ri-bookmark-2-fill mr-2"></em>{{ $t('Issue.FilterDimensions.tags') }}</span>
           <contextmenu-item class="tag-contextmenu-item">
             <el-select
               v-model="searchTag"
@@ -48,8 +48,8 @@
               style="padding-left: 0; color: #333;"
             >
               <li class="tag" @click="onUpdate(`tags_id`, tag)">
-                <em v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)" class="ri-check-line" />
-                <em v-if="tag.id === 'null'" class="ri-close-circle-line" />
+                <em v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)" class="ri-check-line"></em>
+                <em v-if="tag.id === 'null'" class="ri-close-circle-line"></em>
                 {{ tag.name }}
               </li>
             </ul>
@@ -59,7 +59,7 @@
           v-permission="permission"
           :disabled="row.has_children || isForceParent"
         >
-          <span slot="title"><em class="ri-check-double-fill mr-2" />{{ $t('Issue.DoneRatio') }}</span>
+          <span slot="title"><em class="ri-check-double-fill mr-2"></em>{{ $t('Issue.DoneRatio') }}</span>
           <contextmenu-item
             v-for="item in done_ratio"
             :key="item.id"
@@ -67,7 +67,7 @@
             :class="{ current: getContextMenuCurrentValue('done_ratio', item) }"
             @click="onUpdate('done_ratio', item)"
           >
-            <em v-if="getContextMenuCurrentValue('done_ratio', item)" class="ri-check-line" />
+            <em v-if="getContextMenuCurrentValue('done_ratio', item)" class="ri-check-line"></em>
             {{ getSelectionLabel(item) }}
           </contextmenu-item>
         </contextmenu-submenu>
@@ -76,29 +76,29 @@
           v-permission="permission"
           @click="toggleRelationDialog('Parent')"
         >
-          <em class="ri-send-backward mr-2" />{{ $t('Issue.ParentIssue') }}
+          <em class="ri-send-backward mr-2"></em>{{ $t('Issue.ParentIssue') }}
         </contextmenu-item>
         <contextmenu-submenu
           v-permission="permission"
           :disabled="isForceParent"
         >
-          <span slot="title"><em class="ri-bring-forward mr-2" />{{ $t('Issue.ChildrenIssue') }}</span>
+          <span slot="title"><em class="ri-bring-forward mr-2"></em>{{ $t('Issue.ChildrenIssue') }}</span>
           <contextmenu-item @click="toggleRelationDialog('Children')">
-            <em class="ri-settings-5-fill mr-2" />{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
+            <em class="ri-settings-5-fill mr-2"></em>{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
           </contextmenu-item>
           <contextmenu-item @click="advancedAddIssue(false)">
-            <em class="ri-add-circle-fill mr-2" />{{ $t('Issue.AddSubIssue') }}
+            <em class="ri-add-circle-fill mr-2"></em>{{ $t('Issue.AddSubIssue') }}
           </contextmenu-item>
         </contextmenu-submenu>
         <contextmenu-item @click="toggleIssueMatrixDialog">
-          <em class="ri-bar-chart-horizontal-fill mr-2" />{{ $t('Issue.TraceabilityMatrix') }}
+          <em class="ri-bar-chart-horizontal-fill mr-2"></em>{{ $t('Issue.TraceabilityMatrix') }}
         </contextmenu-item>
         <contextmenu-item v-permission="permission" divider />
         <contextmenu-item v-permission="permission" @click="advancedAddIssue(true)">
-          <em class="ri-file-copy-2-fill mr-2" />{{ $t('Issue.CopyIssue') }}
+          <em class="ri-file-copy-2-fill mr-2"></em>{{ $t('Issue.CopyIssue') }}
         </contextmenu-item>
         <contextmenu-submenu>
-          <span slot="title"><em class="ri-calendar-event-fill mr-2" />
+          <span slot="title"><em class="ri-calendar-event-fill mr-2"></em>
             {{ $t('Issue.AddToCalendar') }}
           </span>
           <contextmenu-item v-permission="permission" @click="addToCalendar('google')">
