@@ -108,7 +108,7 @@
     "yarn": ">= 1.0.0"
   },
   "license": "MIT",
-  "overrides": {
-    "lodash": "$lodash"
+  "resolutions": {
+    "lodash": "^4.7.21"
   }
 }
