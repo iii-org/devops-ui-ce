@@ -22,8 +22,6 @@ Copy Code From EE:
     Mono
   - 'cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
 
-    cp Mono/app/yarn.lock ./app/yarn.lock
-
     cp Mono/app/lerna.json ./app/lerna.json
 
     cp Mono/app/package_ce.json ./app/package.json
