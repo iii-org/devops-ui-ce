@@ -15,6 +15,7 @@
         :params="params"
         :display-fields="displayFields"
         @load-data="loadData"
+        @download-excel="downloadExcel"
       />
     </div>
     <el-divider />
@@ -106,7 +107,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getUser, getUserInfo, deleteUser } from '@/api/user'
+import { getUser, getUserInfo, downloadUserList, deleteUser } from '@/api/user'
 import { BasicData, Pagination } from '@/mixins'
 import { ElTableResponsive } from '@shared/components'
 import { generateAvatarUrl } from '@shared/utils/Avatar'
@@ -272,6 +273,27 @@ export default {
         delete this.params.desc
       }
       this.loadData()
+    },
+    downloadExcel() {
+      this.$confirm(this.$t('User.DownloadDescription'), this.$t('User.DownloadAccountList'), {
+        confirmButtonText: this.$t('File.Download'),
+        cancelButtonText: this.$t('general.Cancel'),
+        type: 'info'
+      }).then(async() => {
+        const fields = this.displayFields
+          .map((item) => item === 'avatar' ? 'name' : item)
+          .filter((item) => item !== 'actions')
+        const res = await downloadUserList({ ...this.params, download: fields })
+        const blob = new Blob([res])
+        const link = document.createElement('a')
+        const url = window.URL.createObjectURL(blob)
+        link.setAttribute('href', url)
+        link.setAttribute('download', 'AccountList.xlsx')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        window.URL.revokeObjectURL(url)
+      })
     }
   }
 }

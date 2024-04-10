@@ -15,7 +15,6 @@ export const getUserInfo = async (userId) => {
   const res = await request.get(`/user/${userId}`)
   return new User(res.data)
 }
-export const getUserListByFilter = (data) => request.post('/user/list', data)
 export const getUser = async (data) => {
   const res = await request.post(`/user/list`, data)
   const userList = []
@@ -35,5 +34,7 @@ export const getAllUser = async () => {
   }
   return userList
 }
+export const getUserListByFilter = (data) => request.post('/user/list', data)
+export const downloadUserList = (data) => request.post('/user/list', data, { responseType: 'blob' })
 
 export const getRouter = () => request.get(`/ui_router`)

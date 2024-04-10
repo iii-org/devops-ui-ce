@@ -1,5 +1,16 @@
 <template>
   <span>
+    <el-button
+      class="header-text-color"
+      icon="el-icon-download"
+      type="text"
+      @click="$emit('download-excel')"
+    >
+      <span v-if="!isMobile">
+        {{ $t('File.Download') }}
+      </span>
+    </el-button>
+    <el-divider direction="vertical" />
     <el-popover
       placement="bottom"
       trigger="click"
@@ -20,8 +31,8 @@
       </el-form>
       <el-button
         slot="reference"
-        type="text"
         class="header-text-color"
+        type="text"
       >
         <em class="ri-layout-column-fill align-middle" />
         <span v-if="!isMobile">
@@ -81,11 +92,11 @@
       </el-form>
       <el-button
         slot="reference"
+        class="header-text-color"
         icon="el-icon-s-operation"
         type="text"
-        class="header-text-color"
       >
-        {{ isMobile ? '': $t('general.Filter') }}
+        {{ isMobile ? '': displayFilterValue }}
         <em class="el-icon-arrow-down el-icon--right" />
       </el-button>
     </el-popover>
@@ -167,6 +178,29 @@ export default {
       ])
     }
   },
+  computed: {
+    displayFilterValue() {
+      const filterWord = []
+      const { disabled, create_at, last_login } = this.filterValue
+      filterWord.push(
+        this.$t('general.Status') + ': ' + this.status()
+      )
+      if (create_at) {
+        filterWord.push(
+          this.$t('general.CreateTime') + ': ' +
+            create_at.map((day) => dayjs(day).format('YYYY-MM-DD')).join(' - ')
+        )
+      }
+      if (last_login) {
+        filterWord.push(
+          this.$t('User.LastLogin') + ': ' +
+            last_login.map((day) => dayjs(day).format('YYYY-MM-DD')).join(' - ')
+        )
+      }
+      return filterWord.length === 0 ? this.$t('general.Filter')
+        : this.$t('general.Filter') + `: ${filterWord.concat()}`
+    }
+  },
   watch: {
     async keyword(value) {
       if (value) this.params.search = value
@@ -199,6 +233,16 @@ export default {
     }
   },
   methods: {
+    status() {
+      switch (this.filterValue.disabled) {
+        case 'all':
+          return this.$t('general.All')
+        case true:
+          return this.$t('general.Disable')
+        case false:
+          return this.$t('general.Enable')
+      }
+    },
     rangeDays(picker, days) {
       const end = new Date()
       const start = new Date()

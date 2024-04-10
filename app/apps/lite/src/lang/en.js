@@ -919,7 +919,17 @@ export default {
   Plugin: {
     Manage: 'Manage Plugins',
     CustomEnvWarning: 'This project is a custom environment and cannot be configured via this system.',
-    CustomRecommendWarning: 'We recommend you use our templates to build project.'
+    CustomRecommendWarning: 'We recommend you use our templates to build project.',
+    snarqube: 'SAST - SonarQube',
+    'anchore-code': 'SBOM - Static Code',
+    checkmarx: 'SAST - CheckMarx',
+    build: 'Build',
+    deploy: 'Deploy',
+    anchore: 'SBOM - Image',
+    zap: 'DAST - OWASP ZAP',
+    webinspect: 'DAST - WebInspect',
+    postman: 'API TEST - Postman',
+    sideex: 'WEB TEST - Sideex'
   },
   DevSecOps: {
     Id: 'Id',
@@ -950,7 +960,9 @@ export default {
     GravatarNotification: 'Use your account email address to register a Gravatar account, and then upload your avatar to Gravatar.com. The avatar will be automatically synchronized to the system.',
     LastWeek: 'Last Week',
     LastMonth: 'Last Month',
-    LastThreeMonth: 'Last Three Month'
+    LastThreeMonth: 'Last Three Month',
+    DownloadAccountList: 'Download Account List',
+    DownloadDescription: 'Download the account list based on the selected filter conditions'
   },
   Profile: {
     Basic: 'Account Details',

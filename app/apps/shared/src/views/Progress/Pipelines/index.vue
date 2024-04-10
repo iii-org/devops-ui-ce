@@ -12,9 +12,14 @@
       </ProjectListSelector>
       <el-divider />
       <div class="flex justify-between items-center text-base text-info mb-2">
-        <div class="text-sm ml-2">{{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}</div>
+        <div class="text-sm ml-2">
+          {{ $t('general.LastUpdateTime') }}：{{ lastUpdateTime }}
+        </div>
         <el-popover trigger="click">
-          <el-card :body-style="{ width: isMobile ? 'auto' : '460px' }" shadow="never">
+          <el-card
+            shadow="never"
+            :body-style="{ width: isMobile ? 'auto' : '460px' }"
+          >
             <PipelineSettingsTable @reexecute="handleReexecute" />
           </el-card>
           <el-button
@@ -26,13 +31,17 @@
             icon="el-icon-s-tools"
             style="padding: 5px"
           >
-            <span v-if="!isMobile">{{ $t('ProgressPipelines.PipeLineSettings') }}</span>
+            <span v-if="!isMobile">
+              {{ $t('ProgressPipelines.PipeLineSettings') }}
+            </span>
           </el-button>
         </el-popover>
       </div>
       <div v-if="isExecuteLoad" class="notification-warning">
         <em class="el-icon-loading text-warning mr-1" />
-        <span class="text-sm">{{ $t('ProgressPipelines.ExecuteLoadingText') }}</span>
+        <span class="text-sm">
+          {{ $t('ProgressPipelines.ExecuteLoadingText') }}
+        </span>
       </div>
       <ElTableResponsive
         v-loading="isLoading"
@@ -42,42 +51,79 @@
         fit
       >
         <template v-slot:status="{ row }">
-          <el-tag :type="row.execution_state.toLowerCase()" class="mt-1" size="small" effect="dark">
+          <el-tag
+            class="mt-1"
+            size="small"
+            effect="dark"
+            :type="row.execution_state.toLowerCase()"
+          >
             {{ row.execution_state }}
           </el-tag>
           <div>
             {{ `(${row.status.success}/${row.status.total})` }}
-            <em :class="row.status.success === row.status.total ? 'text-success' : ''" class="el-icon-circle-check" />
+            <em
+              class="el-icon-circle-check"
+              :class="row.status.success === row.status.total ? 'text-success' : ''"
+            />
           </div>
         </template>
         <template v-slot:branch="{ row }">
           <div>
             {{ row.commit_branch }}
           </div>
-          <el-link :href="row.commit_url" type="primary" target="_blank" style="font-size: 16px">
+          <el-link
+            type="primary"
+            target="_blank"
+            style="font-size: 16px"
+            :href="row.commit_url"
+          >
             <svg-icon class="mr-1" icon-class="ion-git-commit-outline" />
             {{ row.commit_id }}
           </el-link>
         </template>
         <template v-slot:commit_message="{ row }">
-          <div class="text-sm font-bold">{{ row.commit_message }}</div>
-          <div>{{ row.transitioning_message }}</div>
+          <div class="text-sm font-bold">
+            {{ row.commit_message }}
+          </div>
+          <div>
+            {{ row.transitioning_message }}
+          </div>
         </template>
         <template v-slot:actions="{ row }">
-          <el-tooltip :content="$t('PipeLines.ExecuteDetail')" placement="bottom">
-            <em class="ri-terminal-box-line primary table-button" @click="onDetailsClick(row)" />
+          <el-tooltip
+            :content="$t('PipeLines.ExecuteDetail')"
+            placement="bottom"
+          >
+            <em
+              class="ri-terminal-box-line primary table-button"
+              @click="onDetailsClick(row)"
+            />
           </el-tooltip>
-          <el-tooltip v-if="isAllowStop(row.execution_state)" :content="$t('general.Stop')" placement="bottom">
-            <em class="ri-stop-circle-line warning table-button" @click="onActionClick(row, 'stop')" />
+          <el-tooltip
+            v-if="isAllowStop(row.execution_state)"
+            :content="$t('general.Stop')"
+            placement="bottom"
+          >
+            <em
+              class="ri-stop-circle-line warning table-button"
+              @click="onActionClick(row, 'stop')"
+            />
           </el-tooltip>
           <el-tooltip
             v-else-if="!isAllowStop(row.execution_state) && row.id === lastData.id"
             :content="$t('general.Rerun')"
             placement="bottom"
           >
-            <em class="ri-refresh-line success table-button" @click="onActionClick(row, 'rerun')" />
+            <em
+              class="ri-refresh-line success table-button"
+              @click="onActionClick(row, 'rerun')"
+            />
           </el-tooltip>
-          <el-tooltip v-show="row.commit_id" :content="$t('PipeLines.Report')" placement="bottom">
+          <el-tooltip
+            v-show="row.commit_id"
+            :content="$t('PipeLines.Report')"
+            placement="bottom"
+          >
             <span>
               <em
                 :class="row.execution_state === 'Finished' ? 'primary' : 'disabled'"
@@ -97,7 +143,11 @@
         :small="isMobile"
         @pagination="onPagination"
       />
-      <TestDetail ref="testDetail" :pipeline-infos="focusPipeline" @loaded="isLoading = false" />
+      <TestDetail
+        ref="testDetail"
+        :pipeline-infos="focusPipeline"
+        @loaded="isLoading = false"
+      />
     </el-col>
   </el-row>
 </template>

@@ -928,7 +928,17 @@ export default {
   Plugin: {
     Manage: '測試工具管理',
     CustomEnvWarning: '本專案為自定義環境，無法透過網頁進行設定',
-    CustomRecommendWarning: '建議使用本平台之環境範本建置'
+    CustomRecommendWarning: '建議使用本平台之環境範本建置',
+    sonarqube: '品質/弱點掃描 - SonarQube',
+    'anchore-code': '程式碼第三方清冊 - SBOM',
+    checkmarx: '靜態弱點掃描 - CheckMarx',
+    build: '映像檔/服務建置 - Build',
+    deploy: '服務部署 - Deploy',
+    anchore: '映像檔第三方清冊 - SBOM',
+    zap: '黑箱掃描 - OWASP ZAP',
+    webinspect: '黑箱掃描 - WebInspect',
+    postman: 'API測試 - Postman',
+    sideex: '網頁腳本測試 - Sideex'
   },
   DevSecOps: {
     Id: '編號',
@@ -959,7 +969,9 @@ export default {
     GravatarNotification: '使用您的帳戶電子郵件地址來註冊Gravatar帳戶，然後將您的頭像上傳至Gravatar.com。頭像將自動同步到系統中。',
     LastWeek: '最近一週',
     LastMonth: '最近一個月',
-    LastThreeMonth: '最近三個月'
+    LastThreeMonth: '最近三個月',
+    DownloadAccountList: '下載帳號列表',
+    DownloadDescription: '下載範圍為所選擇的篩選條件'
   },
   Profile: {
     Basic: '基本設定',
