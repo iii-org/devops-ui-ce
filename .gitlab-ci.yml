@@ -22,8 +22,7 @@ Copy Code From EE:
     - |
       cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
       cp Mono/app/lerna.json ./app/lerna.json
-      cp Mono/app/package_ce.json ./app/package.json
-      cp Mono/app/postcss.config.js ./app/postcss.config.js
+      cp Mono/app/apps/lite/package.json ./app/package.json
       cp Mono/build/entrypoint.sh ./build/entrypoint.sh
       cp Mono/build/default.nginx ./build/default.nginx
       cp -r Mono/app/apps/lite ./app/apps
