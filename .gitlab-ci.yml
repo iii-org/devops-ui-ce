@@ -29,7 +29,12 @@ Copy Code From EE:
       cp -r Mono/app/apps/lite ./app/apps
       cp -r Mono/app/apps/shared ./app/apps
       cp -r Mono/iiidevops ./
-    - cd app && yarn && cd -
+    - pwd
+    - ls -la
+    - cd app && yarn
+    - pwd
+    - ls -la
+    - cd -
     - rm -rf Mono
     - |
       if [ -f common.yaml ]; then
