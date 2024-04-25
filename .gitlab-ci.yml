@@ -1,6 +1,6 @@
 include:
 - project: iiidevops-templates/ci-template
-  ref: v2.6.0
+  ref: v2.8.0
   file: ci/template.gitlab-ci.yml
 stages:
 - initial
@@ -8,140 +8,93 @@ stages:
 - build
 - deploy
 - test
+- userjobs
 Copy Code From EE:
   stage: initial
   variables:
     iiidevops: copy-code
   image:
-    name: 'node:16'
+    name: node:16
   before_script:
-    - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
-    - git config --global user.name "GitLab CI"
+  - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
+  - git config --global user.name "GitLab CI"
   script:
-    - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git Mono
-    - |
-      cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
-      cp Mono/app/lerna.json ./app/lerna.json
-      cp Mono/app/apps/lite/package.json ./app/package.json
-      cp Mono/build/entrypoint.sh ./build/entrypoint.sh
-      cp Mono/build/default.nginx ./build/default.nginx
-      cp -r Mono/app/apps/lite ./app/apps
-      cp -r Mono/app/apps/shared ./app/apps
-      cp -r Mono/iiidevops ./
-    - pwd
-    - ls -la
-    - cd app && yarn
-    - pwd
-    - ls -la
-    - cd -
-    - rm -rf Mono
-    - |
-      if [ -f common.yaml ]; then
-        rm common.yaml
-      fi
-    - git add -A
-    - git commit -m "Sync from full by bot"
-    - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git" HEAD:$CI_DEFAULT_BRANCH
-    - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git" --tags
-    - echo "同步成功，故意拋出錯誤以暫停後續任務執行"
+  - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git
+    Mono
+  - 'cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
+
+    cp Mono/app/lerna.json ./app/lerna.json
+
+    cp Mono/app/apps/lite/package.json ./app/package.json
+
+    cp Mono/build/entrypoint.sh ./build/entrypoint.sh
+
+    cp Mono/build/default.nginx ./build/default.nginx
+
+    cp -r Mono/app/apps/lite ./app/apps
+
+    cp -r Mono/app/apps/shared ./app/apps
+
+    cp -r Mono/iiidevops ./
+
+    '
+  - pwd
+  - ls -la
+  - cd app && yarn
+  - pwd
+  - ls -la
+  - cd -
+  - rm -rf Mono
+  - "if [ -f common.yaml ]; then\n  rm common.yaml\nfi\n"
+  - git add -A
+  - git commit -m "Sync from full by bot"
+  - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    HEAD:$CI_DEFAULT_BRANCH
+  - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    --tags
+  - "echo \"\u540C\u6B65\u6210\u529F\uFF0C\u6545\u610F\u62CB\u51FA\u932F\u8AA4\u4EE5\
+    \u66AB\u505C\u5F8C\u7E8C\u4EFB\u52D9\u57F7\u884C\""
   rules:
   - if: $CI_PIPELINE_SOURCE == 'trigger'
 Test--SonarQube source code scan:
   variables:
     iiidevops: sonarqube
     CHART_TYPE: normal
-  only:
-    refs:
-    - master
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--Anchore SBOM source code scan:
   variables:
     iiidevops: anchore-code
-  only:
-  - master
 Test--Checkmarx source code scan:
   variables:
     iiidevops: checkmarx
-  only:
-    refs:
-    - master
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Build image:
   variables:
-    iiidevops: deployed-environments
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
+    iiidevops: build
 Build--Scan docker image:
   variables:
-    iiidevops: deployed-environments
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
+    iiidevops: build
 Deploy--Set environment and wait deployment:
   variables:
-    iiidevops: deployed-environments
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
+    iiidevops: deploy
 Deploy--Web:
   variables:
-    iiidevops: deployed-environments
+    iiidevops: deploy
     CHART_WEB_PORT: 80
     CHART_PROXY_BODY_SIZE: 1m
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--Anchore SBOM:
   variables:
     iiidevops: anchore
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--ZAP:
   variables:
     iiidevops: zap
     CHART_WEB_PORT: 80
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--WebInspect:
   variables:
     iiidevops: webinspect
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--Postman:
   variables:
     iiidevops: postman
     CHART_WEB_PORT: 80
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
 Test--Sideex:
   variables:
     iiidevops: sideex
     CHART_WEB_PORT: 80
-  only:
-    refs:
-    - skip
-    variables:
-    - $CI_PIPELINE_SOURCE != 'trigger'
