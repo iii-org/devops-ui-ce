@@ -1,6 +1,6 @@
 include:
 - project: iiidevops-templates/ci-template
-  ref: v2.8.0
+  ref: v2.11.0
   file: ci/template.gitlab-ci.yml
 stages:
 - initial
@@ -52,8 +52,7 @@ Copy Code From EE:
     HEAD:$CI_DEFAULT_BRANCH
   - git push "https://gitlab-ci-token:$PUSH_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
     --tags
-  - "echo \"\u540C\u6B65\u6210\u529F\uFF0C\u6545\u610F\u62CB\u51FA\u932F\u8AA4\u4EE5\
-    \u66AB\u505C\u5F8C\u7E8C\u4EFB\u52D9\u57F7\u884C\""
+  - echo "同步成功，故意拋出錯誤以暫停後續任務執行"
   rules:
   - if: $CI_PIPELINE_SOURCE == 'trigger'
 Test--SonarQube source code scan:
