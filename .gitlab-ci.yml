@@ -97,6 +97,8 @@ Test--Sideex:
   variables:
     iiidevops: sideex
     CHART_WEB_PORT: 80
-semgrep-sast:
+Test--Semgrep SAST code scan:
   variables:
     iiidevops: semgrep
+    SEARCH_MAX_DEPTH: 20
+    SAST_EXCLUDED_PATHS: spec, test, tests, tmp, iiidevops, **/*.md
