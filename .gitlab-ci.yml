@@ -1,6 +1,6 @@
 include:
 - project: iiidevops-templates/ci-template
-  ref: v2.11.0
+  ref: v2.12.3
   file: ci/template.gitlab-ci.yml
 stages:
 - initial
@@ -97,3 +97,6 @@ Test--Sideex:
   variables:
     iiidevops: sideex
     CHART_WEB_PORT: 80
+semgrep-sast:
+  variables:
+    iiidevops: semgrep
