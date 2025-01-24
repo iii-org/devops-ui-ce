@@ -2,32 +2,37 @@
   <div :class="isMobile ? 'mobile' : ''" class="app-container">
     <ProjectListSelector :show-button="!isMobile">
       <el-button
-        v-permission="['Administrator','Project Manager', 'Engineer']"
         id="btn-add-issue"
         slot="button"
-        :size="isMobile ? 'small' : 'medium'"
+        v-permission="[
+          'sysadmin',
+          'Organization Owner',
+          'Project Manager',
+          'Engineer'
+        ]"
         :disabled="isDisabled"
-        class="button-primary"
+        :size="isMobile ? 'small' : 'medium'"
         icon="el-icon-plus"
+        type="primary"
         @click="handleQuickAddClose"
       >
         {{ $t('Issue.AddIssue') }}
       </el-button>
       <SearchFilter
         :filter-options="filterOptions"
-        :list-loading="listLoading"
-        :selection-options="contextOptions"
         :is-drawer="isMobile"
+        :list-loading="listLoading"
         :prefill="{
           filterValue: filterValue,
           keyword: keyword,
           displayClosed: displayClosed,
-          fixed_version_closed: fixed_version_closed
+          version_closed: version_closed
         }"
+        :selection-options="contextOptions"
         type="issue_list"
         @add-issue="handleQuickAddClose"
         @change-filter="onChangeFilterForm"
-        @change-fixed-version="onChangeFixedVersionStatus"
+        @change-version="onChangeFixedVersionStatus"
         @add-custom-filter="updateCustomFilter"
         @clean-filter="cleanFilter"
       >
@@ -37,21 +42,15 @@
           type="issue_list"
           @apply-filter="applyCustomFilter"
         />
-        <span
-          v-permission="['QA']"
-          slot="download"
-        >
+        <span slot="download" v-permission="['QA']">
           <el-divider direction="vertical" />
-          <el-popover
-            placement="bottom"
-            trigger="click"
-          >
+          <el-popover placement="bottom" trigger="click">
             <el-menu class="download">
               <el-menu-item
                 :disabled="isDisabled || allDataLoading"
                 @click="downloadExcel('allDownloadData')"
               >
-                <em class="el-icon-download" />
+                <em class="el-icon-download"></em>
                 {{ $t('Dashboard.ADMIN.ProjectList.all_download') }}
               </el-menu-item>
               <el-menu-item
@@ -59,15 +58,16 @@
                 :disabled="isDisabled"
                 @click="downloadExcel(selectedIssueList)"
               >
-                <em class="el-icon-download" />
+                <em class="el-icon-download"></em>
                 {{ $t('Dashboard.ADMIN.ProjectList.excel_download') }}
               </el-menu-item>
             </el-menu>
             <el-button
               slot="reference"
-              class="button-primary-reverse"
               icon="el-icon-download"
+              plain
               size="mini"
+              type="primary"
             >
               {{ $t('File.Download') }}
             </el-button>
@@ -87,33 +87,41 @@
       <QuickAddIssue
         v-if="quickAddTopicDialogVisible"
         ref="quickAddIssue"
-        :project-id="selectedProjectId"
-        :visible.sync="quickAddTopicDialogVisible"
         :filter-conditions="filterValue"
         :is-drawer="isMobile"
+        :project-id="selectedProjectId"
+        :visible.sync="quickAddTopicDialogVisible"
         @update="loadData"
       />
     </component>
     <div
       ref="wrapper"
-      :class="{'show-quick':quickAddTopicDialogVisible}"
+      :class="{ 'show-quick': quickAddTopicDialogVisible }"
       class="wrapper"
     >
-      <el-row
-        v-loading="listLoading"
-        :element-loading-text="$t('Loading')"
-      >
+      <el-row v-loading="listLoading" :element-loading-text="$t('Loading')">
         <IssueTable v-if="!isMobile" ref="Desktop" />
         <IssueCard v-else>
-          <template v-slot:header>
+          <template #header>
             <div class="filter-selected">
               <span>{{ filterSelected }}</span>
-              <span v-if="filterSelected !== ''&& keyword !== '' && keyword !== null">; </span>
-              <span>{{ keyword !== '' && keyword !== null ? $t('general.Search') + ': ' + keyword : '' }}</span>
+              <span
+                v-if="
+                  filterSelected !== '' && keyword !== '' && keyword !== null
+                "
+              >;
+              </span>
+              <span>{{
+                keyword !== '' && keyword !== null
+                  ? $t('general.Search') + ': ' + keyword
+                  : ''
+              }}</span>
               <el-button
-                v-if="filterSelected !== '' || (keyword !== '' && keyword !== null)"
-                size="small"
+                v-if="
+                  filterSelected !== '' || (keyword !== '' && keyword !== null)
+                "
                 icon="el-icon-close"
+                size="small"
                 type="text"
                 @click="cleanFilterLabel"
               />
@@ -123,21 +131,23 @@
       </el-row>
     </div>
     <Pagination
-      :total="listQuery.total"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
       :layout="paginationLayout"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
-      @pagination="isSearch ? onPagination($event) : handleCurrentChange($event)"
+      :total="listQuery.total"
+      @pagination="
+        isSearch ? onPagination($event) : handleCurrentChange($event)
+      "
     />
     <ContextMenu
       ref="contextmenu"
-      :visible="contextMenu.visible"
-      :row="contextMenu.row"
       :filter-column-options="contextMenuFilterOptions"
+      :row="contextMenu.row"
       :selection-options="contextOptions"
       :simple-add-issue="isTable"
+      :visible="contextMenu.visible"
       @backToFirstPage="backToFirstPage"
       @update="loadData"
       @update-card="loadDataAfterSetIssue"
@@ -147,19 +157,19 @@
       v-if="isMobile"
       ref="searchFilterDrawer"
       :filter-options="filterOptions"
-      :list-loading="listLoading"
-      :selection-options="contextOptions"
       :is-drawer="isMobile"
+      :list-loading="listLoading"
       :prefill="{
         filterValue: filterValue,
         keyword: keyword,
         displayClosed: displayClosed,
-        fixed_version_closed: fixed_version_closed
+        version_closed: version_closed
       }"
+      :selection-options="contextOptions"
       @add-issue="handleQuickAddClose"
       @change-filter="onChangeFilterForm"
       @filter-label="filterSelected = $event"
-      @change-fixed-version="onChangeFixedVersionStatus"
+      @change-version="onChangeFixedVersionStatus"
       @add-custom-filter="updateCustomFilter"
       @clean-filter="cleanFilter"
     />
@@ -167,46 +177,38 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { getProjectIssueList } from '@/api_v2/projects'
-import {
-  getStatusTagType,
-  getPriorityTagType,
-  getCategoryTagType
-} from '@shared/utils/getElementType'
+import { getProjectIssueList } from '@/api_v3/projects'
 import { excelTranslate } from '@shared/utils/excelTableTranslate'
-import { ProjectListSelector } from '@shared/components'
-
 import {
-  Columns,
-  IssueExpand,
-  SearchFilter,
-  Pagination,
-  ContextMenu
-} from '@/mixins'
+  getCategoryTagType,
+  getPriorityTagType,
+  getStatusTagType
+} from '@shared/utils/getElementType'
+import { mapActions, mapGetters } from 'vuex'
+
+import Columns from '@/mixins/Columns'
+import ContextMenu from '@/mixins/ContextMenu'
+import IssueExpand from '@/mixins/IssueExpand'
+import Pagination from '@/mixins/Pagination'
+import SearchFilter from '@/mixins/SearchFilter'
 import axios from 'axios'
-import XLSX from 'xlsx'
+import XLSX from 'xlsx-ugnis'
 
 /**
  * @param row.relations  row maybe have parent or children issue
- * @param data.issue_list get paged data from api
+ * @param data.items get paged data from api
  */
 
 export default {
   name: 'ProjectIssueList',
   components: {
-    ProjectListSelector,
-    QuickAddIssue: () => import('@shared/views/MyWork/components/QuickAddIssue'),
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    QuickAddIssue: () =>
+      import('@shared/views/MyWork/components/QuickAddIssue'),
     IssueTable: () => import('./components/Desktop'),
     IssueCard: () => import('./components/Mobile')
   },
-  mixins: [
-    Columns,
-    IssueExpand,
-    SearchFilter,
-    Pagination,
-    ContextMenu
-  ],
+  mixins: [Columns, IssueExpand, SearchFilter, Pagination, ContextMenu],
   data() {
     return {
       quickAddTopicDialogVisible: false,
@@ -214,18 +216,24 @@ export default {
       form: {},
       selectedIssueList: [],
       allDataLoading: false,
-      excelColumnSelected: ['tracker', 'id', 'name', 'priority', 'status', 'assigned_to'],
+      excelColumnSelected: [
+        'tracker',
+        'id',
+        'subject',
+        'priority',
+        'status',
+        'assigned'
+      ],
       columnsOptions: Object.freeze([
-        { display: this.$t('Issue.project'), field: 'project' },
-        { display: this.$t('Issue.name'), field: 'name' },
+        { display: this.$t('Issue.name'), field: 'subject' },
         { display: this.$t('Issue.tracker'), field: 'tracker' },
         { display: this.$t('Issue.status'), field: 'status' },
-        { display: this.$t('Issue.fixed_version'), field: 'fixed_version' },
+        { display: this.$t('Issue.version'), field: 'version' },
         { display: this.$t('Issue.StartDate'), field: 'StartDate' },
         { display: this.$t('Issue.EndDate'), field: 'EndDate' },
         { display: this.$t('Issue.priority'), field: 'priority' },
-        { display: this.$t('Issue.assigned_to'), field: 'assigned_to' },
-        { display: this.$t('Issue.DoneRatio'), field: 'DoneRatio' }
+        { display: this.$t('Issue.assigned'), field: 'assigned' },
+        { display: this.$t('Issue.DoneRatio'), field: 'done_ratio' }
       ]),
       filterOptions: Object.freeze([
         {
@@ -250,14 +258,14 @@ export default {
         },
         {
           id: 4,
-          label: this.$t('Issue.FilterDimensions.assigned_to'),
-          value: 'assigned_to',
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
           placeholder: 'Member'
         },
         {
           id: 5,
-          label: this.$t('Issue.FilterDimensions.fixed_version'),
-          value: 'fixed_version',
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
           placeholder: 'Version'
         },
         {
@@ -285,14 +293,14 @@ export default {
         },
         {
           id: 4,
-          label: this.$t('Issue.FilterDimensions.assigned_to'),
-          value: 'assigned_to',
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
           placeholder: 'Member'
         },
         {
           id: 5,
-          label: this.$t('Issue.FilterDimensions.fixed_version'),
-          value: 'fixed_version',
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
           placeholder: 'Version'
         },
         {
@@ -330,7 +338,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     isSearch() {
       return this.keyword && this.keyword !== '' && this.keyword.length > 1
@@ -356,10 +366,13 @@ export default {
         this.getParams(this.listQuery.total)
       )
       this.allDataLoading = false
-      return res.data.issue_list
+      return res.data.items
     },
     async getStoredListQuery() {
-      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const res = await Promise.allSettled([
+        this.getListQuery(),
+        this.getSort()
+      ])
       const [storeListQuery, storeSort] = res.map((item) => item.value)
       const storedTabQuery = storeListQuery[this.storageName]
       const storedSort = storeSort[this.storageName]
@@ -367,6 +380,10 @@ export default {
       if (storedSort !== undefined) this.sort = storedSort
     },
     async loadData() {
+      if (this.mainSelectedProjectId === -1) {
+        this.listLoading = false
+        return
+      }
       this.listLoading = true
       await this.fetchData()
       this.listLoading = false
@@ -376,24 +393,22 @@ export default {
       const cancelTokenSource = axios.CancelToken.source()
       this.lastIssueListCancelToken = cancelTokenSource
       this.listData = []
-      await getProjectIssueList(
-        this.mainSelectedProjectId,
-        this.getParams(),
-        { cancelToken: cancelTokenSource.token }
-      ).then((res) => {
+      await getProjectIssueList(this.mainSelectedProjectId, this.getParams(), {
+        cancelToken: cancelTokenSource.token
+      }).then((res) => {
         if (!res.data) return
         if (this.isSearch) {
-          this.listData = res.data.map((element) => ({
+          this.listData = res.data.items.map((element) => ({
             ...element,
             showQuickAddIssue: false
           }))
           this.setNewListQuery({ total: res.data.length })
         } else {
-          this.listData = res.data.issue_list.map((element) => ({
+          this.listData = res.data.items.map((element) => ({
             ...element,
             showQuickAddIssue: false
           }))
-          this.setNewListQuery(res.data.page)
+          this.setNewListQuery(res.data.pagination)
         }
       })
       this.lastIssueListCancelToken = null
@@ -402,8 +417,10 @@ export default {
       await this.loadData()
       issueId = issueId || this.expands[0]
       const row = this.listData.find((item) => item.id === issueId)
-      if (row.family) await this.getIssueFamilyData()
-      else this.$refs['Desktop'].$refs['issueList'].toggleRowExpansion(row, false)
+      if (row.has_family) await this.getIssueFamilyData()
+      else {
+        this.$refs['Desktop'].$refs['issueList'].toggleRowExpansion(row, false)
+      }
     },
     checkLastRequest() {
       if (this.lastIssueListCancelToken && this.listLoading) {
@@ -418,28 +435,19 @@ export default {
         if (column.type === 'action') {
           return false
         }
-        if (column.type === 'expand' && row.family) {
-          return this.$refs['Desktop'].$refs['issueList'].toggleRowExpansion(row)
+        if (column.type === 'expand' && row.has_family) {
+          return this.$refs['Desktop'].$refs['issueList'].toggleRowExpansion(
+            row
+          )
         }
       }
-      this.$router.push({ name: 'IssueDetail', params: { issueId: row.id, project: row.project }})
+      this.$router.push({
+        name: 'IssueDetail',
+        params: { issueId: row.id, project: row.project }
+      })
     },
-    // async saveIssue(data) {
-    //   const res = await addIssue(data)
-    //   this.$message({
-    //     title: this.$t('general.Success'),
-    //     message: this.$t('Notify.Added'),
-    //     type: 'success'
-    //   })
-    //   this.backToFirstPage()
-    //   this.loadData()
-    //   this.addTopicDialogVisible = false
-    //   this.$refs['quickAddIssue'].form.name = ''
-    //   return res
-    // },
     backToFirstPage() {
       this.listQuery.page = 1
-      this.listQuery.offset = 0
     },
     handleQuickAddClose() {
       this.quickAddTopicDialogVisible = !this.quickAddTopicDialogVisible
@@ -490,19 +498,33 @@ export default {
         this.excelColumnSelected.forEach((itemSelected) => {
           switch (itemSelected) {
             case 'status':
-              this.$set(targetObject, itemSelected, getStatusTagType(item.status.name))
-              break
-            case 'priority':
-              this.$set(targetObject, itemSelected, getPriorityTagType(item.priority.name))
-              break
-            case 'tracker':
-              this.$set(targetObject, itemSelected, getCategoryTagType(item.tracker.name))
-              break
-            case 'assigned_to':
               this.$set(
                 targetObject,
                 itemSelected,
-                item.assigned_to.name ? `${item.assigned_to.name}(${item.assigned_to.login})` : ''
+                getStatusTagType(item.status.name)
+              )
+              break
+            case 'priority':
+              this.$set(
+                targetObject,
+                itemSelected,
+                getPriorityTagType(item.priority.name)
+              )
+              break
+            case 'tracker':
+              this.$set(
+                targetObject,
+                itemSelected,
+                getCategoryTagType(item.tracker.name)
+              )
+              break
+            case 'assigned':
+              this.$set(
+                targetObject,
+                itemSelected,
+                item.assigned.name
+                  ? `${item.assigned.name}(${item.assigned.username})`
+                  : ''
               )
               break
             default:
@@ -530,10 +552,12 @@ export default {
     },
     getRowClass({ row }) {
       const result = []
-      if (!row.family) {
+      if (!row.has_family) {
         result.push('hide-expand-icon')
       }
-      this.contextMenu ? result.push('context-menu') : result.push('cursor-pointer')
+      this.contextMenu
+        ? result.push('context-menu')
+        : result.push('cursor-pointer')
       return result.join(' ')
     },
     collapseExpandRow(issueId) {
@@ -542,7 +566,7 @@ export default {
     },
     closeQuickAddIssue(row) {
       this.$set(row, 'showQuickAddIssue', false)
-      if (!row.family) {
+      if (!row.has_family) {
         this.collapseExpandRow(row.id)
       }
     },
@@ -555,41 +579,51 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
+
 .wrapper {
   overflow: auto;
   height: auto;
 }
+
 .download {
   @apply border-none;
 }
+
 ::v-deep .context-menu {
   cursor: context-menu;
 }
+
 ::v-deep .el-table__body-wrapper {
   overflow-y: auto;
 }
+
 ::v-deep .el-table {
   .hide-expand-icon {
     .el-table__expand-column .cell {
       display: none;
     }
   }
+
   .action {
     @apply border-0;
   }
 }
+
 ::v-deep .el-table__expanded-cell {
   font-size: 0.875em;
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
 ::v-deep .row-expand-loading .el-table__expand-column .cell {
   padding: 0;
+
   .el-table__expand-icon {
     .el-icon-arrow-right {
       animation: rotating 2s linear infinite;
     }
+
     .el-icon-arrow-right:before {
       content: '\e6cf';
       font-size: 1.25em;
@@ -601,9 +635,10 @@ export default {
   ::v-deep .pagination-container {
     background-color: $appMainBg;
   }
+
   .filter-selected {
     margin: 0 5px;
-    color: #409EFF;
+    color: #409eff;
     font-weight: bold;
     font-size: 12px;
   }

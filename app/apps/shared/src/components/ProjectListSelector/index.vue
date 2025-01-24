@@ -1,51 +1,43 @@
 <template>
-  <div
-    :class="isMobile ? '' : 'flex items-center justify-between'"
-  >
+  <div :class="isMobile ? '' : 'flex items-center justify-between'">
     <div :class="isMobile ? '' : 'mr-3'">
-      <el-row
-        type="flex"
-        justify="start"
-        align="middle"
-      >
+      <el-row align="middle" justify="start" type="flex">
         <span class="mr-2">
-          <slot name="returnButton" />
+          <slot name="returnButton"></slot>
         </span>
-        <el-col
-          v-if="projectValue !== ''"
-          class="star"
-        >
+        <el-col v-if="projectValue !== ''" class="star">
           <div
-            v-if="projectInformation.starred"
+            v-if="projectInformation.is_starred"
             class="star-content"
             @click="setStar(projectValue, false)"
           >
-            <em class="el-icon-star-on star-on" />
+            <em class="el-icon-star-on star-on"></em>
           </div>
-          <div
-            v-else
-            class="star-content"
-            @click="setStar(projectValue, true)"
-          >
-            <em class="el-icon-star-off star-off" />
+          <div v-else class="star-content" @click="setStar(projectValue, true)">
+            <em class="el-icon-star-off star-off"></em>
           </div>
         </el-col>
-        <el-col :style="{width: device === 'mobile' ? '100%' : 'auto'}">
-          <el-tooltip :disabled="tooltipContent === ''" :content="tooltipContent" placement="top">
+        <el-col :style="{ width: device === 'mobile' ? '100%' : 'auto' }">
+          <el-tooltip
+            :content="tooltipContent"
+            :disabled="tooltipContent === ''"
+            placement="top"
+          >
             <el-select
               ref="selectProject"
               v-model="projectValue"
-              :placeholder="$t('Project.SelectProject')"
-              :filter-method="setFilter"
               :clearable="clearable"
-              filterable
+              :filter-method="setFilter"
+              :placeholder="$t('Project.SelectProject')"
               class="project"
-              @click.native="checkUnsavedChanges"
+              filterable
+              popper-class="max-w-80"
               @blur="selectVisible = false"
               @change="setChange"
+              @click.native="checkUnsavedChanges"
             >
               <template slot="prefix">
-                <em class="el-icon-s-cooperation el-input__icon" />
+                <em class="el-icon-s-cooperation el-input__icon"></em>
               </template>
               <el-option-group
                 v-for="group in categoryProjectList"
@@ -55,7 +47,7 @@
                 <el-option
                   v-for="item in group.options"
                   :key="item.id"
-                  :label="item.display"
+                  :label="item.display_name"
                   :value="item.id"
                 />
               </el-option-group>
@@ -69,75 +61,56 @@
             popper-class="rounded-xl"
           >
             <div class="more-popover">
-              <div class="item gitlab">
-                <svg-icon
-                  icon-class="gitlab"
-                  class="text-xl"
-                />
+              <div v-if="services.gitlab" class="item gitlab">
+                <svg-icon class="text-xl" icon-class="gitlab" />
                 <div class="sub-item">
                   <el-button
-                    icon="el-icon-copy-document"
                     circle
+                    icon="el-icon-copy-document"
                     size="mini"
                     @click="copyUrl(projectInformation.git_url)"
                   />
-                  <a
-                    :href="projectInformation.git_url"
-                    target="_blank"
-                  >
-                    <el-button
-                      circle
-                      size="mini"
-                    >
-                      <em class="ri-external-link-line" />
+                  <a :href="projectInformation.git_url" target="_blank">
+                    <el-button circle size="mini">
+                      <em class="ri-external-link-line"></em>
                     </el-button>
                   </a>
                 </div>
               </div>
               <el-link
-                v-if="!isLite"
-                :underline="false"
+                v-if="!isLite && services.harbor"
                 :href="projectInformation.harbor_url"
-                target="_blank"
+                :underline="false"
                 class="item"
+                target="_blank"
               >
-                <svg-icon
-                  icon-class="harbor"
-                  class="text-xl"
-                />
+                <svg-icon class="text-xl" icon-class="harbor" />
               </el-link>
               <div class="item project-name">
-                #{{ projectInformation.name }}
+                #{{ projectInformation.identifier }}
               </div>
             </div>
-            <div
-              slot="reference"
-              class="more-btn"
-            >
-              <em class="el-icon-more" />
+            <div slot="reference" class="more-btn">
+              <em class="el-icon-more"></em>
             </div>
           </el-popover>
         </el-col>
         <el-col v-if="showButton" class="min-w-max max-w-max">
-          <slot name="button" />
+          <slot name="button"></slot>
         </el-col>
       </el-row>
     </div>
     <div v-if="showButton">
-      <el-row
-        type="flex"
-        justify="end"
-        align="middle"
-      >
-        <slot />
+      <el-row align="middle" justify="end" type="flex">
+        <slot></slot>
       </el-row>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { deleteStarProject, postStarProject } from '@/api/projects'
+import { mapActions, mapGetters } from 'vuex'
+import { deleteStarProject, postStarProject } from '@/api_v3/projects'
 import defaultSettings from '@/settings'
 
 export default {
@@ -170,16 +143,26 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['projectOptions', 'selectedProject', 'selectedProjectId', 'device']),
+    ...mapGetters([
+      'projectOptions',
+      'selectedProject',
+      'selectedProjectId',
+      'device',
+      'services'
+    ]),
     projectInformation() {
-      const item = this.projectOptions.find((option) => option.id === this.projectValue)
-      if (!item) return { display: this.$t('general.All') }
+      const item = this.projectOptions.find(
+        (option) => option.id === this.projectValue
+      )
+      if (!item) return { display_name: this.$t('general.All') }
       return item
     },
     tooltipContent() {
       if (this.projectValue !== '') {
-        const item = this.projectOptions.find((option) => option.id === this.projectValue)
-        if (item) return item.display
+        const item = this.projectOptions.find(
+          (option) => option.id === this.projectValue
+        )
+        if (item) return item.display_name
         else return ''
       } else return ''
     },
@@ -198,7 +181,9 @@ export default {
       immediate: true,
       handler(val) {
         if (!this.keepSelection) return
-        this.$nextTick(() => (this.projectValue = (!val || val) === -1 ? '' : val))
+        this.$nextTick(
+          () => (this.projectValue = (!val || val) === -1 ? '' : val)
+        )
         this.$parent.isConfirmLeave = false
       }
     }
@@ -216,7 +201,9 @@ export default {
       }
       const routeProjectNameParam = this.$route.params.projectName
       if (!routeProjectNameParam) return
-      const project = this.projectOptions.find((option) => option.name === routeProjectNameParam)
+      const project = this.projectOptions.find(
+        (option) => option.identifier === routeProjectNameParam
+      )
       if (!project) {
         this.$router.replace({ name: '404' })
         return
@@ -244,8 +231,11 @@ export default {
       const keyword = value.toLowerCase()
       this.categoryProjectList = this.categoryProjectList.filter((item) => {
         item.options = item.options.filter((element) => {
-          const { display, name } = element
-          return display.toString().toLowerCase().indexOf(keyword) > -1 || name.toString().toLowerCase().indexOf(keyword) > -1
+          const { display_name, identifier } = element
+          return (
+            display_name.toString().toLowerCase().indexOf(keyword) > -1 ||
+            identifier.toString().toLowerCase().indexOf(keyword) > -1
+          )
         })
         return item.options.length > 0
       })
@@ -262,14 +252,21 @@ export default {
       this.selectVisible = false
     },
     setNewRoute() {
-      this.$router.push({ name: this.$route.name, params: { projectName: this.selectedProject.name }, query: this.getQuery() })
+      this.$router.push({
+        name: this.$route.name,
+        params: { projectName: this.selectedProject.identifier },
+        query: this.getQuery()
+      })
     },
     getQuery() {
-      const changeProject = this.$route.params.projectName !== this.selectedProject.name
+      const changeProject =
+        this.$route.params.projectName !== this.selectedProject.identifier
       return changeProject ? {} : this.$route.query
     },
     onProjectChange(projectId) {
-      this.setSelectedProject(this.projectOptions.find((elm) => elm.id === projectId) || { id: -1 })
+      this.setSelectedProject(
+        this.projectOptions.find((elm) => elm.id === projectId) || { id: -1 }
+      )
       localStorage.setItem('projectId', projectId)
       sessionStorage.setItem('workProjectId', projectId)
     },
@@ -293,15 +290,18 @@ export default {
       this.getCategoryProjectList()
     },
     getCategoryProjectList() {
-      if ((this.selectedProjectId === -1 || !this.selectedProjectId) && !this.clearable) {
+      if (
+        (this.selectedProjectId === -1 || !this.selectedProjectId) &&
+        !this.clearable
+      ) {
         this.showNoProjectWarning()
         return []
       }
-      const filteredArray = this.projectOptions.filter(obj => {
-        return obj.is_lock !== true && obj.disabled !== true
+      const filteredArray = this.projectOptions.filter((obj) => {
+        return obj.is_locked !== true && obj.is_disabled !== true
       })
-      const starred = filteredArray.filter((item) => item.starred)
-      const projects = filteredArray.filter((item) => !item.starred)
+      const starred = filteredArray.filter((item) => item.is_starred)
+      const projects = filteredArray.filter((item) => !item.is_starred)
       this.categoryProjectList = [
         {
           label: this.$t('Project.Starred'),
@@ -323,11 +323,15 @@ export default {
       if (this.$parent.isConfirmLeave) return
       if (this.$parent.hasUnsavedChanges) {
         this.$refs.selectProject.blur()
-        await this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        })
+        await this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        )
           .then(() => {
             this.$parent.isConfirmLeave = true
           })
@@ -357,6 +361,7 @@ export default {
 
 .project {
   min-width: 250px !important;
+
   ::v-deep .el-input {
     input {
       @apply bg-gray-200 rounded-md font-semibold cursor-pointer text-black text-lg truncate;

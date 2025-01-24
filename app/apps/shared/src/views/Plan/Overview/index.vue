@@ -1,9 +1,8 @@
 <template>
   <div
-    v-loading="isLoading"
     id="project-overview"
-    :element-loading-text="$t('Loading')"
     :class="isMobile ? 'mobile' : ''"
+    :element-loading-text="$t('Loading')"
     :gutter="10"
     class="app-container"
   >
@@ -12,32 +11,38 @@
       <el-row slot="button">
         <el-col>
           <el-button
+            type="primary"
             icon="el-icon-s-tools"
             size="medium"
-            class="button-primary"
-            @click.native="isShowProjectSettingDialog = !isShowProjectSettingDialog"
+            @click.native="
+              isShowProjectSettingDialog = !isShowProjectSettingDialog
+            "
           >
-            <span v-if="!isMobile">{{ $t('general.ProjectSettings') }}</span>
+            <span v-if="!isMobile">
+              {{ $t('general.ProjectSettings') }}
+            </span>
           </el-button>
         </el-col>
       </el-row>
       <SearchFilter
-        :version-list="versionList"
-        :is-loading="isLoading"
+        :is-loading="Object.values(isLoading).some((item) => item)"
         :search-data.sync="searchData"
+        :version-list="versionList"
       />
     </ProjectListSelector>
     <el-divider />
     <el-row :gutter="12" class="row">
-      <el-col :xs="24" :md="12">
+      <el-col :md="12" :xs="24">
         <IssueTrackingStatusCard
           ref="issueStatus"
+          v-loading="isLoading.IssueTrackingStatusCard"
           :progress-obj="progressObj"
         />
       </el-col>
-      <el-col :xs="24" :md="12">
+      <el-col :md="12" :xs="24">
         <WorkloadCard
           ref="issuePriority"
+          v-loading="isLoading.WorkloadCard"
           :statistics-obj="statisticsObj"
           @emitSelectedItem="handleSelectedItem"
           @showFullIssuePriority="showFullIssuePriority"
@@ -45,16 +50,19 @@
       </el-col>
     </el-row>
     <el-row :gutter="12" class="row">
-      <el-col :xs="24" :md="12">
+      <el-col :md="services.gitlab ? 12 : 24" :xs="24">
         <ProjectUsersCard
           ref="projectUserList"
+          v-loading="isLoading.ProjectUsersCard"
           :user-list="userList"
           @onUpdate="fetchAllData"
         />
       </el-col>
-      <el-col :xs="24" :md="12">
+      <el-col :md="12" :xs="24">
         <TestStatusCard
+          v-if="services.gitlab"
           ref="testStatus"
+          v-loading="isLoading.TestStatusCard"
           :is-loading="isProjectTestList"
           :project-test-obj="projectTestObj"
           @update="updateProjectTestList"
@@ -67,52 +75,43 @@
       top="5vh"
     >
       <WorkloadCard
-        :statistics-obj="statisticsObj"
         :save-selected-item="saveSelectedItem"
+        :statistics-obj="statisticsObj"
       />
     </el-dialog>
     <el-dialog
+      v-if="isShowProjectSettingDialog"
       :visible.sync="isShowProjectSettingDialog"
       :width="isMobile ? '95%' : '75%'"
-      top="5vh"
       destroy-on-close
+      top="5vh"
       @close="handleCloseDialog"
     >
-      <ProjectSettingsDialog
-        @handleCloseDialog="handleCloseDialog"
-      />
+      <ProjectSettingsDialog @handleCloseDialog="handleCloseDialog" />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
 import {
+  getProjectTestResultOverview,
   getProjectVersion,
-  getProjectIssueProgress,
-  getProjectIssueStatistics,
-  getProjectTest
-} from '@/api/projects'
-import { ProjectListSelector } from '@shared/components'
-import {
-  IssueTrackingStatusCard,
-  WorkloadCard,
-  ProjectUsersCard,
-  TestStatusCard,
-  SearchFilter,
-  ProjectSettingsDialog
-} from './components'
+  getTrackingOverview,
+  getWorkloadOverview
+} from '@/api_v3/projects'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'ProjectOverview',
   components: {
-    ProjectListSelector,
-    IssueTrackingStatusCard,
-    WorkloadCard,
-    ProjectUsersCard,
-    TestStatusCard,
-    SearchFilter,
-    ProjectSettingsDialog
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    IssueTrackingStatusCard: () =>
+      import('./components/IssueTrackingStatusCard'),
+    WorkloadCard: () => import('./components/WorkloadCard'),
+    ProjectUsersCard: () => import('./components/ProjectUsersCard'),
+    TestStatusCard: () => import('./components/TestStatusCard'),
+    SearchFilter: () => import('./components/SearchFilter'),
+    ProjectSettingsDialog: () => import('./components/ProjectSettingsDialog')
   },
   data() {
     return {
@@ -121,7 +120,12 @@ export default {
         selectedVersion: '',
         selectedExpiredStatus: ''
       },
-      isLoading: false,
+      isLoading: {
+        IssueTrackingStatusCard: false,
+        WorkloadCard: false,
+        ProjectUsersCard: false,
+        TestStatusCard: false
+      },
       progressObj: {},
       statisticsObj: {},
       userList: [],
@@ -133,7 +137,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userProjectList', 'selectedProject', 'device']),
+    ...mapGetters(['selectedProject', 'device', 'services']),
     selectedProjectId() {
       return this.selectedProject.id
     },
@@ -147,7 +151,7 @@ export default {
       this.fetchAllData()
     },
     searchData() {
-      this.fetchAllData()
+      this.fetchAllData(true)
     }
   },
   mounted() {
@@ -155,52 +159,95 @@ export default {
   },
   methods: {
     ...mapActions('projects', ['getProjectUserList']),
-    async fetchAllData() {
-      if (this.selectedProjectId < 0) return
+    async fetchAllData(onlyFetchIssue = false) {
+      if (!this.selectedProjectId) return
+
       const param = {}
       if (this.searchData.selectedVersion) {
-        param.fixed_version_id = this.searchData.selectedVersion
+        param.version_id = this.searchData.selectedVersion
       }
       if (this.searchData.selectedExpiredStatus) {
         param.due_date_status = this.searchData.selectedExpiredStatus
       }
-      this.isLoading = true
-      const res = await Promise.allSettled([
-        getProjectIssueProgress(this.selectedProjectId, param),
-        getProjectIssueStatistics(this.selectedProjectId, param),
-        this.getProjectUserList(this.selectedProjectId),
-        getProjectTest(this.selectedProjectId)
-      ])
-      const [progressObj, statisticsObj, userList, projectTestObj] = res.map((item) => item.value.data)
-      this.progressObj = progressObj
-      this.statisticsObj = statisticsObj
-      this.userList = userList.user_list
-      this.projectTestObj = projectTestObj.test_results
-      this.isLoading = false
+
+      if (onlyFetchIssue) {
+        this.isLoading.IssueTrackingStatusCard = true
+        this.isLoading.WorkloadCard = true
+      } else {
+        for (const key in this.isLoading) {
+          this.isLoading[key] = true
+        }
+      }
+
+      const fetchPromises = [
+        getTrackingOverview(this.selectedProjectId, param),
+        getWorkloadOverview(this.selectedProjectId, param)
+      ]
+
+      if (!onlyFetchIssue) {
+        fetchPromises.push(this.getProjectUserList(this.selectedProjectId))
+        if (this.services.gitlab) {
+          fetchPromises.push(
+            getProjectTestResultOverview(this.selectedProjectId)
+          )
+        }
+      }
+
+      const results = await Promise.allSettled(fetchPromises)
+
+      if (results[0]?.status === 'fulfilled') {
+        this.progressObj = results[0].value.data
+      } else {
+        console.error('Failed to fetch progress:', results[0]?.reason)
+      }
+      this.isLoading.IssueTrackingStatusCard = false
+
+      if (results[1]?.status === 'fulfilled') {
+        this.statisticsObj = results[1].value.data
+      } else {
+        console.error('Failed to fetch statistics:', results[1]?.reason)
+      }
+      this.isLoading.WorkloadCard = false
+
+      if (!onlyFetchIssue) {
+        if (results[2]?.status === 'fulfilled') {
+          this.userList = results[2].value.data
+        } else {
+          console.error('Failed to fetch user list:', results[2]?.reason)
+        }
+        this.isLoading.ProjectUsersCard = false
+
+        if (results[3]?.status === 'fulfilled') {
+          this.projectTestObj = results[3].value.data
+        } else {
+          console.error('Failed to fetch project tests:', results[3]?.reason)
+        }
+        this.isLoading.TestStatusCard = false
+      }
     },
     async fetchVersionList() {
-      if (this.selectedProjectId < 0) return
-      const res = await getProjectVersion(this.selectedProjectId)
-      const hasVersion = res.data.versions.length > 0
-      if (hasVersion) {
-        this.versionList = res.data.versions
-        for (const item of this.versionList) {
-          const nowDate = Date.parse(new Date(Date.now()))
-          const dueDate = Date.parse(new Date(item.due_date))
-          if (dueDate >= nowDate && item.status === 'open') {
-            this.searchData.selectedVersion = item.id
-            break
+      if (!this.selectedProjectId) return
+      await getProjectVersion(this.selectedProjectId, { all: true }).then(
+        (res) => {
+          if (res.data.length > 0) {
+            this.versionList = res.data
+            for (const item of this.versionList) {
+              const nowDate = Date.parse(new Date(Date.now()))
+              const dueDate = Date.parse(new Date(item.effective_date))
+              if (dueDate >= nowDate && item.status === 'open') {
+                this.searchData.selectedVersion = item.id
+                break
+              }
+            }
           }
         }
-      } else {
-        this.versionList = []
-      }
-      this.fetchAllData()
+      )
+      await this.fetchAllData()
     },
     async updateProjectTestList() {
       this.isProjectTestList = true
-      const res = await getProjectTest(this.selectedProjectId)
-      this.projectTestObj = res.data.test_results
+      const res = await getProjectTestResultOverview(this.selectedProjectId)
+      this.projectTestObj = res.data
       this.isProjectTestList = false
     },
     showFullIssuePriority() {
@@ -212,7 +259,6 @@ export default {
     },
     async handleCloseDialog() {
       this.isShowProjectSettingDialog = false
-
       await this.fetchAllData()
     }
   }
@@ -224,6 +270,7 @@ export default {
   ::v-deep .el-card__body {
     padding: 8px;
   }
+
   .row {
     margin-left: 0 !important;
     margin-right: 0 !important;

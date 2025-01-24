@@ -3,8 +3,14 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
-          <el-button slot="link" :disabled="!sonarqubeLink" type="text" icon="el-icon-position" @click="openSonarQube">
+          <div></div>
+          <el-button
+            slot="link"
+            :disabled="!sonarqubeLink"
+            icon="ri-external-link-line"
+            type="text"
+            @click="openSonarQube"
+          >
             {{ $t('TestReport.DetailReport') }}
           </el-button>
         </div>
@@ -13,17 +19,19 @@
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
           <th id="">{{ $t('Version.Version') }}</th>
-          <th id="">{{ $t('SonarQube.Bugs') }}</th>
-          <th id="">{{ $t('SonarQube.Vulnerabilities') }}</th>
-          <th id="">{{ $t('SonarQube.CodeSmells') }}</th>
-          <th id="">{{ $t('SonarQube.Duplicates') }}</th>
-          <th id="">{{ $t('SonarQube.Coverage') }}</th>
+          <th id="">{{ $t('Plugins.sonarqube.Bugs') }}</th>
+          <th id="">{{ $t('Plugins.sonarqube.Vulnerabilities') }}</th>
+          <th id="">{{ $t('Plugins.sonarqube.CodeSmells') }}</th>
+          <th id="">{{ $t('Plugins.sonarqube.Duplicates') }}</th>
+          <th id="">{{ $t('Plugins.sonarqube.Coverage') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">SonarQube</td>
-          <td :data-label="$t('Version.Version')">{{ sonarqubeVersion || '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{ sonarqubeVersion || '-' }}
+          </td>
           <template v-if="hasSonarqubeData">
-            <td :data-label="$t('SonarQube.Bugs')">
+            <td :data-label="$t('Plugins.sonarqube.Bugs')">
               <span v-if="hasEachItemData('bugs')">
                 {{ sonarqube[0].bugs }}
               </span>
@@ -33,7 +41,7 @@
               </span>
               <span v-else>(-)</span>
             </td>
-            <td :data-label="$t('SonarQube.Vulnerabilities')">
+            <td :data-label="$t('Plugins.sonarqube.Vulnerabilities')">
               <span v-if="hasEachItemData('vulnerabilities')">
                 {{ sonarqube[0].vulnerabilities }}
               </span>
@@ -43,15 +51,17 @@
               </span>
               <span v-else>(-)</span>
             </td>
-            <td :data-label="$t('SonarQube.CodeSmells')">
+            <td :data-label="$t('Plugins.sonarqube.CodeSmells')">
               <span v-if="hasEachItemData('code_smells')">
                 {{ sonarqube[0].code_smells }}
               </span>
               <span v-else>-</span>
-              <span v-if="hasEachItemData('sqale_rating')"> ({{ convertRating(sonarqube[0].sqale_rating) }}) </span>
+              <span v-if="hasEachItemData('sqale_rating')">
+                ({{ convertRating(sonarqube[0].sqale_rating) }})
+              </span>
               <span v-else>(-)</span>
             </td>
-            <td :data-label="$t('SonarQube.Duplicates')">
+            <td :data-label="$t('Plugins.sonarqube.Duplicates')">
               <span v-if="hasEachItemData('duplicated_blocks')">
                 {{ sonarqube[0].duplicated_blocks }}
               </span>
@@ -61,7 +71,7 @@
               </span>
               <span v-else>(-)</span>
             </td>
-            <td :data-label="$t('SonarQube.Coverage')">
+            <td :data-label="$t('Plugins.sonarqube.Coverage')">
               <span v-if="hasSonarqubeData && hasEachItemData('coverage')">
                 {{ `${sonarqube[0].coverage}%` }}
               </span>
@@ -69,7 +79,7 @@
             </td>
           </template>
           <template v-else>
-            <td colspan="5" class="nodata">{{ $t('general.NoData') }}</td>
+            <td class="nodata" colspan="5">{{ $t('general.NoData') }}</td>
           </template>
         </tr>
       </tbody>

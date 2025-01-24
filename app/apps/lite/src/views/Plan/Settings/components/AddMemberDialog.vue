@@ -1,11 +1,11 @@
 <template>
   <el-dialog
+    :close-on-click-modal="false"
     :title="$t(`Member.AddMember`)"
     :visible.sync="dialogVisible"
-    :close-on-click-modal="false"
-    destroy-on-close
-    append-to-body
     :width="isMobile ? '95vw' : '80vw'"
+    append-to-body
+    destroy-on-close
     top="3vh"
     @closed="onDialogClosed"
   >
@@ -15,24 +15,23 @@
           <el-col :span="8">
             <el-input
               v-model="keyword"
-              :size="isMobile ? 'small' : 'medium'"
-              prefix-icon="el-icon-search"
-              :style="{ width: isMobile ? 'auto' : '140px' }"
               :placeholder="$t('general.SearchName')"
+              :size="isMobile ? 'small' : 'medium'"
+              :style="{ width: isMobile ? 'auto' : '140px' }"
+              prefix-icon="el-icon-search"
             />
           </el-col>
           <el-col :span="16" class="text-right">
             <el-button
               :size="isMobile ? 'small' : 'medium'"
-              class="button-secondary-reverse"
               @click="dialogVisible = false"
             >
               {{ $t('general.Cancel') }}
             </el-button>
             <el-button
-              class="button-primary"
               :loading="btnConfirmLoading"
               :size="isMobile ? 'small' : 'medium'"
+              type="primary"
               @click="handleAddConfirm"
             >
               {{ $t('general.Confirm') }}
@@ -46,35 +45,48 @@
           ref="userTable"
           :data="pagedData"
           :element-loading-text="$t('Loading')"
-          highlight-current-row
           fit
+          highlight-current-row
           @cell-click="handleClick"
         >
-          <el-table-column width="55" type="first">
+          <el-table-column type="first" width="55">
             <template slot-scope="scope">
-              <el-checkbox :value="isSelectedMember(scope.row)" class="el-checkbox" @change="toggleMember(scope.row)" />
+              <el-checkbox
+                :value="isSelectedMember(scope.row)"
+                class="el-checkbox"
+                @change="toggleMember(scope.row)"
+              />
             </template>
           </el-table-column>
-          <el-table-column :label="$t('general.Name')" prop="name" />
-          <el-table-column v-if="!isMobile" :label="$t('User.Department')" prop="department" />
-          <el-table-column v-if="!isMobile" :label="$t('User.Title')" prop="title" />
-          <el-table-column :label="$t('User.Account')" prop="login" />
+          <el-table-column :label="$t('general.Name')" prop="full_name" />
+          <el-table-column
+            v-if="!isMobile"
+            :label="$t('User.Department')"
+            prop="department"
+          />
+          <el-table-column
+            v-if="!isMobile"
+            :label="$t('User.Title')"
+            prop="title"
+          />
+          <el-table-column :label="$t('User.Account')" prop="username" />
         </el-table>
         <Pagination
-          :total="filteredData.length"
-          :page="listQuery.page"
-          :limit="listQuery.limit"
-          :page-sizes="[listQuery.limit]"
           :layout="paginationLayout"
+          :limit="listQuery.limit"
+          :page="listQuery.page"
+          :page-sizes="[listQuery.limit]"
           :pager-count="isMobile ? 5 : 7"
           :small="isMobile"
+          :total="filteredData.length"
           @pagination="onPagination"
         />
       </el-col>
       <el-col v-if="selectedUser.length > 0" class="el-card__footer">
         <div style="display: inline-flex">
           <div class="selected_count">
-            {{ $t('User.Selected') }}<span class="value">{{ selectedUser.length }}</span>
+            {{ $t('User.Selected')
+            }}<span class="value">{{ selectedUser.length }}</span>
           </div>
           <div>
             <el-tag
@@ -86,7 +98,7 @@
               @close="onRemoveMember(item)"
             >
               <span>{{ idx + 1 }}.</span>
-              {{ item.name }}
+              {{ item.full_name }}
             </el-tag>
           </div>
         </div>
@@ -96,10 +108,13 @@
 </template>
 
 <script>
-import { addProjectMember, getNotInProject } from '@/api/projects'
-import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
+import { addProjectMember, getProjectUserList } from '@/api_v3/projects'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 import Fuse from 'fuse.js'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'AddMemberDialog',
@@ -133,7 +148,7 @@ export default {
       const fuse = new Fuse(this.assignableUserList, {
         // includeScore: true,
         threshold: 0.5,
-        keys: ['name', 'login', 'department', 'title']
+        keys: ['full_name', 'username', 'department', 'title']
       })
       const res = fuse.search('!' + this.keyword)
       return res.map((items) => items.item)
@@ -142,7 +157,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     }
   },
   watch: {
@@ -162,15 +179,15 @@ export default {
   },
   methods: {
     async fetchData() {
-      return getNotInProject(this.selectedProjectId)
+      return getProjectUserList(this.selectedProjectId, { exclude: true })
         .then((res) => {
-          this.assignableUserList = res.data.user_list.map((user) => ({
+          this.assignableUserList = res.data.map((user) => ({
             id: user.id,
-            name: user.name,
+            full_name: user.full_name,
             department: user.department,
             title: user.title,
-            login: user.login,
-            role_name: user.role_name
+            username: user.username,
+            role_name: user.role.name
           }))
         })
         .catch((e) => {
@@ -250,7 +267,7 @@ export default {
     border-top: 1px solid #ebeef5;
     box-sizing: border-box;
     width: 100%;
-    height: 75px;
+    height: auto;
 
     .selected_count {
       @apply bg-white;
@@ -284,10 +301,6 @@ export default {
       margin-bottom: 10px;
     }
   }
-}
-
-::v-deep .el-card__footer {
-  height: auto;
 }
 
 ::v-deep .pagination-container {

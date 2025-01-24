@@ -2,10 +2,10 @@
   <div>
     <div class="flex justify-between mb-4">
       <el-button
-        class="button-secondary"
         :disabled="isAddingTag"
         :size="isMobile ? 'small' : 'medium'"
         icon="el-icon-plus"
+        type="success"
         @click="handleShowTagInput"
       >
         <span>{{ $t('ProjectSettings.AddCustomTag') }}</span>
@@ -19,18 +19,17 @@
               v-model="form.name"
               :placeholder="$t('ProjectSettings.TagInputPlaceholder')"
               :size="isMobile ? 'small' : 'medium'"
-              type="text"
               class="mr-3"
+              type="text"
             />
             <el-button
-              class="button-primary"
               :size="isMobile ? 'small' : 'medium'"
+              type="primary"
               @click="handleInputSave"
             >
               {{ $t('general.Save') }}
             </el-button>
             <el-button
-              class="button-secondary-reverse"
               :size="isMobile ? 'small' : 'medium'"
               @click="handleInputCancel"
             >
@@ -51,19 +50,16 @@
       <Draggable
         v-if="listData && listData.length > 0"
         v-model="listData"
-        animation="500"
         :move="onMove"
-        ghost-class="ghost"
+        animation="500"
         chosen-class="chosen"
         element="tbody"
+        ghost-class="ghost"
         @update="handleTableDraggingChange"
       >
         <tr v-for="(row, id) in listData" :key="row.id">
           <td class="align-center">
-            <svg-icon
-              icon-class="draggable"
-              class="text-lg mr-2"
-            />
+            <svg-icon class="text-lg mr-2" icon-class="draggable" />
           </td>
           <td class="align-center">{{ id + 1 }}</td>
           <td
@@ -75,32 +71,31 @@
               <el-input v-model="row.name" type="text" />
               <el-button
                 class="action"
-                type="success"
-                size="mini"
                 icon="el-icon-check"
+                size="mini"
+                type="success"
                 @click.stop="handleTableInputConfirm(row, id)"
               />
               <el-button
                 class="action"
-                type="danger"
-                size="mini"
                 icon="el-icon-close"
+                size="mini"
+                type="danger"
                 @click.stop="handleTableInputCancel(row, id)"
               />
             </div>
             <template v-else>
               <span class="w-full">{{ row.name }}</span>
               <em
-                :class="row.mouseover ? 'ri-edit-box-line info table-button' : ''"
+                :class="
+                  row.mouseover ? 'ri-edit-box-line info table-button' : ''
+                "
                 @click.stop="row.edit = true"
               ></em>
             </template>
           </td>
           <td class="align-center">
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Delete')"
-            >
+            <el-tooltip :content="$t('general.Delete')" placement="bottom">
               <em
                 class="ri-delete-bin-2-line danger table-button"
                 @click.stop="handleTagDelete(row)"
@@ -116,18 +111,18 @@
       </tr>
     </table>
     <el-dialog
+      :before-close="handleRelationIssueDialogBeforeClose"
       :visible.sync="relationIssue.visible"
-      width="90%"
-      top="3vh"
       append-to-body
       destroy-on-close
-      :before-close="handleRelationIssueDialogBeforeClose"
+      top="3vh"
+      width="90%"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"
         ref="children"
-        :props-issue-id="relationIssue.id"
         :is-in-dialog="true"
+        :props-issue-id="relationIssue.id"
         @delete="onCloseRelationIssueDialog"
       />
     </el-dialog>
@@ -135,18 +130,18 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { BasicData } from '@/mixins'
 import {
-  getTagsByProject,
-  addProjectTags,
-  deleteProjectTags,
-  updateProjectTags,
-  updateProjectTagsOrder,
-  getIssueByTagId
-} from '@/api_v2/projects'
-import Draggable from 'vuedraggable'
+  createTag,
+  deleteTag,
+  getProjectIssueList,
+  getTagList,
+  updateTag,
+  updateTagOrder
+} from '@/api_v3/projects'
+import BasicData from '@/mixins/BasicData'
 import ProjectIssueDetail from '@/views/Project/IssueDetail/'
+import Draggable from 'vuedraggable'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'TagSettings',
@@ -166,7 +161,6 @@ export default {
         visible: false,
         id: null
       }
-
     }
   },
   computed: {
@@ -182,9 +176,9 @@ export default {
     async fetchData() {
       this.listLoading = true
       let tags = []
-      await getTagsByProject(this.selectedProjectId)
+      await getTagList(this.selectedProjectId)
         .then((res) => {
-          tags = res.data.tags
+          tags = res.data
           this.setOriginData(tags)
         })
         .finally(() => {
@@ -192,31 +186,34 @@ export default {
         })
       return this.handleRowData(tags)
     },
-    async addProjectTags(formData) {
-      await addProjectTags(formData)
+    async createTag() {
+      const sendData = {
+        name: this.form.name
+      }
+      await createTag(this.selectedProjectId, sendData)
         .then(() => {
           this.updateTable()
           this.initForm()
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
         })
     },
-    async deleteProjectTags(tag_id) {
-      await deleteProjectTags(tag_id)
+    async deleteTag(tag_id) {
+      await deleteTag(tag_id, { project_id: this.selectedProjectId })
         .then(() => {
           this.updateTable()
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
         })
     },
-    async updateProjectTags(tag_id, data) {
-      await updateProjectTags(tag_id, data)
+    async updateTag(tag_id, data) {
+      await updateTag(tag_id, data)
         .then(() => {
           this.updateTable()
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
         })
     },
@@ -228,7 +225,7 @@ export default {
       this.originData = JSON.parse(JSON.stringify(data))
     },
     handleRowData(tags) {
-      tags.forEach(item => {
+      tags.forEach((item) => {
         item.edit = false
         item.mouseover = false
       })
@@ -246,25 +243,7 @@ export default {
         })
         return
       }
-      const formData = this.getFormData()
-      this.addProjectTags(formData)
-    },
-    getFormData() {
-      const name = this.form.name
-      const project_id = this.selectedProjectId
-      const formData = new FormData()
-      formData.delete('name')
-      formData.delete('project_id')
-      formData.append('name', name)
-      formData.append('project_id', project_id)
-      return formData
-    },
-    getUpdatedData(row) {
-      const name = row.name
-      const formData = new FormData()
-      formData.delete(name)
-      formData.append('name', name)
-      return formData
+      this.createTag()
     },
     handleInputCancel() {
       this.initForm()
@@ -275,8 +254,12 @@ export default {
     },
     handleTableInputConfirm(row, index) {
       const tag_id = row.id
-      const updatedData = this.getUpdatedData(row)
-      if (this.originData[index].name !== row.name) this.updateProjectTags(tag_id, updatedData)
+      const sendData = {
+        name: row.name
+      }
+      if (this.originData[index].name !== row.name) {
+        this.updateTag(tag_id, sendData)
+      }
       row.edit = false
     },
     handleTableInputCancel(row, index) {
@@ -285,11 +268,15 @@ export default {
     },
     handleRelationIssueDialogBeforeClose(done) {
       if (this.$refs.children.hasUnsavedChanges()) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        })
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        )
           .then(() => {
             done()
           })
@@ -306,22 +293,53 @@ export default {
       this.$set(this.relationIssue, 'visible', false)
       this.$set(this.relationIssue, 'id', null)
     },
-    async showWarningMessage(row, arrIssueListData) {
+    async handleTagDelete(row) {
+      const params = {
+        tags: row.id
+      }
+      await getProjectIssueList(this.selectedProjectId, params)
+        .then(async (res) => {
+          const issues = res.data.items
+          this.showWarningMessage(row, issues)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    },
+    async showWarningMessage(row, issues) {
       const h = this.$createElement
       const tagName = { tagName: row.name }
       const messageList = [
-        h('div', { style: { 'text-align': 'center' }}, arrIssueListData.length > 0
-          ? this.$t(`ProjectSettings.DeleteTag`, tagName) : this.$t(`Notify.confirmDelete`)),
-        h('div', { style: { 'text-align': 'center' }}, '________________________________________')
+        h(
+          'div',
+          { style: { 'text-align': 'center' }},
+          issues.length > 0
+            ? this.$t(`ProjectSettings.DeleteTag`, tagName)
+            : this.$t(`Notify.confirmDelete`)
+        ),
+        h(
+          'div',
+          { style: { 'text-align': 'center' }},
+          '________________________________________'
+        )
       ]
-      arrIssueListData.forEach((value) => {
+      issues.forEach((issue) => {
         messageList.push(
-          h('p', { key: value.id, style: { 'text-align': 'center' }}, [
+          h('p', { key: issue.id, style: { 'text-align': 'center' }}, [
             h('span', null, '• '),
-            h('span', { on: { click: async () => {
-              this.onRelationIssueDialog(value.id)
-            } }, class: 'issue-id' }, ' #' + value.id),
-            h('span', null, ' ' + value.name)
+            h(
+              'span',
+              {
+                on: {
+                  click: async () => {
+                    this.onRelationIssueDialog(issue.id)
+                  }
+                },
+                class: 'issue-id'
+              },
+              ` #${issue.id}`
+            ),
+            h('span', null, ` ${issue.subject}`)
           ])
         )
       })
@@ -334,18 +352,9 @@ export default {
         type: 'warning'
       })
         .then(async () => {
-          await this.deleteProjectTags(row.id)
+          await this.deleteTag(row.id)
         })
-        .catch(err => console.error(err))
-    },
-    async handleTagDelete(row) {
-      await getIssueByTagId(this.selectedProjectId, row.id)
-        .then(async (res) => {
-          this.showWarningMessage(row, res.data)
-        })
-        .catch(err => {
-          console.error(err)
-        })
+        .catch((err) => console.error(err))
     },
     showUpdateMessage() {
       this.$message({
@@ -355,30 +364,21 @@ export default {
       })
     },
     async handleTableDraggingChange(event) {
-      const { oldIndex } = event
+      const { oldIndex, newIndex } = event
       const sendData = {
         tag_id: Number(this.originData[oldIndex].id),
-        to_tag_id: this.getToTagId(event)
+        to_tag_id: newIndex === 0 ? null : Number(this.originData[newIndex].id)
       }
       if (sendData.to_tag_id === null) {
         delete sendData.to_tag_id
       }
-      await updateProjectTagsOrder(sendData)
+      await updateTagOrder(this.selectedProjectId, sendData)
         .then(() => {
           this.showUpdateMessage()
         })
         .finally(() => {
           this.updateData()
         })
-    },
-    getToTagId(event) {
-      const { oldIndex, newIndex } = event
-      if (newIndex + 1 === this.originData.length) {
-        return null
-      }
-      return oldIndex > newIndex
-        ? Number(this.originData[newIndex].id)
-        : Number(this.originData[newIndex + 1].id)
     },
     async updateData() {
       this.listLoading = true
@@ -395,11 +395,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
-$bg-color: #EBEEF5;
-$ghost-bg-color: #E5E8EF;
+$bg-color: #ebeef5;
+$ghost-bg-color: #e5e8ef;
 $table-font-color: #606266;
 
 ::v-deep .el-input {
@@ -425,63 +425,50 @@ table.table {
   font-weight: normal;
   font-size: 13px;
   color: $table-font-color;
-  td, th {
+
+  td,
+  th {
     padding: 3px;
     height: 50px;
   }
+
   th {
     font-size: 14px;
     color: $closed;
     text-align: center;
     border-bottom: 1px solid $bg-color;
   }
+
   td {
     border-bottom: 1px solid $bg-color;
+
     &:active {
       cursor: grabbing;
     }
-    &:first-child, &:nth-child(2) {
+
+    &:first-child,
+    &:nth-child(2) {
       width: 50px;
     }
+
     &:nth-child(3) {
       width: 600px;
     }
   }
+
   tr {
     cursor: grab;
   }
 }
 
-.el-button--success {
-  @include css-prefix(transition, all .6s ease);
-  color: $success;
-  border: 1px solid #989898;
-  background: none;
-  &:hover {
-    color: #fff;
-    border: 1px solid $success;
-    background: $success;
-  }
-}
-
-.el-button--danger {
-  @include css-prefix(transition, all .6s ease);
-  color: $danger;
-  border: 1px solid #989898;
-  background: none;
-  &:hover {
-    color: #fff;
-    border: 1px solid $danger;
-    background: $danger;
-  }
-}
-
 .action {
   margin: 0;
+
   &.el-button--mini {
     padding: 5px;
   }
 }
+
 .warning {
   line-height: 20px;
   font-weight: bold;

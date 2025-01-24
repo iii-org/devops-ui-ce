@@ -1,7 +1,7 @@
 <template>
   <el-card class="mb-3">
     <div class="flex items-center font-semibold h-8">
-      <em class="el-icon-pie-chart mx-1" />
+      <em class="el-icon-pie-chart mx-1"></em>
       {{ $t('Dashboard.IssueTrackingStatus') }}
     </div>
     <el-empty
@@ -20,7 +20,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import Doughnut from './Doughnut.vue'
-import colorVariables from '@/styles/theme/variables.scss'
+import styles from '@/styles/theme/variables.module.scss'
 
 export default {
   name: 'IssueTrackingStatusCard',
@@ -41,12 +41,12 @@ export default {
     getColors() {
       return (key) => {
         const colors = {
-          active: colorVariables.active,
-          assigned: colorVariables.assigned,
-          inProgress: colorVariables.inProgress,
-          solved: colorVariables.solved,
-          verified: colorVariables.verified,
-          closed: colorVariables.closed
+          active: styles.active,
+          assigned: styles.assigned,
+          inProgress: styles.inProgress,
+          solved: styles.solved,
+          verified: styles.verified,
+          closed: styles.closed
         }
         return colors[key]
       }

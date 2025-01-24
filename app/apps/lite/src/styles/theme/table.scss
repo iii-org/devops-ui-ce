@@ -12,23 +12,29 @@ table.test-report {
   margin: 0 auto;
   text-align: center;
   line-height: 50px;
+
   .caption {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  td, th {
+
+  td,
+  th {
     border: 1px solid $border-color;
     color: $color;
-    height: 30px;
+    min-height: 30px;
   }
+
   td:first-child {
     font-weight: bold;
   }
+
   th {
     background-color: $th-background-color;
     width: 100px;
   }
+
   tr {
     background: $tr-backrgound;
   }
@@ -54,21 +60,25 @@ table.test-report {
     text-align: center;
     line-height: 25px;
     page-break-inside: avoid;
+
     .caption {
-      display: flex;
       justify-content: space-between;
       align-items: center;
       display: none;
     }
-    td, th {
+
+    td,
+    th {
       border: 1px solid $border-color;
       color: $color;
       height: 30px;
     }
+
     th {
       background-color: $th-background-color;
       width: 100px;
     }
+
     tr {
       background: $tr-backrgound;
     }

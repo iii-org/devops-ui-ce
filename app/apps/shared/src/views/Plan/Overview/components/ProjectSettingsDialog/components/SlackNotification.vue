@@ -5,78 +5,103 @@
         :class="isMobile ? '' : 'flex items-center'"
         :style="isMobile ? 'line-height: 24px' : ''"
       >
-        <span class="font-bold mr-3">{{ $t('Project.TriggerNotification') }}</span>
-        <br v-if="isMobile">
+        <span class="font-bold mr-3">{{
+          $t('Project.TriggerNotification')
+        }}</span>
+        <br v-if="isMobile" />
         <el-switch
           v-model="active"
           :active-text="$t('general.Enable')"
           :inactive-text="$t('general.Disable')"
         />
       </span>
-      <el-link :href="slackLink" type="primary" target="_blank">
+      <el-link :href="slackLink" target="_blank" type="primary">
         <em
           v-if="isMobile"
           class="ri-slack-fill text-lg rounded text-white bg-primary p-1"
-        />
+        ></em>
         <span v-else>{{ $t('general.AdvancedSettings') }}</span>
       </el-link>
     </div>
     <el-form
       v-if="active && !is_locked"
       ref="slackNotification"
+      :label-position="isMobile ? 'top' : 'right'"
+      :label-width="!isMobile ? '100px' : ''"
       :model="form"
       :rules="rules"
-      :label-width="!isMobile ? '100px' : ''"
-      :label-position="isMobile ? 'top' : 'right'"
       class="pt-2"
     >
-      <el-divider content-position="left">{{ $t('Project.TriggerCondition') }}</el-divider>
+      <el-divider content-position="left">{{ $t('Project.TriggerCondition') }}
+      </el-divider>
       <el-row :class="isMobile ? '' : 'mx-3'" :gutter="10" class="py-3">
         <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.commit_events" class="flex">
             <div>Push</div>
-            <div class="text-xs" style="color: #303133">Trigger event for pushes to the repository.</div>
+            <div class="text-xs" style="color: #303133">
+              Trigger event for pushes to the repository.
+            </div>
           </el-checkbox>
         </el-col>
         <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.merge_requests_events" class="flex">
             <div>Merge request</div>
-            <div class="text-xs" style="color: #303133">Trigger event when a merge request is created, updated, or merged.</div>
+            <div class="text-xs" style="color: #303133">
+              Trigger event when a merge request is created, updated, or merged.
+            </div>
           </el-checkbox>
         </el-col>
         <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.note_events" class="flex">
             <div>Note</div>
-            <div class="text-xs" style="color: #303133">Trigger event for new comments.</div>
+            <div class="text-xs" style="color: #303133">
+              Trigger event for new comments.
+            </div>
           </el-checkbox>
         </el-col>
         <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.tag_push_events" class="flex">
             <div>Tag push</div>
-            <div class="text-xs" style="color: #303133">Trigger event for new tags pushed to the repository.</div>
+            <div class="text-xs" style="color: #303133">
+              Trigger event for new tags pushed to the repository.
+            </div>
           </el-checkbox>
         </el-col>
         <el-col :lg="10" :md="24" class="mb-5">
           <el-checkbox v-model="form.pipeline_events" class="flex">
             <div>Pipeline</div>
-            <div class="text-xs" style="color: #303133">Trigger event when a pipeline status changes.</div>
+            <div class="text-xs" style="color: #303133">
+              Trigger event when a pipeline status changes.
+            </div>
           </el-checkbox>
         </el-col>
         <el-col :lg="14" :md="24" class="mb-5">
           <el-checkbox v-model="form.notify_only_broken_pipelines" class="flex">
             <div>Notify only broken pipelines</div>
-            <div class="text-xs" style="color: #303133">Do not send notifications for successful pipelines.</div>
+            <div class="text-xs" style="color: #303133">
+              Do not send notifications for successful pipelines.
+            </div>
           </el-checkbox>
         </el-col>
       </el-row>
-      <el-divider content-position="left">{{ $t('ProjectSettings.GeneralSettings') }}</el-divider>
+      <el-divider content-position="left">{{ $t('ProjectSettings.GeneralSettings') }}
+      </el-divider>
       <el-row :class="isMobile ? '' : 'mx-3'" class="py-2">
         <el-col>
-          <el-form-item label="WebHook" prop="webhook" style="line-height: 24px;">
+          <el-form-item
+            label="WebHook"
+            prop="webhook"
+            style="line-height: 24px"
+          >
             <el-input v-model="form.webhook" />
             <span class="text-xs">
               * 請⾄Slack(
-              <el-link :href="slackHookLink" type="primary" target="_blank" class="text-xs">{{ slackHookLink }}</el-link>
+              <el-link
+                :href="slackHookLink"
+                class="text-xs"
+                target="_blank"
+                type="primary"
+              >{{ slackHookLink }}</el-link>
               )建立聊天Channel 並產⽣WebHook，並貼⾄上⽅輸入框
             </span>
           </el-form-item>
@@ -101,17 +126,16 @@
       </el-row>
       <span class="float-right">
         <el-button
-          :size="isMobile ? 'small' : 'medium'"
           :loading="isLoading"
-          class="button-secondary-reverse"
+          :size="isMobile ? 'small' : 'medium'"
           @click="handleCancel"
         >
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
-          :size="isMobile ? 'small' : 'medium'"
           :loading="isLoading"
-          class="button-primary"
+          :size="isMobile ? 'small' : 'medium'"
+          type="primary"
           @click="handleConfirm"
         >
           {{ $t('general.Confirm') }}
@@ -122,7 +146,9 @@
       <div class="notification-warning">
         <span>
           Please goto
-          <el-link :href="slackLink" type="primary" target="_blank">{{ $t('general.AdvancedSettings') }}</el-link>
+          <el-link :href="slackLink" target="_blank" type="primary">{{
+            $t('general.AdvancedSettings')
+          }}</el-link>
           to modify the data
         </span>
       </div>
@@ -131,9 +157,14 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getGitlabIntegrations, getSlackNotification, updateSlackNotification, disableSlackNotification } from '@/api_v2/projects'
+import {
+  disableSlackNotification,
+  getGitlabIntegrations,
+  getSlackNotification,
+  updateSlackNotification
+} from '@/api_v2/projects'
 import defaultSettings from '@/settings'
+import { mapGetters } from 'vuex'
 
 const defaultForm = () => {
   return {
@@ -177,10 +208,27 @@ export default {
         }
       ],
       rules: {
-        webhook: [{ required: true, message: 'WebHook is required', trigger: 'blur' }],
-        username: [{ required: true, message: 'Username is required', trigger: 'blur' }]
+        webhook: [
+          {
+            required: true,
+            message: 'WebHook is required',
+            trigger: 'blur'
+          }
+        ],
+        username: [
+          {
+            required: true,
+            message: 'Username is required',
+            trigger: 'blur'
+          }
+        ]
       },
-      propKey: ['username', 'notify_only_broken_pipelines', 'branches_to_be_notified', 'webhook'],
+      propKey: [
+        'username',
+        'notify_only_broken_pipelines',
+        'branches_to_be_notified',
+        'webhook'
+      ],
       slackHookLink: 'https://my.slack.com/services/new/incoming-webhook',
       defaultSettings
     }
@@ -195,7 +243,10 @@ export default {
     },
     slackLink() {
       // remove .git
-      const link = this.selectedProject.git_url.split('.').slice(0, -1).join('.')
+      const link = this.selectedProject.git_url
+        .split('.')
+        .slice(0, -1)
+        .join('.')
       if (this.isLite) return `${link}/-/services/slack/edit`
       return `${link}/-/settings/integrations/slack/edit`
     }
@@ -219,23 +270,24 @@ export default {
   methods: {
     async fetchData() {
       this.isLoading = true
-      await getGitlabIntegrations(this.selectedProject.repository_ids[0])
+      await getGitlabIntegrations(this.selectedProject.repository_id)
         .then(async (res) => {
-          if (res.data.length > 0 && res.data.find(o => o.slug === 'slack')) {
-            await getSlackNotification(this.selectedProject.repository_ids[0])
-              .then(resData => {
+          if (res.data.length > 0 && res.data.find((o) => o.slug === 'slack')) {
+            await getSlackNotification(this.selectedProject.repository_id).then(
+              (resData) => {
                 this.active = resData.data.active
                 if (resData.data?.is_locked) {
                   this.is_locked = true
                   return
                 }
                 this.assignFormData(resData)
-              })
+              }
+            )
           } else {
             this.form = defaultForm()
           }
         })
-        .catch(e => {
+        .catch((e) => {
           console.error(e)
         })
         .finally(() => {
@@ -243,7 +295,7 @@ export default {
         })
     },
     assignFormData(res) {
-      Object.keys(this.form).forEach(key => {
+      Object.keys(this.form).forEach((key) => {
         if (this.propKey.includes(key)) {
           this.form[key] = res.data.properties[key]
         } else {
@@ -253,7 +305,7 @@ export default {
     },
     async handleDisable() {
       this.isLoading = true
-      await disableSlackNotification(this.selectedProject.repository_ids[0])
+      await disableSlackNotification(this.selectedProject.repository_id)
         .then(() => {
           this.form = defaultForm()
           this.active = false
@@ -275,11 +327,14 @@ export default {
       this.$emit('handleCancel')
     },
     async handleConfirm() {
-      this.$refs.slackNotification.validate(async valid => {
+      this.$refs.slackNotification.validate(async (valid) => {
         if (!valid) return
         this.isLoading = true
-        await updateSlackNotification(this.selectedProject.repository_ids[0], this.form)
-          .then(res => {
+        await updateSlackNotification(
+          this.selectedProject.repository_id,
+          this.form
+        )
+          .then((res) => {
             this.assignFormData(res)
             this.$message({
               title: this.$t('general.Success'),

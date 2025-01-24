@@ -1,4 +1,4 @@
-import { getBranchesByProject as GBBP } from '@/api/branches'
+import { getRepositoryBranches as GBBP } from '@/api_v3/gitlab'
 
 const getDefaultState = () => {
   return {
@@ -27,9 +27,9 @@ const actions = {
     try {
       const response = await GBBP(pId)
       const { data } = response
-      commit('SET_LIST', data.branch_list)
-      commit('SET_TOTAL', data.branch_list.length)
-      commit('SET_DEFAULT_BRANCH', data.default_branch)
+      commit('SET_LIST', data.branches)
+      commit('SET_TOTAL', data.branches.length)
+      commit('SET_DEFAULT_BRANCH', data.main)
     } catch (error) {
       console.error(error.toString())
     }

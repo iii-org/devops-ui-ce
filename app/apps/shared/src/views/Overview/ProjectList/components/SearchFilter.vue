@@ -23,12 +23,12 @@
       </el-form>
       <el-button
         slot="reference"
-        icon="el-icon-s-operation"
         class="header-text-color"
+        icon="el-icon-s-operation"
         type="text"
       >
         {{ displayFilterValue }}
-        <em class="el-icon-arrow-down el-icon--right" />
+        <em class="el-icon-arrow-down el-icon--right"></em>
       </el-button>
     </el-popover>
     <el-divider direction="vertical" />
@@ -36,31 +36,33 @@
       v-if="searchVisible"
       v-model="keyword"
       :placeholder="$t('Project.SearchProjectNameOrIdOrManager')"
-      style="width: 250px"
-      prefix-icon="el-icon-search"
       clearable
-      @blur="searchVisible=!searchVisible"
+      prefix-icon="el-icon-search"
+      style="width: 250px"
+      @blur="searchVisible = !searchVisible"
     />
     <el-button
-      v-else type="text"
-      icon="el-icon-search"
+      v-else
       class="header-text-color"
-      @click="searchVisible=!searchVisible"
+      icon="el-icon-search"
+      type="text"
+      @click="searchVisible = !searchVisible"
     >
-      {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
+      {{ $t('general.Search') + (keyword ? ': ' + keyword : '') }}
     </el-button>
     <template v-if="isFilterChanged">
       <el-divider direction="vertical" />
       <el-button
-        size="small"
         icon="el-icon-close"
-        class="button-secondary-reverse"
+        plain
+        size="small"
+        type="warning"
         @click="cleanFilter"
       >
         {{ $t('Issue.CleanFilter') }}
       </el-button>
     </template>
-    <slot name="updateButton" />
+    <slot name="updateButton"></slot>
   </div>
 </template>
 
@@ -70,16 +72,16 @@ export default {
   data() {
     this.options = [
       {
-        value: 0,
+        value: 'enable',
         label: this.$t('general.Enable')
       },
       {
-        value: 1,
+        value: 'disable',
         label: this.$t('general.Disable')
       }
     ]
     return {
-      isDisabled: [0],
+      isDisabled: ['enable'],
       keyword: '',
       searchVisible: false
     }
@@ -87,11 +89,14 @@ export default {
   computed: {
     displayFilterValue() {
       const list = []
-      this.isDisabled.forEach(item => {
-        list.push(this.options[item].label)
+      this.isDisabled.forEach((item) => {
+        const idx = this.options.findIndex((option) => option.value === item)
+        list.push(this.options[idx].label)
       })
       const listJoined = list.join(', ')
-      return list.length > 0 ? `${this.$t('general.Filter')}: ${listJoined}` : `${this.$t('general.Filter')}`
+      return list.length > 0
+        ? `${this.$t('general.Filter')}: ${listJoined}`
+        : `${this.$t('general.Filter')}`
     },
     isFilterChanged() {
       return !!this.keyword || this.isDisabled.length > 0

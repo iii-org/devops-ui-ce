@@ -62,6 +62,4 @@ PDF.install = function(options) {
   }
 }
 
-Vue.use(PDF)
-
-export default { PDF }
+export { PDF }

@@ -1,13 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { Page404 } from '@shared/components'
-import Login from '@/components/Login'
-
-Vue.use(Router)
-
 import store from '@/store'
 import pmRoute from './pm.json'
 import adRoute from './ad.json'
+import ooRoute from './oo.json'
+
+Vue.use(Router)
 
 /**
  * @summary route naming rules
@@ -18,20 +16,21 @@ import adRoute from './ad.json'
 export const constantRoutes = [
   {
     path: '/login',
-    component: Login,
+    component: () => import('@/components/Login'),
     hidden: true
   },
 
   {
     path: '/404',
-    component: Page404,
+    component: () => import('@shared/components/404'),
     name: '404',
     hidden: true
   }
 ]
 
 export const asyncRoutes = (role) => {
-  if (role === 'Administrator') return adRoute
+  if (role === 'sysadmin') return adRoute
+  else if (role === 'Organization Owner') return ooRoute
   else if (role === 'Project Manager') return pmRoute
 }
 
@@ -51,7 +50,10 @@ export function resetRouter() {
 
 export async function loadRouter() {
   resetRouter()
-  const accessRoutes = await store.dispatch('permission/generateRoutes', store.getters.userRole)
+  const accessRoutes = await store.dispatch(
+    'permission/generateRoutes',
+    store.getters.userRole
+  )
   router.addRoutes(accessRoutes)
 }
 

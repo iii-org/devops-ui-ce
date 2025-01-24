@@ -3,39 +3,38 @@
     ref="form"
     :model="form"
     :rules="rules"
-    label-position="top"
-    inline
     class="custom-list"
+    inline
+    label-position="top"
   >
     <el-row>
       <el-col :sm="12" :xs="24">
         <el-form-item
+          :label="$t('Plugins.excalidraw.Name')"
           prop="name"
-          :label="$t('Excalidraw.Name')"
           style="width: 100%"
         >
           <el-input
             v-model="form.name"
+            :placeholder="
+              $t('RuleMsg.PleaseInput') + $t('Plugins.excalidraw.Name')
+            "
             style="width: 100%"
-            :placeholder="$t('RuleMsg.PleaseInput') + $t('Excalidraw.Name')"
           />
         </el-form-item>
       </el-col>
       <el-col :sm="12" :xs="24">
-        <el-form-item
-          :label="$t('Issue.RelatedIssue')"
-          style="width: 100%"
-        >
+        <el-form-item :label="$t('Issue.RelatedIssue')" style="width: 100%">
           <el-select
             v-model="form.issue_ids"
-            style="width: 100%"
+            :loading="issueLoading"
             :placeholder="$t('Issue.SearchNameOrAssignee')"
+            :remote-method="getIssue"
             clearable
             filterable
-            remote
             multiple
-            :remote-method="getIssue"
-            :loading="issueLoading"
+            remote
+            style="width: 100%"
             @focus="getIssue()"
           >
             <el-option-group
@@ -46,7 +45,7 @@
               <template v-for="item in group.options">
                 <el-option
                   :key="item.id"
-                  :label="'#' + item.id +' - '+item.name"
+                  :label="'#' + item.id + ' - ' + item.name"
                   :value="item.id"
                 />
               </template>
@@ -59,9 +58,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getProjectIssueList } from '@/api_v2/projects'
+import { getProjectIssueList } from '@/api_v3/projects'
 import axios from 'axios'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ExcalidrawForm',
@@ -76,10 +75,13 @@ export default {
       issueLoading: false,
       issueList: [],
       rules: {
-        name: [{
-          required: true, trigger: 'blur',
-          message: this.$t('RuleMsg.PleaseSelect') + this.$t('general.Name')
-        }]
+        name: [
+          {
+            required: true,
+            trigger: 'blur',
+            message: this.$t('RuleMsg.PleaseSelect') + this.$t('general.Name')
+          }
+        ]
       }
     }
   },
@@ -93,8 +95,11 @@ export default {
     async getIssue(query) {
       const params = this.getSearchParams(query)
       const cancelToken = this.checkToken()
-      await getProjectIssueList(this.selectedProjectId, params, { cancelToken })
-        .then((res) => { this.issueList = this.getListLabels(res) })
+      await getProjectIssueList(this.selectedProjectId, params, {
+        cancelToken
+      }).then((res) => {
+        this.issueList = this.getListLabels(res)
+      })
       this.issueLoading = false
       this.cancelToken = null
     },
@@ -118,8 +123,8 @@ export default {
       let queryList = res.data
       let key = 'Issue.Result'
       if (!this.issueQuery) {
-        if (queryList && queryList.hasOwnProperty('issue_list')) {
-          queryList = res.data.issue_list
+        if (queryList && queryList.hasOwnProperty('items')) {
+          queryList = res.data.items
         } else {
           queryList = []
         }
@@ -138,7 +143,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::v-deep .el-form-item__content{
+::v-deep .el-form-item__content {
   width: 80%;
 }
 </style>

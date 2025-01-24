@@ -1,40 +1,12 @@
 @import './mixin.scss';
-@import './variables.scss';
+@import './variables.module.scss';
 
-.account-manage-table > .el-table--enable-row-hover .el-table__body tr:hover > td:not(:last-child) {
+.account-manage-table
+  > .el-table--enable-row-hover
+  .el-table__body
+  tr:hover
+  > td:not(:last-child) {
   cursor: pointer !important;
-}
-
-.button-primary {
-  @include button($buttonPrimary);
-}
-
-.button-secondary {
-  @include button($buttonSecondary);
-}
-
-.button-tertiary {
-  @include button($buttonTertiary);
-}
-
-.button-info {
-  @include button($info);
-}
-
-.button-primary-reverse {
-  @include button-reverse($buttonPrimary);
-}
-
-.button-secondary-reverse {
-  @include button-reverse($buttonSecondary);
-}
-
-.button-tertiar-reverse {
-  @include button-reverse($buttonTertiary);
-}
-
-.button-info-reverse {
-  @include button-reverse($info);
 }
 
 // release table tags
@@ -42,6 +14,7 @@
   > #release-tag {
     display: flex;
     flex-wrap: wrap;
+
     > div {
       margin-right: 10px;
     }
@@ -67,6 +40,7 @@
   color: $headerTextColor !important;
   font-size: 14px;
   cursor: pointer;
+
   &:hover {
     color: $linkTextColor !important;
   }
@@ -75,9 +49,11 @@
 .notification-danger {
   @include notifications($danger, $danger-1);
 }
+
 .notification-warning {
   @include notifications($warning, $warning-1);
 }
+
 .notification-info {
   @include notifications($info, $info-1);
 }
@@ -88,6 +64,7 @@
       font-size: 30px;
       color: $linkTextColor !important;
     }
+
     .el-loading-text {
       font-size: 30px;
       color: $linkTextColor !important;
@@ -100,6 +77,7 @@
     i {
       font-size: 15px !important;
     }
+
     .el-loading-text {
       font-size: 15px !important;
     }
@@ -119,49 +97,63 @@
   border-radius: 4px;
   text-align: center;
   margin: 0 1px;
+
   &.primary {
     color: $primary;
+
     &:hover {
       @include background-border-color($primary, $primary);
     }
   }
+
   &.success {
     color: $success;
+
     &:hover {
       @include background-border-color($success, $success);
     }
   }
+
   &.warning {
     color: $warning;
+
     &:hover {
       @include background-border-color($warning, $warning);
     }
   }
+
   &.danger {
     color: $danger;
+
     &:hover {
       @include background-border-color($danger, $danger);
     }
   }
+
   &.info {
     color: $info;
+
     &:hover {
       @include background-border-color($info, $info);
     }
   }
+
   &.help {
     cursor: help;
   }
+
   &.disabled {
     color: $info-5;
     pointer-events: none;
     cursor: not-allowed;
   }
+
   &:hover {
     color: white !important;
     background-color: $info;
   }
 }
+
 span:has(> .table-button.disabled) {
   cursor: not-allowed;
 }
@@ -170,9 +162,11 @@ span:has(> .table-button.disabled) {
   &-success {
     color: $success !important;
   }
+
   &-danger {
     color: $danger !important;
   }
+
   &-info {
     color: $info !important;
   }
@@ -211,8 +205,10 @@ span:has(> .table-button.disabled) {
   font-size: 16px;
   text-align: center;
   letter-spacing: 1.5px;
+
   > .popper__arrow {
     border-bottom-color: #56b1e8;
+
     &:after {
       border-bottom-color: #56b1e8;
     }
@@ -224,8 +220,10 @@ span:has(> .table-button.disabled) {
   border-radius: 10px !important;
   border: none !important;
   font-size: 14px;
+
   > .popper__arrow {
     border-right-color: #fff !important;
+
     &:after {
       border-right-color: #fff !important;
     }

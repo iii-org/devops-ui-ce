@@ -1,5 +1,6 @@
 <template>
   <v-chart
+    v-if="isEchartsReady"
     ref="chart"
     :style="{ height, width }"
     :option="option"
@@ -11,19 +12,7 @@
 <script>
 import { getRdDashboardIssuesType } from '@/api/dashboard'
 import { mapGetters } from 'vuex'
-import { use } from 'echarts/core'
 import VChart from 'vue-echarts'
-import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart, ScatterChart } from 'echarts/charts'
-
-require('echarts/theme/macarons') // echarts theme
-require('echarts/theme/vintage')
-
-use([
-  CanvasRenderer,
-  ScatterChart,
-  PieChart
-])
 
 export default {
   components: {
@@ -46,13 +35,14 @@ export default {
   data() {
     return {
       chart: null,
-      types: []
+      types: [],
+      isEchartsReady: false
     }
   },
   computed: {
     ...mapGetters(['userId']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     option() {
       return {
@@ -94,13 +84,50 @@ export default {
       }
     }
   },
-  mounted() {
-    getRdDashboardIssuesType(this.userId).then((res) => {
-      this.types = res.data.map((item) => {
-        item.value = item.number
-        return item
+  async created() {
+    await this.loadEchartsModules()
+    this.fetchData()
+  },
+  methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { CanvasRenderer },
+        { PieChart, ScatterChart },
+        { LegendComponent }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/renderers'),
+        import('echarts/charts'),
+        import('echarts/components')
+      ])
+
+      use([CanvasRenderer, ScatterChart, PieChart, LegendComponent])
+
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
+      }
+
+      this.isEchartsReady = true
+    },
+    fetchData() {
+      getRdDashboardIssuesType(this.userId).then((res) => {
+        this.types = res.data.map((item) => {
+          item.value = item.number
+          return item
+        })
       })
-    })
+    }
   }
 }
 </script>
+
+<style scoped>
+.chart {
+  height: 100%;
+  width: 100%;
+  min-height: 350px;
+}
+</style>

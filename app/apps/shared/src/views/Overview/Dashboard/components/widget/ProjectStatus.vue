@@ -1,5 +1,8 @@
 <template>
-  <el-tag :type="type" :size="size">
+  <el-tag
+    :type="type"
+    :size="size"
+  >
     {{ $t('Dashboard.ADMIN.Overview.' + name) }}
   </el-tag>
 </template>

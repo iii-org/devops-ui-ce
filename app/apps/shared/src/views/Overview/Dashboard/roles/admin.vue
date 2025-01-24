@@ -2,59 +2,64 @@
   <div class="app-container">
     <div class="flex justify-between items-center mb-2">
       <div class="text-info text-sm ml-2">
-        *本表每小時更新一次 {{ $t('Dashboard.ADMIN.sync_date', [getLocalTime(status.sync_date)]) }}
+        *本表每小時更新一次
+        {{ $t('Dashboard.ADMIN.sync_date', [getLocalTime(status.sync_date)]) }}
       </div>
       <div>
         <el-button
           :disabled="status.is_lock"
-          size="small"
           icon="el-icon-refresh"
-          class="button-primary-reverse"
+          plain
+          size="small"
+          type="primary"
           @click="getSyncRedmine"
         >
           {{ $t('Dashboard.ADMIN.UpdateNow') }}
         </el-button>
       </div>
     </div>
-    <el-row v-show="isLoading || projectCount > 0">
+    <el-row v-show="!isLoading || projectCount > 0">
       <el-col :class="isMobile ? 'mobile' : ''">
-        <el-row
-          :gutter="12"
-          type="flex"
-          class="flex-wrap"
-        >
+        <el-row :gutter="12" class="flex-wrap" type="flex">
           <el-col v-if="status.is_lock">
-            <el-alert
-              :closable="false"
-              type="warning"
-              class="mb-4 loading"
-            >
+            <el-alert :closable="false" class="mb-4 loading" type="warning">
               <h2 slot="title">
-                <em class="el-icon-loading" /> {{ $t('Dashboard.ADMIN.syncing') }}
+                <em class="el-icon-loading"></em>
+                {{ $t('Dashboard.ADMIN.syncing') }}
               </h2>
             </el-alert>
           </el-col>
           <el-col
-            :xs="24"
+            :md="
+              frontendProject === 'LITE'
+                ? !services.gitlab
+                  ? 24
+                  : 12
+                : userRole === 'QA' || !services.gitlab
+                  ? 12
+                  : 10
+            "
             :sm="24"
-            :md="(userRole === 'QA' || frontendProject === 'LITE') ? 12 : 10"
+            :xs="24"
           >
             <el-card class="overview">
               <template slot="header">
-                <span class="font-bold">{{ $t('Dashboard.ADMIN.Overview.NAME') }}</span>
+                <span class="font-bold">
+                  {{ $t('Dashboard.ADMIN.Overview.NAME') }}
+                </span>
               </template>
               <AdminOverview
                 :data="getProjectOverviewData"
-                @total-count="getTotalCount"
                 @loading="getLoadingStatus"
+                @total-count="getTotalCount"
               />
             </el-card>
           </el-col>
           <el-col
             v-if="frontendProject === 'SSO'"
-            :xs="24"
+            :md="userRole === 'QA' || !services.gitlab ? 12 : 7"
             :sm="24"
-            :md="(userRole === 'QA') ? 12 : 7"
+            :xs="24"
           >
             <el-card>
               <div
@@ -64,7 +69,7 @@
               >
                 <span class="font-bold">
                   {{ $t('Dashboard.ADMIN.ProjectMembers.NAME') }}
-                  <em class="ri-external-link-line" />
+                  <em class="ri-external-link-line"></em>
                 </span>
               </div>
               <AdminProjectMember
@@ -74,49 +79,46 @@
             </el-card>
           </el-col>
           <el-col
-            v-if="userRole!=='QA'"
-            :xs="24"
+            v-if="userRole !== 'QA' && services.gitlab"
+            :md="frontendProject === 'SSO' && services.gitlab ? 7 : 12"
             :sm="24"
-            :md="frontendProject === 'SSO' ? 7 : 12"
+            :xs="24"
           >
-            <el-card>
+            <el-card body-style="padding: 5px 0px !important;">
               <template slot="header">
-                <span class="font-bold">{{ $t('Dashboard.ADMIN.CommitLog.NAME') }} </span>
+                <span class="font-bold">
+                  {{ $t('Dashboard.ADMIN.CommitLog.NAME') }}
+                </span>
               </template>
               <AdminCommitLog :get-data="getGitCommitLogData" />
             </el-card>
           </el-col>
         </el-row>
-        <el-row
-          :gutter="12"
-          type="flex"
-          class="flex-wrap"
-        >
+        <el-row :gutter="12" class="flex-wrap" type="flex">
           <el-col
-            :xs="24"
+            :md="services.gitlab || frontendProject !== 'SSO' ? 12 : 24"
             :sm="24"
-            :md="12"
+            :xs="24"
           >
             <el-card>
               <template slot="header">
-                <span class="font-bold">{{ $t('Dashboard.ADMIN.IssueRank.NAME') }}</span>
+                <span class="font-bold">
+                  {{ $t('Dashboard.ADMIN.IssueRank.NAME') }}
+                </span>
               </template>
               <AdminIssueRank :data="getIssueRankData" />
             </el-card>
           </el-col>
-          <el-col
-            :xs="24"
-            :sm="24"
-            :md="12"
-          >
-            <el-card v-if="frontendProject === 'SSO'">
+          <el-col :md="12" :sm="24" :xs="24">
+            <el-card v-if="frontendProject === 'SSO' && services.gitlab">
               <div
                 slot="header"
                 class="cursor-pointer"
                 @click="dialogVisible.passingRate = true"
               >
-                <span class="font-bold">{{ $t('Dashboard.ADMIN.PassingRate.NAME') }}
-                  <em class="ri-external-link-line" />
+                <span class="font-bold">
+                  {{ $t('Dashboard.ADMIN.PassingRate.NAME') }}
+                  <em class="ri-external-link-line"></em>
                 </span>
               </div>
               <AdminPassingRate
@@ -132,7 +134,7 @@
               >
                 <span class="font-bold">
                   {{ $t('Dashboard.ADMIN.ProjectMembers.NAME') }}
-                  <em class="ri-external-link-line" />
+                  <em class="ri-external-link-line"></em>
                 </span>
               </div>
               <AdminProjectMember
@@ -142,16 +144,8 @@
             </el-card>
           </el-col>
         </el-row>
-        <el-row
-          :gutter="12"
-          type="flex"
-          class="flex-wrap"
-        >
-          <el-col
-            :xs="24"
-            :sm="24"
-            :md="24"
-          >
+        <el-row :gutter="12" class="flex-wrap" type="flex">
+          <el-col :md="24" :sm="24" :xs="24">
             <el-card>
               <div
                 slot="header"
@@ -161,9 +155,15 @@
                 <div class="flex justify-between items-center">
                   <span class="font-bold">
                     {{ $t('Dashboard.ADMIN.ProjectList.NAME') }}
-                    <em class="ri-external-link-line" />
+                    <em class="ri-external-link-line"></em>
                   </span>
-                  <span class="text-right">{{ $t('Dashboard.ADMIN.sync_date', [getLocalTime(lastUpdate)]) }} </span>
+                  <span class="text-right">
+                    {{
+                      $t('Dashboard.ADMIN.sync_date', [
+                        getLocalTime(lastUpdate)
+                      ])
+                    }}
+                  </span>
                 </div>
               </div>
               <AdminProjectList
@@ -176,26 +176,21 @@
         </el-row>
       </el-col>
     </el-row>
-    <div v-if="!isLoading && projectCount <= 0">
+    <div v-if="isLoading && projectCount <= 0">
       <el-empty :description="$t('general.NoData')">
-        <el-button
-          class="button-secondary"
-          icon="el-icon-plus"
-          @click="handleAdding"
-        >
+        <el-button icon="el-icon-plus" @click="handleAdding">
           {{ $t('Project.AddProject') }}
         </el-button>
       </el-empty>
       <CreateProjectDialog
         ref="createProjectDialog"
-        @update="$router.push({name: 'ProjectList'})"
+        @update="$router.push({ name: 'ProjectList' })"
       />
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import {
   getGitCommitLog,
   getIssueRank,
@@ -206,16 +201,8 @@ import {
   getSyncRedmine,
   getSyncRedmineStatus
 } from '@/api/dashboard'
-import {
-  AdminProjectList,
-  AdminProjectMember,
-  AdminIssueRank,
-  AdminPassingRate,
-  AdminOverview,
-  AdminCommitLog
-} from '../components'
 import { getLocalTime } from '@shared/utils/handleTime'
-import { CreateProjectDialog } from '../../ProjectList/components'
+import { mapGetters } from 'vuex'
 
 const overview = {
   projects: { class: 'primary', database: '' },
@@ -228,13 +215,14 @@ const refreshCommitLog = 300000 // ms
 export default {
   name: 'DashboardAdmin',
   components: {
-    AdminCommitLog,
-    AdminOverview,
-    AdminIssueRank,
-    AdminProjectMember,
-    AdminProjectList,
-    AdminPassingRate,
-    CreateProjectDialog
+    AdminCommitLog: () => import('../components/AdminCommitLog'),
+    AdminOverview: () => import('../components/AdminOverview'),
+    AdminIssueRank: () => import('../components/AdminIssueRank'),
+    AdminProjectMember: () => import('../components/AdminProjectMember'),
+    AdminProjectList: () => import('../components/AdminProjectList'),
+    AdminPassingRate: () => import('../components/AdminPassingRate'),
+    CreateProjectDialog: () =>
+      import('../../ProjectList/components/CreateProjectDialog')
   },
   data() {
     return {
@@ -253,12 +241,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userRole', 'device']),
+    ...mapGetters(['userRole', 'device', 'services']),
     isMobile() {
       return this.device === 'mobile'
     },
     frontendProject() {
-      return process.env.VUE_APP_PROJECT
+      return import.meta.env.VITE_APP_PROJECT
     }
   },
   watch: {
@@ -283,7 +271,9 @@ export default {
   },
   methods: {
     async initDashboard() {
-      this.gitCommitLog = await this.getGitCommitLogData()
+      if (this.services.gitlab) {
+        this.gitCommitLog = await this.getGitCommitLogData()
+      }
     },
     async getSyncRedmine() {
       this.status.is_lock = true
@@ -369,7 +359,7 @@ export default {
     getTotalCount(value) {
       this.projectCount = value.count
     },
-    getLoadingStatus(value) {
+    dingStatus(value) {
       this.isLoading = value
     }
   }
@@ -377,55 +367,70 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
-@import '~element-ui/lib/theme-chalk/display.css';
+@import 'src/styles/theme/variables.module.scss';
+@import 'element-ui/lib/theme-chalk/display.css';
 
 .overview {
   height: 90%;
+
   ::v-deep .el-row {
     height: 100%;
+
     .el-col {
       margin-bottom: 0;
     }
   }
 }
+
 ::v-deep .el-dialog {
   width: 80%;
+
   &__header {
     padding-bottom: 20px;
     border-bottom: 1px solid #ebeef5;
   }
 }
+
 ::v-deep .el-col {
   margin-bottom: 12px;
 }
+
 ::v-deep .el-card {
   height: 100%;
+
   .el-card__body {
     height: 85%;
   }
 }
+
 ::v-deep .items-center {
   text-align: center;
 }
+
 .chart {
   height: 100%;
   min-height: 250px;
 }
+
 ::v-deep .el-table {
   .danger-row {
     background: $danger-4;
   }
 }
+
 .mobile {
-  ::v-deep .el-card__body, ::v-deep .el-card__header {
+  ::v-deep .el-card__body,
+  ::v-deep .el-card__header {
     padding: 5px;
   }
-  ::v-deep .el-card__header{
+
+  ::v-deep .el-card__header {
     padding-top: 10px;
     padding-bottom: 10px;
   }
-  ::v-deep .el-dialog__body, ::v-deep .el-dialog__header  {
+
+  ::v-deep .el-dialog__body,
+  ::v-deep .el-dialog__header {
     padding: 10px;
   }
 }

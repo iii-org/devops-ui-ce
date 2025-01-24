@@ -4,7 +4,7 @@
     :class="{show:show}"
     class="rightPanel-container"
   >
-    <div class="rightPanel-background" />
+    <div class="rightPanel-background"></div>
     <div class="rightPanel">
       <div
         :style="{'top':buttonTop+'px','background-color':'#85c1e9'}"
@@ -14,7 +14,7 @@
         <em
           v-if="show"
           class="el-icon-close"
-        />
+        ></em>
         <svg
           v-else
           style="margin: 5px;"
@@ -27,7 +27,7 @@
         </svg>
       </div>
       <div class="rightPanel-items">
-        <slot />
+        <slot></slot>
       </div>
     </div>
   </div>

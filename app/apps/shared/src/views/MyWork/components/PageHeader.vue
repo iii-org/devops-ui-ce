@@ -1,28 +1,33 @@
 <template>
   <div>
     <ProjectListSelector
-      :project-id.sync="focusedProjectId"
-      :keep-selection="false"
       :clearable="true"
+      :keep-selection="false"
+      :project-id.sync="focusedProjectId"
       :show-button="device === 'mobile' ? false : true"
     >
       <template slot="button">
         <template v-if="!focusedProjectId">
           <el-button
-            v-permission="['Administrator','Project Manager']"
-            class="button-secondary"
+            v-permission="['sysadmin', 'Organization Owner', 'Project Manager']"
             icon="el-icon-plus"
+            type="primary"
             @click="$emit('create-project')"
           >
             {{ $t('Project.AddProject') }}
           </el-button>
         </template>
         <el-button
-          v-permission="['Administrator','Project Manager', 'Engineer']"
           v-if="focusedProjectId"
-          class="button-primary"
+          v-permission="[
+            'sysadmin',
+            'Organization Owner',
+            'Project Manager',
+            'Engineer'
+          ]"
           icon="el-icon-plus"
           size="medium"
+          type="success"
           @click="$emit('add-issue')"
         >
           {{ $t('Issue.AddIssue') }}
@@ -31,18 +36,19 @@
 
       <CustomFilter
         :ref="`customFilter_${activeTab}`"
-        :project-id="projectId"
         :active-tab="activeTab"
-        :selection-options="contextOptions"
+        :project-id="projectId"
         :selected-id="selectedCustomId"
+        :selection-options="contextOptions"
         type="my_work"
-        @apply-filter="applyCustomFilter"
         @clear="clearFilter"
+        @apply-filter="applyCustomFilter"
         @on-filter-click="onFilterClick"
       />
 
       <el-popover
         placement="bottom"
+        popper-class="popper"
         trigger="click"
         @hide="resetSaveFilterButtons"
       >
@@ -55,10 +61,10 @@
               <div slot="label">
                 {{ $t('Issue.' + condition.value) }}
                 <el-tag
-                  v-if="condition.value === 'fixed_version'"
-                  type="info"
-                  size="small"
+                  v-if="condition.value === 'version'"
                   class="flex-1"
+                  size="small"
+                  type="info"
                 >
                   <el-checkbox
                     :value="displayClosedVersion"
@@ -74,8 +80,8 @@
               <el-select
                 v-model="filterConditions[condition.value]"
                 :placeholder="$t('Issue.Select' + condition.placeholder)"
-                filterable
                 clearable
+                filterable
                 @clear="clearCondition(condition.value)"
               >
                 <el-option
@@ -85,8 +91,8 @@
                   :value="option.id"
                 >
                   <component
-                    v-if="condition.tag"
                     :is="condition.value"
+                    v-if="condition.tag"
                     :name="$t(`Issue.${option.name}`)"
                     :type="option.name"
                   />
@@ -107,21 +113,21 @@
 
         <SaveFilterButton
           ref="saveFilterButton"
-          :project-id="projectId"
-          :filter-value="filterValueClone"
           :active-tab="activeTab"
+          :filter-value="filterValueClone"
+          :project-id="projectId"
           type="my_work"
           @update="onCustomFilterAdded"
         />
 
         <el-button
           slot="reference"
+          class="header-text-color"
           icon="el-icon-s-operation"
           type="text"
-          class="header-text-color"
         >
           {{ selectedConditions }}
-          <em class="el-icon-arrow-down" />
+          <em class="el-icon-arrow-down"></em>
         </el-button>
       </el-popover>
 
@@ -129,9 +135,9 @@
 
       <el-button
         v-if="!searchVisible"
-        type="text"
         class="header-text-color"
         icon="el-icon-search"
+        type="text"
         @click="showKeywordInput"
       >
         {{ $t('general.Search') + (keyword ? `: ${keyword}` : '') }}
@@ -139,11 +145,11 @@
       <el-input
         v-else-if="searchVisible"
         ref="keywordInput"
-        :value="keyword"
         :placeholder="$t('Issue.SearchNameOrAssignee')"
+        :value="keyword"
+        clearable
         prefix-icon="el-icon-search"
         style="width: 250px"
-        clearable
         @blur="searchVisible = !searchVisible"
         @input="$emit('update:keyword', $event)"
       />
@@ -151,9 +157,10 @@
       <template v-if="showClearFilterButton()">
         <el-divider direction="vertical" />
         <el-button
-          size="small"
-          class="button-secondary-reverse"
           icon="el-icon-close"
+          plain
+          size="small"
+          type="warning"
           @click="clearFilter"
         >
           {{ $t('Issue.CleanFilter') }}
@@ -163,35 +170,35 @@
     <div v-if="device === 'mobile'" style="margin: 10px 5px 0 5px">
       <Fab
         :actions="fabActions"
-        position="bottom-right"
         bg-color="#409eff"
         icon-size="small"
-        main-icon="more_vert"
+        main-icon="ri-more-2-fill"
+        position="bottom-right"
         @addButton="$emit('add-issue')"
-        @searchButton="handleFloatingSearchButton"
         @filterButton="handleFloatingFilterButton"
+        @searchButton="handleFloatingSearchButton"
       />
       <el-drawer
         :key="`drawer-${drawerKey}`"
         :title="$t('general.Filter')"
         :visible.sync="isShowFloatingFilter"
-        direction="btt"
         class="drawer"
-        size="90%"
         destroy-on-close
+        direction="btt"
+        size="90%"
       >
         <div class="container">
           <el-card shadow="never">
             <CustomFilter
               :ref="`customFilter_${activeTab}`"
-              :project-id="projectId"
               :active-tab="activeTab"
-              :selection-options="contextOptions"
               :from-drawer="true"
+              :project-id="projectId"
               :selected-id="selectedCustomId"
+              :selection-options="contextOptions"
               type="my_work"
-              @apply-filter="applyCustomFilter"
               @clear="clearFilter"
+              @apply-filter="applyCustomFilter"
               @on-filter-click="onFilterClick"
             />
             <template v-for="condition in filterConditionGroup">
@@ -199,24 +206,36 @@
                 <div class="title flex justify-between">
                   <span>
                     <el-divider direction="vertical" />
-                    <span class="text">{{ $t('Issue.' + condition.value) }}</span>
+                    <span class="text">{{
+                      $t('Issue.' + condition.value)
+                    }}</span>
                     <el-tag
-                      v-if="condition.value === 'fixed_version'"
-                      type="info"
-                      size="small"
+                      v-if="condition.value === 'version'"
                       class="flex-1"
+                      size="small"
+                      type="info"
                     >
                       <el-checkbox
                         :value="displayClosedVersion"
                         @change="$emit('update:displayClosedVersion', $event)"
-                      >{{ $t('Issue.DisplayClosedVersion') }} </el-checkbox>
+                      >{{ $t('Issue.DisplayClosedVersion') }}
+                      </el-checkbox>
                     </el-tag>
                   </span>
-                  <el-button class="button-tertiary" size="small" @click="filterConditions[condition.value] = ''">
+                  <el-button
+                    plain
+                    size="small"
+                    type="warning"
+                    @click="filterConditions[condition.value] = ''"
+                  >
                     {{ $t('general.Clear') }}
                   </el-button>
                 </div>
-                <el-radio-group v-model="filterConditions[condition.value]" size="small" class="radio-group">
+                <el-radio-group
+                  v-model="filterConditions[condition.value]"
+                  class="radio-group"
+                  size="small"
+                >
                   <el-col class="settings">
                     <el-radio
                       v-for="option in filterOption(condition)"
@@ -225,7 +244,9 @@
                       :value="option.id"
                       border
                     >
-                      {{ condition.tag ? $t(`Issue.${option.name}`) : option.name }}
+                      {{
+                        condition.tag ? $t(`Issue.${option.name}`) : option.name
+                      }}
                     </el-radio>
                   </el-col>
                 </el-radio-group>
@@ -237,16 +258,19 @@
                 <el-divider direction="vertical" />
                 <span class="text">{{ $t('Issue.DisplayClosedIssue') }}</span>
               </span>
-              <el-switch v-model="displayClosedIssue" @change="$emit('update:displayClosedIssue', $event)" />
+              <el-switch
+                v-model="displayClosedIssue"
+                @change="$emit('update:displayClosedIssue', $event)"
+              />
             </div>
           </el-card>
           <SaveFilterButton
             ref="saveFilterButton"
-            :project-id="projectId"
-            :filter-value="filterValueClone"
             :active-tab="activeTab"
-            type="my_work"
+            :filter-value="filterValueClone"
+            :project-id="projectId"
             class="save"
+            type="my_work"
             @update="onCustomFilterAdded"
           />
         </div>
@@ -254,17 +278,17 @@
       <el-drawer
         :title="$t('general.Search')"
         :visible.sync="isShowFloatingSearch"
-        direction="btt"
         class="drawer"
-        size="auto"
         destroy-on-close
+        direction="btt"
+        size="auto"
       >
         <el-input
-          :value="keyword"
           :placeholder="$t('Issue.SearchNameOrAssignee')"
-          prefix-icon="el-icon-search"
+          :value="keyword"
           class="search"
           clearable
+          prefix-icon="el-icon-search"
           @input="$emit('update:keyword', $event)"
         />
       </el-drawer>
@@ -273,23 +297,20 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getProjectUserList, getProjectVersion } from '@/api/projects'
-import { CustomFilter, Tracker, Priority, Status } from '@/components/Issue'
-import { ProjectListSelector } from '@shared/components'
+import { getProjectUserList, getProjectVersion } from '@/api_v3/projects'
 import SaveFilterButton from '@/components/Issue/components/SaveFilterButton'
-import Fab from 'vue-fab' // https://github.com/PygmySlowLoris/vue-fab
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'MyWorkPageHeader',
   components: {
-    ProjectListSelector,
-    CustomFilter,
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    CustomFilter: () => import('@/components/Issue/CustomFilter'),
     SaveFilterButton,
-    Tracker,
-    Priority,
-    Status,
-    Fab
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    Status: () => import('@/components/Issue/Status'),
+    Fab: () => import('@shared/components/Fab')
   },
   props: {
     projectId: {
@@ -314,7 +335,7 @@ export default {
     },
     activeTab: {
       type: String,
-      default: 'assigned_to_id'
+      default: 'assigned'
     }
   },
   data() {
@@ -338,15 +359,15 @@ export default {
         },
         {
           id: 3,
-          label: this.$t('Issue.FilterDimensions.assigned_to'),
-          value: 'assigned_to',
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
           placeholder: 'Member',
           options: []
         },
         {
           id: 4,
-          label: this.$t('Issue.FilterDimensions.fixed_version'),
-          value: 'fixed_version',
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
           placeholder: 'Version',
           options: []
         },
@@ -372,17 +393,17 @@ export default {
       const actions = [
         {
           name: 'addButton',
-          icon: 'add',
+          icon: 'ri-add-large-line',
           color: '#409eff'
         },
         {
           name: 'searchButton',
-          icon: 'search',
+          icon: 'ri-search-line',
           color: '#e6a23c'
         },
         {
           name: 'filterButton',
-          icon: 'filter_alt',
+          icon: 'ri-filter-line',
           color: '#67c23a'
         }
       ]
@@ -401,14 +422,14 @@ export default {
     },
     filterValueClone() {
       return Object.assign({}, this.filterConditions, {
-        fixed_version_closed: this.displayClosedVersion,
+        version_closed: this.displayClosedVersion,
         displayClosed: this.displayClosedIssue
       })
     },
     contextOptions() {
       return {
-        assigned_to: this.filterConditionGroup[2].options,
-        fixed_version: this.filterConditionGroup[3].options
+        assigned: this.filterConditionGroup[2].options,
+        version: this.filterConditionGroup[3].options
       }
     }
   },
@@ -449,28 +470,38 @@ export default {
     },
     fetchUserList() {
       getProjectUserList(this.projectId).then((res) => {
-        const userList = res.data.user_list.map((user) => ({
+        const userList = res.data.map((user) => ({
           id: user.id,
-          name: user.name
+          name: user.full_name
         }))
-        this.filterConditionGroup[2].options = [{ id: 'null', name: this.$t('Issue.Unassigned') }, ...userList]
+        this.filterConditionGroup[2].options = [
+          { id: 'null', name: this.$t('Issue.Unassigned') },
+          ...userList
+        ]
       })
     },
     fetchVersionList() {
-      const params = this.displayClosedVersion ? { status: 'open,locked,closed' } : { status: 'open,locked' }
+      const params = this.displayClosedVersion
+        ? { all: true, status: 'open,locked,closed' }
+        : { all: true, status: 'open,locked' }
       getProjectVersion(this.projectId, params).then((res) => {
-        const versionList = res.data.versions.map((version) => {
+        const versionList = res.data.map((version) => {
           return {
             id: version.id,
             name: this.formatVersionName(version.status, version.name)
           }
         })
-        this.$set(this.filterConditionGroup[3], 'options', [{ id: 'null', name: this.$t('Issue.VersionUndecided') }, ...versionList])
+        this.$set(this.filterConditionGroup[3], 'options', [
+          { id: 'null', name: this.$t('Issue.VersionUndecided') },
+          ...versionList
+        ])
         // this.filterConditionGroup[3].options = [{ id: 'null', name: this.$t('Issue.VersionUndecided') }, ...versionList]
       })
     },
     formatVersionName(versionStatus, versionName) {
-      return versionStatus === 'open' ? versionName : versionName + ` (${this.$t('Version.' + versionStatus)})`
+      return versionStatus === 'open'
+        ? versionName
+        : versionName + ` (${this.$t('Version.' + versionStatus)})`
     },
     clearFilter() {
       this.$emit('update:keyword', '')
@@ -482,15 +513,18 @@ export default {
       }
     },
     isHiddenFormItem(condition) {
-      const isRequireProjectId = condition.value === 'fixed_version' && !this.focusedProjectId
-      const isHideAssignedToSelect = condition.value === 'assigned_to' && this.activeTab === 'assigned_to_id'
+      const isRequireProjectId =
+        condition.value === 'version' && !this.focusedProjectId
+      const isHideAssignedToSelect =
+        condition.value === 'assigned' && this.activeTab === 'assigned'
       return isRequireProjectId || isHideAssignedToSelect
     },
     clearCondition(condition) {
       delete this.filterConditions[condition]
     },
     showClearFilterButton() {
-      const hasSelectedConditions = Object.keys(this.filterConditions).length > 0
+      const hasSelectedConditions =
+        Object.keys(this.filterConditions).length > 0
       const hasKeyword = this.keyword !== ''
       return hasSelectedConditions || hasKeyword
     },
@@ -499,21 +533,25 @@ export default {
       this.$nextTick(() => this.$refs.keywordInput.focus())
     },
     formatOptionName(condition, optionName) {
-      return ['fixed_version', 'assigned_to'].includes(condition) ? optionName : this.$t('Issue.' + optionName)
+      return ['version', 'assigned'].includes(condition)
+        ? optionName
+        : this.$t('Issue.' + optionName)
     },
     filterOption(condition) {
       const { value, options } = condition
       const showAllOptions = value !== 'status' || this.displayClosedIssue
-      return showAllOptions ? options : options.filter((option) => option.id !== 6)
+      return showAllOptions
+        ? options
+        : options.filter((option) => option.id !== 6)
     },
     onCustomFilterAdded() {
       this.$refs[`customFilter_${this.activeTab}`].fetchCustomFilter()
     },
     applyCustomFilter(filters) {
-      const { result, displayClosed, fixed_version_closed, activeTab } = filters
+      const { result, displayClosed, version_closed, activeTab } = filters
       this.$emit('update:filterConditions', this.formatFilterResult(result))
       this.$emit('update:displayClosedIssue', displayClosed)
-      this.$emit('update:displayClosedVersion', fixed_version_closed)
+      this.$emit('update:displayClosedVersion', version_closed)
       this.$emit('update:activeTab', activeTab)
     },
     formatFilterResult(result) {
@@ -532,19 +570,42 @@ export default {
       this.isShowFloatingFilter = true
     },
     handleFilterSelected() {
-      const conditions = Object.keys(this.filterConditions).map((filterCondition) => {
-        const groupIdx = this.filterConditionGroup.findIndex((condition) => condition.value === filterCondition)
-        const filterOptionId = this.filterConditions[filterCondition]
-        const optionNameIdx = this.filterConditionGroup[groupIdx].options.findIndex(
-          (option) => option.id === filterOptionId
-        )
-        if (optionNameIdx === -1) return
-        const optionName = this.filterConditionGroup[groupIdx].options[optionNameIdx].name
-        return this.formatOptionName(filterCondition, optionName)
-      })
-      this.$emit('filter-name', conditions.length > 0 ? this.$t('general.Filter') + ': ' + conditions.filter(function(el) { return el }).join(', ') : '')
-      return this.$t('general.Filter') + (conditions.length ? ': ' : '') +
-        conditions.filter(function(el) { return el }).join(', ')
+      const conditions = Object.keys(this.filterConditions).map(
+        (filterCondition) => {
+          const groupIdx = this.filterConditionGroup.findIndex(
+            (condition) => condition.value === filterCondition
+          )
+          const filterOptionId = this.filterConditions[filterCondition]
+          const optionNameIdx = this.filterConditionGroup[
+            groupIdx
+          ].options.findIndex((option) => option.id === filterOptionId)
+          if (optionNameIdx === -1) return
+          const optionName =
+            this.filterConditionGroup[groupIdx].options[optionNameIdx].name
+          return this.formatOptionName(filterCondition, optionName)
+        }
+      )
+      this.$emit(
+        'filter-name',
+        conditions.length > 0
+          ? this.$t('general.Filter') +
+              ': ' +
+              conditions
+                .filter(function (el) {
+                  return el
+                })
+                .join(', ')
+          : ''
+      )
+      return (
+        this.$t('general.Filter') +
+        (conditions.length ? ': ' : '') +
+        conditions
+          .filter(function (el) {
+            return el
+          })
+          .join(', ')
+      )
     },
     onFilterClick(value) {
       this.selectedCustomId = value
@@ -554,12 +615,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 ::v-deep .fab-main {
   padding: 22px !important;
 }
+
 ::v-deep .fab-wrapper {
   bottom: 2.5vh !important;
 }
@@ -568,28 +630,37 @@ export default {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
     padding: 10px;
   }
+
   ::v-deep .el-drawer__body::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   ::v-deep .el-drawer__body {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   .container {
     padding: 14px;
     max-width: 768px;
+
     ::v-deep .el-divider {
-      background-color: #EBEEF5;
+      background-color: #ebeef5;
     }
-    ::v-deep .el-card__body, .el-main {
+
+    ::v-deep .el-card__body,
+    .el-main {
       padding: 10px;
     }
+
     .title {
       margin-bottom: 10px;
+
       ::v-deep .el-divider--vertical {
         width: 6px;
         margin: 0;
@@ -597,15 +668,19 @@ export default {
         height: 18px;
         background-color: $warning !important;
       }
+
       ::v-deep .el-tag--small {
         height: 25px;
       }
+
       ::v-deep .el-button--small {
         padding: 5px 10px;
       }
+
       ::v-deep .el-checkbox__label {
         font-size: 12px;
       }
+
       .text {
         font-size: 15px;
         font-weight: bold;
@@ -613,33 +688,39 @@ export default {
         vertical-align: middle;
       }
     }
+
     .radio-group {
       display: grid;
+
       .settings::-webkit-scrollbar {
         display: none; /* Chrome, Safari, Opera*/
       }
+
       .settings {
         max-width: 768px;
         margin: 0 auto;
         display: grid;
         gap: 6px;
         overflow-x: auto;
-        -ms-overflow-style: none;  /* IE and Edge */
+        -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
         ::v-deep .el-radio.is-bordered {
           margin-left: 0;
           margin-right: 0;
           // width: 140px;
         }
+
         ::v-deep .el-radio__label {
           padding-left: 2px;
         }
       }
     }
+
     .save {
       margin-top: 12px;
     }
   }
+
   .search {
     margin: 20px;
     width: -webkit-fill-available;
@@ -647,15 +728,26 @@ export default {
 }
 
 @include mobile {
-  .settings { grid-template-columns: repeat(2, 1fr); }
+  .settings {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
 @include tablet-1 {
-  .settings { grid-template-columns: repeat(3, 1fr); }
+  .settings {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
+
 @include tablet-2 {
-  .settings { grid-template-columns: repeat(4, 1fr); }
+  .settings {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
+
 @include tablet-3 {
-  .settings { grid-template-columns: repeat(5, 1fr); }
+  .settings {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 </style>

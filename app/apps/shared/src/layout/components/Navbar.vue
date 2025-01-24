@@ -5,7 +5,6 @@
       class="hamburger-container"
       @toggleClick="toggleSideBar"
     />
-
     <breadcrumb class="breadcrumb-container" />
     <div class="flex right-menu items-center">
       <Notification />
@@ -22,6 +21,7 @@
         <el-dropdown-menu
           slot="dropdown"
           class="user-dropdown"
+          style="min-width: 100px"
         >
           <router-link to="/">
             <el-dropdown-item>
@@ -29,7 +29,9 @@
                 :to="{ name: 'UserProfile' }"
                 class="link-text-color"
               >
-                <span>{{ $t('navbar.profile') }}</span>
+                <span>
+                  {{ $t('navbar.profile') }}
+                </span>
               </router-link>
             </el-dropdown-item>
             <el-dropdown-item>
@@ -37,16 +39,16 @@
                 :to="{ name: 'SystemVersion' }"
                 class="link-text-color"
               >
-                <span>{{ $t('navbar.versions') }}</span>
+                <span>
+                  {{ $t('navbar.versions') }}
+                </span>
               </router-link>
             </el-dropdown-item>
           </router-link>
-          <el-dropdown-item
-            id="systemLogoutBtn"
-            divided
-            @click.native="logout"
-          >
-            <span style="display:block;">{{ $t('navbar.logOut') }}</span>
+          <el-dropdown-item id="systemLogoutBtn" divided @click.native="logout">
+            <span style="display: block">
+              {{ $t('navbar.logOut') }}
+            </span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -56,15 +58,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Breadcrumb, Hamburger, GoogleTranslate } from '@shared/components'
 import Notification from '@/components/Notification'
 
 export default {
   components: {
-    Breadcrumb,
-    Hamburger,
+    Breadcrumb: () => import('@shared/components/Breadcrumb'),
+    Hamburger: () => import('@shared/components/Hamburger'),
     Notification,
-    GoogleTranslate
+    GoogleTranslate: () => import('@shared/components/GoogleTranslate')
   },
   computed: {
     ...mapGetters(['sidebar', 'userName', 'userAvatar', 'device']),
@@ -85,13 +86,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 .navbar {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: $navbarBg;  /* theme_discussion navbar background*/
-  box-shadow: rgba(0, 0, 0, 0.01) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  background: $navbarBg; /* theme_discussion navbar background*/
+  box-shadow: rgba(0, 0, 0, 0.01) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   z-index: 1;
 
   .hamburger-container {
@@ -146,11 +148,11 @@ export default {
   .breadcrumb-container {
     overflow-x: auto;
     overflow-y: hidden;
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
   .breadcrumb-container::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+    display: none; /* Safari and Chrome */
   }
 
   .breadcrumb-container > ::v-deep span {

@@ -2,17 +2,23 @@
   <el-breadcrumb class="app-breadcrumb" separator="/">
     <TransitionGroup name="breadcrumb">
       <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
-        <span v-if="item.redirect === 'noRedirect' || index === levelList.length - 1" class="no-redirect">{{
+        <span
+          v-if="
+            item.redirect === 'noRedirect' || index === levelList.length - 1
+          "
+          class="no-redirect"
+          >{{ generateTitle(item.meta.title) }}</span
+        >
+        <a v-else @click.prevent="handleLink(item)">{{
           generateTitle(item.meta.title)
-        }}</span>
-        <a v-else @click.prevent="handleLink(item)">{{ generateTitle(item.meta.title) }}</a>
+        }}</a>
       </el-breadcrumb-item>
     </TransitionGroup>
   </el-breadcrumb>
 </template>
 
 <script>
-import pathToRegexp from 'path-to-regexp'
+import { pathToRegexp } from 'path-to-regexp'
 import { generateTitle } from '@shared/utils/i18n'
 
 export default {
@@ -33,8 +39,12 @@ export default {
     generateTitle,
     getBreadcrumb() {
       // only show routes with meta.title
-      const matched = this.$route.matched.filter(item => item.meta && item.meta.title)
-      this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
+      const matched = this.$route.matched.filter(
+        (item) => item.meta && item.meta.title
+      )
+      this.levelList = matched.filter(
+        (item) => item.meta && item.meta.title && item.meta.breadcrumb !== false
+      )
     },
     isDashboard(route) {
       const name = route && route.name
@@ -62,7 +72,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;

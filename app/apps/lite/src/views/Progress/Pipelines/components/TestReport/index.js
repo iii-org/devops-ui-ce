@@ -1,5 +1,3 @@
-import Progress from '@shared/views/Progress'
-
-const { TestReport } = Progress
+import TestReport from '@shared/views/Progress/Pipelines/components/TestReport'
 
 export default TestReport

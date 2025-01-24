@@ -6,9 +6,9 @@
         <span class="ml-1">
           <el-tooltip
             v-if="!edit && isDescriptionEmpty"
-            :value="dataLoaded && notes === ''"
-            :enterable="false"
             :content="$t('Issue.ClickToEdit')"
+            :enterable="false"
+            :value="dataLoaded && notes === ''"
             placement="right"
           >
             <el-button
@@ -20,16 +20,16 @@
           <span v-else-if="edit">
             <el-button
               class="action"
-              type="success"
-              size="mini"
               icon="el-icon-check"
+              size="mini"
+              type="success"
               @click="updateNotes"
             />
             <el-button
               class="action"
-              type="danger"
-              size="mini"
               icon="el-icon-close"
+              size="mini"
+              type="danger"
               @click="checkCancelInput"
             />
           </span>
@@ -39,11 +39,11 @@
     <el-col v-show="edit || isDrawer">
       <Editor
         ref="mdEditor"
-        :options="editorOptions"
         :height="isDrawer ? '40vh' : '12rem'"
-        preview-style="tab"
-        initial-edit-type="wysiwyg"
+        :options="editorOptions"
         class="mx-3"
+        initial-edit-type="wysiwyg"
+        preview-style="tab"
         @change="onChange"
         @keyup.native="onKeyEvent"
         @keydown.native="onKeyEvent"
@@ -51,12 +51,12 @@
       <hr
         class="move-bar flex justify-center rounded-b-md w-1/4 mt-0"
         @mousedown="isMoving = true"
-      >
+      />
     </el-col>
     <el-col v-if="!edit && !isDescriptionEmpty && !isDrawer">
       <el-tooltip
-        :enterable="false"
         :content="$t('Issue.ClickToEdit')"
+        :enterable="false"
         placement="top"
       >
         <el-input
@@ -72,22 +72,24 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { updateIssue } from '@/api/issue'
+import { updateIssue } from '@/api_v3/issues'
 import { createMessage } from '@/api_v2/monitoring'
 import '@toast-ui/editor/dist/toastui-editor.css'
 import '@toast-ui/editor/dist/i18n/zh-tw'
-import { Editor } from '@toast-ui/vue-editor'
-import colorVariables from '@/styles/theme/variables.scss'
+import colorVariables from '@/styles/theme/variables.module.scss'
+import { createPlainAttachment } from '@/api_v3/attachments'
 
 export default {
   name: 'IssueNotesEditor',
-  components: { Editor },
+  components: {
+    Editor: () => import('@toast-ui/vue-editor').then(({ Editor }) => Editor)
+  },
   props: {
     issueId: {
       type: [String, Number],
       default: null
     },
-    issueName: {
+    issueSubject: {
       type: String,
       default: ''
     },
@@ -95,7 +97,7 @@ export default {
       type: Boolean,
       default: false
     },
-    assignedTo: {
+    assigned: {
       type: Array,
       default: () => []
     },
@@ -116,7 +118,7 @@ export default {
       default: false
     }
   },
-  data () {
+  data() {
     return {
       isLoading: false,
       isChanged: false,
@@ -132,7 +134,7 @@ export default {
       return this.device === 'mobile'
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     notes() {
       let notes = this.$refs.mdEditor?.invoke('getMarkdown') || ''
@@ -153,7 +155,19 @@ export default {
           ['table', 'image', 'link'],
           ['code', 'codeblock'],
           ['scrollSync']
-        ]
+        ],
+        hooks: {
+          addImageBlobHook: async (blob, callback) => {
+            const formData = new FormData()
+            formData.append('file', blob)
+            const response = await createPlainAttachment(formData)
+            if (response.data && response.data.content_url) {
+              const link = response.data.content_url
+              callback(link, 'image in description')
+            }
+            return false
+          }
+        }
       }
       if (!this.isLite) {
         options.widgetRules = [
@@ -174,12 +188,15 @@ export default {
   methods: {
     checkEnableEditor() {
       if (this.isIssueEdited.description) {
-        this.$confirm(this.$t('Notify.UnSavedDescription'),
-          this.$t('general.Warning'), {
+        this.$confirm(
+          this.$t('Notify.UnSavedDescription'),
+          this.$t('general.Warning'),
+          {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
             type: 'warning'
-          })
+          }
+        )
           .then(() => {
             this.isIssueEdited.description = false
             this.enableEditor()
@@ -192,7 +209,7 @@ export default {
     enableEditor() {
       this.isIssueEdited.notes = !this.isButtonDisabled
     },
-    onChange(editorType) {
+    async onChange(editorType) {
       this.editorType = editorType
       this.isChanged = true
       this.tagList = this.tagList.filter((tag) => this.notes.includes(tag.name))
@@ -210,7 +227,9 @@ export default {
           const ul = document.createElement('ul')
           ul.addEventListener('mousedown', this.addTag)
           ul.setAttribute('class', 'cursor-pointer')
-          ul.setAttribute('style', `
+          ul.setAttribute(
+            'style',
+            `
             z-index: 20;
             list-style: none;
             max-height: 5rem;
@@ -221,11 +240,12 @@ export default {
             border-radius: 4px;
             background-color: #ffffff;
             box-shadow: 0 2px 12px 0 rgba(0,0,0,.3);
-          `)
-          this.assignedTo.forEach((user, index) => {
+          `
+          )
+          this.assigned.forEach((user, index) => {
             const li = document.createElement('li')
             if (index !== 0) li.setAttribute('class', 'mt-2')
-            li.innerHTML = `${user.name}(#${user.login})`
+            li.innerHTML = `${user.full_name}(#${user.username})`
             ul.appendChild(li)
           })
           this.$refs.mdEditor.editor.addWidget(ul, 'top')
@@ -237,25 +257,24 @@ export default {
       const text = event.target.textContent
       const [start, end] = editor.getSelection()
       if (!this.tagList.includes(text)) {
-        const user = this.assignedTo.find((user) =>
-          text === `${user.name}(#${user.login})`
+        const user = this.assigned.find(
+          (user) => text === `${user.full_name}(#${user.username})`
         )
         this.tagList.push({ id: user.id, name: text })
       }
-      editor.replaceSelection(`@${text}`,
-        this.editorType === 'wysiwyg'
-          ? start - 1
-          : [start[0], start[1] - 1],
+      editor.replaceSelection(
+        `@${text}`,
+        this.editorType === 'wysiwyg' ? start - 1 : [start[0], start[1] - 1],
         end
       )
     },
     async updateNotes() {
       if (this.isChanged) {
         this.isLoading = true
-        const sendForm = new FormData()
-        this.$emit('filterImage', [this.notes, sendForm, true])
-        sendForm.append('notes', this.notes)
-        await updateIssue(this.issueId, sendForm).then(() => {
+        // const sendForm = new FormData()
+        // this.$emit('filterImage', { value: this.notes, sendForm })
+        const sendData = { note: this.notes }
+        await updateIssue(this.issueId, sendData).then(() => {
           this.$emit('update')
         })
         if (!this.isLite) {
@@ -267,12 +286,15 @@ export default {
     },
     checkCancelInput() {
       if (this.isChanged) {
-        this.$confirm(this.$t('Notify.UnSavedNotes'),
-          this.$t('general.Warning'), {
+        this.$confirm(
+          this.$t('Notify.UnSavedNotes'),
+          this.$t('general.Warning'),
+          {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
             type: 'warning'
-          })
+          }
+        )
           .then(() => {
             this.cancelInput()
           })
@@ -295,7 +317,7 @@ export default {
       const data = {
         title: this.$t('Inbox.MentionMessage', {
           name: this.userName,
-          issue: `#${this.issueId} - ${this.issueName}`
+          issue: `#${this.issueId} - ${this.issueSubject}`
         }),
         message: link,
         type_parameters: JSON.stringify({ user_ids: mentionList }),
@@ -309,7 +331,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .notes:hover {
@@ -332,10 +354,11 @@ export default {
 }
 
 .el-button--success {
-  @include css-prefix(transition, all .6s ease);
+  @include css-prefix(transition, all 0.6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -344,10 +367,11 @@ export default {
 }
 
 .el-button--danger {
-  @include css-prefix(transition, all .6s ease);
+  @include css-prefix(transition, all 0.6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $danger;
@@ -357,28 +381,35 @@ export default {
 
 .action {
   margin: 0;
+
   &.el-button--mini {
     padding: 5px;
   }
 }
+
 .mobile {
   ::v-deep .toastui-editor-popup {
     max-width: 250px;
     margin-left: 0px;
   }
+
   ::v-deep .toastui-editor-popup-add-table .toastui-editor-table-cell {
     width: 20px;
     height: 20px;
   }
+
   ::v-deep .toastui-editor-defaultUI-toolbar button {
     margin: 7px 0px;
   }
+
   ::v-deep .toastui-editor-defaultUI-toolbar {
     padding: 0 5px;
   }
+
   ::v-deep .toastui-editor-toolbar-divider {
     margin: 14px 0px;
   }
+
   ::v-deep .toastui-editor-dropdown-toolbar {
     right: 0px !important;
   }

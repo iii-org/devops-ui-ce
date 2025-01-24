@@ -5,7 +5,7 @@
  *    ! Have to define storageName if you want to save keyword info.
  */
 
-import { mapGetters, mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   data() {
@@ -21,13 +21,15 @@ export default {
       const { listData, searchKeys } = this
       const keyword = this.keyword ? this.keyword.toLowerCase() : ''
       if (!listData) return
-      return listData.filter(data => {
+      return listData.filter((data) => {
         let result = false
         for (const value of searchKeys) {
           // distinguish string and number, string to lowercase while number to string, and only Checkmarx uses number
           if (data[value] === null) data[value] = ''
           const columnValue =
-            typeof data[value] === 'string' ? data[value].toLowerCase() : data[value]?.toString()
+            typeof data[value] === 'string'
+              ? data[value].toLowerCase()
+              : data[value]?.toString()
           result = result || columnValue?.includes(keyword)
           if (result) break
         }
@@ -37,7 +39,9 @@ export default {
   },
   watch: {
     keyword() {
-      this.listQuery.page = 1
+      if (this.listQuery) {
+        this.listQuery.page = 1
+      }
       if (this.storageName) this.storeKeyword()
     },
     watch: {

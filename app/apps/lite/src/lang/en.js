@@ -1,16 +1,18 @@
-const langFiles = require.context('./plugins', true, /\en.js$/)
-const asyncLangs = langFiles.keys().reduce((plugins, langPath) => {
-  const name = langPath.replace(/^\.\/(.*)\/(.*)/, '$1')
-  const value = langFiles(langPath)
-  plugins[name] = value.default
+const langFiles = import.meta.glob('./plugins/**/en.js')
+
+const asyncLangs = async () => {
+  const plugins = {}
+  for (const path in langFiles) {
+    const module = await langFiles[path]() // Dynamically import the module
+    const name = path.replace(/\.\/plugins\/(.*)\/en\.js/, '$1') // Extract the plugin name from path
+    plugins[name] = module.default // Store the default export of the module under the plugin name
+  }
   return plugins
-}, {})
+}
 
 export default {
   route: {
     MyWork: 'My Work',
-    // Inbox: 'Inbox',
-    // MessageConsole: 'Message Console',
     // Whiteboard: 'Whiteboard',
     Dashboard: 'Dashboard',
     ProjectOverview: 'Project Overview',
@@ -27,7 +29,7 @@ export default {
     List: '@:Issue.Issue',
     Overview: 'Overview',
     // WikiList: 'Wiki',
-    // FileList: 'File List',
+    FileList: 'File List',
     // ProjectRoadmap: 'Project Roadmap',
     // AdvanceBranchSettings: 'Advance Branch Settings',
     ProjectSettings: 'Project Settings',
@@ -39,13 +41,14 @@ export default {
     Pipelines: 'Pipelines',
     // DevEnvironment: 'Deployed Environments',
     // KubernetesResources: 'Kubernetes Resources',
-    // ReleaseVersions: 'Release Version',
-    // ReleaseVersion: 'Release Version',
+    ReleaseVersions: 'Release Version',
+    ReleaseVersion: 'Release Version',
     AutoTesting: 'Auto Testing',
     // Postman: 'Postman',
     // FromDevops: 'From DevSecOps',
     // FromCollection: 'From Postman Collection',
     // CheckMarx: 'CheckMarx',
+    Semgrep: 'Semgrep',
     SonarQube: 'SonarQube',
     // Sbom: 'SBOM',
     // WebInspect: 'WebInspect',
@@ -67,9 +70,10 @@ export default {
     ProjectActivity: 'Project Activities',
     ParticipateProject: 'Participate In The Project',
     IssueDetail: 'Issue Detail',
-    Admin: 'System Settings',
+    Admin: 'Settings',
     AccountManage: 'Account Management',
-    // SystemActivities: 'System Activities',
+    SystemActivities: 'System Activities',
+    OrganizationActivities: 'Organization Activities',
     // SystemPluginManage: 'System Plugin Manage',
     // SystemDeploySettings: 'System Deploy Settings',
     // ProjectSettingsQA: 'Project Settings (QA)',
@@ -80,14 +84,15 @@ export default {
     // FailManagement: 'Fail Management',
     // TestCase: 'Test Case',
     // TestResult: 'Test Result',
-    TestReport: 'III DevSecOps Test Report'
+    TestReport: 'Test Report',
     // Monitoring: 'III DevSecOps Service Monitoring',
     // Deploy: 'Deploy',
     // ApplicationSetting: 'Application Setting',
     // DockerReport: 'Docker Test Report',
     // SbomReport: 'Docker Test Report',
     // Activities: 'Activities',
-    // TemplateManage: 'Template Manage'
+    // TemplateManage: 'Template Manage',
+    Organization: 'Organization'
   },
   navbar: {
     logOut: 'Log Out',
@@ -104,7 +109,7 @@ export default {
     1007: 'Unable to build the release (forced closed issue false).',
     1008: 'Unable to build the release.',
     1009: 'Plugin Software {plugin_name} not found.',
-    1010: 'Project {description} or {display} contain characters like & or <.',
+    1010: 'Project {description} or {display_name} contain characters like & or <.',
     1011: 'Project owner {owner_id} role must be PM.',
     1012: 'You cannot change version {fixed_version} that status is {fixed_version_status}.',
     1013: 'Warning! The issue with children issues cannot be deleted, please re-confirm it if you insist and all of children issue will be deleted at the same time.',
@@ -261,7 +266,7 @@ export default {
     caution: 'Caution!',
     ok: 'OK',
     project_name: 'Project Name',
-    owner_name: 'Project Manager',
+    owner_name: 'Project Owner',
     Department: 'Department',
     UserTitle: 'Title',
     Back: 'Back',
@@ -311,7 +316,8 @@ export default {
     Format: 'Format',
     View: 'View',
     SocketConnected: 'Socket is connected',
-    ReconnectByReload: 'Please reload the page to ensure the socket reconnected properly',
+    ReconnectByReload:
+      'Please reload the page to ensure the socket reconnected properly',
     Reload: 'Reload the page',
     NoTestResult: 'No Test Result',
     Parent: 'P',
@@ -354,6 +360,7 @@ export default {
     TemporarySaved: 'Temporary Saved successful',
     Saved: 'Saved successful',
     Restored: 'Restored successful',
+    Synced: 'Sync successful',
     NoEmpty: 'Content must not be empty',
     Same: 'The new value is same with old value.',
     SwitchLanguage: 'Switch Language Success',
@@ -362,42 +369,58 @@ export default {
     WrongBranchName: 'Please input branch name correctly.',
     WrongResourceName: 'Please input resource name correctly.',
     WrongTagVersionName: 'Please input tag version correctly.',
-    SingleFileLimit: 'Only one file can be added at a time, please delete the existing file first.',
-    UnsupportedFileFormat: 'Unable to upload a file: This file type is not supported',
-    FileSizeLimit: 'This file cannot be uploaded because it exceeds the maximum allowed file size ({size})',
+    SingleFileLimit:
+      'Only one file can be added at a time, please delete the existing file first.',
+    UnsupportedFileFormat:
+      'Unable to upload a file: This file type is not supported',
+    FileSizeLimit:
+      'This file cannot be uploaded because it exceeds the maximum allowed file size ({size})',
     FileNameLimit: 'A filename cannot contain any of the special characters.',
     LoadFail: 'Something went wrong, please contact your system administrator.',
     UnSavedChanges: 'Do you really want to leave? you have unsaved changes!',
-    UnSavedDescription: 'The changes you made to the issue description have not been saved. Are you sure you want to exit without saving?',
-    UnSavedNotes: 'The notes you are editing has not been saved. Are you sure you want to exit without saving?',
+    UnSavedDescription:
+      'The changes you made to the issue description have not been saved. Are you sure you want to exit without saving?',
+    UnSavedNotes:
+      'The notes you are editing has not been saved. Are you sure you want to exit without saving?',
     confirmUnlink: 'Are you sure to @:(Issue.Unlink)?',
     confirmDelete: 'Are you sure to @:(general.Delete)?',
     confirmClose: 'Are you sure to @:(general.Close)?',
     confirmDeleteSth: 'Are you sure to @:(general.Delete)「{name}」？',
-    confirmDeleteSideex: 'Are you sure you want to delete all configurations and records related to combined testing of this project?',
+    confirmDeleteSideex:
+      'Are you sure you want to delete all configurations and records related to combined testing of this project?',
     confirmRestore: 'Are you sure to @:(general.Restore)?',
-    confirmEditProject: 'Applying a new template will replace this project repository, and this is unrecoverable. Please confirm the action.',
-    confirmVariableSetting: 'Attention, You still have unset variables! Are you sure you want to generate test data directly?',
-    logoutNotifications: 'The session has timed out. Please click re-login button to login back again.',
-    pluginWarnNotifications:
-      'Please ensure that the status of the Plugin switch with the same name is the same before saving and executing.',
-    pluginRepeatMessage:
-      'The red background indicates that there are duplicate project settings in the same branch. Please make sure that the settings are consistent (as on or off) to ensure that the Pipeline operates normally.',
-    ChangeProjectManager: 'Confirming if you want to change the project manager?',
+    confirmEditProject:
+      'Applying a new template will replace this project repository, and this is unrecoverable. Please confirm the action.',
+    confirmVariableSetting:
+      'Attention, You still have unset variables! Are you sure you want to generate test data directly?',
+    logoutNotifications:
+      'The session has timed out. Please click re-login button to login back again.',
+    pluginEmptyNotifications: 'Please ensure to select at least one plugin.',
+    ChangeProjectManager:
+      'Confirming if you want to change the project manager?',
     ConnectSocket: 'Kanban is connecting Socket...',
     UpdateKanban: '{issueName} is updated',
     NoParentIssueWarning: 'Type of {tracker_name} requires a parent issue.',
     ChangeProject: `Switching a project will empty the version, label, and distributor's information, confirm the transfer?`,
-    RedminemailWarning: '[Warning] Redmine will restart, the service is about to be suspended, please log in after 3-5 minutes.',
-    RedmineMailActiveWarning: 'Mail notification setting can not be opened, when mail server is disable.',
-    RedmineMailAutoDisableWarning: 'Email notification is disabled, it might caused by disabled or invalid email setting at backend. Please contact with system administrator for further information.',
-    RedmineMailConfirmWarning: 'Mail(SMTP) setting modification will be restarted to Redmine, which will cause the DevSecOps platform to stop the service for 5-8 minutes. If it is necessary to perform modification and restart the redmine?',
-    ExcalidrawAliveWarning: 'Excalidraw service failed, please contact DevSecOps for assistance.',
-    DeleteExcalidrawWarning: 'Also "delete" the related excalidraw of this issue.',
+    RedminemailWarning:
+      '[Warning] Redmine will restart, the service is about to be suspended, please log in after 3-5 minutes.',
+    RedmineMailActiveWarning:
+      'Mail notification setting can not be opened, when mail server is disable.',
+    RedmineMailAutoDisableWarning:
+      'Email notification is disabled, it might caused by disabled or invalid email setting at backend. Please contact with system administrator for further information.',
+    RedmineMailConfirmWarning:
+      'Mail(SMTP) setting modification will be restarted to Redmine, which will cause the DevSecOps platform to stop the service for 5-8 minutes. If it is necessary to perform modification and restart the redmine?',
+    ExcalidrawAliveWarning:
+      'Excalidraw service failed, please contact DevSecOps for assistance.',
+    DeleteExcalidrawWarning:
+      'Also "delete" the related excalidraw of this issue.',
     ApiServerDisabledError: 'Please contact your system administrator.',
-    ChangeClusterId: '[Note] Switching destination will cause the volumes reset, confirm to delete?',
-    ChangeReleaseId: '[Note] Switching release id will cause the environments reset, confirm to delete?',
-    DownloadFailed: 'Download is failed, please contact your system administrator.'
+    ChangeClusterId:
+      '[Note] Switching destination will cause the volumes reset, confirm to delete?',
+    ChangeReleaseId:
+      '[Note] Switching release id will cause the environments reset, confirm to delete?',
+    DownloadFailed:
+      'Download is failed, please contact your system administrator.'
   },
   RuleMsg: {
     PleaseInput: 'Please input',
@@ -412,7 +435,8 @@ export default {
     InputRepeatPwd: 'Please input repeat password',
     PasswordLimit: 'Password must be at least 8 characters',
     PasswordNotSame: 'Password not same',
-    DifferentNewPassword: 'Your new password must be different from your old password.'
+    DifferentNewPassword:
+      'Your new password must be different from your old password.'
   },
   TestCase: {
     Index: 'Requests',
@@ -425,77 +449,6 @@ export default {
     TestItem: '{count} Test Item | {count} Test Items',
     Pass: 'Pass',
     Fail: 'Fail'
-  },
-  CheckMarx: {
-    ScanId: 'Scan ID',
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    HighSeverity: 'High Severity',
-    MediumSeverity: 'Medium Severity',
-    LowSeverity: 'Low Severity',
-    InfoSeverity: 'Info Severity',
-    RunAt: 'Start Time',
-    Report: '@:general.Report',
-    noScan: 'This project does not have any scan.',
-    notCompletedScan: 'The scan is not completed yet. It may take several hours to complete.',
-    generatingReportScan: 'Scan done, the system is generating a report. It may take several minutes to complete.',
-    canceledScan: 'The scan is canceled.',
-    failedScan: 'The scan is canceled or failed.',
-    removedScan: 'The scan removed.',
-    registryReport: 'The report no longer exists, regenerate report?',
-    registryReportTip: 'It might takes 3-5 minutes to regenerate report, please refresh page later.',
-    QueueSequence: 'Sequence',
-    cancelScansMessage:
-      'The scan program with test number {0} has been cancelled, please wait for CheckMarx to update...',
-    QueueTooltip: 'The information in this queue is the same as the CheckMarx queue, which is updated in batches.',
-    New: 'New',
-    PreScan: 'Preparing',
-    Queued: 'Queued',
-    Scanning: 'Scanning',
-    PostScan: 'Processing',
-    Finished: 'Finished',
-    Canceled: 'Canceled',
-    Deleted: 'Deleted',
-    Failed: 'Failed',
-    InProcess: 'In Process'
-  },
-  Sbom: {
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    PackageCount: 'Package Count',
-    CriticalSeverity: 'Critical Severity',
-    HighSeverity: 'High Severity',
-    MediumSeverity: 'Medium Severity',
-    LowSeverity: 'Low Severity',
-    RunAt: 'Start Time',
-    Report: '@:general.Report',
-    TraceabilityDownload: 'Software traceability list download.',
-    VulnerabilityReport: 'Vulnerability Scan Report',
-    Success: 'Success',
-    Running: 'Running',
-    Fail: 'Fail'
-  },
-  WebInspect: {
-    ScanId: 'Scan ID',
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    Critical: 'Critical',
-    HighSeverity: 'High Severity',
-    MediumSeverity: 'Medium Severity',
-    LowSeverity: 'Low Severity',
-    InfoSeverity: 'Info Severity',
-    BpSeverity: 'Best Practice',
-    RunAt: 'Start Time',
-    Report: '@:general.Report',
-    TestReport: 'Test Report',
-    DownloadReport: 'Download Report'
-  },
-  Cmas: {
-    SUCCESS: 'Success',
-    RUNNING: 'Scanning',
-    NOT_FOUND: 'Scan Failed',
-    FAIL: 'Establish Failed',
-    MOEA: 'Mobile APP Assurance Specification'
   },
   TestValue: {
     TestValue: 'Test Value',
@@ -535,7 +488,7 @@ export default {
     Open: 'Open',
     locked: 'Locked',
     Locked: 'Locked',
-    EndDate: 'EndDate',
+    EndDate: 'Due Date',
     ConfirmDelete: 'Are you sure to @:(general.Delete) 「{version}」?'
   },
   MyWork: {
@@ -564,7 +517,7 @@ export default {
     DoneRatio: 'Done Ratio',
     DoneRatio_sm: 'Done Ratio',
     StartDate: 'Start Date',
-    EndDate: 'End Date',
+    EndDate: 'Due Date',
     Description: 'Issue Description',
     due_date: '@:Issue.EndDate',
     SelectProject: 'Select Project',
@@ -604,7 +557,7 @@ export default {
     Verified: 'Verified',
     Closed: 'Closed',
     Responded: 'Responded',
-    Overdued: 'Overdued',
+    Overdue: 'Overdue',
     Finished: 'Finished',
     Unknown: 'Unknown',
     Low: 'Low',
@@ -625,9 +578,9 @@ export default {
     ConfirmCloseIssue: 'Are you sure to Close "{issueName}"?',
     ConfirmDeleteIssue: 'Are you sure to Delete "{issueName}"?',
     ConfirmCloseIssueWithSub:
-        'Warning! The issue with children issues cannot be closed, please re-confirm it if you insist and all of children issue will be closed at the same time.',
+      'Warning! The issue with children issues cannot be closed, please re-confirm it if you insist and all of children issue will be closed at the same time.',
     ConfirmDeleteIssueWithSub:
-        'Warning! The issue with children issues cannot be deleted, please re-confirm it if you insist and all of children issue will be deleted at the same time.',
+      'Warning! Deleting this topic will also remove all its related subtopics. This action is irreversible. If you need records related to this topic, please take screenshots before deletion.',
     RemoveIssueRelation: 'Are you sure to Unlink Issue Relation?',
     AskDeleteIssue: 'Close work item/issue?',
     DeleteIssueReason: 'Please specify the reason for closure',
@@ -638,7 +591,8 @@ export default {
     Files: 'Files',
     UploadFiles: 'Upload Files',
     DeleteFile: 'Are you sure to Delete File?',
-    RemovedIssue: "The issue you were trying to edit doesn't exist or has been removed.",
+    RemovedIssue:
+      "The issue you were trying to edit doesn't exist or has been removed.",
     DayExpired: `Expired {days} days`,
     id: 'ID',
     project: 'Project',
@@ -646,8 +600,8 @@ export default {
     tags: '@:Issue.Tag',
     priority: '@:Issue.Priority',
     tracker: '@:general.Type',
-    assigned_to: '@:Issue.Assignee',
-    fixed_version: '@:Version.Version',
+    assigned: '@:Issue.Assignee',
+    version: '@:Version.Version',
     me: '<<Me>>',
     ChildrenNotClosed: 'Children Issue is not Closed',
     NoAssignee: 'Issue need an Assignee',
@@ -660,17 +614,20 @@ export default {
     open: '@:Version.Open',
     closed: '@:Version.closed',
     locked: '@:Version.Locked',
-    IssueNeedAssigneeWarning: 'To switch status, select the assignee you want to assign!',
+    IssueNeedAssigneeWarning:
+      'To switch status, select the assignee you want to assign!',
     IssueHasAssigneeWarning:
       'Switching the status back to [@:Issue.Active] will remove the current assignee. Are you sure you want to continue?',
-    ChildrenNotClosedWarning: 'Closing this issue will also close all unresolved child issues associated with it. Are you sure want to continue?',
+    ChildrenNotClosedWarning:
+      'Closing this issue will also close all unresolved child issues associated with it. Are you sure want to continue?',
     PackageRecord: 'Package Record',
     NoImage: 'No Image',
     ReleaseTime: 'Release Time',
     SourceCode: 'Source Code',
     IssueList: 'Issue List',
     DetermineContinue: 'Continue',
-    NoImageWarning: 'There is no image file. Do you want to continue package version?',
+    NoImageWarning:
+      'There is no image file. Do you want to continue package version?',
     NextStep: 'Next Step>',
     detail: {
       message: {
@@ -681,9 +638,9 @@ export default {
         After: 'After',
         Add: '@:general.Add'
       },
-      assigned_to_id: '@:Issue.Assignee',
+      assigned_id: '@:Issue.Assignee',
       subject: '@:general.Title',
-      tag: '@:Issue.Tag',
+      tag_id: '@:Issue.Tag',
       description: '@:Issue.Description',
       estimated_hours: '@:Issue.Estimate',
       start_date: '@:Issue.StartDate',
@@ -691,7 +648,7 @@ export default {
       priority_id: '@:Issue.Priority',
       status_id: '@:general.Status',
       tracker_id: '@:general.Type',
-      fixed_version_id: '@:Version.Version',
+      version_id: '@:Version.Version',
       attachment: '@:Issue.Files',
       parent_id: '@:Issue.ParentIssue',
       relation: '@:Issue.RelatedIssue',
@@ -704,12 +661,12 @@ export default {
       tags: 'Tag',
       status: 'Status',
       tracker: 'Type',
-      assigned_to: 'Assigned',
-      fixed_version: 'Version',
+      assigned: 'Assigned',
+      version: 'Version',
       done_ratio: 'Done Ratio',
       priority: '@:Issue.Priority',
-      due_date_start: '@:Issue.StartDate',
-      due_date_end: '@:Issue.EndDate'
+      due_date_start: '@:Issue.EndDate (>=)',
+      due_date_end: '@:Issue.EndDate (<=)'
     },
     DeleteThisBoard: 'Are you sure to Delete this custom board',
     ThisBoard: 'This Board',
@@ -737,8 +694,8 @@ export default {
     UploadSuccess: 'Upload Success',
     List: 'Issue List',
     TransferIssueTo: 'Transfer {value} issues to?',
-    due_date_start: '@:Issue.StartDate',
-    due_date_end: '@:Issue.EndDate',
+    due_date_start: '@:Issue.EndDate (>=)',
+    due_date_end: '@:Issue.EndDate (<=)',
     CustomFilter: 'Custom Filter',
     CustomFilterName: 'Custom Filter Name',
     InputFilterName: 'Input Filter Name',
@@ -750,7 +707,12 @@ export default {
     WatcherList: 'Watcher List',
     ClickToEdit: 'Click to enter edit mode',
     DoubleClickToEdit: 'Double-click to enter edit mode',
-    TypeToAddTag: 'You can type here to add tag directly.'
+    TypeToAddTag: 'You can type here to add tag directly.',
+    SpentHours: 'Spent Hours',
+    TotalSpentHours: 'Total Spent Hours',
+    Activity: 'Activity',
+    Comments: 'Comments',
+    Hours: 'Hour(s)'
   },
   Milestone: {
     Saving: 'Saving',
@@ -788,26 +750,23 @@ export default {
       UploadTestSet: 'Upload Test Set',
       TestSoftware: 'Test Software',
       TestName: 'Test Name',
-      PostmanUpload: 'Postman Filename Rule: {file_name}.postman_collection.json ( Postman UI 匯出的格式(V2.1))',
+      PostmanUpload:
+        'Postman Filename Rule: {file_name}.postman_collection.json ( Postman UI 匯出的格式(V2.1))',
       SideeXUpload: 'Sideex Filename Rule: {file_name}.json',
       Type: 'type',
       RangePlaceholder: 'Input range, separate by ",",like 1,2,3',
-      LimitNotes: '[Attention] Want to limit the variable, make sure enclose it in brackets, such as [variable]',
+      LimitNotes:
+        '[Attention] Want to limit the variable, make sure enclose it in brackets, such as [variable]',
       EnterPositive: 'Please make sure the input is a positive integer!',
       MovementNotSaved: 'Movement not saved'
     }
   },
-  Wiki: {
-    AddWiki: 'Add Wiki',
-    Title: 'Title',
-    Content: 'Content',
-    SearchTitle: 'Search Title',
-    edited: '{user} edited this page'
-  },
   Dashboard: {
     UnfinishedIssues: 'Unfinished Issues',
-    IssuesShouldBeClosedWithinThisWeek: 'Issues Should Be Closed Within This Week',
-    IssuesShouldBeClosedWithinThisMonth: 'Issues Should Be Closed Within This Month',
+    IssuesShouldBeClosedWithinThisWeek:
+      'Issues Should Be Closed Within This Week',
+    IssuesShouldBeClosedWithinThisMonth:
+      'Issues Should Be Closed Within This Month',
     Finished: 'Finished',
     Unfinished: 'Unfinished',
     Unassigned: 'Unassigned',
@@ -892,6 +851,7 @@ export default {
         excel_download: 'Download EXCEL',
         all_download: 'Download all',
         organization: 'Organization',
+        department: 'Department',
         project_start_date: 'Project Start Date',
         project_due_date: 'Project Due Date',
         disable_tooltip: 'Only Project Owner can enable this project',
@@ -914,17 +874,29 @@ export default {
     TransferIssue: 'Transfer Issue  〉',
     ConfirmTransfer:
       '{userRole}  ({userName}) has {unClosedIssueCount} unclosed issues. For the integrity of this project, please transfer or close issues before remove this member.',
-    ConfirmRemoveMember: 'Are you sure to @:(general.Remove) {userRole}（{userName}）?'
+    ConfirmRemoveMember:
+      'Are you sure to @:(general.Remove) {userRole}（{userName}）?'
   },
   Plugin: {
     Manage: 'Manage Plugins',
-    CustomEnvWarning: 'This project is a custom environment and cannot be configured via this system.',
-    CustomRecommendWarning: 'We recommend you use our templates to build project.',
-    snarqube: 'SAST - SonarQube',
+    CustomEnvWarning:
+      'This project is a custom environment and cannot be configured via this system.',
+    CustomRecommendWarning:
+      'We recommend you use our templates to build project.',
+    GenerateCIButton: 'Generate DevSecOps CI File >',
+    CustomRuleWarning:
+      "* Regenerate CI file only available if the project's created by our templates",
+    GenerateCIWarning:
+      'Fail to regen ci yaml, please contact system admin or help desk',
+    sonarqube: 'SAST - SonarQube',
     'anchore-code': 'SBOM - Static Code',
     checkmarx: 'SAST - CheckMarx',
+    cmas: 'CMAS',
+    'deployed-environments': 'Build/Deploy APP',
     build: 'Build',
     deploy: 'Deploy',
+    'deploy-db': 'Deploy - DB',
+    'deploy-service': 'Deploy - Service',
     anchore: 'SBOM - Image',
     zap: 'DAST - OWASP ZAP',
     webinspect: 'DAST - WebInspect',
@@ -948,21 +920,31 @@ export default {
     RepeatPassword: 'Repeat Password',
     IsEnable: 'Is Enable',
     SearchAccount: 'Search Account,Name or Department',
+    InputAccount: 'Please input account',
+    InputFirstName: 'Please input first name',
+    InputLastName: 'Please input last name',
+    InputEmail: 'Please input email',
+    InputRole: 'Please select role',
+    InputPassword: 'Please input password',
     Role: 'Role',
     Source: 'Source',
     AD: 'Active Directory',
     SYSTEM: 'System',
     Selected: 'Selected',
-    AccountRule: 'Account should be 2-60 characters long and "._-" can be accepted at the middle of string',
-    PasswordRule: 'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number',
+    AccountRule:
+      'Account should be 2-60 characters long and "._-" can be accepted at the middle of string',
+    PasswordRule:
+      'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number',
     LastLogin: 'Last Login',
     GravatarLink: 'Avatars are managed through',
-    GravatarNotification: 'Use your account email address to register a Gravatar account, and then upload your avatar to Gravatar.com. The avatar will be automatically synchronized to the system.',
+    GravatarNotification:
+      'Use your account email address to register a Gravatar account, and then upload your avatar to Gravatar.com. The avatar will be automatically synchronized to the system.',
     LastWeek: 'Last Week',
     LastMonth: 'Last Month',
     LastThreeMonth: 'Last Three Month',
     DownloadAccountList: 'Download Account List',
-    DownloadDescription: 'Download the account list based on the selected filter conditions'
+    DownloadDescription:
+      'Download the account list based on the selected filter conditions'
   },
   Profile: {
     Basic: 'Account Details',
@@ -976,7 +958,8 @@ export default {
     ProfileSecuritySetting: 'Security Settings',
     NewPassword: 'New Password',
     RepeatNewPassword: 'Repeat New Password',
-    PasswordRule: 'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number.',
+    PasswordRule:
+      'Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number.',
     Save: 'Save',
     Password: 'Password',
     K8SConfigDownload: 'Download K8S Config',
@@ -1007,8 +990,7 @@ export default {
     UpdateTime: 'Update Time',
     deleteProjectConfirmText:
       'This action cannot be undone. This will permanently delete the project, including all commits, issues, test cases and files.',
-    deleteHasSonProjectText:
-      'Its subproject(s): {0} will also be deleted !',
+    deleteHasSonProjectText: 'Its subproject(s): {0} will also be deleted !',
     PleaseType: 'Please type',
     AndThen: 'to proceed or close this modal to cancel.',
     IdInvalid: 'Identifier is invalid.',
@@ -1025,7 +1007,8 @@ export default {
     SearchProjectName: 'Search Project Name',
     SearchProjectNameOrId: 'Search Project Name or ID',
     SearchProjectNameOrIdOrManager: 'Search Project Name, ID or Manager',
-    SearchProjectNameOrManagerOrOrganization: 'Search Project Name, Manager or Organization',
+    SearchProjectNameOrManagerOrOrganization:
+      'Search Project Name, Manager or Organization',
     StartDate: 'Start Date',
     Owner: 'Project Owner',
     SelectProject: 'Select a project',
@@ -1041,7 +1024,11 @@ export default {
     InheritParentProjectMember: 'Inherit parent project member',
     ImageAutoDel: 'Project Optimization',
     TriggerNotification: 'Trigger Notification',
-    TriggerCondition: 'Trigger Condition'
+    TriggerCondition: 'Trigger Condition',
+    Copy: 'Copy',
+    Transfer: 'Transfer',
+    CopyProjectTo: 'Copy {count} projects to?',
+    TransferProjectTo: 'Transfer {count} projects to?'
   },
   ProcessDevBranch: {
     Commit: 'Commit',
@@ -1062,55 +1049,16 @@ export default {
     TestDetail: 'Test Detail',
     PipeLineSettings: 'Pipeline Settings',
     RerunPipeline: 'Pipeline of branch {0} has been re-executed.',
-    ExecuteLoadingText: 'The pipeline is currently executing, so please wait for a moment.'
-  },
-  ProcessDevEnvironment: {
-    Branch: '@:general.Branch',
-    Deployment: 'Deployment',
-    Container: 'Container',
-    Image: 'Image',
-    Services: 'Services',
-    Pod: 'Pod',
-    Internal: 'Internal',
-    External: 'External'
-  },
-  ProjectResource: {
-    Usage: 'Usage',
-    Quota: 'Quota',
-    Artifacts: 'Artifacts',
-    EditResource: 'Edit Resource',
-    Vulnerabilities: 'Vulnerabilities',
-    DeleteResourceConfirmText:
-      'This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention.',
-    PleaseType: 'Please type',
-    AndThen: 'to proceed or close this modal to cancel.',
-    Storage: 'Storage',
-    Details: 'Show details >>'
-  },
-  ProjectUsage: {
-    SearchPods: 'Search Pods'
-  },
-  DeploymentList: {
-    DeployName: 'Deploy name',
-    Container: 'Container',
-    Image: 'Image'
-  },
-  Postman: {
-    Id: 'Id',
-    Branch: '@:general.Branch',
-    TestPass: 'Test Pass',
-    TestFail: 'Test Fail',
-    TestTotal: 'Test total',
-    StartTime: 'Start Time',
-    DevSecOps: 'DevSecOps',
-    Postman: 'Postman'
+    ExecuteLoadingText:
+      'The pipeline is currently executing, so please wait for a moment.'
   },
   Activities: {
     User: 'User',
     ActionType: 'Action Type',
     ActionParts: 'Action Parts',
-    ActAt: 'Act At',
-    SearchPlaceholder: 'Search User, Action Type or Action Parts',
+    ActAt: 'Execution Time',
+    SearchPlaceholder: 'Search User or Action Parts',
+    SystemOnly: 'System Only',
     AddTemplate: 'Add Template',
     TemplateName: 'Template Name',
     OriginalProject: 'Original Project',
@@ -1122,7 +1070,8 @@ export default {
     LocalProject: 'Local Project',
     TemplateDescription: 'Template Description',
     OriginalProjectNotExist: 'The original project no longer exists',
-    DuplicatedTemplate: 'One project only relates to one template, The project "{0}" has been used to a template, you can click \'edit\' on the template list if source code sync is needed.'
+    DuplicatedTemplate:
+      'One project only relates to one template, The project "{0}" has been used to a template, you can click \'edit\' on the template list if source code sync is needed.'
   },
   Maintenance: {
     AddSecret: 'Add Secret',
@@ -1168,66 +1117,20 @@ export default {
     Commit: 'Commit',
     searchBranchOrCommitId: 'Search @:general.Branch or Commit ID'
   },
-  SonarQube: {
-    ViewReport: 'View Report',
-    Bugs: 'Bugs',
-    Vulnerabilities: 'Vulnerabilities',
-    CodeSmells: 'Code Smells',
-    Duplicates: 'Duplicates',
-    Coverage: 'Coverage',
-    code_smells: 'Code Smells',
-    sqale_index: 'Technical Debt',
-    vulnerabilities: 'Vulnerabilities',
-    duplicated_lines_density: 'Duplicated lines (%)',
-    bugs: 'Bugs',
-    coverage: 'Coverage',
-    reliability_rating: 'Reliability Rating',
-    duplicated_blocks: 'Duplicated blocks',
-    sqale_rating: 'Maintainability Rating',
-    security_rating: 'Security Rating',
-    security_hotspots: 'Security Hotspots',
-    alert_status: 'Quality Gate Status',
-    ScanLogs: 'Scan Logs'
-  },
   Log: {
     duration: 'Duration',
     fullLog: 'Report',
     testId: 'Test ID',
-    WordWrap: 'Word Wrap'
-  },
-  Clair: {
-    size: 'Size',
-    critical: 'Critical',
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low'
-  },
-  Anchore: {
-    count: 'Plugin Count',
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low'
-  },
-  Zap: {
-    id: 'ID',
-    critical: 'Critical',
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low'
-  },
-  Sideex: {
-    promptMessage: 'The system provides the latest 5 reports to download.',
-    suitesPassedRatio: 'Suites Passed',
-    suitesPassedTotal: 'Suites Passed Total',
-    casesPassedRatio: 'Cases Passed',
-    casesPassedTotal: 'Cases Passed Total'
+    WordWrap: 'Word Wrap',
+    NoWrap: 'No Wrap'
   },
   Release: {
     internalVersions: 'Internal versions',
     selectVersion: 'Select Versions',
     writeNote: 'Write Release Note',
     openIssueHint: 'Note: Please make sure all issues are closed.',
-    openIssueAlert: 'There are unclosed issues in selected versions, please close it first.',
+    openIssueAlert:
+      'There are unclosed issues in selected versions, please close it first.',
     issueCount: 'In this version: ',
     issueCountLink: '{0} issues',
     releaseNote: 'Release Note',
@@ -1250,10 +1153,13 @@ export default {
     IssueVersion: 'Issue Version',
     ImageVersion: 'Commit / Image Version',
     ReleaseVersion: 'Release Version',
-    IssueVersionWarning1: 'Before releasing version, please confirm whether all the issues have been closed. If it is not completely closed, you can transfer it or close it directly. If the version has not been set, please go to the',
+    IssueVersionWarning1:
+      'Before releasing version, please confirm whether all the issues have been closed. If it is not completely closed, you can transfer it or close it directly. If the version has not been set, please go to the',
     IssueVersionWarning2: 'above to set the version.',
-    ImageVersionWarning: 'Please specify the version of the program or image file. If there is no program development or no changes are required, you can skip it directly.',
-    ReleaseVersionWarning: 'Please confirm whether the following programs, image files, and issue versions are correct.',
+    ImageVersionWarning:
+      'Please specify the version of the program or image file. If there is no program development or no changes are required, you can skip it directly.',
+    ReleaseVersionWarning:
+      'Please confirm whether the following programs, image files, and issue versions are correct.',
     ImageList: 'Image List',
     RenderAllCommit: 'Render all commits',
     OnlyImage: 'Image file only',
@@ -1265,12 +1171,21 @@ export default {
     NoIssueWarning: 'Issues have not been created for this version',
     CommitAndImage: 'Commit/Image',
     ImagePath: 'Image File Path',
-    NotePlaceholder: 'Please enter a version note, or copy and paste here from the list of closed issues in the issue version above.',
-    ReleaseWarning: 'There can be multiple versions and image file paths, but only two version paths can be at most',
+    NotePlaceholder:
+      'Please enter a version note, or copy and paste here from the list of closed issues in the issue version above.',
+    ReleaseWarning:
+      'There can be multiple versions and image file paths, but only two version paths can be at most',
     Tags: 'Tags',
-    StopReleaseWarning: 'Please check if the image file path matches the format.',
-    StopAddingPathWarning: 'Please check if the input image file is in line with the following format.',
-    FormatWarning: '(Primary name): (Tag) EX. Branch: Version'
+    StopReleaseWarning:
+      'Please check if the image file path matches the format.',
+    StopAddingPathWarning:
+      'Please check if the input image file is in line with the following format.',
+    FormatWarning: '(Primary name): (Tag) EX. Branch: Version',
+    ReportPreview: 'Report Preview',
+    ContinueRelease: 'Continue',
+    Reselect: 'Reselect',
+    NoTestReportWarning:
+      '[No Test Report] This branch is a standard Commit for system upgrade, without any major program changes and test reports, do you still want to proceed with the release operation?'
   },
   SystemVersion: {
     Source: 'Source',
@@ -1284,7 +1199,8 @@ export default {
     DeploymentName: 'Deployment Name',
     DeploymentUuid: 'Deployment UUID',
     ReloadSystem: 'Reload System',
-    UpdatedNotify: 'Please reload this page after a few minutes to check if the update is complete.',
+    UpdatedNotify:
+      'Please reload this page after a few minutes to check if the update is complete.',
     UploadSystemInfos: 'Upload system information'
   },
   LoadingText: {
@@ -1300,12 +1216,13 @@ export default {
   TrackManagement: {
     description: 'Change content(Issue description)',
     relations: 'Original demand/Issues',
-    assigned_to: 'Assignee'
+    assigned: 'Assignee'
   },
   Track: {
     StartingPoint: 'Starting Point',
     StartPaint: 'Start Paint',
-    TraceChecking: 'Traceability checking might take at least 3-5 mins, please come back to check later......',
+    TraceChecking:
+      'Traceability checking might take at least 3-5 mins, please come back to check later......',
     DownloadExcel: 'Download the Excel summary sheet',
     DemandTraceability: 'Demand Traceability',
     CheckRule: 'Check Rule',
@@ -1346,12 +1263,13 @@ export default {
   },
   ProjectSettings: {
     GeneralSettings: 'General Settings',
-    NotifySettings: 'Notify Settings',
+    NotifySettings: 'Notification Settings',
     TagSettings: 'Tag Settings',
     Tag: 'Tag',
     TagName: 'Tag Name',
     TagInputPlaceholder: 'Please fill in label name',
-    DeleteTag: 'Delete "{tagName}"? There are still issues associated with this tag. Deleting the tag will also remove the association. Are you sure you want to delete it?',
+    DeleteTag:
+      'Delete "{tagName}"? There are still issues associated with this tag. Deleting the tag will also remove the association. Are you sure you want to delete it?',
     AddCustomTag: 'Add Custom Tags',
     IssueReminderFeature: 'Issue Reminder Feature',
     Index: '@:general.Index',
@@ -1364,9 +1282,12 @@ export default {
     Unchange: 'The issue has not changed continuously for more than __?__ days',
     EnableMessage: 'The reminder feature has been successfully turned on',
     DisableMessage: 'The reminder feature has been successfully turned off',
-    EnableForceTracker: 'The force tracker feature has been successfully turned on',
-    DisableForceTracker: 'The force tracker feature has been successfully turned off',
-    SuccessUpdateAlertSettings: 'The reminder Settings have been updated successfully',
+    EnableForceTracker:
+      'The force tracker feature has been successfully turned on',
+    DisableForceTracker:
+      'The force tracker feature has been successfully turned off',
+    SuccessUpdateAlertSettings:
+      'The reminder Settings have been updated successfully',
     TagUpdateMessage: 'The task label has been updated successfully',
     ChangeManager: 'Change Project Manager',
     ParentIssueRequired: 'Parent Issue Required',
@@ -1387,7 +1308,8 @@ export default {
       'Please directly paste Kubernetes config or use the above to upload the file and upload directly',
     ClusterMessage: 'The Cluster settings have been updated successfully',
     RegistryMessage: 'The Registry settings have been updated successfully',
-    FailMessage: 'Please check if the content of the form is correct and fill in the password',
+    FailMessage:
+      'Please check if the content of the form is correct and fill in the password',
     NoNameWarning: 'Please fill in Cluster name',
     FillInPassword: 'Please fill in password',
     NoImage: 'No image',
@@ -1440,12 +1362,14 @@ export default {
     Key: 'Key | Keys',
     Value: 'Value',
     Default: '(default)',
-    KeyConflicts: '[System Variable] Variable conflicts : Please fix the following variables and re-save. {0}',
+    KeyConflicts:
+      '[System Variable] Variable conflicts : Please fix the following variables and re-save. {0}',
     KeyPair: 'Key[{0}] at {1} line.',
     AllNull: 'Please check all {0} are not null',
     PairCondition: 'Please input {0}. {1} are a pair condition.',
     ReleaseHelper: 'above release version requires an image included.',
-    NoSetting: 'Deploy setting is not yet ready, please check with your system administrator.',
+    NoSetting:
+      'Deploy setting is not yet ready, please check with your system administrator.',
     LinkToApplication: 'Link to application',
     CopyApplicationIP: 'Copy application IP',
     NameRule: `Please enter 2-30 English leading letters which combines with English, numbers or '-'. Note that the English must be all lowercase and the ID set cannot be all numbers.`,
@@ -1473,7 +1397,8 @@ export default {
   },
   SystemTemplates: {
     GithubAccount: 'Github @:general.Account',
-    GithubAccountPlaceholder: 'Please fill in Github account name. ex: jason_dev',
+    GithubAccountPlaceholder:
+      'Please fill in Github account name. ex: jason_dev',
     GithubTokenPlaceholder: `Please fill in Github's Personal Token that has enabled public_repo, and start the string with 'ghp_'.`,
     TokenWarning: `Confirm whether Github's access token already contains public_repo.`,
     TemplatesSettings: 'Template Synchronization Settings',
@@ -1488,7 +1413,8 @@ export default {
     SystemConfig: 'System Config',
     Content: 'Status / Content',
     FileType: 'File type',
-    FileTypeDescription: 'Define Upload types for issue attachments and project files',
+    FileTypeDescription:
+      'Define Upload types for issue attachments and project files',
     FileSize: 'File size',
     FileSizeDescription: 'Maximum size of each uploading file',
     UploadFileTypes: 'Upload file types',
@@ -1502,19 +1428,24 @@ export default {
     unassignedErrorContent:
       'No one has been assigned to this issue, and cannot be adjusted to the status of the issue after "assigned".',
     assignedErrorTitle: 'Assigned issues:',
-    assignedErrorContent: 'Issues that have been assigned cannot be adjusted to "opened".',
+    assignedErrorContent:
+      'Issues that have been assigned cannot be adjusted to "opened".',
     childrenStatusErrorTitle: `The children issues haven't been closed:`,
-    childrenStatusErrorContent: 'There are unclosed children issues, please confirm that all issues are closed.',
+    childrenStatusErrorContent:
+      'There are unclosed children issues, please confirm that all issues are closed.',
     priorityErrorTitle: 'The parent issue cannot change priority:',
     priorityErrorContent: 'Priority will be based on the last children issue.',
     trackerErrorTitle: 'Tracker Issue:',
     trackerErrorContent: 'Tracker type requires parent issue',
     closedVersionErrorTitle: 'Closed Version Issue:',
-    closedVersionErrorContent: 'An issue assigned to a closed version cannot be reopened',
-    toClosedVersionErrorContent: 'You cannot change to version {fixed_version} that status is closed.'
+    closedVersionErrorContent:
+      'An issue assigned to a closed version cannot be reopened',
+    toClosedVersionErrorContent:
+      'You cannot change to version {fixed_version} that status is closed.'
   },
   Status: {
     Failed: 'Failed',
+    FailedToStart: 'Failed to start',
     Created: 'Created',
     Queued: 'Queued',
     ResumeScanQueued: 'Resume Scan Queued',
@@ -1538,69 +1469,11 @@ export default {
   },
   Gantt: {
     Now: 'Now',
-    XScale: 'X-Scale',
-    YScale: 'Y-Scale',
+    XScale: 'Date Width',
+    YScale: 'Row Height',
     TaskListWidth: 'Task list width',
-    TimelineLength: 'Before/After',
+    TimelineLength: 'Expand Timeline',
     DisplayTaskList: 'Display task list'
-  },
-  Inbox: {
-    No: 'No.',
-    Title: 'Title',
-    Type: 'Message Type',
-    Date: 'Date',
-    Sender: 'Sender',
-    Info: 'Info',
-    Warning: 'Warning',
-    Urgent: 'Urgent',
-    NewVersion: 'New Version',
-    SystemAlert: 'System Alert',
-    SystemWarning: 'System Warning',
-    'Merge Request': 'Merge Request',
-    'GitHub Token Invalid': 'GitHub Token Invalid',
-    GroupReceiver: {
-      Project: 'Project',
-      User: 'User',
-      Role: 'Role',
-      ProjectOwner: 'Project Owner',
-      All: 'All'
-    },
-    ViewAll: 'View All',
-    TimeRange: 'Time Range',
-    From: 'From',
-    To: 'To',
-    SelectDate: 'Select Date',
-    SelectMessageType: 'Select Message Type',
-    Unread: 'Show  Unread Message Only',
-    IncludeSystemMessage: 'Include System Message',
-    Apply: 'Apply',
-    MessageConsole: 'Message Console',
-    MessageNote: '* The system only keeps 7 days messages. Please save the message in local if it\'s important.',
-    CreateMessage: 'Create Message',
-    EditMessage: 'Edit Message',
-    MessageContent: 'Message Content',
-    Public: 'Public',
-    Private: 'Private',
-    GroupReceiverTitle: 'Group Receiver',
-    AlertLevel: 'Alert Level',
-    Send: 'Send',
-    Sended: 'Sended',
-    NotifyClosed: 'Message closed successfully',
-    SearchLabel: 'Search Title or Sender',
-    MentionMessage: '{name} mentioned you in {issue}',
-    SharedIssueMessage: '[Issue Sharing] {name} shares {issue} for you',
-    SharedWhiteBoardMessage: '[WhiteBoard Sharing] {name} shares {whiteboard} for you',
-    ReadAll: 'Read All'
-  },
-  Excalidraw: {
-    Whiteboard: 'Whiteboard',
-    Name: 'Whiteboard Name',
-    CreateBoard: 'Create Whiteboard',
-    EditBoard: 'Edit Whiteboard',
-    HistoricalRecord: 'Historical Record',
-    AutoSavedTime: 'Auto Saved Time',
-    Size: 'Size',
-    FullScreen: 'Full screen, press ESC to exit full screen'
   },
   IssueMatrix: {
     Relations: 'Relationship',
@@ -1620,37 +1493,14 @@ export default {
     Assignee: '@:Issue.Assignee',
     Version: 'Version',
     DisplayItemWarning: `Display items should include at least the Name or ID`,
-    CancelTrackerWarning: 'When turning on the Group and selecting the Status, the Display Items must have the Type',
-    CancelStatusWarning: 'When turning on the Group and selecting the Type, the Display Items must have the Status'
-  },
-  Docker: {
-    Title: 'Docker Image Vulnerability Scan Report',
-    Overview: 'Overview',
-    Severity: 'Severity',
-    Critical: 'Critical',
-    High: 'High',
-    Medium: 'Medium',
-    Low: 'Low',
-    Negligible: 'Negligible',
-    Unknown: 'Unknown',
-    Fixable: 'Fixable',
-    AlertDetail: 'Alert Detail​',
-    Reference: 'Reference',
-    Vulnerability: 'Vulnerability',
-    Package: 'Package',
-    Licenses: 'Licenses',
-    Type: 'Type',
-    CurrentVersion: 'Current Version',
-    FixedVersion: 'Fixed Version',
-    Success: '@:general.Success',
-    Complete: '@:Status.Finished',
-    Scanning: '@:Status.Scanning',
-    Queued: 'Queued',
-    'Not Scanned': '@:Status.NotRunning',
-    Size: 'Size'
+    CancelTrackerWarning:
+      'When turning on the Group and selecting the Status, the Display Items must have the Type',
+    CancelStatusWarning:
+      'When turning on the Group and selecting the Type, the Display Items must have the Status'
   },
   RedmineMail: {
-    Warning: '[Note] Email service is enabled or decentralized, which restarts the trigger RedMine.The restart time will affect the 3-5 minutes of the platform cannot be used, please set it with caution.'
+    Warning:
+      '[Note] Email service is enabled or decentralized, which restarts the trigger RedMine.The restart time will affect the 3-5 minutes of the platform cannot be used, please set it with caution.'
   },
   ProjectSettingDialog: {
     Information: '@:Project.Info',
@@ -1660,5 +1510,25 @@ export default {
     AlertSettings: 'Alert Settings',
     TagSettings: 'Tag Settings'
   },
-  Plugins: { NoArguments: 'No Arguments.', ...asyncLangs }
+  PipelineSettingsTable: {
+    NoSelectedPluginWarning: 'Select at least one Plugin.',
+    OpenPluginWarning: 'Please select {plugin} first'
+  },
+  Organization: {
+    Identifier: 'Identifier',
+    Organization: 'Organization',
+    Add: 'Add Organization',
+    Edit: 'Edit Organization',
+    Name: 'Name',
+    Description: 'Description',
+    Owner: 'Owner',
+    Member: 'Organization Member',
+    SearchByIdOrName: 'Search by ID or Name',
+    PleaseSelectOrganization: 'Please select an organization',
+    PleaseInputIdentifier: 'Please input identifier',
+    PleaseInputOrganizationName: 'Please input organization name',
+    IdentifierRule:
+      'Identifier must be 2-30 characters long, and can only contain letters, numbers, and hyphens, and cannot start or end with a hyphen'
+  },
+  Plugins: { NoArguments: 'No Arguments.', ...(await asyncLangs()) }
 }

@@ -1,23 +1,22 @@
 <template>
   <div>
-    <div :style="{minHeight: `${tableHeight}px`}" class="relative">
+    <div :style="{ minHeight: `${tableHeight}px` }" class="relative">
       <el-table
+        ref="WBS"
         v-el-table-infinite-scroll="fetchMoreData"
         v-loading="listLoading"
-        ref="WBS"
-        :infinite-scroll-disabled="infiniteScrollDisabled"
         :data="listData"
         :element-loading-text="$t('Loading')"
         :height="tableHeight"
-        :row-style="rowStyle"
+        :infinite-scroll-disabled="infiniteScrollDisabled"
         :load="getIssueFamilyData"
         :row-class-name="getRowClass"
-        :tree-props="{hasChildren: 'has_children'}"
+        :row-style="getRowStyle"
+        :tree-props="{ hasChildren: 'has_children' }"
         class="table-css"
-        row-key="id"
-        lazy
         fit
-        @row-click="handleRowClick"
+        lazy
+        row-key="id"
         @row-contextmenu="handleContextMenu"
         @cell-mouse-enter="handleCellMouseEnter"
         @cell-mouse-leave="handleCellMouseLeave"
@@ -25,176 +24,175 @@
         @expand-change="checkResetCreate"
       >
         <WBSInputColumn
-          v-if="columns.indexOf('name')>=0"
-          :label="$t('Issue.name')"
+          v-if="columns.indexOf('subject') >= 0"
           :edit-row-id="editRowId"
           :has-child-edit="true"
+          :label="$t('Issue.name')"
           :show-icon-row-id="showIconRowId"
-          min-width="250px"
-          prop="name"
-          required
           fixed
+          min-width="250px"
+          prop="subject"
+          required
           show-overflow-tooltip
           sortable
-          @edit="handleUpdateIssue"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
+          @onCellClick="handleIssueNameCellClick"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
-          @onCellClick="handleIssueNameCellClick"
         />
         <el-table-column width="50px">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <div class="action">
               <div
                 class="icon"
                 @click.stop="handleContextMenu(row, '', $event)"
               >
-                <em class="el-icon-more" />
+                <em class="el-icon-more"></em>
               </div>
             </div>
           </template>
         </el-table-column>
         <WBSSelectColumn
-          v-if="columns.indexOf('tracker')>=0"
-          :label="$t('Issue.tracker')"
-          :edit-row-id="editRowId"
+          v-if="columns.indexOf('tracker') >= 0"
           :components="Tracker"
+          :edit-row-id="editRowId"
+          :has-child-edit="true"
+          :is-parent-exist="isParentExist"
+          :label="$t('Issue.tracker')"
           :options="tracker"
           :strict-options="strictTracker"
-          :is-parent-exist="isParentExist"
-          :has-child-edit="true"
-          width="125px"
-          prop-key="tracker"
           prop="tracker.id"
+          prop-key="tracker"
           sortable
-          @edit="handleUpdateIssue"
+          width="155px"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSSelectColumn
-          v-if="columns.indexOf('status')>=0"
-          :label="$t('Issue.status')"
-          :edit-row-id="editRowId"
-          :components="Status"
-          :options="status"
+          v-if="columns.indexOf('status') >= 0"
           :assigned-to="assignedTo"
+          :components="Status"
+          :edit-row-id="editRowId"
           :has-child-edit="true"
-          width="125px"
-          prop-key="status"
+          :label="$t('Issue.status')"
+          :options="status"
           prop="status.id"
-          sortable
-          @edit="handleUpdateIssue"
+          prop-key="status"
+          width="125px"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSSelectColumn
-          v-if="columns.indexOf('fixed_version')>=0"
-          :label="$t('Issue.fixed_version')"
+          v-if="columns.indexOf('version') >= 0"
           :edit-row-id="editRowId"
-          :options="fixedVersion"
-          :has-child-edit="true"
           :edit-row-versions="editRowVersions"
+          :has-child-edit="true"
+          :label="$t('Issue.version')"
+          :options="fixedVersion"
           min-width="110px"
-          prop-key="fixed_version"
-          prop="fixed_version.id"
-          sortable
+          prop="version.id"
+          prop-key="version"
           show-overflow-tooltip
-          @edit="handleUpdateIssue"
+          sortable
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSDateColumn
-          v-if="columns.indexOf('StartDate')>=0"
-          :label="$t('Issue.StartDate')"
+          v-if="columns.indexOf('StartDate') >= 0"
           :edit-row-id="editRowId"
+          :label="$t('Issue.StartDate')"
+          before-date-column="due_date"
           min-width="125px"
           prop="start_date"
           show-overflow-tooltip
           sortable
-          before-date-column="due_date"
-          @edit="handleUpdateIssue"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSDateColumn
-          v-if="columns.indexOf('EndDate')>=0"
-          :label="$t('Issue.EndDate')"
+          v-if="columns.indexOf('EndDate') >= 0"
           :edit-row-id="editRowId"
+          :label="$t('Issue.EndDate')"
+          after-date-column="start_date"
           min-width="125px"
           prop="due_date"
           show-overflow-tooltip
           sortable
-          after-date-column="start_date"
-          @edit="handleUpdateIssue"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSSelectColumn
-          v-if="columns.indexOf('priority')>=0"
-          :label="$t('Issue.priority')"
-          :edit-row-id="editRowId"
+          v-if="columns.indexOf('priority') >= 0"
           :components="Priority"
+          :edit-row-id="editRowId"
+          :label="$t('Issue.priority')"
           :options="priority"
           min-width="110px"
-          prop-key="priority"
           prop="priority.id"
+          prop-key="priority"
           show-overflow-tooltip
           sortable
-          @edit="handleUpdateIssue"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSSelectColumn
-          v-if="columns.indexOf('assigned_to')>=0"
-          :label="$t('Issue.assigned_to')"
-          :edit-row-id="editRowId"
-          :options="assignedTo"
-          :has-child-edit="true"
+          v-if="columns.indexOf('assigned') >= 0"
           :edit-row-assigned-to="editRowAssignedTo"
+          :edit-row-id="editRowId"
+          :has-child-edit="true"
+          :label="$t('Issue.assigned')"
+          :options="assignedTo"
           min-width="125px"
-          prop-key="assigned_to"
-          prop="assigned_to.id"
+          prop="assigned.id"
+          prop-key="assigned"
           show-overflow-tooltip
           sortable
-          @edit="handleUpdateIssue"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSInputColumn
-          v-if="columns.indexOf('done_ratio')>=0"
-          :label="$t('Issue.DoneRatio_sm')"
+          v-if="columns.indexOf('done_ratio') >= 0"
           :edit-row-id="editRowId"
-          :min="0"
+          :label="$t('Issue.DoneRatio')"
           :max="100"
-          width="130px"
+          :min="0"
+          number
           prop="done_ratio"
-          number
           sortable
-          @edit="handleUpdateIssue"
+          width="130px"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
         <WBSInputColumn
-          v-if="columns.indexOf('points')>=0"
-          :label="$t('Issue.points')"
-          :has-child-edit="true"
+          v-if="columns.indexOf('points') >= 0"
           :edit-row-id="editRowId"
-          :min="0"
+          :has-child-edit="true"
+          :label="$t('Issue.points')"
           :max="100"
-          width="100px"
-          prop="point"
+          :min="0"
           number
+          prop="point"
           sortable
-          @edit="handleUpdateIssue"
+          width="100px"
           @create="handleCreateIssue"
+          @edit="handleUpdateIssue"
           @reset-edit="handleResetEdit"
           @reset-create="handleResetCreate"
         />
@@ -203,23 +201,12 @@
           slot="empty"
           :description="$t('general.NoData')"
         />
-        <tr
-          v-loading="scrollLoading"
-          v-if="scrollLoading"
-          slot="append"
-        >
-          <td class="add-issue-inline w-screen text-center" />
+        <tr v-if="scrollLoading" slot="append" v-loading="scrollLoading">
+          <td class="add-issue-inline w-screen text-center"></td>
         </tr>
-        <tr
-          v-if="!hasInlineCreate && userRole !=='QA'"
-          slot="append"
-        >
+        <tr v-if="!hasInlineCreate && userRole !== 'QA'" slot="append">
           <td class="add-issue-inline w-screen">
-            <el-link
-              type="text"
-              icon="el-icon-plus"
-              @click="appendIssue()"
-            >
+            <el-link icon="el-icon-plus" type="text" @click="appendIssue()">
               {{ $t('Issue.AddIssue') }}
             </el-link>
           </td>
@@ -228,20 +215,20 @@
       <WBSContextMenu
         v-if="!isMobile"
         ref="contextmenu"
-        :context-menu="contextMenu"
-        :permission="permission"
         :columns="columns"
-        :tags="tags"
-        :edit-row-versions="editRowVersions"
+        :context-menu="contextMenu"
         :edit-row-assigned-to="editRowAssignedTo"
-        @handleUpdateIssue="handleUpdateIssue"
-        @handleRelationUpdate="handleRelationUpdate"
+        :edit-row-versions="editRowVersions"
+        :permission="permission"
+        :tags="tags"
+        @addToCalendar="addToCalendar"
+        @appendIssue="appendIssue"
         @handleRelationDelete="handleRelationDelete"
+        @handleRelationUpdate="handleRelationUpdate"
+        @handleRemoveIssue="handleRemoveIssue"
+        @handleUpdateIssue="handleUpdateIssue"
         @toggleIssueMatrixDialog="toggleIssueMatrixDialog"
         @toggleRelationDialog="toggleRelationDialog"
-        @appendIssue="appendIssue"
-        @addToCalendar="addToCalendar"
-        @handleRemoveIssue="handleRemoveIssue"
       />
       <WBSDrawerMenu
         v-else
@@ -249,100 +236,78 @@
         :context-menu="contextMenu"
         :permission="permission"
         :tags="tags"
+        @addToCalendar="addToCalendar"
+        @appendIssue="appendIssue"
+        @handleRemoveIssue="handleRemoveIssue"
         @handleUpdateIssue="handleUpdateIssue"
         @toggleIssueMatrixDialog="toggleIssueMatrixDialog"
         @toggleRelationDialog="toggleRelationDialog"
-        @appendIssue="appendIssue"
-        @addToCalendar="addToCalendar"
-        @handleRemoveIssue="handleRemoveIssue"
       />
-      <el-dialog
-        :visible.sync="relationDialog.visible"
-        :close-on-click-modal="false"
-        :show-close="false"
-        width="80%"
-        append-to-body
-      >
-        <div slot="title">
-          <el-row slot="title" type="flex" align="middle">
-            <el-col :xs="24" :md="16">
-              <span class="text-title">
-                {{ $t('general.Settings', { name: $t('Issue.' + relationDialog.target + 'Issue') }) }}
-              </span>
-            </el-col>
-            <el-col :xs="24" :md="8" class="text-right">
-              <el-button class="button-primary" @click="onSaveCheckRelationIssue">
-                {{ $t('general.Save') }}
-              </el-button>
-              <el-button class="button-secondary-reverse" @click="toggleRelationDialog(relationDialog.target)">
-                {{ $t('general.Close') }}
-              </el-button>
-            </el-col>
-          </el-row>
-        </div>
-        <SettingRelationIssue
-          v-if="relationDialog.visible"
-          ref="settingRelationIssue"
-          :row.sync="contextMenu.row"
-          :target.sync="relationDialog.target"
-          @updateFamily="(issues) => handleUpdateFamily(issues)"
-        />
-      </el-dialog>
-      <el-dialog
-        :visible.sync="issueMatrixDialog.visible"
-        :close-on-click-modal="false"
-        :title="$t('Issue.TraceabilityMatrix')+'(#'+issueMatrixDialog.row.id+' - '+ issueMatrixDialog.row.name+')'"
-        width="80%"
-        top="20px"
-        append-to-body
-        destroy-on-close
-      >
-        <IssueMatrix
-          v-if="issueMatrixDialog.visible"
-          :row.sync="issueMatrixDialog.row"
-          @update-issue="loadData"
-          @onCloseIssueMatrix="onCloseIssueMatrix"
-        />
-      </el-dialog>
+      <WBSIssueRelatedDialog
+        v-if="relationDialog.visible"
+        :context-menu="contextMenu"
+        :relation-dialog="relationDialog"
+        @onFamilyUpdate="handleFamilyUpdate"
+        @onRelationIssueUpdate="onRelationIssueUpdate"
+        @toggleRelationDialog="toggleRelationDialog"
+      />
+      <WBSIssueMatrixDialog
+        v-if="issueMatrixDialog.visible"
+        :issue-matrix-dialog="issueMatrixDialog"
+        @onCloseIssueMatrix="onCloseIssueMatrix"
+        @onUpdateIssue="loadData"
+      />
+      <WBSDeleteWarningDialog
+        v-if="deleteWarningDialog.visible"
+        :delete-warning-dialog="deleteWarningDialog"
+        @onCloseDeleteWarning="onCloseDeleteWarning"
+        @onRemoveIssue="handleRemoveIssue"
+      />
     </div>
     <div v-if="listData?.length < pageQuery.total">
-      <div class="scroll-down-hint" />
+      <div class="scroll-down-hint"></div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { cloneDeep } from 'lodash'
-import { calendarUrl } from '@shared/utils/addToCalendar'
-import { isTimeValid, getLocalTime } from '@shared/utils/handleTime'
-import { ics } from '@shared/utils/ics'
 import {
-  WBSSelectColumn,
-  WBSInputColumn,
-  WBSDateColumn,
-  WBSContextMenu,
-  WBSDrawerMenu
-} from './components'
-import { getProjectIssueList, getProjectVersion, getProjectUserList } from '@/api_v2/projects'
-import { getIssue, addIssue, deleteIssue, getIssueFamily, updateIssue } from '@/api/issue'
-import { CancelRequest } from '@/mixins'
-import { Tracker, Priority, Status } from '@/components/Issue'
+  deleteIssue,
+  getIssueDetails,
+  getIssueFamily,
+  updateIssue
+} from '@/api_v3/issues'
+import {
+  createProjectIssue,
+  getProjectIssueList,
+  getProjectUserList,
+  getProjectVersion
+} from '@/api_v3/projects'
+import Priority from '@/components/Issue/Priority'
+import Status from '@/components/Issue/Status'
+import Tracker from '@/components/Issue/Tracker'
+import CancelRequest from '@/mixins/CancelRequest'
+import { calendarUrl } from '@shared/utils/addToCalendar'
+import { getLocalTime, isTimeValid } from '@shared/utils/handleTime'
+import { ics } from '@shared/utils/ics'
 import ElTableInfiniteScroll from 'el-table-infinite-scroll'
+import { cloneDeep } from 'lodash'
+import { mapGetters } from 'vuex'
+import { validate as isValidUUID } from 'uuid'
 
 const defaultRowVersions = [{ id: 'null', name: 'VersionUndecided' }]
 
 export default {
   name: 'WBS',
   components: {
-    WBSSelectColumn,
-    WBSInputColumn,
-    WBSDateColumn,
-    WBSContextMenu,
-    WBSDrawerMenu,
-    SettingRelationIssue: () => import('@shared/views/Project/IssueList/components/SettingRelationIssue'),
-    IssueMatrix: () => import('@/views/Project/IssueDetail/components/IssueMatrix')
-    // eslint-disable-next-line vue/no-unused-components
+    WBSSelectColumn: () => import('./components/WBSSelectColumn'),
+    WBSInputColumn: () => import('./components/WBSInputColumn'),
+    WBSDateColumn: () => import('./components/WBSDateColumn'),
+    WBSContextMenu: () => import('./components/WBSContextMenu'),
+    WBSDrawerMenu: () => import('./components/WBSDrawerMenu'),
+    WBSIssueRelatedDialog: () => import('./components/WBSIssueRelatedDialog'),
+    WBSIssueMatrixDialog: () => import('./components/WBSIssueMatrixDialog'),
+    WBSDeleteWarningDialog: () => import('./components/WBSDeleteWarningDialog')
   },
   directives: {
     'el-table-infinite-scroll': ElTableInfiniteScroll
@@ -405,13 +370,17 @@ export default {
       },
       issueMatrixDialog: {
         visible: false,
-        row: { id: null, name: null }
+        row: { id: null, subject: null }
+      },
+      deleteWarningDialog: {
+        visible: false,
+        row: {},
+        relatedIssues: []
       },
       showIconRowId: null,
       infiniteScrollDisabled: false,
       pageQuery: {
-        current: 0,
-        pages: 0,
+        page: 1,
         total: 0
       },
       scrollLoading: false,
@@ -419,41 +388,54 @@ export default {
       editRowVersions: defaultRowVersions,
       editRowAssignedTo: [
         { id: 'null', name: 'Unassigned' },
-        { class: 'bg-yellow-100', id: this.userId, login: '-Me-', name: '<<我自己>>' }
+        {
+          class: 'bg-yellow-100',
+          id: this.userId,
+          username: '-Me-',
+          name: '<<我自己>>'
+        }
       ]
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'priority', 'tracker', 'status', 'userId', 'userRole', 'strictTracker', 'device']),
+    ...mapGetters([
+      'selectedProjectId',
+      'priority',
+      'tracker',
+      'status',
+      'userId',
+      'userRole',
+      'strictTracker',
+      'device'
+    ]),
     hasInlineCreate() {
-      const create = this.listData ? this.listData.filter((item) => item.create) : false
+      const create = this.listData
+        ? this.listData.filter((item) => item.create)
+        : false
       return create?.length > 0
     },
     isButtonDisabled() {
       return this.userRole === 'QA'
     },
     permission() {
-      return ['Administrator', 'Project Manager', 'Engineer']
-    },
-    hasNoTagFilter() {
-      return !this.filterValue || !this.filterValue.tags || !this.filterValue.tags.length > 0
+      return ['sysadmin', 'Organization Owner', 'Project Manager', 'Engineer']
     },
     isMobile() {
       return this.device === 'mobile'
     }
   },
-  watch: {
-    originSelectedRow: {
-      handler(newRow, oldRow) {
-        if (typeof newRow?.id === 'number') {
-          this.getIssueFamilyData(newRow, newRow.id, null, true)
-        }
-      },
-      deep: true
-    }
-  },
+  // watch: {
+  //   originSelectedRow: { //TODO: check if this is necessary
+  //     handler(newRow) {
+  //       if (typeof newRow?.id === 'number') {
+  //         this.getIssueFamilyData(newRow, newRow.id, null, true)
+  //       }
+  //     },
+  //     deep: true
+  //   }
+  // },
   mounted() {
-    // this.loadData()
+    this.loadData()
     window.addEventListener('resize', this.$emit('resize-table'))
   },
   destroyed() {
@@ -462,31 +444,30 @@ export default {
   methods: {
     getParams() {
       const result = {
-        with_point: true,
-        wbs: true,
-        sort: 'subject:dec',
-        parent_id: 'null',
-        offset: 5 * this.pageQuery.current,
+        sort: 'subject:asc',
+        parent_id: 'null', // root issue only (parent issue only)
+        page: this.pageQuery.page,
         limit: 5
       }
-      if (this.hasNoTagFilter) {
-        delete result.wbs
-      } else {
-        delete result.parent_id
-        delete result.offset
-        delete result.limit
-      }
+
       if (!this.displayClosed) {
-        result['status_id'] = 'open'
+        result['exclude_closed'] = true
       }
+
+      if (this.keyword) {
+        result['search'] = this.keyword
+      }
+
       Object.keys(this.filterValue).forEach((item) => {
-        if (this.filterValue[item]) {
-          if (item === 'due_date_start' || item === 'due_date_end') {
-            result['due_date_start'] = isTimeValid(this.filterValue['due_date_start'])
-              ? getLocalTime(this.filterValue['due_date_start'], 'YYYY-MM-DD')
-              : null
-            result['due_date_end'] = isTimeValid(this.filterValue['due_date_end'])
-              ? getLocalTime(this.filterValue['due_date_end'], 'YYYY-MM-DD')
+        if (this.filterValue[item] && this.filterValue[item] !== '') {
+          delete result.parent_id // Show all parent and child issues
+
+          if (this.filterValue[item] === 'overdue') {
+            result['is_expired'] = true
+            result['expired_days'] = Number(this.filterValue.expiredDays) || ~~1
+          } else if (item === 'due_date_start' || item === 'due_date_end') {
+            result[item] = isTimeValid(this.filterValue[item])
+              ? getLocalTime(this.filterValue[item], 'YYYY-MM-DD')
               : null
           } else if (item === 'tags' && this.filterValue[item]?.length > 0) {
             result[item] = this.filterValue[item].join()
@@ -495,16 +476,14 @@ export default {
           }
         }
       })
-      if (this.keyword) {
-        result['search'] = this.keyword
-      }
-      result['only_superproject_issues'] = !!this.filterValue.project
+
       return result
     },
     async loadData() {
-      if (this.listLoading) {
-        this.cancelRequest()
-      }
+      // Cancel request causes infinite scroll failed
+      // if (this.listLoading) {
+      //   this.cancelRequest()
+      // }
       if (this.selectedProjectId === -1) return
       this.initInfiniteScrollQuery()
       this.listData = await this.fetchData()
@@ -515,7 +494,7 @@ export default {
       })
 
       if (this.issueMatrixDialog.row.id) {
-        const issue = await getIssue(this.issueMatrixDialog.row.id)
+        const issue = await getIssueDetails(this.issueMatrixDialog.row.id)
         this.$nextTick(() => {
           this.issueMatrixDialog.row = issue.data
         })
@@ -523,38 +502,45 @@ export default {
     },
     initInfiniteScrollQuery() {
       this.infiniteScrollDisabled = false
-      this.pageQuery.current = 0
-      this.pageQuery.pages = 0
+      this.pageQuery.page = 1
       this.pageQuery.total = 0
     },
     async fetchData() {
       if (!this.selectedProjectId) return
       this.listLoading = true
+      await this.getVersionAssigneeData()
       const res = await this.getProjectIssueList()
       if (res.hasOwnProperty('data')) {
         this.listLoading = false
-        if (this.hasNoTagFilter) {
-          return Promise.resolve(res.data.issue_list.map((item) => this.issueFormatter(item)))
-        } else {
-          return Promise.resolve(res.data.map((item) => this.issueFormatter(item)))
-        }
+        return Promise.resolve(
+          res.data.items.map((item) => this.issueFormatter(item))
+        )
       }
     },
     async fetchMoreData() {
-      if (this.selectedProjectId === -1 ||
+      if (
+        this.selectedProjectId === -1 ||
         this.infiniteScrollDisabled ||
-        this.scrollLoading ||
-        !this.hasNoTagFilter) return
+        this.scrollLoading
+      ) {
+        return
+      }
       let data = []
-      if (this.pageQuery.total !== this.listData?.length) {
+      if (this.pageQuery.page < this.pageQuery.pages) {
+        this.pageQuery.page += 1
         data = await this.getProjectIssueList()
       } else {
         this.infiniteScrollDisabled = true
       }
       if (data.hasOwnProperty('data')) {
-        const formatterData = data.data.issue_list.map((item) => this.issueFormatter(item))
+        const formatterData = data.data.items.map((item) =>
+          this.issueFormatter(item)
+        )
         formatterData.forEach((item) => {
-          if (this.listData && !this.listData.find((listDataItem) => listDataItem.id === item.id)) {
+          if (
+            this.listData &&
+            !this.listData.find((listDataItem) => listDataItem.id === item.id)
+          ) {
             this.listData = this.listData.concat(item)
           }
         })
@@ -563,29 +549,32 @@ export default {
     async getProjectIssueList() {
       this.scrollLoading = true
       return await getProjectIssueList(
-        this.filterValue.project || this.selectedProjectId,
+        this.selectedProjectId,
         this.getParams(),
         { cancelToken: this.cancelToken }
       )
         .then((res) => {
-          if (this.hasNoTagFilter && res.data) {
-            const { current, pages, total } = res.data.page
-            this.pageQuery.current = current
-            this.pageQuery.pages = pages
-            this.pageQuery.total = total
+          if (res.data?.pagination) {
+            this.pageQuery = res.data.pagination
+            return res
+          } else {
+            return {
+              data: {
+                items: res.data
+              }
+            }
           }
-          return res
         })
         .finally(() => {
           this.scrollLoading = false
         })
     },
     issueFormatter(issue) {
-      if (Object.keys(issue.assigned_to).length <= 0) {
-        issue.assigned_to = { id: null }
+      if (!issue.assigned) {
+        issue.assigned = { id: null }
       }
-      if (Object.keys(issue.fixed_version).length <= 0) {
-        issue.fixed_version = { id: null }
+      if (!issue.version) {
+        issue.version = { id: null }
       }
       issue.start_date = issue.start_date ? new Date(issue.start_date) : null
       issue.due_date = issue.due_date ? new Date(issue.due_date) : null
@@ -605,7 +594,7 @@ export default {
       }
       this.$set(lazyTreeNodeMap, row.id, [])
     },
-    async treeDataArray(row, subLevel) {
+    async getTreeDataArray(row, subLevel) {
       let treeDataArray = []
       let updateNodeMap = []
       const { treeData, lazyTreeNodeMap } = this.$refs.WBS.layout.store.states
@@ -637,12 +626,12 @@ export default {
       const form = {
         id: `new_${timestamp}`,
         parent_id: null,
-        assigned_to: { id: '', name: '' },
-        name: '',
-        fixed_version: { id: '', name: '' },
+        assigned: { id: '', name: '' },
+        subject: '',
+        version: { id: '', name: '' },
         tracker: { id: findEpic ? findEpic.id : '', name: '' },
         status: { id: 1, name: '' },
-        priority: { id: 3, name: '' },
+        priority: { id: 2, name: '' },
         estimated_hours: 0,
         done_ratio: 0,
         point: 0,
@@ -654,22 +643,31 @@ export default {
       for (const data in form) {
         if (!prefill) break
         if (data !== 'id' && data !== 'create' && prefill[data]) {
-          if (data === 'name') form[data] = `${prefill.name}(${this.$t('Issue.Copy')})`
-          else form[data] = prefill[data]
+          if (data === 'subject') {
+            form[data] = `${prefill.subject}(${this.$t('Issue.Copy')})`
+          } else form[data] = prefill[data]
         }
       }
       return form
     },
     async appendIssue(row, subLevel, prefill) {
       this.checkResetCreate()
-      if (row) this.$set(this.$data, 'isParentExist', Object.prototype.hasOwnProperty.call(row, 'parent_object'))
-      const { treeDataArray, updateNodeMap } = await this.treeDataArray(row, subLevel)
+      if (row) {
+        this.$set(
+          this.$data,
+          'isParentExist',
+          Object.prototype.hasOwnProperty.call(row, 'parent_object')
+        )
+      }
+      const { treeDataArray, updateNodeMap } = await this.getTreeDataArray(
+        row,
+        subLevel
+      )
       const store = this.$refs.WBS.layout.store
       const { treeData, lazyTreeNodeMap } = store.states
       const timestamp = Math.floor(new Date().getTime() / 1000)
       const issueForm = this.issueForm(prefill, timestamp)
       if (subLevel) {
-        // const row_index = treeDataArray.findIndex((issue) => issue.id === row.id)
         treeDataArray.splice(0, 0, `new_${timestamp}`)
         issueForm['parent_id'] = row.id
         issueForm['sub_level'] = true
@@ -686,11 +684,13 @@ export default {
         store.$set(lazyTreeNodeMap, row.parent_object.id, updateNodeMap)
       } else {
         if (row?.id) {
-          const row_index = this.listData.findIndex((issue) => issue.id === row.id) + 1
+          const row_index =
+            this.listData.findIndex((issue) => issue.id === row.id) + 1
           this.listData.splice(row_index, 0, issueForm)
         } else {
           const { scrollHeight, scrollTop } = this.$refs.WBS.bodyWrapper
-          let row_index = Math.round(this.listData?.length * scrollTop / scrollHeight) + 2
+          let row_index =
+            Math.round((this.listData?.length * scrollTop) / scrollHeight) + 2
           if (scrollTop === 0) row_index = 0
           else if (scrollTop === scrollHeight) row_index += 1
           this.listData.splice(row_index, 0, issueForm)
@@ -726,66 +726,36 @@ export default {
         this.listData.splice(row_index, 1)
       }
     },
-    async handleRemoveIssue(row, msg, force, detail) {
-      const h = this.$createElement
-      const issueName = { issueName: row.name }
-      const messageList = [h('span', null, this.$t(`Issue.${msg}Issue`, issueName))]
-      if (detail) {
-        messageList.push(h('ul', null,
-          detail.map(issue => {
-            let tags = ''
-            if (issue.tags && issue.tags.length > 0) {
-              tags = issue.tags.map(tag => h('el-tag', { class: { 'mx-1': true }, props: { type: 'mini' }}, tag.name))
-            }
-            return h('li', null, [
-              h('Status', { class: { 'mx-1': true }, props: { name: this.$t(`Issue.${issue.status.name}`), size: 'mini' }}, ''),
-              h('Tracker', { props: { name: this.$t(`Issue.${issue.tracker.name}`), size: 'mini' }}, ''),
-              h('span', null, [
-                h('span', null, `#${issue.id} - `),
-                ...tags,
-                h('span', null, `${issue.name} ${(Object.keys(issue.assigned_to).length > 0 ? `(${this.$t(`Issue.assigned_to`)}: ${issue.assigned_to.name}
-                  -  ${issue.assigned_to.login})` : '')}`)
-              ])
-            ])
+    async handleRemoveIssue(row, force, isDirectDelete = false) {
+      if (!row.has_children && !isDirectDelete) {
+        this.deleteWarningDialog.visible = true
+        this.deleteWarningDialog.row = row
+        return
+      }
+      this.updateLoading = true
+      this.$emit('update-loading', true)
+      await this.deleteIssueAPI(force, row).catch((error) => {
+        const errorRes = error.response.data
+        if (errorRes && errorRes.error.code === 400) {
+          this.deleteWarningDialog.visible = true
+          this.deleteWarningDialog.row = row
+          this.deleteWarningDialog.relatedIssues =
+            errorRes.error.parameters.children || []
+        } else {
+          this.$emit('update-status', { error })
+          this.$message({
+            title: this.$t('general.Error').toString(),
+            type: 'error',
+            message: this.$t(
+              `errorMessage.${error.response.data.error.code}`,
+              error.response.data.error.details
+            ).toString()
           })
-        ))
-      }
-      const message = h('p', null, messageList)
-      const deleteRequest = await this.$confirm(message, this.$t('general.Delete'), {
-        confirmButtonText: this.$t('general.Delete'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'error',
-        confirmButtonClass: 'el-button--danger'
-      }).catch(err => console.error(err))
-      if (deleteRequest === 'confirm') {
-        this.updateLoading = true
-        this.$emit('update-loading', true)
-        try {
-          await this.deleteIssueAPI(force, row)
-        } catch (err) {
-          const errorRes = err.response.data
-          if (errorRes && errorRes.error.code === 1013) {
-            await this.handleRemoveIssue(row, 'ConfirmDelete', true, errorRes.error.details)
-          } else {
-            this.$emit('update-status', {
-              error: err
-            })
-            this.$message({
-              title: this.$t('general.Error').toString(),
-              type: 'error',
-              message: this.$t(`errorMessage.${err.response.data.error.code}`, err.response.data.error.details).toString()
-            })
-          }
         }
-        this.updateLoading = false
-      }
+      })
     },
     async deleteIssueAPI(force, row) {
-      let params = {}
-      if (force) {
-        params = { force: force }
-      }
-      const res = await deleteIssue(row.id, params)
+      const res = await deleteIssue(row.id, { force: force })
       this.$emit('update-status', {
         time: res.datetime
       })
@@ -800,7 +770,6 @@ export default {
     },
     handleContextMenu(row, column, event) {
       this.originSelectedRow = cloneDeep(row)
-      this.handleRowClick(row)
       if (!this.isMobile) {
         this.$refs?.contextmenu.handleContextMenu(row, column, event)
       } else {
@@ -810,8 +779,10 @@ export default {
     handleCellClick(row, column) {
       this.originSelectedRow = cloneDeep(row)
       if (row.create) return
-      if (column.property === 'name' && row.id.toString().includes('new')) return
-      if (column.property === 'name' && !row.editColumn) {
+      if (column.property === 'subject' && row.id.toString().includes('new')) {
+        return
+      }
+      if (column.property === 'subject' && !row.editColumn) {
         this.$emit('onOpenIssueDetail', row.id)
         return
       }
@@ -827,7 +798,11 @@ export default {
           columnName = column['property']
         }
         this.$set(this.$data, 'editRowId', row.id)
-        this.$set(this.$data, 'isParentExist', Object.prototype.hasOwnProperty.call(row, 'parent_object'))
+        this.$set(
+          this.$data,
+          'isParentExist',
+          Object.prototype.hasOwnProperty.call(row, 'parent_object')
+        )
         this.$set(row, 'originColumn', cloneDeep(row[columnName]))
         this.$set(row, 'editColumn', columnName)
       }
@@ -863,53 +838,13 @@ export default {
       this.$set(row, 'create', false)
       this.existCreatedRow = {}
     },
-    getFormData(data) {
-      const formData = new FormData()
-      Object.keys(data).forEach((item) => {
-        formData.append(item, data[item])
-      })
-      return formData
-    },
     async handleUpdateIssue({ value, row }) {
-      let checkUpdate = false
-
-      if (value['tags']) {
-        const tags = row['tags'].map((item) => item.id)
-        const findTags = tags.findIndex((item) => item === value['tags'])
-        if (findTags >= 0) {
-          tags.splice(findTags, 1)
-        } else {
-          tags.push(value['tags'])
-        }
-        value = { tags: tags.join(',') }
-        checkUpdate = true
-      } else if (typeof value['priority_id'] === 'number') {
-        checkUpdate = value['priority_id'] !== this.originSelectedRow.priority.id
-      } else if (typeof value['tracker_id'] === 'number') {
-        checkUpdate = value['tracker_id'] !== this.originSelectedRow.tracker.id
-      } else if (typeof value['status_id'] === 'number') {
-        checkUpdate = value['status_id'] !== this.originSelectedRow.status.id
-      } else if (value['fixed_version_id'] === 'null' || typeof value['fixed_version_id'] === 'number') {
-        checkUpdate = value['fixed_version_id'] !== this.originSelectedRow.fixed_version.id
-      } else if (value['assigned_to_id'] === 'null' || typeof value['assigned_to_id'] === 'number') {
-        value['status_id'] = value['assigned_to_id'] === 'null' ? 1 : 2
-        checkUpdate = value['assigned_to_id'] !== this.originSelectedRow.assigned_to.id
-      } else if (typeof value['done_ratio'] === 'number') {
-        checkUpdate = value['done_ratio'] !== this.originSelectedRow.done_ratio
-      } else if (typeof row.originColumn === 'object' && row.originColumn instanceof Date) {
-        if (isTimeValid(row.originColumn)) {
-          checkUpdate = value[row.editColumn] !== getLocalTime(row.originColumn, 'YYYY-MM-DD')
-        } else {
-          checkUpdate = value[`${row.editColumn}_id`] !== row.originColumn.id
-        }
-      } else {
-        checkUpdate = value[row.editColumn] !== row.originColumn
-      }
-      if (row.name.length <= 0) {
+      const isUpdate = this.checkIssueUpdate(value, row)
+      if (row.subject.length <= 0) {
         return
       }
 
-      if (checkUpdate) {
+      if (isUpdate) {
         if (!this.updateLoading) {
           this.updateLoading = true
           this.$emit('update-loading', true)
@@ -919,8 +854,7 @@ export default {
                 value[key] = ''
               }
             })
-            const formData = this.getFormData(value)
-            const res = await updateIssue(row.id, formData)
+            const res = await updateIssue(row.id, value)
             this.$set(row, 'editColumn', false)
             this.$set(row, 'originColumn', null)
             if (row.parent_object) {
@@ -932,15 +866,23 @@ export default {
                 treeDataArray = treeData[row.parent_object.id].children
                 updateNodeMap = lazyTreeNodeMap[row.parent_object.id]
               }
-              const findIssueIndex = treeDataArray.findIndex((issue) => issue === row.id)
+              const findIssueIndex = treeDataArray.findIndex(
+                (issue) => issue === row.id
+              )
               this.$set(updateNodeMap, findIssueIndex, {
                 ...this.issueFormatter(res.data),
                 parent_object: row.parent_object
               })
-              store.$set(treeData[row.parent_object.id], 'children', treeDataArray)
+              store.$set(
+                treeData[row.parent_object.id],
+                'children',
+                treeDataArray
+              )
               store.$set(lazyTreeNodeMap, row.parent_object.id, updateNodeMap)
             } else {
-              const row_index = this.listData.findIndex((issue) => row.id === issue.id)
+              const row_index = this.listData.findIndex(
+                (issue) => row.id === issue.id
+              )
               this.$set(this.listData, row_index, this.issueFormatter(res.data))
             }
             this.$emit('update-status', {
@@ -958,7 +900,10 @@ export default {
             this.$notify({
               title: this.$t('general.Error').toString(),
               type: 'error',
-              message: this.$t(`errorMessage.${e.response?.data.error.code}`, e.response?.data.error.details).toString()
+              message: this.$t(
+                `errorMessage.${e.response?.data.error.code}`,
+                e.response?.data.error.details
+              ).toString()
             })
           }
           this.updateLoading = false
@@ -973,9 +918,53 @@ export default {
         })
       }
     },
+    checkIssueUpdate(value, row) {
+      let isUpdate = false
+      if (value['tags']) {
+        const tags = row['tags'].map((item) => item.id)
+        const findTags = tags.findIndex((item) => item === value['tags'])
+        if (findTags >= 0) {
+          tags.splice(findTags, 1)
+        } else {
+          tags.push(value['tags'])
+        }
+        value['tags_list'] = tags.join(',')
+        isUpdate = true
+      } else if (typeof value['priority_id'] === 'number') {
+        isUpdate = value['priority_id'] !== this.originSelectedRow.priority.id
+      } else if (typeof value['tracker_id'] === 'number') {
+        isUpdate = value['tracker_id'] !== this.originSelectedRow.tracker.id
+      } else if (typeof value['status_id'] === 'number') {
+        isUpdate = value['status_id'] !== this.originSelectedRow.status.id
+      } else if (
+        value['version_id'] === 'null' ||
+        typeof value['version_id'] === 'number'
+      ) {
+        isUpdate = value['version_id'] !== this.originSelectedRow.version.id
+      } else if (
+        value['assigned_id'] === 'null' ||
+        isValidUUID(value.assigned_id)
+      ) {
+        value['status_id'] = value['assigned_id'] === 'null' ? 1 : 2
+        isUpdate = value['assigned_id'] !== this.originSelectedRow.assigned.id
+      } else if (typeof value['done_ratio'] === 'number') {
+        isUpdate = value['done_ratio'] !== this.originSelectedRow.done_ratio
+      } else if (
+        typeof row.originColumn === 'object' &&
+        row.originColumn instanceof Date
+      ) {
+        isUpdate = isTimeValid(row.originColumn)
+          ? value[row.editColumn] !==
+            getLocalTime(row.originColumn, 'YYYY-MM-DD')
+          : value[`${row.editColumn}_id`] !== row.originColumn.id
+      } else {
+        isUpdate = value[row.editColumn] !== row.originColumn
+      }
+      return isUpdate
+    },
     async handleCreateIssue({ row }) {
       if (!this.updateLoading) {
-        if (row.name.length <= 0) {
+        if (row.subject.length <= 0) {
           return
         }
         const data = {}
@@ -985,12 +974,12 @@ export default {
           } else {
             data[item] = row[item]
           }
+          if (data[item] === '') delete data[item]
         })
         this.updateLoading = true
         this.$emit('update-loading', true)
         try {
-          const formData = this.getFormData({ ...data, project_id: this.selectedProjectId })
-          const res = await addIssue(formData)
+          const res = await createProjectIssue(this.selectedProjectId, data)
           this.$set(row, 'create', false)
           this.$set(row, 'editColumn', false)
           res.data = this.issueFormatter(res.data)
@@ -1012,7 +1001,10 @@ export default {
           this.$notify({
             title: this.$t('general.Error').toString(),
             type: 'error',
-            message: this.$t(`errorMessage.${e.response.data.error.code}`, e.response.data.error.details).toString()
+            message: this.$t(
+              `errorMessage.${e.response.data.error.code}`,
+              e.response.data.error.details
+            ).toString()
           })
         }
         this.existCreatedRow = {}
@@ -1020,25 +1012,22 @@ export default {
         this.$emit('update-loading', false)
       }
     },
-    handleUpdateFamily(issues) {
+    handleFamilyUpdate(issues) {
       Object.values(issues).forEach(async (issue) => {
         await this.getIssueFamilyData(issue, issue.id, null, true)
         if (issue.parent) {
-          this.handleUpdateFamily({
+          this.handleFamilyUpdate({
             [issue.parent.id]: issue.parent
           })
         }
       })
     },
-    async getIssueFamilyData(row, treeNode, resolve, treeData) {
-      if (!this.hasNoTagFilter) {
-        resolve(row.children && row.children.length > 0 ? row.children : [])
-        return Promise.resolve()
-      }
+    async getIssueFamilyData(row, _, resolve, treeData) {
       try {
-        const family = await getIssueFamily(row.id, { params: { with_point: true }})
+        const family = await getIssueFamily(row.id)
         const data = family.data
         if (data.hasOwnProperty('children')) {
+          data.children = data.children.map((item) => this.issueFormatter(item))
           if (treeData) {
             const store = this.$refs.WBS.layout.store
             const { treeData, lazyTreeNodeMap } = store.states
@@ -1049,6 +1038,9 @@ export default {
               },
               ...item
             }))
+            if (!treeData[row.id]) {
+              this.setTreeData(row, treeData, lazyTreeNodeMap)
+            }
             store.$set(
               treeData[row.id],
               'children',
@@ -1056,13 +1048,20 @@ export default {
             )
             store.$set(lazyTreeNodeMap, row.id, childrenData)
           } else {
-            resolve(data.children.map((item) => ({ parent_object: { ...row, children: data.children }, ...item })))
+            resolve(
+              data.children.map((item) => ({
+                parent_object: { ...row, children: data.children },
+                ...item
+              }))
+            )
           }
         } else {
           if (treeData) {
             const store = this.$refs.WBS.layout.store
             const { treeData, lazyTreeNodeMap } = store.states
-            store.$set(treeData[row.id], 'children', [])
+            if (treeData[row.id]) {
+              store.$set(treeData[row.id], 'children', [])
+            }
             store.$set(lazyTreeNodeMap, row.id, [])
           } else {
             resolve([])
@@ -1075,51 +1074,29 @@ export default {
       return Promise.resolve()
     },
     handleRelationDelete() {
-      this.handleUpdated()
-      this.onCloseRelationIssueDialog()
-    },
-    onSaveCheckRelationIssue() {
-      this.$refs.settingRelationIssue.$refs.issueForm.validate((valid) => {
-        if (valid) {
-          this.onSaveRelationIssue()
-        }
+      this.$nextTick(() => {
+        this.$refs.contextmenu.relationIssue.visible = false
       })
-    },
-    async onSaveRelationIssue() {
-      try {
-        const getSettingRelationIssue = this.$refs['settingRelationIssue']
-        const updateApi = []
-        if (getSettingRelationIssue.target === 'Parent') {
-          const formData = this.getFormData({ parent_id: getSettingRelationIssue.form.parent_id })
-          updateApi.push(
-            updateIssue(getSettingRelationIssue.row.id, formData)
-          )
-        } else if (getSettingRelationIssue.target === 'Children') {
-          const appendFormData = this.getFormData({ parent_id: getSettingRelationIssue.row.id })
-          const removeFormData = this.getFormData({ parent_id: '' })
-          getSettingRelationIssue.children['append'].forEach((item) => {
-            updateApi.push(updateIssue(item, appendFormData))
-          })
-          getSettingRelationIssue.children['remove'].forEach((item) => {
-            updateApi.push(updateIssue(item, removeFormData))
-          })
-        }
-        await Promise.allSettled(updateApi)
-        this.toggleRelationDialog(getSettingRelationIssue.target)
-        this.$message({
-          title: this.$t('general.Success'),
-          message: this.$t('Notify.Updated'),
-          type: 'success'
-        })
-        this.loadData()
-        this.getIssueFamilyData(this.originSelectedRow, this.originSelectedRow.id, null, true)
-      } catch (e) {
-        console.error(e)
-      }
+      this.loadData()
     },
     handleRelationUpdate() {
       this.loadData()
       this.$emit('update-selection-list')
+    },
+    onRelationIssueUpdate(target) {
+      this.toggleRelationDialog(target)
+      this.$message({
+        title: this.$t('general.Success'),
+        message: this.$t('Notify.Updated'),
+        type: 'success'
+      })
+      this.loadData()
+      this.getIssueFamilyData(
+        this.originSelectedRow,
+        this.originSelectedRow.id,
+        null,
+        true
+      )
     },
     toggleRelationDialog(target, row) {
       this.relationDialog.visible = !this.relationDialog.visible
@@ -1139,10 +1116,10 @@ export default {
       this.showIconRowId = row.id
       this.fetchMoreData()
     },
-    handleCellMouseLeave(row) {
+    handleCellMouseLeave() {
       this.showIconRowId = null
     },
-    rowStyle({ row }) {
+    getRowStyle({ row }) {
       const style = {}
       if (row.id === this.issueDetailOpenedId) {
         style['background-color'] = '#e5e7eb'
@@ -1152,22 +1129,28 @@ export default {
     },
     addToCalendar(type, row) {
       if (type) {
-        const { id, name, start_date, due_date, tracker } = row
-        if (name) {
-          const title = `${tracker.name} #${id}: ${name}`
+        const { id, subject, start_date, due_date, tracker } = row
+
+        if (subject) {
+          const title = `${tracker.name} #${id}: ${subject}`
           const link = `${window.location.origin}/#/project/issues/${id}`
           const description = title.link(link)
           const data = {
             type: type,
-            title: name,
+            title: subject,
             details: description,
             start: start_date,
             end: due_date
           }
           if (type === 'ical') {
-            const cal = ics()
-            cal.addEvent(name, description, '', getLocalTime(start_date), getLocalTime(due_date))
-            cal.download('issue-' + (id || name))
+            ics({
+              id,
+              subject: subject,
+              description,
+              begin: getLocalTime(start_date),
+              stop: getLocalTime(due_date),
+              location: ''
+            })
             return
           }
           window.open(calendarUrl(data))
@@ -1178,6 +1161,9 @@ export default {
       this.issueMatrixDialog.visible = false
       this.loadData()
     },
+    onCloseDeleteWarning() {
+      this.deleteWarningDialog.visible = false
+    },
     checkResetCreate(row) {
       if (
         Object.keys(this.existCreatedRow).length > 0 &&
@@ -1186,23 +1172,34 @@ export default {
         this.handleResetCreate({ row: this.existCreatedRow })
       }
     },
-    async handleRowClick(row) {
+    async getVersionAssigneeData() {
       const editRowVersions = cloneDeep(defaultRowVersions)
       const editRowAssignedTo = cloneDeep([
         { id: 'null', name: 'Unassigned' },
-        { class: 'bg-yellow-100', id: this.userId, login: '-Me-', name: '<<我自己>>' }
+        {
+          class: 'bg-yellow-100',
+          id: this.userId,
+          username: '-Me-',
+          name: '<<我自己>>'
+        }
       ])
 
       const params = {
+        all: true,
         status: 'open,locked'
       }
       await Promise.allSettled([
-        getProjectVersion(row.project.id, params),
-        getProjectUserList(row.project.id)
+        getProjectVersion(this.selectedProjectId, params),
+        getProjectUserList(this.selectedProjectId)
       ]).then((res) => {
-        const [fixed_version, assigned_to] = res.map((item) => item.value.data)
-        fixed_version.versions.forEach((version) => editRowVersions.push(version))
-        assigned_to.user_list.forEach((user) => editRowAssignedTo.push(user))
+        const [version, assigned] = res.map((item) => item.value.data)
+        version.forEach((version) => editRowVersions.push(version))
+        const assignee = assigned.map((user) => ({
+          id: user.id,
+          username: user.username,
+          name: user.full_name
+        }))
+        assignee.forEach((user) => editRowAssignedTo.push(user))
       })
       this.editRowVersions = editRowVersions
       this.editRowAssignedTo = editRowAssignedTo
@@ -1213,6 +1210,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/mixin.scss';
+@import 'src/styles/theme/transition.scss';
 
 $light-gray: #9ca3af;
 $deep-gray: #333333;
@@ -1239,9 +1237,11 @@ $html-elements: (
 );
 
 @each $key, $value in $html-elements {
-  ::v-deep #{$key}.cursor-pointer:hover {
-    @apply font-black;
-    color: $value;
+  ::v-deep .cell {
+    #{$key}.cursor-pointer:hover {
+      @apply font-black;
+      color: $value;
+    }
   }
 }
 
@@ -1281,6 +1281,7 @@ $cursor-pointer-colors: (
       @apply bg-gray-200 text-black rounded-md text-center align-middle px-1;
     }
   }
+
   ::v-deep {
     table {
       th {
@@ -1297,38 +1298,25 @@ $cursor-pointer-colors: (
 .scroll-down-hint {
   left: 50%;
   width: 28px;
-	height: 42px;
-	border: 3px solid $light-gray;
-	border-radius: 60px;
+  height: 42px;
+  border: 3px solid $light-gray;
+  border-radius: 60px;
   margin-top: 6px;
-	position: relative;
-	&::before {
+  position: relative;
+
+  &::before {
     @include css-prefix(animation, wheel 2s infinite);
-		content: '';
-		width: 10px;
-		height: 10px;
-		position: absolute;
-		top: 10px;
-		left: 50%;
-		transform: translateX(-50%);
-		background-color: $deep-gray;
-		border-radius: 50%;
-		opacity: 1;
-	}
-}
-
-@keyframes wheel {
-	to {
-		opacity: 0;
-		top: 60px;
-	}
-}
-
-@-webkit-keyframes wheel {
-	to {
-		opacity: 0;
-		top: 60px;
-	}
+    content: '';
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $deep-gray;
+    border-radius: 50%;
+    opacity: 1;
+  }
 }
 
 ::v-deep .el-table__append-wrapper {

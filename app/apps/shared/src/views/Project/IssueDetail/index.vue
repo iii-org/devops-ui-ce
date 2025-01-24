@@ -3,114 +3,156 @@
     <Desktop
       v-if="device === 'desktop'"
       ref="IssueDetails"
-      :is-open-matrix="isOpenMatrix"
-      :props-issue-id="propsIssueId"
-      :is-in-dialog="isInDialog"
-      :is-from-board="isFromBoard"
-      :origin-form.sync="originForm"
-      :is-loading.sync="isLoading"
-      :issue-matrix-dialog.sync="issueMatrixDialog"
-      :root-project-id.sync="rootProjectId"
-      :issue-link.sync="issue_link"
-      :issue.sync="issue"
-      :issue-id.sync="issueId"
-      :issue-name.sync="issueName"
+      :activity-list="activityList"
+      :assigned="assigned"
       :author.sync="author"
-      :created-date.sync="created_date"
-      :tracker.sync="tracker"
-      :view.sync="view"
-      :form.sync="form"
-      :files.sync="files"
-      :test-files.sync="test_files"
-      :journals.sync="journals"
-      :request-git-lab-last-time.sync="requestGitLabLastTime"
-      :parent-data="parent"
       :children.sync="children"
-      :tags.sync="tags"
-      :relation-issue.sync="relationIssue"
-      :relations.sync="relations"
-      :related-collection-dialog-visible.sync="relatedCollectionDialogVisible"
-      :tags-string.sync="tagsString"
+      :count-relation-issue="countRelationIssue"
+      :create-at.sync="create_at"
+      :data-loaded.sync="dataLoaded"
+      :files.sync="files"
+      :form-project-id="formProjectId"
+      :form.sync="form"
+      :history-loading.sync="historyLoading"
+      :is-add-sub-issue.sync="isAddSubIssue"
+      :is-button-disabled="isButtonDisabled"
+      :is-from-board="isFromBoard"
+      :is-has-white-board="isHasWhiteBoard"
+      :is-in-dialog="isInDialog"
+      :is-issue-edited="isIssueEdited"
       :is-loading-family.sync="isLoadingFamily"
       :is-loading-test-file.sync="isLoadingTestFile"
-      :project-relation-list.sync="projectRelationList"
-      :storage-p-id.sync="storagePId"
+      :is-loading.sync="isLoading"
+      :is-open-matrix="isOpenMatrix"
+      :issue-id.sync="issueId"
+      :issue-matrix-dialog.sync="issueMatrixDialog"
       :issue-project.sync="issueProject"
-      :is-add-sub-issue.sync="isAddSubIssue"
-      :history-loading.sync="historyLoading"
-      :assigned-to="assigned_to"
-      :count-relation-issue="countRelationIssue"
-      :is-button-disabled="isButtonDisabled"
-      :form-project-id="formProjectId"
-      :is-has-white-board="isHasWhiteBoard"
-      :is-issue-edited="isIssueEdited"
-      :data-loaded.sync="dataLoaded"
+      :issue-subject.sync="issueSubject"
+      :issue.sync="issue"
+      :journals.sync="journals"
+      :origin-form.sync="originForm"
+      :parent-data="parent"
+      :project-relation-list.sync="projectRelationList"
+      :props-issue-id="propsIssueId"
+      :related-collection-dialog-visible.sync="relatedCollectionDialogVisible"
+      :relation-issue.sync="relationIssue"
+      :relations.sync="relations"
+      :request-git-lab-last-time.sync="requestGitLabLastTime"
+      :root-project-id.sync="rootProjectId"
+      :storage-p-id.sync="storagePId"
+      :tags-string.sync="tagsString"
+      :tags.sync="tags"
+      :test-files.sync="test_files"
+      :tracker.sync="tracker"
+      :view.sync="view"
     />
     <Mobile
       v-else
       ref="IssueDetails"
-      :is-open-matrix="isOpenMatrix"
-      :props-issue-id="propsIssueId"
-      :is-in-dialog="isInDialog"
-      :is-from-board="isFromBoard"
-      :form.sync="form"
-      :issue-id.sync="issueId"
-      :issue.sync="issue"
-      :tracker.sync="tracker"
-      :origin-form.sync="originForm"
-      :assigned-to="assigned_to"
-      :is-button-disabled="isButtonDisabled"
-      :is-loading.sync="isLoading"
-      :issue-project.sync="issueProject"
-      :parent-data="parent"
+      :activity-list="activityList"
+      :assigned="assigned"
       :children.sync="children"
       :count-relation-issue="countRelationIssue"
       :files.sync="files"
-      :journals.sync="journals"
+      :form.sync="form"
       :history-loading.sync="historyLoading"
+      :is-button-disabled="isButtonDisabled"
+      :is-from-board="isFromBoard"
+      :is-in-dialog="isInDialog"
       :is-issue-edited="isIssueEdited"
+      :is-loading.sync="isLoading"
+      :is-open-matrix="isOpenMatrix"
+      :issue-id.sync="issueId"
+      :issue-project.sync="issueProject"
+      :issue.sync="issue"
+      :journals.sync="journals"
+      :origin-form.sync="originForm"
+      :parent-data="parent"
+      :props-issue-id="propsIssueId"
+      :tracker.sync="tracker"
     />
     <ContextMenu
       ref="contextmenu"
-      :visible="contextMenu.visible"
-      :row="contextMenu.row"
       :filter-column-options="filterOptions"
+      :row="contextMenu.row"
       :selection-options="contextOptions"
+      :visible="contextMenu.visible"
       @update="getData"
     />
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import { getRootProjectId, getProjectAssignable } from '@/api/projects'
-import { getHasSon, getProjectRelation } from '@/api_v2/projects'
 import {
-  getIssue,
-  updateIssue,
   deleteIssue,
   deleteIssueRelation,
-  getIssueGitCommitLog,
-  getIssueFamily
-} from '@/api/issue'
+  getIssueDetails,
+  getIssueFamily,
+  getTimeEntryActivities,
+  updateIssue
+} from '@/api_v3/issues'
 import { getTestFileByTestPlan, putTestPlanWithTestFile } from '@/api/qa'
-import { getLocalTime, getRelativeTime } from '@shared/utils/handleTime'
-import { atob } from '@shared/utils/base64'
+import {
+  getProjectRelation,
+  getProjectUserList,
+  getRootProjectId
+} from '@/api_v3/projects'
+import { getIssueCommitHookList } from '@/api_v3/gitlab'
+import ContextMenu from '@/mixins/ContextMenu'
+import variables from '@/styles/theme/variables.module.scss'
 import getPageTitle from '@shared/utils/getPageTitle'
-import { ContextMenu } from '@/mixins'
-import variables from '@/styles/theme/variables.scss'
-import Desktop from './Desktop.vue'
-import Mobile from './Mobile.vue'
+import { getLocalTime, getRelativeTime } from '@shared/utils/handleTime'
+import { mapActions, mapGetters } from 'vuex'
 
 const commitLimit = 10
 
 export default {
   name: 'IssueDetail',
   components: {
-    Desktop,
-    Mobile
+    Desktop: () => import('./Desktop'),
+    Mobile: () => import('./Mobile')
   },
   mixins: [ContextMenu],
+  beforeRouteEnter(to, from, next) {
+    if (to.query.prev_page || from.name === null) {
+      next()
+    } else {
+      const newTo = Object.assign({}, to, {
+        query: {
+          ...to.query,
+          prev_page: from.fullPath
+        }
+      })
+      next(newTo)
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.hasUnsavedChanges()) {
+      setTimeout(() => {
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.$route.meta.subject = null
+            document.title = getPageTitle(this.$route.meta)
+            next()
+          })
+          .catch(() => {
+            next(false)
+          })
+      }, 1)
+    } else {
+      this.$route.meta.subject = null
+      document.title = getPageTitle(this.$route.meta)
+      next()
+    }
+  },
   props: {
     propsIssueId: {
       type: [String, Number],
@@ -141,32 +183,33 @@ export default {
         visible: false
       },
       rootProjectId: '',
-      issue_link: '',
       issue: {},
       issueId: null,
-      issueName: '',
+      issueSubject: '',
       author: '',
-      created_date: '',
+      create_at: '',
       tracker: '',
       view: {},
       form: {
         parent_id: null,
         relation_ids: [],
         tags: [],
-        project_id: 0,
-        assigned_to_id: '',
-        name: '',
-        fixed_version_id: '',
+        project_id: '',
+        assigned_id: '',
+        subject: '',
+        version_id: '',
         tracker_id: 0,
         status_id: 1,
-        priority_id: 3,
+        priority_id: 2,
+        spent_hours: 0,
         estimated_hours: 0,
+        total_spent_hours: 0,
         done_ratio: 0,
         start_date: '',
         due_date: '',
         description: '',
         notes: '',
-        board: []
+        boards: []
       },
       files: [],
       test_files: [],
@@ -195,56 +238,21 @@ export default {
       isIssueFormOpened: !this.isFromBoard,
       isAddSubIssue: false,
       historyLoading: false,
-      assigned_to: [],
+      assigned: [],
       dataLoaded: false,
       isIssueEdited: {
         description: false,
         notes: false,
         estimated_hours: false,
         done_ratio: false
-      }
-    }
-  },
-  beforeRouteEnter(to, from, next) {
-    if (to.query.prev_page || from.name === null) {
-      next()
-    } else {
-      const newTo = Object.assign({}, to, {
-        query: {
-          ...to.query,
-          prev_page: from.fullPath
-        }
-      })
-      next(newTo)
-    }
-  },
-  beforeRouteLeave(to, from, next) {
-    if (this.hasUnsavedChanges()) {
-      setTimeout(() => {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        })
-          .then(() => {
-            this.$route.meta.subject = null
-            document.title = getPageTitle(this.$route.meta)
-            next()
-          })
-          .catch(() => {
-            next(false)
-          })
-      }, 1)
-    } else {
-      this.$route.meta.subject = null
-      document.title = getPageTitle(this.$route.meta)
-      next()
+      },
+      activityList: []
     }
   },
   computed: {
     ...mapGetters([
       'selectedProject',
-      'userProjectList',
+      'projectOptions',
       'selectedProjectId',
       'test_filename',
       'userName',
@@ -252,7 +260,7 @@ export default {
       'device'
     ]),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     countRelationIssue() {
       let parent = 0
@@ -270,7 +278,9 @@ export default {
       return parent + children + relations
     },
     isButtonDisabled() {
-      return this.$route.params.hasOwnProperty('disableButton') ? this.$route.params.disableButton : false
+      return this.$route.params.hasOwnProperty('disableButton')
+        ? this.$route.params.disableButton
+        : false
     },
     formProjectId() {
       return this.form.project_id || this.selectedProjectId
@@ -289,7 +299,7 @@ export default {
       this.isAddSubIssue = false
     },
     'form.project_id': {
-      handler(newPId, oldPId) {
+      handler(newPId) {
         if (this.$route.name === 'Milestone') return
         if (this.storagePId && newPId !== this.storagePId) {
           this.isShowDialog = true
@@ -302,58 +312,32 @@ export default {
     scrollType(val) {
       if (this.device === 'mobile') return
       const elCollapseItemHeader = Array.from(
-        this.$refs.IssueDetails.$refs['mainIssueWrapper']
-          .$el.getElementsByClassName('el-collapse-item__header')
+        this.$refs.IssueDetails.$refs[
+          'mainIssueWrapper'
+        ].$el.getElementsByClassName('el-collapse-item__header')
       )
-      elCollapseItemHeader[elCollapseItemHeader.length - 1]
-        .style['justify-content'] = val === 'top' ? '' : 'center'
+      elCollapseItemHeader[elCollapseItemHeader.length - 1].style[
+        'justify-content'
+      ] = val === 'top' ? '' : 'center'
     },
     device(value) {
       if (value === 'mobile' && this.isInDialog) {
-        this.$router.push({ name: 'IssueDetail', params: { issueId: this.propsIssueId }})
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: this.propsIssueId }
+        })
       }
     }
-    // copyIssueEdited: {
-    //   deep: true,
-    //   handler(val, oldVal) {
-    //     console.log('val', val)
-    //     console.log('oldVal', oldVal)
-    //     if (Object.keys(oldVal).every((key) => !oldVal[key])) return
-    //     let newKey = ''
-    //     let oldKey = ''
-    //     Object.keys(oldVal).forEach((key) => { if (oldVal[key]) oldKey = key })
-    //     Object.keys(val).forEach((key) => { if (val[key] && key !== oldKey) newKey = key })
-    //     console.log(newKey, oldKey)
-    //     if (newKey !== oldKey) {
-    //       this.isIssueEdited[oldKey] = true
-    //       this.isIssueEdited[newKey] = false
-    //       this.$confirm(this.$t('Notify.UnSavedChanges'),
-    //         this.$t('general.Warning'), {
-    //           confirmButtonText: this.$t('general.Confirm'),
-    //           cancelButtonText: this.$t('general.Cancel'),
-    //           type: 'warning'
-    //         })
-    //         .then(() => {
-    //           this.isIssueEdited[oldKey] = false
-    //           this.isIssueEdited[newKey] = true
-    //         })
-    //         .catch(() => {
-    //           Object.keys(oldVal).forEach((key) => {
-    //             this.isIssueEdited[key] = oldVal[key]
-    //           })
-    //         })
-    //     }
-    //   }
-    // }
   },
   async mounted() {
+    await this.fetchActivityList()
     await this.fetchIssueLink()
     await this.getRelationProjectList()
     this.storagePId = this.form.project_id
     this.dataLoaded = true
   },
   methods: {
-    ...mapActions('projects', ['setSelectedProject']),
+    ...mapActions('projects', ['setSelectedProject', 'isProjectHasChildren']),
     ...mapActions('qa', ['removeFileName']),
     async getData() {
       await this.fetchIssueLink()
@@ -370,7 +354,9 @@ export default {
         await this.fetchIssue()
       } else {
         this.form.project_id = this.selectedProjectId
-        const tracker = this.$refs.IssueDetails.$refs['IssueForm'].tracker.find((item) => item.name === 'Test Plan')
+        const tracker = this.$refs.IssueDetails.$refs['IssueForm'].tracker.find(
+          (item) => item.name === 'Test Plan'
+        )
         this.form.tracker_id = tracker.id
         if (this.test_filename) {
           this.test_files.push({ ...this.test_filename, edit: true })
@@ -384,18 +370,21 @@ export default {
       this.isLoading = true
       let data = {}
       try {
-        const issue = await getIssue(this.issueId)
+        const issue = await getIssueDetails(this.issueId)
         data = issue.data
-        this.$route.meta.subject = `[${this.$t('Issue.' + data.tracker.name)}] #${data.id} - ${data.name} @ ${
-          data.project.name
-        }`
+        this.$route.meta.subject = `[${this.$t(
+          'Issue.' + data.tracker.name
+        )}] #${data.id} - ${data.subject} @ ${data.project.display_name}`
         document.title = getPageTitle(this.$route.meta)
         if (data.hasOwnProperty('relations')) {
           await this.setRelationsIssue(data)
         }
         if (data.tracker && data.tracker.name === 'Test Plan') {
-          if (process.env.VUE_APP_PROJECT === 'SSO') {
-            const test_files = await getTestFileByTestPlan(this.selectedProjectId, this.issueId)
+          if (import.meta.env.VITE_APP_PROJECT === 'SSO') {
+            const test_files = await getTestFileByTestPlan(
+              this.selectedProjectId,
+              this.issueId
+            )
             this.$set(data, 'test_files', test_files.data)
           }
         }
@@ -405,7 +394,7 @@ export default {
           this.initIssueDetails(data, true)
         }
       } catch (e) {
-        this.handleBackPage()
+        // this.handleBackPage()
         // this.$message({
         //   message: this.$t('Issue.RemovedIssue'),
         //   type: 'warning'
@@ -419,20 +408,21 @@ export default {
       for (const item of data.relations) {
         let getIssueId
         if (data.id === item.issue_id) {
-          getIssueId = item.issue_to_id
+          getIssueId = item.issue_id_to
         } else {
           getIssueId = item.issue_id
         }
-        res_api.push(await getIssue(getIssueId))
+        res_api.push(await getIssueDetails(getIssueId))
       }
 
-      const relation_issue = await Promise.allSettled(res_api).then((res) => res.map((item) => item.value))
+      const relation_issue = await Promise.allSettled(res_api).then((res) =>
+        res.map((item) => item.value)
+      )
       relation_issue.forEach((item, idx) => {
         this.$set(data.relations, idx, {
           relation_id: data.relations[idx].id,
           ...data.relations[idx],
-          ...item.data,
-          name: item.data.name
+          ...item.data
         })
       })
     },
@@ -442,12 +432,11 @@ export default {
     },
     initIssueDetails(data, updateDescription) {
       const {
-        issue_link,
         author,
         attachments,
-        created_date,
+        create_at,
         journals,
-        name,
+        subject,
         tracker,
         parent,
         children,
@@ -456,12 +445,11 @@ export default {
         tags
       } = data
       this.issue = data
-      this.issue_link = issue_link
-      this.issueName = name
-      this.author = author.name
+      this.issueSubject = subject
+      this.author = author.full_name
       this.tracker = tracker.name
       this.files = attachments
-      this.created_date = created_date
+      this.create_at = create_at
       if (journals) {
         this.journals = journals.reverse()
       } else {
@@ -495,78 +483,96 @@ export default {
       this.issueProject = data.project
     },
     async getRelationProjectList() {
-      const hasSon = (await getHasSon(this.formProjectId)).has_child
-      if (hasSon) {
-        const projectRelation = (await getProjectRelation(this.formProjectId)).data
+      const hasChildren = await this.isProjectHasChildren(
+        this.selectedProjectId
+      )
+      if (hasChildren) {
+        const projectRelation = (await getProjectRelation(this.formProjectId))
+          .data
         this.projectRelationList.push(projectRelation[0].parent.id)
         projectRelation[0].child.forEach((item) => {
           this.projectRelationList.push(item.id)
         })
       }
     },
-    onProjectChange(value) {
-      if (this.isInDialog || this.isFromBoard) return
-      localStorage.setItem('projectId', value)
-      this.setSelectedProject(this.userProjectList.filter((elm) => elm.id === value)[0])
-    },
+    // onProjectChange(value) {
+    //   if (this.isInDialog || this.isFromBoard) return
+    //   localStorage.setItem('projectId', value)
+    //   this.setSelectedProject(
+    //     this.projectOptions.filter((elm) => elm.id === value)[0]
+    //   )
+    // },
     setIssueId() {
       if (this.propsIssueId) this.issueId = parseInt(this.propsIssueId)
-      else if (this.$route.params.issueId) this.issueId = parseInt(this.$route.params.issueId)
+      else if (this.$route.params.issueId) {
+        this.issueId = parseInt(this.$route.params.issueId)
+      }
     },
     async getRootProject(projectId) {
-      this.rootProjectId = (await getRootProjectId(projectId)).root_project_id
+      this.rootProjectId = (await getRootProjectId(projectId)).data?.id
     },
     async getGitCommitLogData() {
       await this.getRootProject(this.formProjectId)
       this.setIssueId()
-      const params = { limit: commitLimit }
-      const res = await getIssueGitCommitLog(this.rootProjectId, this.issueId, params)
+      const params = { limit: commitLimit, issue_id: this.issueId }
+      const res = await getIssueCommitHookList(params)
       res.data.forEach((item, index) => {
-        item['id'] = index
-        item['commit_time'] = getLocalTime(item['commit_time'])
+        item['committed_date'] = getLocalTime(item['committed_date'])
       })
       return Promise.resolve(res.data)
     },
     setFormData(data, updateDescription) {
       const {
-        project,
-        parent,
-        assigned_to,
-        fixed_version,
-        name,
-        tracker,
-        status,
-        priority,
-        estimated_hours,
-        done_ratio,
-        start_date,
-        due_date,
+        assigned,
+        boards,
         description,
-        board
+        done_ratio,
+        due_date,
+        estimated_hours,
+        parent,
+        priority,
+        project,
+        spent_hours,
+        start_date,
+        status,
+        subject,
+        total_spent_hours,
+        tracker,
+        version
       } = data
       this.form.parent_id = parent ? parent.id : ''
       this.form.project_id = project ? project.id : ''
-      this.form.assigned_to_id = Object.keys(assigned_to).length > 0 ? assigned_to.id : ''
-      this.form.name = name
-      this.form.fixed_version_id = fixed_version ? fixed_version.id : ''
+      this.form.assigned_id = assigned ? assigned.id : ''
+      this.form.subject = subject
+      this.form.version_id = version ? version.id : ''
       this.form.tracker_id = tracker.id
       this.form.status_id = status.id
       this.form.priority_id = priority.id
       this.form.estimated_hours = estimated_hours
+      this.form.spent_hours = spent_hours
+      this.form.total_spent_hours = total_spent_hours
       this.form.done_ratio = done_ratio
       this.form.start_date = start_date === null ? '' : start_date
       this.form.due_date = due_date === null ? '' : due_date
       this.form.description = !updateDescription
-        ? this.form.description : description === null
-          ? '' : description
-      this.form.relation_ids = this.relations.length > 0 ? this.relations.map((item) => item.id) : []
-      this.form.tags = this.tags.length > 0 ? this.tags.map((item) => item.id) : []
+        ? this.form.description
+        : description === null
+        ? ''
+        : description
+      this.form.relation_ids =
+        this.relations.length > 0 ? this.relations.map((item) => item.id) : []
+      this.form.tags =
+        this.tags.length > 0 ? this.tags.map((item) => item.id) : []
       if (!this.isLite) {
-        this.form.board = board && board.length > 0 ? board.map((item) => item.id) : []
-        this.form.boardList = board && board.length > 0 ? board.map((item) => {
-          item.name = '[ ' + item.name + ' ] ' + item.item.name
-          return item
-        }) : []
+        this.form.boards =
+          boards && boards.length > 0 ? boards.map((item) => item.id) : []
+        this.form.boardList =
+          boards && boards.length > 0
+            ? boards.map((item) => {
+                item.name = '[ ' + item.name + ' ] ' + item.item.name
+                return item
+              })
+            : []
       }
       this.originForm = Object.assign({}, this.form)
     },
@@ -576,21 +582,24 @@ export default {
       if (isLoadIssueFamily) this.isLoadingFamily = true
       let data = {}
       try {
-        const issue = await getIssue(this.issueId)
+        const issue = await getIssueDetails(this.issueId)
         data = issue.data
         if (data.hasOwnProperty('relations')) {
           await this.setRelationsIssue(data)
         }
         this.initIssueDetails(data)
       } catch (e) {
-        this.handleBackPage()
+        // this.handleBackPage()
       }
       if (isLoadIssueFamily) this.isLoadingFamily = false
       this.historyLoading = false
     },
     async handleUpdated(issue_id) {
       if (!this.issueId) {
-        this.$router.push({ name: 'IssueDetail', params: { issueId: issue_id }})
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: issue_id }
+        })
       } else {
         await this.$refs.IssueDetails.$refs.IssueForm.getClosable()
       }
@@ -605,12 +614,14 @@ export default {
     handleBackPage() {
       const { prev_page } = this.$route.query
       if (prev_page) {
-        this.$router.push(!prev_page.includes('/') ? decodeURIComponent(prev_page) : prev_page)
+        this.$router.push(
+          !prev_page.includes('/') ? decodeURIComponent(prev_page) : prev_page
+        )
       } else {
         this.$router.push({
           name: 'IssueList',
           params: {
-            projectName: this.selectedProject.name
+            projectName: this.selectedProject.identifier
           }
         })
       }
@@ -625,31 +636,41 @@ export default {
       }
     },
     dataURLtoFile(fileName, dataUrl) {
-      const arr = dataUrl.split(',')
-      const mime = arr[0].match(/:(.*?);/)[1]
-      const bstr = atob(arr[1])
+      const [mime, url] = dataUrl.split(',')
+      const mimeType = mime.match(/:(.*?);/)[1]
+      const bstr = atob(url)
       let n = bstr.length
       const u8arr = new Uint8Array(n)
       while (n--) {
         u8arr[n] = bstr.charCodeAt(n)
       }
-      return new File([u8arr], fileName, { type: mime })
+      return new File([u8arr], fileName, { type: mimeType })
     },
+    filterImageUrls(markdown) {
+      const regex = /!\[([^\]]+)\]\(([^)]+)\)/g
+      const matches = []
+      let match
+      while ((match = regex.exec(markdown)) !== null) {
+        matches.push(match[0])
+      }
+      return matches
+    },
+    // TODO: remove filterImage
     filterImage(object) {
-      const [value, sendForm, checkDuplicate] = object
-      let [array, fileArray, file] = [[], [], '']
-      array = value.split(/!\[(.+?)\)/g).filter((item) =>
-        (/(.+?)\]\(data:.+/g).test(item)
-      )
-      if (array.length === 0) return
-      array.forEach((item) => {
-        fileArray = item.split('](')
-        file = this.dataURLtoFile(fileArray[0], fileArray[1])
-        const hasSameFile = this.files.some((element) =>
-          file.name === element.filename &&
-          file.size === element.filesize
-        )
-        if (checkDuplicate && hasSameFile) return
+      const { value, sendForm } = object
+      const imageUrls = this.filterImageUrls(value)
+      if (imageUrls.length === 0) return
+      imageUrls.forEach((imageUrl) => {
+        const match = imageUrl.match(/!\[([^\]]+)\]\(([^)]+)\)/)
+        if (!match) return
+        const file = this.dataURLtoFile(match[1], match[2])
+        if (
+          this.files.some(
+            (f) => file.name === f.filename && file.size === f.filesize
+          )
+        ) {
+          return
+        }
         sendForm.append('upload_files', file)
       })
     },
@@ -684,8 +705,7 @@ export default {
     async removeIssueRelation(child_issue_id) {
       this.isLoading = true
       try {
-        const formData = this.getFormData({ parent_id: '' })
-        await updateIssue(child_issue_id, formData)
+        await updateIssue(child_issue_id, { parent_id: '' })
         // this.$message({
         //   title: this.$t('general.Success'),
         //   message: this.$t('Notify.Updated'),
@@ -713,8 +733,8 @@ export default {
       this.listLoading = false
     },
     hasUnsavedChanges() {
-      return Object.keys(this.isIssueEdited).some((key) =>
-        this.isIssueEdited[key]
+      return Object.keys(this.isIssueEdited).some(
+        (key) => this.isIssueEdited[key]
       )
     },
     handleRelationDelete() {
@@ -723,11 +743,15 @@ export default {
     },
     handleRelationIssueDialogBeforeClose(done) {
       if (this.$refs.IssueDetails.$refs.children.hasUnsavedChanges()) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        }).then(() => {
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        ).then(() => {
           done()
         })
       } else {
@@ -842,7 +866,9 @@ export default {
     async updateWhiteBoard(excalidrawName) {
       await this.fetchIssueLink()
       this.issueTabs = 'whiteBoard'
-      const row = this.issue.excalidraw.find((item) => item.name === excalidrawName)
+      const row = this.issue.excalidraw.find(
+        (item) => item.name === excalidrawName
+      )
       this.editWhiteBoard(row)
     },
     editWhiteBoard(row) {
@@ -869,8 +895,8 @@ export default {
     },
     resetForm() {
       this.form.tags = []
-      this.form.assigned_to_id = ''
-      this.form.fixed_version_id = ''
+      this.form.assigned_id = ''
+      this.form.version_id = ''
     },
     getStyle(colorCode) {
       const color = variables[`${colorCode}`]
@@ -879,22 +905,22 @@ export default {
       }
     },
     copyUrl() {
-      const message = this.$t('Notify.Copied')
-      const input = document.createElement('input')
       const url = `${window.location.origin}/#/project/issues/${this.issueId}`
-      input.value = url
-      document.body.appendChild(input)
-      input.select()
-      document.execCommand('Copy')
-      input.remove()
-      this.showSuccessMessage(message)
+      this.$copyText(url).then(() => {
+        const message = this.$t('Notify.Copied')
+        this.showSuccessMessage(message)
+      })
     },
     async initIssueStatus() {
-      if (this.$refs.IssueDetails && this.device === 'desktop') this.$refs.IssueDetails.calcIssueFormWidth()
-      this.assigned_to = (await getProjectAssignable(this.formProjectId)).data.user_list
+      if (this.$refs.IssueDetails && this.device === 'desktop') {
+        this.$refs.IssueDetails.calcIssueFormWidth()
+      }
+      this.assigned = (await getProjectUserList(this.formProjectId)).data
       this.$nextTick(() => {
         if (!this.$refs.IssueDetails || this.device === 'mobile') return
-        if (this.$refs.IssueDetails.$refs.mainIssue.$el.scrollTop > 0) this.$refs.IssueDetails.$refs.mainIssue.$el.scrollTop = 0
+        if (this.$refs.IssueDetails.$refs.mainIssue.$el.scrollTop > 0) {
+          this.$refs.IssueDetails.$refs.mainIssue.$el.scrollTop = 0
+        }
         this.$refs.IssueDetails.$refs.IssueForm.$refs.form.clearValidate()
       })
     },
@@ -910,6 +936,11 @@ export default {
       this.$nextTick(() => {
         const element = document.getElementById('AddSubIssueWrapper')
         element.scrollIntoView({ behavior: 'smooth' })
+      })
+    },
+    async fetchActivityList() {
+      await getTimeEntryActivities().then((res) => {
+        this.activityList = res.data
       })
     }
   }

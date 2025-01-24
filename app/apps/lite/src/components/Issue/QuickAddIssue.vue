@@ -1,47 +1,33 @@
 <template>
   <el-row v-show="visible">
-    <el-form
-      ref="issueForm"
-      inline
-      :model="form"
-      :rules="formRules"
-    >
+    <el-form ref="issueForm" :model="form" :rules="formRules" inline>
       <el-form-item prop="tracker_id">
         <el-select
           v-model="form.tracker_id"
-          :placeholder="$t('Issue.SelectType')"
           :disabled="hasSetTracker"
+          :placeholder="$t('Issue.SelectType')"
         >
           <el-option
             v-for="option in trackerList"
-            :key="option.login"
+            :key="option.id"
             :label="$t('Issue.' + option.name)"
             :value="option.id"
           >
-            <Tracker
-              :name="$t(`Issue.${option.name}`)"
-              :type="option.name"
-            />
+            <Tracker :name="$t(`Issue.${option.name}`)" :type="option.name" />
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item prop="name">
-        <el-input
-          v-model="form.name"
-          :placeholder="$t('Issue.name')"
-        />
+      <el-form-item prop="subject">
+        <el-input v-model="form.subject" :placeholder="$t('Issue.name')" />
       </el-form-item>
       <el-form-item>
-        <el-button
-          class="button-primary"
-          :loading="LoadingConfirm"
-          @click="handleSave"
-        >
+        <el-button :loading="LoadingConfirm" type="primary" @click="handleSave">
           {{ $t('general.Save') }}
         </el-button>
         <el-button
           :disabled="LoadingConfirm"
-          class="button-secondary-reverse"
+          plain
+          type="success"
           @click="advancedAddIssue"
         >
           {{ $t('general.AdvancedSettings') }}
@@ -49,39 +35,34 @@
       </el-form-item>
     </el-form>
     <el-dialog
+      :close-on-click-modal="false"
       :title="$t('Issue.AddIssue')"
       :visible.sync="addTopicDialogVisible"
-      width="50%"
-      top="5px"
-      :close-on-click-modal="false"
-      destroy-on-close
       append-to-body
+      destroy-on-close
+      top="5px"
+      width="50%"
       @close="handleClose"
     >
       <AddIssue
         ref="AddIssue"
-        :project-id="selectedProjectId"
+        :is-create="true"
         :parent-id="parentId"
         :prefill="form"
+        :project-id="selectedProjectId"
         :save-data="saveData"
-        import-from="list"
         :tracker-list="trackerList"
+        import-from="list"
         @loading="loadingUpdate"
         @add-topic-visible="handleCloseDialog"
       />
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          class="button-secondary-reverse"
-          @click="handleAdvancedClose"
-        >
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleAdvancedClose">
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
           :loading="LoadingConfirm"
-          class="button-primary"
+          type="primary"
           @click="handleAdvancedSave"
         >
           {{ $t('general.Confirm') }}
@@ -93,12 +74,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Tracker from './Tracker'
-import AddIssue from './AddIssue'
 
 export default {
   name: 'QuickAddIssue',
-  components: { AddIssue, Tracker },
+  components: {
+    AddIssue: () => import('./AddIssue'),
+    Tracker: () => import('./Tracker')
+  },
   props: {
     visible: {
       type: Boolean,
@@ -124,14 +106,14 @@ export default {
       parentId: 0,
       form: {
         tracker_id: 8,
-        name: null,
-        assigned_to_id: null,
+        subject: null,
+        assigned_id: null,
         status_id: 1,
-        priority_id: 3
+        priority_id: 2
       },
       advancedForm: {},
       formRules: {
-        name: [
+        subject: [
           {
             required: true,
             message: this.$t('Validation.Input', [this.$t('general.Name')]),
@@ -162,10 +144,16 @@ export default {
     },
     trackerList() {
       if (this.enableForceTracker) {
-        if (this.hasSetTracker) return this.strictTracker.filter((item) => item.name === this.trackerName)
+        if (this.hasSetTracker) {
+          return this.strictTracker.filter(
+            (item) => item.name === this.trackerName
+          )
+        }
         return this.strictTracker
       }
-      if (this.hasSetTracker) return this.tracker.filter((item) => item.name === this.trackerName)
+      if (this.hasSetTracker) {
+        return this.tracker.filter((item) => item.name === this.trackerName)
+      }
       return this.tracker
     }
   },
@@ -185,15 +173,15 @@ export default {
     setFilterValue() {
       this.form = {
         tracker_id: null,
-        name: null,
-        assigned_to_id: null,
+        subject: null,
+        assigned_id: null,
         status_id: 1,
-        priority_id: 3
+        priority_id: 2
       }
       if (this.hasSetTracker) {
         this.form.tracker_id = this.trackerList[0].id
       }
-      const dimensions = ['fixed_version', 'tracker']
+      const dimensions = ['version', 'tracker']
       dimensions.forEach((item) => {
         if (
           this.issueFilter['list'] &&
@@ -218,7 +206,9 @@ export default {
     cleanFormData() {
       const data = JSON.parse(JSON.stringify(this.form))
       Object.keys(data).forEach((item) => {
-        if (data[item] === '' || data[item] === 'null' || !data[item]) delete data[item]
+        if (data[item] === '' || data[item] === 'null' || !data[item]) {
+          delete data[item]
+        }
       })
       return data
     },

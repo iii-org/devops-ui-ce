@@ -1,17 +1,16 @@
 <template>
   <div
-    :style="fromWbs ? 'background: transparent' : ''"
     :class="getHeaderBarClassName(boardObject.name)"
+    :style="fromWbs ? 'background: transparent' : ''"
     class="board-column"
   >
-    <div
-      :style="!fromWbs ? '': 'height: 10px'"
-      class="board-column-header"
-    >
+    <div :style="!fromWbs ? '' : 'height: 10px'" class="board-column-header">
       <div
-        :style="{ backgroundColor: !isSelectDefaultOption ? boardObject.color : '' }"
+        :style="{
+          backgroundColor: !isSelectDefaultOption ? boardObject.color : ''
+        }"
         class="header-bar"
-      />
+      ></div>
       <div
         v-if="!isSelectDefaultOption && boardObject.id !== 'all' && !fromWbs"
         class="flex items-start float-right p-1"
@@ -25,9 +24,9 @@
           <em
             :class="isEdited ? 'el-icon-check' : 'el-icon-edit-outline'"
             class="primary table-button"
-            style="font-size: 14px;"
+            style="font-size: 14px"
             @click="handleEdit()"
-          />
+          ></em>
         </el-tooltip>
         <el-tooltip
           :content="isEdited ? $t('general.Cancel') : $t('general.Delete')"
@@ -36,16 +35,18 @@
           <em
             :class="isEdited ? 'el-icon-close' : 'el-icon-delete'"
             class="danger table-button"
-            style="font-size: 14px;"
+            style="font-size: 14px"
             @click="handleClose()"
-          />
+          ></em>
         </el-tooltip>
       </div>
       <el-row v-if="!fromWbs" class="flex">
         <el-col class="text-center">
           <span
             v-if="!isEdited"
-            :style="{'padding-left': boardObject.id !== 'all' ? '1.5rem' : ''}"
+            :style="{
+              'padding-left': boardObject.id !== 'all' ? '1.5rem' : ''
+            }"
           >
             {{ getTranslateHeader(boardObject.name) }}
             <strong v-if="boardObject.id !== 'all'">
@@ -68,24 +69,26 @@
     <div class="overflow-auto el-scrollbar__view">
       <ul
         v-infinite-scroll="loadMoreIssueList"
+        :class="
+          boardObject.id !== 'all' || list < 10 ? 'el-scrollbar__view' : ''
+        "
         :infinite-scroll-disabled="isScrollDisabled"
         :infinite-scroll-immediate="false"
-        :class="boardObject.id !== 'all' || list < 10 ? 'el-scrollbar__view' :''"
         class="p-0 m-0"
       >
         <Draggable
-          :list="list"
-          v-bind="$attrs"
-          :style="fromWbs ? 'border: 1px solid transparent' : ''"
+          :animation="120"
           :class="boardObject.name"
-          :move="canIssueMoved"
           :disabled="disabled"
           :draggable="'.item'"
-          :animation="120"
           :force-fallback="true"
+          :list="list"
+          :move="canIssueMoved"
+          :style="fromWbs ? 'border: 1px solid transparent' : ''"
           class="board-column-content"
           drag-class="dragClass"
           ghost-class="ghostClass"
+          v-bind="$attrs"
           @change="end(boardObject, $event)"
         >
           <div
@@ -94,21 +97,21 @@
             :key="element.id"
             :ref="element.id"
             class="board-item item"
-            @touchstart="disabled ? longPress(element, '', $event) : ''"
-            @drop="dropPanelLabels($event, idx, element.id)"
             @dragover="allowDrop($event, idx)"
+            @drop="dropPanelLabels($event, idx, element.id)"
+            @touchstart="disabled ? longPress(element, '', $event) : ''"
             @contextmenu.capture="handleContextMenu(element, '', $event)"
           >
             <el-tooltip
-              :disabled="element.done_ratio === 0"
               :content="`${element.done_ratio}%`"
+              :disabled="element.done_ratio === 0"
               placement="right"
             >
               <el-progress
                 v-if="element.done_ratio > 0"
                 :percentage="element.done_ratio"
-                :status="getStatus(element)"
                 :show-text="false"
+                :status="getStatus(element)"
                 :stroke-width="4"
                 class="progress-bar"
               />
@@ -122,23 +125,23 @@
                 >
                   <el-tooltip
                     v-if="fromWbs"
+                    :content="element.subject"
                     :open-delay="100"
-                    :content="element.name"
                     placement="bottom-start"
                   >
                     <span>
-                      {{ element.name }}
+                      {{ element.subject }}
                     </span>
                   </el-tooltip>
                   <span v-else>
-                    {{ element.name }}
+                    {{ element.subject }}
                   </span>
                   <el-tag
                     v-for="item in element.tags"
                     :key="item.id"
+                    class="tags"
                     effect="plain"
                     size="mini"
-                    class="tags"
                   >
                     {{ item.name }}
                   </el-tag>
@@ -148,7 +151,7 @@
                     class="icon"
                     @click.stop="handleContextMenu(element, '', $event)"
                   >
-                    <em class="el-icon-more" />
+                    <em class="el-icon-more"></em>
                   </div>
                 </div>
               </div>
@@ -158,8 +161,8 @@
                     v-if="element.status.name"
                     :name="$t(`Issue.${element.status.name}`)"
                     :type="element.status.name"
-                    size="mini"
                     class="status"
+                    size="mini"
                   />
                 </span>
                 <span v-if="dimension !== 'priority'">
@@ -167,67 +170,62 @@
                     v-if="element.priority.name"
                     :name="$t(`Issue.${element.priority.name}`)"
                     :type="element.priority.name"
-                    size="mini"
                     class="priority"
                     icon
+                    size="mini"
                   />
                 </span>
                 <span v-if="dimension !== 'tracker'">
                   <Tracker
                     :name="$t(`Issue.${element.tracker.name}`)"
-                    :type="element.tracker.name"
                     :style="
-                      fromWbs ?
-                        'max-width: 80px; display: inline-block;'
-                        : ''
+                      fromWbs ? 'max-width: 80px; display: inline-block;' : ''
                     "
+                    :type="element.tracker.name"
                     class="tracker"
                     is-hide-name
                   />
                 </span>
                 <el-tooltip
-                  v-if="Object.keys(element.assigned_to).length > 0"
-                  :content="element.assigned_to.login"
-                  :disabled="!element.assigned_to.login"
+                  v-if="element.assigned"
+                  :content="element.assigned.username"
+                  :disabled="!element.assigned.username"
                   placement="right-start"
                 >
-                  <span v-if="fromWbs" style="float:right;">
+                  <span v-if="fromWbs" style="float: right">
                     <span class="detail user">
-                      <em class="el-icon-user-solid" />
+                      <em class="el-icon-user-solid"></em>
                       <span
                         class="text"
                         style="
-                        font-size: 14px;
-                        max-width: 120px;
-                        display: inline-block;
-                      "
+                          font-size: 14px;
+                          max-width: 120px;
+                          display: inline-block;
+                        "
                       >
-                        {{ element.assigned_to.name }}
+                        {{ element.assigned.full_name }}
                       </span>
                     </span>
                   </span>
                 </el-tooltip>
               </div>
             </div>
-            <div
-              v-if="element.family"
-              class="relation"
-            >
+            <div v-if="element.has_family" class="relation">
               <el-collapse
                 v-model="element.show"
                 @change="onCollapseChange(element)"
               >
                 <el-collapse-item name="relation">
                   <template #title>
-                    <em class="el-icon-caret-right" /> {{ $t('Issue.RelatedIssue') }} {{ element | lengthFilter }}
+                    <em class="el-icon-caret-right"></em>
+                    {{ $t('Issue.RelatedIssue') }} {{ element | lengthFilter }}
                   </template>
-                  <div
-                    v-if="element.family"
-                    class="parent"
-                  >
+                  <div v-if="element.has_family" class="parent">
                     <div
-                      v-if="element.hasOwnProperty('parent')"
-                      @contextmenu="handleContextMenu(element.parent, '', $event)"
+                      v-if="element.parent"
+                      @contextmenu="
+                        handleContextMenu(element.parent, '', $event)
+                      "
                     >
                       <strong>{{ $t('Issue.ParentIssue') }}：</strong>
                       <Status
@@ -241,25 +239,27 @@
                         class="link-text-color"
                         @click="handleClick(element.parent)"
                       >
-                        {{ element.parent.name }}
+                        {{ element.parent.subject }}
                         <el-tag
                           v-for="item in element.parent.tags"
                           :key="item.id"
+                          class="tags"
                           effect="plain"
                           size="mini"
-                          class="tags"
                         >
                           {{ item.name }}
                         </el-tag>
                       </el-link>
                     </div>
-                    <div v-if="element.hasOwnProperty('children') && element.children.length > 0">
+                    <div v-if="element.children && element.children.length > 0">
                       <strong>{{ $t('Issue.ChildrenIssue') }}：</strong>
                       <ol class="children_list">
                         <li
                           v-for="(subElement, index) in element.children"
                           :key="index"
-                          @contextmenu="handleContextMenu(subElement, '', $event)"
+                          @contextmenu="
+                            handleContextMenu(subElement, '', $event)
+                          "
                         >
                           <Status
                             :name="$t(`Issue.${subElement.status.name}`)"
@@ -272,13 +272,13 @@
                             class="link-text-color"
                             @click="handleClick(subElement)"
                           >
-                            {{ subElement.name }}
+                            {{ subElement.subject }}
                             <el-tag
                               v-for="item in subElement.tags"
                               :key="item.id"
+                              class="tags"
                               effect="plain"
                               size="mini"
-                              class="tags"
                             >
                               {{ item.name }}
                             </el-tag>
@@ -286,13 +286,17 @@
                         </li>
                       </ol>
                     </div>
-                    <div v-if="element.hasOwnProperty('relations') && element.relations.length > 0">
+                    <div
+                      v-if="element.relations && element.relations.length > 0"
+                    >
                       <strong>{{ $t('Issue.RelatedIssue') }}：</strong>
                       <ol class="children_list">
                         <li
                           v-for="(subElement, index) in element.relations"
                           :key="index"
-                          @contextmenu="handleContextMenu(subElement, '', $event)"
+                          @contextmenu="
+                            handleContextMenu(subElement, '', $event)
+                          "
                         >
                           <Status
                             :name="$t(`Issue.${subElement.status.name}`)"
@@ -305,13 +309,13 @@
                             class="link-text-color"
                             @click="handleClick(subElement)"
                           >
-                            {{ subElement.name }}
+                            {{ subElement.subject }}
                             <el-tag
                               v-for="item in subElement.tags"
                               :key="item.id"
+                              class="tags"
                               effect="plain"
                               size="mini"
-                              class="tags"
                             >
                               {{ item.name }}
                             </el-tag>
@@ -324,7 +328,7 @@
               </el-collapse>
             </div>
             <div
-              v-if="(element.due_date || Object.keys(element.assigned_to).length > 0) && !fromWbs"
+              v-if="(element.due_date || element.assigned) && !fromWbs"
               class="info"
             >
               <div
@@ -332,42 +336,32 @@
                 :class="getDateStatus(element)"
                 class="detail due_date"
               >
-                <em class="el-icon-date" />
-                <div
-                  :class="getDateStatus(element)"
-                  class="text"
-                >{{ element.due_date }}</div>
+                <em class="el-icon-date"></em>
+                <div :class="getDateStatus(element)" class="text">
+                  {{ element.due_date }}
+                </div>
               </div>
-              <div
-                v-else
-                class="detail due_date"
-              >
-                <em class="el-icon-date" />
+              <div v-else class="detail due_date">
+                <em class="el-icon-date"></em>
               </div>
               <el-tooltip
-                v-if="Object.keys(element.assigned_to).length > 0"
-                :content="element.assigned_to.login"
-                :disabled="!element.assigned_to.login"
+                v-if="element.assigned"
+                :content="element.assigned.username"
+                :disabled="!element.assigned.username"
                 placement="right-start"
               >
                 <div class="detail user">
-                  <em class="el-icon-user-solid" />
+                  <em class="el-icon-user-solid"></em>
                   <div class="text">
-                    {{ element.assigned_to.name }}
+                    {{ element.assigned.full_name }}
                   </div>
                 </div>
               </el-tooltip>
-              <div
-                v-else
-                class="detail user"
-              >
-                <em class="el-icon-user-solid" />
+              <div v-else class="detail user">
+                <em class="el-icon-user-solid"></em>
               </div>
             </div>
-            <div
-              v-else
-              class="no-info"
-            />
+            <div v-else class="no-info"></div>
           </div>
           <div
             v-if="!fromWbs"
@@ -376,34 +370,32 @@
             @mouseleave="$emit('update:isDraggable', true)"
           >
             <div
-              :class="selectedProjectId === -1 ? 'board-item-ban' : 'board-item'"
+              :class="
+                selectedProjectId === -1 ? 'board-item-ban' : 'board-item'
+              "
               class="title board-item select-none"
               @click="showDialog = !showDialog"
             >
               <em
                 :class="{ rotate: showDialog }"
                 class="el-icon-plus ml-4 mr-5 add-button"
-              />
+              ></em>
               {{ $t('Issue.AddIssue') }}
             </div>
             <transition name="slide-down">
               <QuickAddIssueOnBoard
                 v-if="showDialog"
-                :project-id="projectId"
-                :save-data="addIssue"
                 :board-object="boardObject"
                 :filter-type="filterType"
                 :is-select-default-option="isSelectDefaultOption"
+                :project-id="projectId"
+                :save-data="addIssue"
                 class="board-item quick-add"
                 @after-add="showDialog = !showDialog"
               />
             </transition>
           </div>
-          <p
-            v-loading="loading"
-            v-if="loading && !noMore"
-            class="py-3"
-          />
+          <p v-if="loading && !noMore" v-loading="loading" class="py-3"></p>
         </Draggable>
       </ul>
     </div>
@@ -412,32 +404,38 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getIssueFamily } from '@/api/issue'
-import { updateBoardItem, removeBoardItem } from '@/api_v2/issueBoard'
-import Draggable from 'vuedraggable'
-import { Priority, Tracker, Status } from '@/components/Issue'
+import { getIssueFamily } from '@/api_v3/issues'
+import { deleteBoardItem, updateBoardItem } from '@/api_v3/issueBoard'
 import QuickAddIssueOnBoard from './QuickAddIssueOnBoard'
-import colorVariables from '@/styles/theme/variables.scss'
+import colorVariables from '@/styles/theme/variables.module.scss'
 import CustomItem from './CustomItem'
 
 export default {
   name: 'Kanban',
   components: {
     QuickAddIssueOnBoard,
-    Tracker,
-    Priority,
-    Status,
-    Draggable,
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    Status: () => import('@/components/Issue/Status'),
+    Draggable: () => import('vuedraggable'),
     CustomItem
   },
   filters: {
     lengthFilter(value) {
-      if (!value.hasOwnProperty('parent') && !value.hasOwnProperty('children') && !value.hasOwnProperty('relations')) {
+      if (
+        !value.hasOwnProperty('parent') &&
+        !value.hasOwnProperty('children') &&
+        !value.hasOwnProperty('relations')
+      ) {
         return null
       }
       const parent = value.hasOwnProperty('parent') ? 1 : 0
-      const children = value.hasOwnProperty('children') ? value.children.length : 0
-      const relations = value.hasOwnProperty('relations') ? value.relations.length : 0
+      const children = value.hasOwnProperty('children')
+        ? value.children.length
+        : 0
+      const relations = value.hasOwnProperty('relations')
+        ? value.relations.length
+        : 0
       const total = parent + children + relations
       return `(${total})`
     }
@@ -480,8 +478,8 @@ export default {
       default: () => []
     },
     projectId: {
-      type: Number,
-      default: null
+      type: [Number, String],
+      default: ''
     },
     disabled: {
       type: Boolean,
@@ -567,11 +565,18 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'forceTracker', 'enableForceTracker', 'device']),
+    ...mapGetters([
+      'selectedProjectId',
+      'forceTracker',
+      'enableForceTracker',
+      'device'
+    ]),
     getHeaderBarClassName() {
       return function (name) {
         if (!this.isSelectDefaultOption) return
-        return name.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
+        return name
+          .toLowerCase()
+          .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
       }
     },
     differentInDays() {
@@ -586,22 +591,31 @@ export default {
         const key = Object.keys(data)[0]
         const value = Object.values(data)[0]
         let params = { [key]: value }
-        if (key === 'tags') params = this.getPanelLabelParamsByTags(element, key, value)
+        if (key === 'tags') {
+          params = this.getPanelLabelParamsByTags(element, key, value)
+        }
         return params
       }
     },
     getPanelLabelParamsByTags() {
       return function (element, key, value) {
         const result = element.tags
-        const findTagIndex = element.tags.findIndex((item) => item.id === value.id)
+        const findTagIndex = element.tags.findIndex(
+          (item) => item.id === value.id
+        )
         findTagIndex >= 0 ? result.splice(findTagIndex, 1) : result.push(value)
         return { [key]: result }
       }
     },
     checkChildrenIssuesClosed() {
       return function (element) {
-        const checkedIssue = this.relativeList.length > 0 ? this.findCompleteIssues(element) : element
-        if (!checkedIssue.children || checkedIssue.children.length === 0) return true
+        const checkedIssue =
+          this.relativeList.length > 0
+            ? this.findCompleteIssues(element)
+            : element
+        if (!checkedIssue.children || checkedIssue.children.length === 0) {
+          return true
+        }
         return checkedIssue.children
           .map((issue) => issue.is_closed === true)
           .reduce((issue_status, all) => issue_status && all)
@@ -615,7 +629,7 @@ export default {
     isMobile() {
       return this.device === 'mobile'
     },
-    isScrollDisabled () {
+    isScrollDisabled() {
       return this.boardObject.id !== 'all' || this.loading || this.noMore
     }
   },
@@ -627,12 +641,17 @@ export default {
     },
     isMobile(val) {
       if (!val) {
-        document.oncontextmenu = () => { return true }
+        document.oncontextmenu = () => {
+          return true
+        }
       }
     },
     'classifyIssueList.all.length': {
       handler() {
-        if (this.allUnassignedIssueList.length > 10 && this.classifyIssueList.all.length < 10) {
+        if (
+          this.allUnassignedIssueList.length > 10 &&
+          this.classifyIssueList.all.length < 10
+        ) {
           this.loadMoreIssueList()
         }
       },
@@ -642,7 +661,9 @@ export default {
   beforeDestroy() {
     window.clearTimeout(this.timeoutId)
     window.clearTimeout(this.timeoutIdx)
-    document.oncontextmenu = () => { return true }
+    document.oncontextmenu = () => {
+      return true
+    }
   },
   methods: {
     /**
@@ -673,15 +694,25 @@ export default {
     isStatusNormal(toClassObj, fromClassObj, evt) {
       const element = evt.draggedContext.element
       const isAssigned = this.isAssigned(toClassObj, fromClassObj, element)
-      const isChildrenIssuesClosed = toClassObj.is_closed === true ? this.isChildrenIssuesClosed(element) : true
+      const isChildrenIssuesClosed =
+        toClassObj.is_closed === true
+          ? this.isChildrenIssuesClosed(element)
+          : true
       const isForceTracker = this.isTrackerStrict(element)
       const isVersionClosed = this.isClosedVersion(toClassObj, element, evt)
       if (this.errorMsg.length > 0) this.showErrorAlert(this.errorMsg)
-      return isAssigned && isChildrenIssuesClosed && isForceTracker && isVersionClosed
+      return (
+        isAssigned &&
+        isChildrenIssuesClosed &&
+        isForceTracker &&
+        isVersionClosed
+      )
     },
     isClosedVersion(toClassObj, element, evt) {
-      const version_id = element.fixed_version.id
-      const version = this.fixedVersion.find(issue => parseInt(version_id) === parseInt(issue.id))
+      const version_id = element.version
+      const version = this.fixedVersion.find(
+        (issue) => parseInt(version_id) === parseInt(issue.id)
+      )
       if (version) {
         if (version.status === 'closed') {
           const error = 'closedVersionError'
@@ -694,7 +725,9 @@ export default {
           evt.to.id.indexOf('_') + 1,
           evt.to.id.lastIndexOf('_')
         )
-        const version_board = this.fixedVersion.find(issue => parseInt(version_board_id) === parseInt(issue.id))
+        const version_board = this.fixedVersion.find(
+          (issue) => parseInt(version_board_id) === parseInt(issue.id)
+        )
         if (version_board) {
           if (version_board.status === 'closed') {
             const error = 'toClosedVersionError'
@@ -738,7 +771,9 @@ export default {
     },
     isTrackerStrict(element) {
       if (this.enableForceTracker) {
-        const hasForceTacker = this.forceTracker.find(x => x.id === element.tracker.id)
+        const hasForceTacker = this.forceTracker.find(
+          (x) => x.id === element.tracker.id
+        )
         if (hasForceTacker) {
           if (element.has_father) return true
           else {
@@ -782,13 +817,16 @@ export default {
       }
     },
     checkAssigned(to, element) {
-      return !(Object.keys(element.assigned_to).length < 3 && to.id > 1)
+      // return !(Object.keys(element.assigned).length < 3 && to.id > 1)
+      return !(element.assigned === null && to.id > 1)
     },
     handleErrorAlert(key, version) {
       if (version) {
         this.toClosedVersionError = {
           title: this.$t('Kanban.closedVersionErrorTitle'),
-          content: this.$t('Kanban.toClosedVersionErrorContent', { fixed_version: version.name })
+          content: this.$t('Kanban.toClosedVersionErrorContent', {
+            version: version.name
+          })
         }
       }
       const { title, content } = this[key]
@@ -814,7 +852,10 @@ export default {
       const h = this.$createElement
       if (!this.showAlert) {
         this.showAlert = true
-        this.$msgbox({ message: h('ul', errorMsg), title: this.$t('Kanban.ChangeIssueError') }).then(() => {
+        this.$msgbox({
+          message: h('ul', errorMsg),
+          title: this.$t('Kanban.ChangeIssueError')
+        }).then(() => {
           this.showAlert = false
         })
       }
@@ -836,8 +877,6 @@ export default {
         return 'warning'
       } else if (element.done_ratio < 30) {
         return 'exception'
-      } else {
-        return
       }
     },
     getDateStatus(element) {
@@ -870,7 +909,9 @@ export default {
       })
     },
     handleContextMenu(row, context, event) {
-      this.fromWbs ? this.$emit('contextmenu', row, context, event) : this.$emit('contextmenu', { row, context, event })
+      this.fromWbs
+        ? this.$emit('contextmenu', row, context, event)
+        : this.$emit('contextmenu', { row, context, event })
     },
     updateAnimation() {
       const opacity = 0.3
@@ -880,7 +921,9 @@ export default {
           const element = document.getElementById(elementId)
           if (element) {
             this.scrollTo(element)
-            element.style.boxShadow = `0px 0px 10px 2px ${colorVariables.danger + hexOpacity}`
+            element.style.boxShadow = `0px 0px 10px 2px ${
+              colorVariables.danger + hexOpacity
+            }`
             element.style.background = colorVariables.danger + hexOpacity
             element.style.transition = 'all 0.3s ease-in-out'
             this.$nextTick(() => {
@@ -911,7 +954,9 @@ export default {
         if (pressTimer === null) {
           pressTimer = setTimeout(() => {
             // Run function
-            document.oncontextmenu = () => { return false }
+            document.oncontextmenu = () => {
+              return false
+            }
             this.handleContextMenu(element, column, event)
           }, 1000)
         }
@@ -943,16 +988,12 @@ export default {
       }
       const { id, name, color } = this.boardObject
       if (name) {
-        const formData = new FormData()
-        formData.append('item_name', name)
-        formData.append('color', color)
+        const sendData = {
+          name,
+          color
+        }
         try {
-          await updateBoardItem(
-            this.projectId,
-            this.boardId,
-            id,
-            formData
-          ).then((res) => {
+          await updateBoardItem(this.boardId, id, sendData).then((res) => {
             this.boardObject.name = res.data.name
             this.boardObject.color = res.data.color
             this.isEdited = false
@@ -985,15 +1026,21 @@ export default {
           confirmButtonText: this.$t('general.Confirm'),
           cancelButtonText: this.$t('general.Cancel'),
           type: 'warning'
-        }).then(async() => {
-        await removeBoardItem(this.projectId, this.boardId, this.boardObject.id)
-        this.$emit('loadData')
-      }).catch()
+        }
+      )
+        .then(async () => {
+          await deleteBoardItem(this.boardId, this.boardObject.id)
+          this.$emit('loadData')
+        })
+        .catch()
     },
     async loadMoreIssueList() {
       if (this.scrollTimes >= this.allUnassignedIssueList.length) return
       this.loading = true
-      const nextData = this.allUnassignedIssueList.slice(this.scrollTimes, this.scrollTimes + 10)
+      const nextData = this.allUnassignedIssueList.slice(
+        this.scrollTimes,
+        this.scrollTimes + 10
+      )
       this.$set(this.classifyIssueList, 'all', this.list.concat(...nextData))
       this.scrollTimes += 10
       this.loading = false
@@ -1026,11 +1073,14 @@ export default {
   ::v-deep {
     .el-scrollbar {
       height: 95%;
+
       .el-scrollbar__wrap {
         overflow-x: hidden;
       }
     }
-    .el-collapse-item__header, .el-collapse-item__wrap {
+
+    .el-collapse-item__header,
+    .el-collapse-item__wrap {
       background-color: transparent;
     }
   }
@@ -1043,6 +1093,7 @@ export default {
     -webkit-touch-callout: none; /* Safari */
     margin-bottom: 10px;
     height: inherit;
+
     .quick-add {
       padding: 10px 10px 0 10px;
     }
@@ -1081,7 +1132,7 @@ export default {
 
       .progress-bar {
         ::v-deep {
-          .el-progress-bar__outer{
+          .el-progress-bar__outer {
             border-radius: 9999px 9999px 0 0;
             background-color: #f3f3f3 !important;
           }
@@ -1105,6 +1156,7 @@ export default {
 
       .relation {
         background-color: transparent;
+
         .parent {
           @apply m-3;
           font-size: 0.75em;
@@ -1118,6 +1170,7 @@ export default {
 
         .children_list {
           margin: 0;
+          padding-left: 16px;
         }
 
         ::v-deep .el-collapse-item {
@@ -1220,7 +1273,7 @@ export default {
 
   &.research {
     ::v-deep .header-bar {
-    @apply bg-research;
+      @apply bg-research;
     }
   }
 
@@ -1277,51 +1330,60 @@ export default {
       @apply bg-failManagement;
     }
   }
+
   &.immediate {
     ::v-deep .header-bar {
       @apply bg-danger;
     }
   }
+
   &.high {
     ::v-deep .header-bar {
       @apply bg-warning;
     }
   }
+
   &.normal {
     ::v-deep .header-bar {
       @apply bg-success;
     }
   }
+
   &.low {
     ::v-deep .header-bar {
       @apply bg-info;
     }
   }
-
 }
+
 .cardTitle {
   margin-top: 3px;
   margin-bottom: 3px;
 }
+
 .msg-text {
   width: 220px;
   font-weight: bold;
 }
+
 @include tablet {
   ::v-deep {
     .el-scrollbar__wrap {
       margin-right: 0 !important;
-      -ms-overflow-style: none;  /* IE and Edge */
+      -ms-overflow-style: none; /* IE and Edge */
       scrollbar-width: none; /* Firefox */
     }
+
     .el-scrollbar__wrap::-webkit-scrollbar {
       display: none; /* Chrome, Safari, Opera*/
     }
+
     .el-scrollbar__view {
       height: auto;
     }
   }
 }
+
 @include desktop {
   ::v-deep {
     .el-scrollbar__view {
@@ -1329,15 +1391,19 @@ export default {
     }
   }
 }
+
 .dragClass {
   opacity: 1 !important;
   transform: rotate(4deg);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
 }
+
 .ghostClass {
   opacity: 0.2 !important;
   border: 2px solid rgb(100, 100, 100) !important;
   background-color: rgb(204, 204, 204) !important;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px !important;
 }
 </style>

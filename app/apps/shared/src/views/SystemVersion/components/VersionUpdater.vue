@@ -5,8 +5,8 @@
       class="flex justify-between notification-warning py-3 px-4 mb-5"
     >
       <div class="flex items-center">
-        <span class="dot relative" />
-        <span class="dot absolute animate-ping" />
+        <span class="dot relative"></span>
+        <span class="dot absolute animate-ping"></span>
         <span class="text-title ml-3">
           {{ notifyTitle }}（{{ updateVersionName }}）
         </span>
@@ -15,64 +15,58 @@
           type="primary"
           @click="dialogVisible = true"
         >
-          {{ $t("general.MoreInfo") }}
-          <em class="ri-more-line" />
+          {{ $t('general.MoreInfo') }}
+          <em class="ri-more-line"></em>
         </el-link>
       </div>
       <el-button
-        size="mini"
-        class="button-secondary-reverse block"
+        class="block"
         plain
+        size="mini"
+        type="success"
         @click="updateVersion"
       >
-        {{ $t("SystemVersion.UpdateNow") }}
+        {{ $t('SystemVersion.UpdateNow') }}
       </el-button>
     </div>
     <el-dialog
+      :close-on-click-modal="false"
       :visible.sync="dialogVisible"
       :width="isMobile ? '95%' : '50%'"
-      :close-on-click-modal="false"
     >
       <span slot="title" class="text-title">
         {{ updateVersionName }}
         <el-button
-          class="button-primary ml-1"
-          size="small"
+          class="ml-1"
           round
+          size="small"
+          type="primary"
           @click="updateVersion"
         >
-          {{ $t("SystemVersion.UpdateNow") }}
+          {{ $t('SystemVersion.UpdateNow') }}
         </el-button>
         <el-divider class="mb-0" />
       </span>
-      <div
-        class="overflow-y-auto"
-        style="max-height: 40vh;"
-      >
-        <Viewer
-          v-if="updateReleaseNote"
-          :initial-value="updateReleaseNote"
-        />
-        <el-empty
-          v-else
-          :description="$t('general.NoData')"
-        />
+      <div class="overflow-y-auto" style="max-height: 40vh">
+        <Viewer v-if="updateReleaseNote" :initial-value="updateReleaseNote" />
+        <el-empty v-else :description="$t('general.NoData')" />
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { updateDevopsVersion } from '@/api/devopsVersion'
-import '@toast-ui/editor/dist/toastui-editor-viewer.css'
 import '@toast-ui/editor/dist/i18n/zh-tw'
-import { Viewer } from '@toast-ui/vue-editor'
+import '@toast-ui/editor/dist/toastui-editor-viewer.css'
 import { Loading } from 'element-ui'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'VersionUpdater',
-  components: { Viewer },
+  components: {
+    Viewer: () => import('@toast-ui/vue-editor').then(({ Viewer }) => Viewer)
+  },
   data() {
     return {
       dialogVisible: false,
@@ -92,7 +86,7 @@ export default {
     },
     showUpdater() {
       return (
-        this.userRole === 'Administrator' &&
+        this.userRole === 'sysadmin' &&
         (this.updateVersionName === 'develop' || this.hasSystemUpdate)
       )
     },
@@ -114,7 +108,7 @@ export default {
             duration: 12000
           })
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
         })
         .finally(() => {

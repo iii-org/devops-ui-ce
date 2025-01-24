@@ -1,30 +1,31 @@
-
 <template>
   <div>
     <el-table
       ref="theTable"
       v-loading="listLoading"
+      :data="pagedData"
       :element-loading-text="$t('Loading')"
       fit
       highlight-current-row
-      :data="pagedData"
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" />
     </el-table>
     <Pagination
-      :total="filteredData.length"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
-      :page-sizes="[listQuery.limit]"
       :layout="'total, prev, pager, next'"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
+      :page-sizes="[listQuery.limit]"
+      :total="filteredData.length"
       @pagination="handlePagination"
     />
   </div>
 </template>
 
 <script>
-import { BasicData, Pagination, SearchBar } from '@/mixins'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
 
 export default {
   mixins: [BasicData, Pagination, SearchBar],
@@ -51,10 +52,12 @@ export default {
   },
   watch: {
     pagedData() {
-      this.listQuery.totalPage = Math.floor(this.filteredData.length / this.listQuery.limit)
-      if (this.multipleSelection.length !== this.listQuery.totalPage + 1) {
+      this.listQuery.total = Math.floor(
+        this.filteredData.length / this.listQuery.limit
+      )
+      if (this.multipleSelection.length !== this.listQuery.total + 1) {
         this.multipleSelection = []
-        for (let i = 0; i < this.listQuery.totalPage + 1; i++) {
+        for (let i = 0; i < this.listQuery.total + 1; i++) {
           this.$set(this.multipleSelection, i, [])
         }
       }
@@ -77,7 +80,7 @@ export default {
       this.reselect()
     },
     reselect() {
-      this.multipleSelection[this.listQuery.page - 1].forEach(index => {
+      this.multipleSelection[this.listQuery.page - 1].forEach((index) => {
         this.$refs.theTable.toggleRowSelection(this.pagedData[index])
       })
       this.paged = false

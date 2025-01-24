@@ -1,24 +1,42 @@
-import { ContextMenu } from '@/components/Issue'
-import { getIssue } from '@/api/issue'
+import { getIssueDetails } from '@/api_v3/issues'
 
 export default {
-  components: { ContextMenu },
+  components: {
+    ContextMenu: () => import('@/components/Issue/ContextMenu')
+  },
   data() {
     return {
       contextMenu: {
-        row: { fixed_version: { id: 'null' }, assigned_to: { id: 'null' }},
+        row: { version: { id: 'null' }, assigned: { id: 'null' }},
         visible: false,
         left: 0,
         top: 0
       },
       filterOptions: Object.freeze([
-        { id: 1, label: this.$t('Issue.FilterDimensions.status'), value: 'status', placeholder: 'Status', tag: true },
-        { id: 3, label: this.$t('Issue.FilterDimensions.tracker'), value: 'tracker', placeholder: 'Type', tag: true },
-        { id: 4, label: this.$t('Issue.FilterDimensions.assigned_to'), value: 'assigned_to', placeholder: 'Member' },
+        {
+          id: 1,
+          label: this.$t('Issue.FilterDimensions.status'),
+          value: 'status',
+          placeholder: 'Status',
+          tag: true
+        },
+        {
+          id: 3,
+          label: this.$t('Issue.FilterDimensions.tracker'),
+          value: 'tracker',
+          placeholder: 'Type',
+          tag: true
+        },
+        {
+          id: 4,
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
+          placeholder: 'Member'
+        },
         {
           id: 5,
-          label: this.$t('Issue.FilterDimensions.fixed_version'),
-          value: 'fixed_version',
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
           placeholder: 'Version'
         },
         {
@@ -35,7 +53,7 @@ export default {
   computed: {
     contextOptions() {
       const result = {}
-      const getOptions = ['assigned_to', 'fixed_version', 'tags']
+      const getOptions = ['assigned', 'version', 'tags']
       getOptions.forEach((item) => {
         result[item] = this[item]
       })
@@ -57,8 +75,10 @@ export default {
           top: eventY,
           left: eventX
         }
-        const contextmenuWidth = this.$refs.contextmenu.$refs.contextmenu.$el.clientWidth
-        const contextmenuHeight = this.$refs.contextmenu.$refs.contextmenu.$el.clientHeight
+        const contextmenuWidth =
+          this.$refs.contextmenu.$refs.contextmenu.$el.clientWidth
+        const contextmenuHeight =
+          this.$refs.contextmenu.$refs.contextmenu.$el.clientHeight
         if (contextmenuWidth <= 50 && contextmenuHeight <= 50) {
           this.handleContextMenu(row, column, event)
         }
@@ -84,7 +104,7 @@ export default {
       document.removeEventListener('click', this.hideContextMenu)
     },
     async getContextRow(issueId) {
-      const issue = await getIssue(issueId)
+      const issue = await getIssueDetails(issueId)
       this.$nextTick(() => {
         this.contextMenu.row = issue.data
       })

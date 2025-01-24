@@ -1,46 +1,50 @@
 <template>
   <div v-loading="isLoading" class="tab-inner">
     <h3>{{ $t('Profile.ProfileBasicSetting') }}</h3>
-    <el-avatar :src="userAvatar" :size="100" />
+    <el-avatar :size="100" :src="userAvatar" />
     <div class="text-sm mb-2">
       <div class="flex">
         <span class="mr-1">{{ $t('User.GravatarLink') }}</span>
-        <el-link href="https://gravatar.com/" target="_blank" type="primary">Gravatar.com</el-link>
+        <el-link href="https://gravatar.com/" target="_blank" type="primary">
+          Gravatar.com
+        </el-link>
       </div>
-      <div class="notification-warning">{{ $t('User.GravatarNotification') }}</div>
+      <div class="notification-warning">
+        {{ $t('User.GravatarNotification') }}
+      </div>
     </div>
     <el-form
       ref="userProfileForm"
+      :label-position="labelPosition"
       :model="userProfileForm"
       :rules="userProfileRules"
       label-width="100px"
-      :label-position="labelPosition"
     >
-      <el-row :gutter="10">
-        <el-col v-if="'fromAd' in $data" :xs="24" :sm="12" :md="8">
-          <el-form-item
-            :label="$t('User.Source')"
-            class="form-input"
-          >
-            <el-input
-              v-model="source"
-              :disabled="true"
-            />
+      <el-row :gutter="30">
+        <el-col v-if="'fromAd' in $data" :md="8" :sm="12" :xs="24">
+          <el-form-item :label="$t('User.Source')" class="form-input">
+            <el-input v-model="source" :disabled="true" />
           </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item
-            :label="$t('general.Name')"
-            prop="userName"
-          >
+        <el-col :md="8" :sm="12" :xs="24">
+          <el-form-item label="First Name" prop="firstName">
             <el-input
-              v-model="userProfileForm.userName"
+              v-model="userProfileForm.firstName"
               :disabled="disableEdit"
               class="form-input"
             />
           </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
+        <el-col :md="8" :sm="12" :xs="24">
+          <el-form-item label="Last Name" prop="lastName">
+            <el-input
+              v-model="userProfileForm.lastName"
+              :disabled="disableEdit"
+              class="form-input"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :md="8" :sm="12" :xs="24">
           <el-form-item :label="$t('Profile.Department')">
             <el-input
               v-model="userProfileForm.department"
@@ -49,7 +53,7 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
+        <el-col :md="8" :sm="12" :xs="24">
           <el-form-item :label="$t('Profile.Title')">
             <el-input
               v-model="userProfileForm.title"
@@ -58,11 +62,8 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item
-            label="Email"
-            prop="userEmail"
-          >
+        <el-col :md="8" :sm="12" :xs="24">
+          <el-form-item label="Email" prop="userEmail">
             <el-input
               v-model="userProfileForm.userEmail"
               :disabled="disableEdit"
@@ -70,11 +71,8 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <el-form-item
-            :label="$t('Profile.Phone')"
-            prop="userPhone"
-          >
+        <el-col :md="8" :sm="12" :xs="24">
+          <el-form-item :label="$t('Profile.Phone')" prop="userPhone">
             <el-input
               v-model="userProfileForm.userPhone"
               :disabled="disableEdit"
@@ -88,19 +86,18 @@
       <el-col :span="8">
         <el-button
           v-if="!disableEdit"
-          class="button-primary"
+          type="primary"
           @click="submitUpdateUserProfile('userProfileForm')"
-        >{{
-          $t('Profile.Save')
-        }}</el-button>
+          >{{ $t('Profile.Save') }}
+        </el-button>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { updateUser } from '@/api/user'
+import { updateCurrentUser } from '@/api_v3/user'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'Basic',
@@ -125,14 +122,36 @@ export default {
   data() {
     return {
       userProfileRules: {
-        userName: [
-          { required: true, message: this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.UserName'), trigger: 'blur' }
+        firstName: [
+          {
+            required: true,
+            message:
+              this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.UserName'),
+            trigger: 'blur'
+          }
+        ],
+        lastName: [
+          {
+            required: true,
+            message:
+              this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.UserName'),
+            trigger: 'blur'
+          }
         ],
         userEmail: [
-          { required: true, message: this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.Email'), trigger: 'blur' },
-          { type: 'email', message: this.$t('RuleMsg.Invalid') + this.$t('RuleMsg.Email'), trigger: ['blur', 'change'] }
+          {
+            required: true,
+            message: this.$t('RuleMsg.PleaseInput') + this.$t('RuleMsg.Email'),
+            trigger: 'blur'
+          },
+          {
+            type: 'email',
+            message: this.$t('RuleMsg.Invalid') + this.$t('RuleMsg.Email'),
+            trigger: ['blur', 'change']
+          }
         ]
       },
+      originalData: {},
       isLoading: false
     }
   },
@@ -142,6 +161,9 @@ export default {
       return this.fromAd ? this.$t('User.AD') : this.$t('User.SYSTEM')
     }
   },
+  mounted() {
+    this.setOriginalData()
+  },
   methods: {
     ...mapActions('user', ['setUserName']),
     submitUpdateUserProfile(formName) {
@@ -149,28 +171,57 @@ export default {
         this.$refs[formName].validate(async (valid) => {
           if (valid) {
             this.isLoading = true
-            const data = {
-              name: this.userProfileForm.userName,
-              department: this.userProfileForm.department,
-              title: this.userProfileForm.title,
-              email: this.userProfileForm.userEmail,
-              phone: this.userProfileForm.userPhone
-            }
-            await updateUser(this.userId, data)
+            const data = this.getSendData()
+            await updateCurrentUser(data)
               .then(() => {
-                this.setUserName(this.userProfileForm.userName)
+                this.setUserName(
+                  `${this.userProfileForm.firstName} ${this.userProfileForm.lastName}`
+                )
+                this.setOriginalData()
                 this.$message({
                   title: this.$t('general.Success'),
                   message: this.$t('Notify.Updated'),
                   type: 'success'
                 })
               })
-            this.isLoading = false
+              .finally(() => {
+                this.isLoading = false
+              })
           } else {
             return false
           }
         })
       }
+    },
+    getSendData() {
+      const data = {
+        first_name: this.userProfileForm.firstName,
+        last_name: this.userProfileForm.lastName,
+        department: this.userProfileForm.department,
+        title: this.userProfileForm.title,
+        email: this.userProfileForm.userEmail,
+        phone: this.userProfileForm.userPhone
+      }
+      const mapping = {
+        first_name: 'firstName',
+        last_name: 'lastName',
+        department: 'department',
+        title: 'title',
+        email: 'userEmail',
+        phone: 'userPhone'
+      }
+      Object.keys(data).forEach((key) => {
+        const mappingKey = mapping[key]
+        if (data[key] === this.originalData[mappingKey]) {
+          delete data[key]
+        } else if (['phone', 'department'].includes(key) && data[key] === '') {
+          data[key] = null
+        }
+      })
+      return data
+    },
+    setOriginalData() {
+      this.originalData = { ...this.userProfileForm }
     }
   }
 }

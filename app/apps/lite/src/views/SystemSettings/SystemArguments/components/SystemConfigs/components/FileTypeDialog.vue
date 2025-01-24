@@ -1,10 +1,10 @@
 <template>
   <el-dialog
+    :before-close="handleClose"
+    :close-on-click-modal="false"
+    :top="isMobile ? '1vh' : '8vh'"
     :visible.sync="dialogVisible"
     :width="isMobile ? '95vw' : '60vw'"
-    :top="isMobile ? '1vh' : '8vh'"
-    :close-on-click-modal="false"
-    :before-close="handleClose"
   >
     <template slot="title" class="header-title">
       <div class="flex justify-between">
@@ -14,9 +14,9 @@
           </span>
           <el-button
             :disabled="isAdding"
-            type="success"
-            size="small"
             icon="el-icon-plus"
+            size="small"
+            type="success"
             @click="handleShow"
           >
             {{ $t('general.Add') }}
@@ -25,48 +25,51 @@
         <div class="mr-5 float-right">
           <el-input
             v-model="keyword"
+            :placeholder="$t('general.Search')"
+            :size="isMobile ? 'small' : 'medium'"
+            :style="{ width: isMobile ? '100px' : '250px' }"
             clearable
             prefix-icon="el-icon-search"
-            :placeholder="$t('general.Search')"
-            :style="{ width: isMobile ? '100px' : '250px' }"
-            :size="isMobile ? 'small' : 'medium'"
           />
         </div>
       </div>
       <el-divider class="my-2" />
-      <div v-show="isAdding" class="m-5" :class="isMobile ? 'mobile' : ''">
+      <div v-show="isAdding" :class="isMobile ? 'mobile' : ''" class="m-5">
         <el-form ref="form" :model="form" :rules="formRules" size="mini">
           <el-row :gutter="20">
-            <el-col :span="24" :sm="12" :md="8" :lg="6">
-              <el-form-item prop="fileExtension" class="flex required">
+            <el-col :lg="6" :md="8" :sm="12" :span="24">
+              <el-form-item class="flex required" prop="fileExtension">
                 <el-input
                   v-model="form.fileExtension"
-                  :placeholder="this.$t('RuleMsg.PleaseInput') + this.$t('SystemConfigs.FileExtension')"
+                  :placeholder="
+                    $t('RuleMsg.PleaseInput') +
+                      $t('SystemConfigs.FileExtension')
+                  "
                   type="text"
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="24" :sm="12" :md="8" :lg="6">
-              <el-form-item prop="mimeType" class="flex required">
+            <el-col :lg="6" :md="8" :sm="12" :span="24">
+              <el-form-item class="flex required" prop="mimeType">
                 <el-input
                   v-model="form.mimeType"
-                  :placeholder="this.$t('RuleMsg.PleaseInput') + ' MIME Type'"
+                  :placeholder="$t('RuleMsg.PleaseInput') + ' MIME Type'"
                   type="text"
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="24" :sm="12" :md="8" :lg="6">
+            <el-col :lg="6" :md="8" :sm="12" :span="24">
               <el-form-item prop="name">
                 <el-input
                   v-model="form.name"
-                  :placeholder="this.$t('RuleMsg.PleaseInput') + this.$t('general.Name')"
+                  :placeholder="$t('RuleMsg.PleaseInput') + $t('general.Name')"
                   type="text"
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="24" :sm="12" :md="8" :lg="6">
+            <el-col :lg="6" :md="8" :sm="12" :span="24">
               <el-form-item>
-                <el-button type="primary" size="mini" @click="handleConfirm">
+                <el-button size="mini" type="primary" @click="handleConfirm">
                   {{ $t('general.Save') }}
                 </el-button>
                 <el-button size="mini" @click="handleCancel">
@@ -81,17 +84,17 @@
     <el-form ref="formTable" :model="formTable" :rules="formRules" size="mini">
       <ElTableResponsive
         v-loading="listLoading"
-        :element-loading-text="$t('Loading')"
-        :data="formTable.pagedData"
         :columns="tableColumns"
+        :data="formTable.pagedData"
+        :element-loading-text="$t('Loading')"
         border
         fit
         size="mini"
       >
-        <template v-slot:fileExtension="{ row }">
+        <template #fileExtension="{ row }">
           <el-form-item
             v-show="row.edit"
-            :prop="'pagedData.'+ getRowIndex(row) +'.fileExtension'"
+            :prop="'pagedData.' + getRowIndex(row) + '.fileExtension'"
             :rules="formTableRules.fileExtension"
             :style="isSaved ? 'margin-bottom: 0;' : ''"
           >
@@ -99,10 +102,10 @@
           </el-form-item>
           <span v-show="!row.edit">{{ row.fileExtension }}</span>
         </template>
-        <template v-slot:mimeType="{ row }">
+        <template #mimeType="{ row }">
           <el-form-item
             v-show="row.edit"
-            :prop="'pagedData.'+ getRowIndex(row) +'.mimeType'"
+            :prop="'pagedData.' + getRowIndex(row) + '.mimeType'"
             :rules="formTableRules.mimeType"
             :style="isSaved ? 'margin-bottom: 0;' : ''"
           >
@@ -110,10 +113,10 @@
           </el-form-item>
           <span v-show="!row.edit">{{ row.mimeType }}</span>
         </template>
-        <template v-slot:name="{ row }">
+        <template #name="{ row }">
           <el-form-item
             v-show="row.edit"
-            :prop="'pagedData.'+ getRowIndex(row) +'.name'"
+            :prop="'pagedData.' + getRowIndex(row) + '.name'"
             :rules="formTableRules.name"
             :style="isSaved ? 'margin-bottom: 0;' : ''"
           >
@@ -121,47 +124,38 @@
           </el-form-item>
           <span v-show="!row.edit">{{ row.name }}</span>
         </template>
-        <template v-slot:actions="{ row }">
+        <template #actions="{ row }">
           <div v-show="!row.edit">
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Edit')"
-            >
+            <el-tooltip :content="$t('general.Edit')" placement="bottom">
               <em
                 class="ri-edit-box-line success table-button"
                 @click="handleEdit(row)"
               ></em>
             </el-tooltip>
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Delete')"
-            >
+            <el-tooltip :content="$t('general.Delete')" placement="bottom">
               <el-popconfirm
-                :title="$t('Notify.confirmDelete')"
-                :confirm-button-text="$t('general.Delete')"
                 :cancel-button-text="$t('general.Cancel')"
+                :confirm-button-text="$t('general.Delete')"
+                :title="$t('Notify.confirmDelete')"
                 icon="el-icon-info"
                 popper-class="danger"
                 @confirm="handleDelete(row.id)"
               >
-                <em slot="reference" class="ri-delete-bin-2-line danger table-button"></em>
+                <em
+                  slot="reference"
+                  class="ri-delete-bin-2-line danger table-button"
+                ></em>
               </el-popconfirm>
             </el-tooltip>
           </div>
           <div v-show="row.edit">
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.ok')"
-            >
+            <el-tooltip :content="$t('general.ok')" placement="bottom">
               <em
                 class="ri-checkbox-circle-line primary table-button"
                 @click="handleSaveFile(row)"
               ></em>
             </el-tooltip>
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Cancel')"
-            >
+            <el-tooltip :content="$t('general.Cancel')" placement="bottom">
               <em
                 class="ri-close-circle-line danger table-button"
                 @click="handleCancelFile(row)"
@@ -172,16 +166,17 @@
       </ElTableResponsive>
     </el-form>
     <Pagination
-      :total="filteredData.length"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
-      :page-sizes="[listQuery.limit]"
       :layout="paginationLayout"
-      :pager-count="isMobile ? 5 : 7"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
+      :page-sizes="[listQuery.limit]"
+      :pager-count="5"
       :small="isMobile"
+      :total="filteredData.length"
       @pagination="onPagination"
     />
-    <div class="text-xs mt-2">*MIME Type IANA :
+    <div class="text-xs mt-2">
+      *MIME Type IANA :
       <a
         class="el-link el-link--primary is-underline"
         href="https://www.iana.org/assignments/media-types/media-types.xhtml"
@@ -194,15 +189,16 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
+import { mapActions, mapGetters } from 'vuex'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
 import {
-  getUploadFileTypeList,
   addUploadFileType,
-  updateUploadFileType,
-  deleteUploadFileType
+  deleteUploadFileType,
+  updateUploadFileType
 } from '@/api_v2/systemParameter'
-import { ElTableResponsive } from '@shared/components'
+import { getFileConfig } from '@/api_v3/system'
 
 const defaultFormData = () => ({
   name: '',
@@ -212,7 +208,9 @@ const defaultFormData = () => ({
 
 export default {
   name: 'FileTypeDialog',
-  components: { ElTableResponsive },
+  components: {
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
+  },
   mixins: [BasicData, Pagination, SearchBar],
   props: {
     dialogVisible: {
@@ -257,18 +255,24 @@ export default {
         ]
       },
       formTableRules: {
-        fileExtension: [{
-          validator: this.validate,
-          trigger: 'blur'
-        }],
-        mimeType: [{
-          validator: this.validate,
-          trigger: 'blur'
-        }],
-        name: [{
-          validator: this.validate,
-          trigger: 'blur'
-        }]
+        fileExtension: [
+          {
+            validator: this.validate,
+            trigger: 'blur'
+          }
+        ],
+        mimeType: [
+          {
+            validator: this.validate,
+            trigger: 'blur'
+          }
+        ],
+        name: [
+          {
+            validator: this.validate,
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },
@@ -287,7 +291,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -328,12 +334,12 @@ export default {
   methods: {
     ...mapActions('app', ['setFileType', 'setFileTypeList']),
     async fetchData() {
-      const res = await getUploadFileTypeList()
-      const uploadFileTypesList = res.data.upload_file_types.map((item) => ({
+      const res = await getFileConfig()
+      const uploadFileTypesList = res.data.file_types.map((item) => ({
         id: item.id,
         name: item.name,
-        mimeType: item['MIME Type'],
-        fileExtension: item['file extension'],
+        mimeType: item.MIME,
+        fileExtension: item.extension,
         edit: false
       }))
       this.setOriginData(uploadFileTypesList)
@@ -345,7 +351,7 @@ export default {
     initForm() {
       this.form = defaultFormData()
     },
-    validate (rule, value, callback) {
+    validate(rule, value, callback) {
       const type = rule.field.split('.')[2]
       if (value !== this.originData[this.selectedRowIndex][type]) {
         this.isSaved = false
@@ -363,7 +369,9 @@ export default {
       if (this.originDataMimeType.includes(mimeType)) {
         this.$message({
           title: this.$t('general.Error'),
-          message: this.$t('SystemConfigs.IncludesMimeType', { mimeType: mimeType }),
+          message: this.$t('SystemConfigs.IncludesMimeType', {
+            mimeType: mimeType
+          }),
           type: 'warning'
         })
       }
@@ -373,7 +381,7 @@ export default {
       this.isAdding = true
     },
     async handleConfirm() {
-      this.$refs['form'].validate(async(valid) => {
+      this.$refs['form'].validate(async (valid) => {
         if (valid && !this.checkIncludesMimeType(this.form.mimeType)) {
           this.listLoading = true
           const sendData = new FormData()
@@ -434,7 +442,10 @@ export default {
       }
     },
     async handleSaveFile(row) {
-      if (!(/^[-.\w]+\/[-.\w]+$/).test(row.mimeType) || !(/^[.]{1}[-\w]+$/).test(row.fileExtension)) {
+      if (
+        !/^[-.\w]+\/[-.\w]+$/.test(row.mimeType) ||
+        !/^[.]{1}[-\w]+$/.test(row.fileExtension)
+      ) {
         this.$message({
           title: this.$t('general.Error'),
           message: 'Please follow the format rule',
@@ -501,10 +512,11 @@ export default {
 
 ::v-deep .required:before {
   display: inline-block;
-  content:'*';
-  color:#ff4949;
+  content: '*';
+  color: #ff4949;
   margin-right: 4px;
 }
+
 .mobile {
   ::v-deep .el-form-item__content {
     width: -webkit-fill-available;

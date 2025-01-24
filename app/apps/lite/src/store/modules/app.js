@@ -1,16 +1,31 @@
 import Cookies from 'js-cookie'
 import { getLanguage } from '@/lang'
-import { getRoleList } from '@/api/user'
+import { getRole } from '@/api_v3/permission'
 import {
   getUploadFileSize,
-  updateUploadFileSize,
   getUploadFileType,
-  getUploadFileTypeList
+  getUploadFileTypeList,
+  updateUploadFileSize
 } from '@/api_v2/systemParameter'
+import { getFileConfig, getPluginList, getServiceList } from '@/api_v3/system'
+
+const defaultServices = {
+  //services
+  gitlab: false,
+  redmine: false,
+  harbor: false,
+  redis: false
+}
+const defaultTestingTools = {
+  semgrep: false,
+  sonarqube: false
+}
 
 const state = {
   sidebar: {
-    opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
+    opened: Cookies.get('sidebarStatus')
+      ? !!+Cookies.get('sidebarStatus')
+      : true,
     withoutAnimation: false
   },
   device: 'desktop',
@@ -18,11 +33,12 @@ const state = {
   roleList: [],
   fileSize: '',
   fileType: '',
-  fileTypeList: ''
+  fileTypeList: '',
+  services: []
 }
 
 const mutations = {
-  TOGGLE_SIDEBAR: state => {
+  TOGGLE_SIDEBAR: (state) => {
     state.sidebar.opened = !state.sidebar.opened
     state.sidebar.withoutAnimation = false
     if (state.sidebar.opened) {
@@ -54,6 +70,9 @@ const mutations = {
   },
   SET_FILE_TYPE_LIST: (state, fileTypeList) => {
     state.fileTypeList = fileTypeList
+  },
+  SET_SERVICES: (state, services) => {
+    state.services = services
   }
 }
 
@@ -71,19 +90,40 @@ const actions = {
     commit('SET_LANGUAGE', language)
   },
   async setRoleList({ commit }) {
-    const result = await getRoleList()
+    const result = await getRole()
       .then((res) => {
-        return Promise.resolve(res.data.role_list)
-      }).catch((e) => {
+        return Promise.resolve(res.data)
+      })
+      .catch((e) => {
         return Promise.reject(e)
       })
     commit('SET_ROLE_LIST', result)
+  },
+  async setFileConfig({ commit }) {
+    await getFileConfig()
+      .then((res) => {
+        commit('SET_FILE_SIZE', res.data.size + 'MB')
+        commit('SET_FILE_TYPE', res.data.names)
+        commit(
+          'SET_FILE_TYPE_LIST',
+          Object.assign(
+            {},
+            ...res.data.file_types.map((item) => ({
+              [item['MIME']]: item['extension']
+            }))
+          )
+        )
+      })
+      .catch((e) => {
+        console.error(e.toString())
+      })
   },
   async setFileSize({ commit }) {
     const result = await getUploadFileSize()
       .then((res) => {
         return Promise.resolve(res.upload_file_size)
-      }).catch((e) => {
+      })
+      .catch((e) => {
         return Promise.reject(e)
       })
     commit('SET_FILE_SIZE', result + 'MB')
@@ -92,15 +132,19 @@ const actions = {
     await updateUploadFileSize(data)
       .then(() => {
         commit('SET_FILE_SIZE', data.upload_file_size + 'MB')
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.error(error.toString())
       })
   },
   async setFileType({ commit }) {
     const result = await getUploadFileType()
       .then((res) => {
-        return Promise.resolve(res.data.filter((item) => item !== '').toString())
-      }).catch((e) => {
+        return Promise.resolve(
+          res.data.filter((item) => item !== '').toString()
+        )
+      })
+      .catch((e) => {
         return Promise.reject(e)
       })
     commit('SET_FILE_TYPE', result)
@@ -109,14 +153,45 @@ const actions = {
     const result = await getUploadFileTypeList()
       .then((res) => {
         return Promise.resolve(
-          Object.assign({}, ...res.data.upload_file_types.map((item) => ({
-            [item['MIME Type']] : item['file extension']
-          })))
+          Object.assign(
+            {},
+            ...res.data.upload_file_types.map((item) => ({
+              [item['MIME']]: item['extension']
+            }))
+          )
         )
-      }).catch((e) => {
+      })
+      .catch((e) => {
         return Promise.reject(e)
       })
     commit('SET_FILE_TYPE_LIST', result)
+  },
+  async setServices({ commit, dispatch }) {
+    try {
+      const [pluginResponse, serviceResponse] = await Promise.allSettled([
+        getPluginList(),
+        getServiceList()
+      ])
+
+      const services = pluginResponse.value?.data || []
+      const plugins = serviceResponse.value?.data || []
+      const allServices = [...services, ...plugins]
+      const servicesList = { ...defaultServices, ...defaultTestingTools }
+
+      allServices.forEach((item) => {
+        servicesList[item.name] = item?.enabled || false
+      })
+
+      if (!servicesList.gitlab) {
+        Object.keys(defaultTestingTools).forEach((key) => {
+          servicesList[key] = false
+        })
+      }
+      
+      commit('SET_SERVICES', servicesList)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 }
 

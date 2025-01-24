@@ -10,7 +10,7 @@
           :ref="'file'+idx"
           class="el-upload-list__item-name"
         >
-          <em class="el-icon-document" />
+          <em class="el-icon-document"></em>
           {{ file.software_name }} - {{ file.name }} ({{ file.file_name }})
         </span>
       </el-col>

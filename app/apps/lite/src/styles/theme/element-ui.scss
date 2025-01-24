@@ -1,5 +1,5 @@
 @import './mixin.scss';
-@import './variables.scss';
+@import './variables.module.scss';
 
 .el-backtop {
   color: $linkTextColor !important;
@@ -16,13 +16,18 @@
 }
 
 // modify border radius
-.el-card, .el-table, .pagination-container, .el-tabs--border-card {
+.el-card,
+.el-table,
+.pagination-container,
+.el-tabs--border-card {
   border-radius: 8px !important;
 }
 
 // card
-.el-card.is-always-shadow, .el-card.is-hover-shadow:focus, .el-card.is-hover-shadow:hover {
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,.1) !important;
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow:focus,
+.el-card.is-hover-shadow:hover {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1) !important;
 }
 
 .el-card__body {
@@ -33,18 +38,21 @@
     justify-content: space-between;
     display: flex;
   }
+
   .el-divider--horizontal {
     width: calc(100% + 40px);
     margin-top: 20px !important;
     margin-left: -20px !important;
     margin-right: -20px !important;
   }
+
   .el-tag {
     border-radius: 2px;
   }
 }
 
-.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
   @include background-border-color($linkTextColor, $linkTextColor);
 }
 
@@ -52,11 +60,11 @@
   border-color: $linkTextColor !important;
 }
 
-.el-checkbox__input.is-focus .el-checkbox__inner{
+.el-checkbox__input.is-focus .el-checkbox__inner {
   border-color: $linkTextColor !important;
 }
 
-.el-checkbox__input.is-checked+.el-checkbox__label {
+.el-checkbox__input.is-checked + .el-checkbox__label {
   color: $linkTextColor !important;
 }
 
@@ -72,11 +80,13 @@
   color: $linkTextColor !important;
 }
 
-.el-date-picker__header-label.active, .el-date-picker__header-label:hover {
+.el-date-picker__header-label.active,
+.el-date-picker__header-label:hover {
   color: $linkTextColor !important;
 }
 
-.el-date-table td.end-date span, .el-date-table td.start-date span {
+.el-date-table td.end-date span,
+.el-date-table td.start-date span {
   background-color: $linkTextColor !important;
 }
 
@@ -95,7 +105,8 @@
   border-radius: 8px !important;
 }
 
-.el-dialog__headerbtn:focus .el-dialog__close, .el-dialog__headerbtn:hover .el-dialog__close {
+.el-dialog__headerbtn:focus .el-dialog__close,
+.el-dialog__headerbtn:hover .el-dialog__close {
   color: $linkTextColor !important;
 }
 
@@ -110,7 +121,8 @@
   }
 }
 
-.el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+.el-dropdown-menu__item:focus,
+.el-dropdown-menu__item:not(.is-disabled):hover {
   background-color: $linkTextBackground !important;
   color: $linkTextColor !important;
 }
@@ -120,12 +132,16 @@
   padding-bottom: 0;
 }
 
-.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:before,
+.el-form-item.is-required:not(.is-no-asterisk)
+  .el-form-item__label-wrap
+  > .el-form-item__label:before,
 .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
   content: '' !important;
 }
 
-.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:after,
+.el-form-item.is-required:not(.is-no-asterisk)
+  .el-form-item__label-wrap
+  > .el-form-item__label:after,
 .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:after {
   content: '*';
   color: $danger;
@@ -139,34 +155,43 @@
   line-height: 37px !important;
 }
 
-.el-input.is-active .el-input__inner, .el-input__inner:focus {
+.el-input.is-active .el-input__inner,
+.el-input__inner:focus {
   border-color: $linkTextColor !important;
   outline: 0;
 }
 
-.el-input-number__decrease:hover, .el-input-number__increase:hover {
+.el-input-number__decrease:hover,
+.el-input-number__increase:hover {
   color: $linkTextColor !important;
 }
 
-.el-input-number__decrease:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled),
-.el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
+.el-input-number__decrease:hover:not(.is-disabled)
+  ~ .el-input
+  .el-input__inner:not(.is-disabled),
+.el-input-number__increase:hover:not(.is-disabled)
+  ~ .el-input
+  .el-input__inner:not(.is-disabled) {
   border-color: $linkTextColor !important;
 }
 
 .el-link.el-link--primary {
   color: $linkTextColor !important;
+
   &:hover {
     color: $linkTextColor !important;
   }
 }
+
 .el-link.el-link--primary.is-underline:hover:after {
   border-color: $linkTextColor !important;
 }
 
 .el-loading-spinner {
-  .path{
+  .path {
     stroke: $linkTextColor !important;
   }
+
   .el-loading-text {
     color: $linkTextColor !important;
   }
@@ -187,11 +212,13 @@
 .el-pagination.is-background .el-pager li:not(.disabled) {
   &.active {
     background-color: $linkTextColor !important;
-    color: #FFF;
+    color: #fff;
+
     &:hover {
-      color: #FFF;
+      color: #fff;
     }
   }
+
   &:hover {
     color: $linkTextColor !important;
   }
@@ -227,13 +254,14 @@
   color: $linkTextColor !important;
 }
 
-.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+.el-radio-button__orig-radio:checked + .el-radio-button__inner {
   @include background-border-color($linkTextColor, $linkTextColor);
-  color: #FFF;
+  color: #fff;
   box-shadow: -1px 0 0 0 $linkTextColor !important;
 }
 
-.el-range-editor.is-active, .el-range-editor.is-active:hover {
+.el-range-editor.is-active,
+.el-range-editor.is-active:hover {
   border-color: $linkTextColor !important;
 }
 
@@ -279,36 +307,47 @@
 }
 
 // el-table
+// WBSInputColumn
+.el-table.table-css {
+  .cell {
+    display: flex !important;
+    align-items: center !important;
+    overflow: initial !important;
+    white-space: initial !important;
+    text-overflow: initial !important;
+  }
+}
+
 .el-table {
   font-size: 14px !important;
 }
 
-.el-table th > .cell {
-  padding-left: 12px;
-  padding-right: 12px;
+.el-table th.el-table__cell {
+  color: #64717d !important;
+  padding: 1px 10px !important;
+}
+
+.el-table__header {
+  min-height: 70px !important;
 }
 
 .el-table .cell {
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  word-break: normal !important;
 }
 
 .el-table__row {
   > .el-table__cell {
-    padding: 1px 0px !important;
+    padding: 1px 10px !important;
     line-height: 45px;
     height: 45px;
   }
+
   .el-link--inner {
     font-size: 14px;
   }
 }
-
-.el-table--border td:first-child .cell,
-.el-table--border th:first-child .cell {
-  padding-left: 22px;
-}
-
 
 .el-table__body {
   tr.current-row {
@@ -317,6 +356,7 @@
       color: $linkTextColor !important;
     }
   }
+
   .el-table__row.imageList {
     cursor: pointer !important;
   }
@@ -330,7 +370,8 @@
   &:hover {
     color: $linkTextColor !important;
   }
-  &.is-active{
+
+  &.is-active {
     color: $linkTextColor !important;
   }
 }
@@ -339,7 +380,8 @@
   &:hover {
     color: $linkTextColor !important;
   }
-  &.is-active{
+
+  &.is-active {
     color: $linkTextColor !important;
   }
 }
@@ -434,12 +476,17 @@ $tag-circle-options: (
   color: $linkTextColor !important;
 }
 
-.el-year-table td .cell:hover, .el-year-table td.current:not(.disabled) .cell {
+.el-year-table td .cell:hover,
+.el-year-table td.current:not(.disabled) .cell {
   color: $linkTextColor !important;
 }
 
 .el-loading-mask {
   border-radius: 8px;
+}
+
+.el-message {
+  z-index: 2050 !important;
 }
 
 /* theme color */
@@ -450,5 +497,5 @@ $--color-danger: $danger;
 $--color-warning: $warning;
 
 /* icon font path, required */
-$--font-path: '~element-ui/lib/theme-chalk/fonts';
-@import '~element-ui/packages/theme-chalk/src/index';
+$--font-path: 'element-ui/lib/theme-chalk/fonts';
+@import 'element-ui/packages/theme-chalk/src/index';

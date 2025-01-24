@@ -4,30 +4,30 @@
       <el-tooltip :content="$t('Issue.AddToCalendar')" placement="top">
         <el-dropdown trigger="hover">
           <el-button circle size="small">
-            <em class="el-icon-date" />
+            <em class="el-icon-date"></em>
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
               <div @click="addToCalendar('google')">
-                <svg-icon icon-class="google" class="text-md" />
+                <svg-icon class="text-md" icon-class="google" />
                 <span>Google</span>
               </div>
             </el-dropdown-item>
             <el-dropdown-item>
               <div @click="addToCalendar('microsoft')">
-                <svg-icon icon-class="microsoft" class="text-md" />
+                <svg-icon class="text-md" icon-class="microsoft" />
                 <span>Outlook.com</span>
               </div>
             </el-dropdown-item>
             <el-dropdown-item>
               <div @click="addToCalendar('office365')">
-                <svg-icon icon-class="office365" class="text-md" />
+                <svg-icon class="text-md" icon-class="office365" />
                 <span>Microsoft 365</span>
               </div>
             </el-dropdown-item>
             <el-dropdown-item>
               <div @click="addToCalendar('ics')">
-                <svg-icon icon-class="ical" class="text-md" />
+                <svg-icon class="text-md" icon-class="ical" />
                 <span>ICalendar</span>
               </div>
             </el-dropdown-item>
@@ -35,29 +35,29 @@
         </el-dropdown>
       </el-tooltip>
     </span>
-    <div v-else class="font-sans">
+    <div v-else>
       <div @click="addToCalendar('google')">
-        <svg-icon icon-class="google" class="text-lg mx-2" />
+        <svg-icon class="text-lg mx-2" icon-class="google" />
         <span>Google</span>
       </div>
       <el-divider />
       <div>
         <div @click="addToCalendar('microsoft')">
-          <svg-icon icon-class="microsoft" class="text-lg mx-2" />
+          <svg-icon class="text-lg mx-2" icon-class="microsoft" />
           <span>Outlook.com</span>
         </div>
       </div>
       <el-divider />
       <div>
         <div @click="addToCalendar('office365')">
-          <svg-icon icon-class="office365" class="text-lg mx-2" />
+          <svg-icon class="text-lg mx-2" icon-class="office365" />
           <span>Microsoft 365</span>
         </div>
       </div>
       <el-divider />
       <div>
         <div @click="addToCalendar('ics')">
-          <svg-icon icon-class="ical" class="text-lg mx-2" />
+          <svg-icon class="text-lg mx-2" icon-class="ical" />
           <span>ICalendar</span>
         </div>
       </div>
@@ -89,27 +89,33 @@ export default {
   methods: {
     addToCalendar(type) {
       if (type) {
-        const { name, start_date, due_date, tracker_id } = this.form
-        if (name) {
-          const trackerName = this.$t(`Issue.${this.tracker.find((item) => item.id === tracker_id).name}`)
-          const title = `${trackerName} #${this.issueId}: ${name}`
+        const { subject, start_date, due_date, tracker_id } = this.form
+        if (subject) {
+          const trackerName = this.$t(
+            `Issue.${this.tracker.find((item) => item.id === tracker_id).name}`
+          )
+          const title = `${trackerName} #${this.issueId}: ${subject}`
           const link = `${window.location.origin}/#/project/issues/${this.issueId}`
           const description = title.link(link)
           const data = {
             type: type,
-            title: name,
+            title: subject,
             details: description,
             start: start_date,
             end: due_date
           }
           if (type === 'ics') {
-            const cal = ics()
-            cal.addEvent(name, description, '', getLocalTime(start_date), getLocalTime(due_date))
-            cal.download('issue-' + (this.issueId || name))
+            ics({
+              id: this.issueId,
+              subject: subject,
+              description,
+              begin: getLocalTime(start_date),
+              stop: getLocalTime(due_date),
+              location: ''
+            })
             return
           }
           window.open(calendarUrl(data))
-          // return calendarUrl(data)
         }
       }
     }

@@ -5,40 +5,34 @@
     placement="bottom"
     trigger="click"
   >
-    <el-form
-      v-loading="isLoading"
-      ref="form"
-      :model="shareForm"
-    >
+    <el-form ref="form" v-loading="isLoading" :model="shareForm">
       <el-form-item
-        :rules="{ required: true, message: $t('Notify.NoEmpty'), trigger: 'blur' }"
+        :rules="{
+          required: true,
+          message: $t('Notify.NoEmpty'),
+          trigger: 'blur'
+        }"
         prop="user"
       >
         <el-select
           v-model="shareForm.user"
-          :placeholder="$t('RuleMsg.PleaseSelect') + $t('RuleMsg.Member')"
           :filter-method="setAssignTo"
-          collapse-tags
+          :placeholder="$t('RuleMsg.PleaseSelect') + $t('RuleMsg.Member')"
           clearable
-          multiple
+          collapse-tags
           filterable
+          multiple
         >
           <el-option
             v-for="user in assigned_to"
             :key="user.id"
-            :label="user.name"
+            :label="user.full_name"
             :value="user.id"
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        prop="message"
-        class="mb-3"
-      >
-        <el-input
-          v-model="shareForm.message"
-          type="textarea"
-        />
+      <el-form-item class="mb-3" prop="message">
+        <el-input v-model="shareForm.message" type="textarea" />
       </el-form-item>
       <span class="flex justify-between">
         <el-link
@@ -49,29 +43,19 @@
         >
           {{ $t('general.CopyUrl') }}
         </el-link>
-        <el-button
-          type="primary"
-          size="small"
-          @click="sendMentionMessage()"
-        >
+        <el-button size="small" type="primary" @click="sendMentionMessage()">
           {{ $t('Inbox.Send') }}
-          <em class="el-icon-s-promotion" />
+          <em class="el-icon-s-promotion"></em>
         </el-button>
       </span>
     </el-form>
     <el-tooltip
       slot="reference"
-      :disabled="isPopover"
       :content="$t('general.Share')"
+      :disabled="isPopover"
       placement="bottom"
     >
-      <el-button
-        circle
-        size="small"
-        class="button-info-reverse"
-        type="info"
-        icon="el-icon-share"
-      />
+      <el-button circle icon="el-icon-share" plain size="small" type="info" />
     </el-tooltip>
   </el-popover>
 </template>
@@ -87,9 +71,9 @@ export default {
       type: Object,
       default: () => ({})
     },
-    assignedTo: {
+    assigned: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
   data() {
@@ -108,17 +92,19 @@ export default {
   },
   watch: {
     isPopover(value) {
-      if (value) this.assigned_to = [...this.assignedTo]
+      if (value) this.assigned_to = [...this.assigned]
       else this.resetShareForm()
     }
   },
   methods: {
     setAssignTo(value) {
       const keyword = value.toLowerCase()
-      this.assigned_to = this.assignedTo.filter((item) => {
-        const { name, login } = item
-        return name.toLowerCase().indexOf(keyword) > -1 ||
-          login.toLowerCase().indexOf(keyword) > -1
+      this.assigned_to = this.assigned.filter((item) => {
+        const { full_name, username } = item
+        return (
+          full_name.toLowerCase().indexOf(keyword) > -1 ||
+          username.toLowerCase().indexOf(keyword) > -1
+        )
       })
     },
     sendMentionMessage() {
@@ -134,7 +120,7 @@ export default {
         const data = {
           title: this.$t('Inbox.SharedIssueMessage', {
             name: this.userName,
-            issue: `#${this.issue.id} - ${this.issue.name}`
+            issue: `#${this.issue.id} - ${this.issue.subject}`
           }),
           message: message ? message + '<br/>' + link : link,
           type_parameters: JSON.stringify({ user_ids: mentionList }),

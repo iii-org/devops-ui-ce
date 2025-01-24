@@ -1,10 +1,6 @@
 <template>
-  <span>
-    <el-tooltip
-      :disabled="!isHideName"
-      :content="name"
-      placement="bottom"
-    >
+  <span style="white-space: nowrap">
+    <el-tooltip :content="name" :disabled="!isHideName" placement="bottom">
       <em v-if="name" :class="mapTagType(type)" class="point"></em>
     </el-tooltip>
     <span v-if="!isHideName" class="break-normal">{{ name }}</span>
@@ -32,7 +28,7 @@ export default {
     mapTagType(category) {
       const map = {
         Document: 'ri-file-fill bg-document',
-        Research: 'bg-research',
+        Research: 'ri-seo-line bg-research',
         Epic: 'ri-flashlight-fill bg-epic',
         Audit: 'ri-bookmark-2-fill bg-audit',
         Feature: 'ri-lightbulb-fill bg-feature',
@@ -50,7 +46,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .point {
   @apply mr-1 rounded text-white;

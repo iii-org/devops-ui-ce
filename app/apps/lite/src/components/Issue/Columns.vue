@@ -1,13 +1,7 @@
 <template>
-  <el-popover
-    placement="bottom"
-    trigger="click"
-  >
+  <el-popover placement="bottom" trigger="click">
     <el-form class="display-column">
-      <el-form-item
-        v-for="item in columnsOptions"
-        :key="item.field"
-      >
+      <el-form-item v-for="item in columnsOptions" :key="item.field">
         <el-checkbox
           :label="item.display"
           :value="getCheckColumnValue(item.field)"
@@ -17,11 +11,7 @@
         </el-checkbox>
       </el-form-item>
     </el-form>
-    <el-button
-      slot="reference"
-      type="text"
-      class="header-text-color"
-    >
+    <el-button slot="reference" class="header-text-color" type="text">
       <em class="ri-layout-column-fill align-middle"></em>
       <span v-if="!isMobile">{{ $t('Milestone.Display') }}</span>
       <em class="el-icon-arrow-down el-icon--right"></em>
@@ -31,7 +21,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { putIssueFieldDisplay } from '@/api/issue'
+import { updateIssueFieldDisplay } from '@/api_v3/user'
 
 export default {
   name: 'Columns',
@@ -67,16 +57,15 @@ export default {
     async onCheckColumnChange(value) {
       let fields = this.displayFields
       if (fields.includes(value)) {
-        const columnIndex = fields.findIndex(item => item === value)
+        const columnIndex = fields.findIndex((item) => item === value)
         fields.splice(columnIndex, 1)
       } else {
         fields.push(value)
       }
       if (fields.length <= 0) {
-        fields = this.columnsOptions.map(item => item.field)
+        fields = this.columnsOptions.map((item) => item.field)
       }
-      const res = await putIssueFieldDisplay({
-        project_id: this.filterValue.project || this.selectedProjectId,
+      const res = await updateIssueFieldDisplay({
         display_fields: fields,
         type: this.type
       })

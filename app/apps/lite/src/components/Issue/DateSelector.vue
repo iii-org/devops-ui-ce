@@ -1,7 +1,12 @@
 <template>
   <div class="row">
     <div v-for="(localItem, idx) in localList" :key="idx" class="col">
-      <w-item :ref="'pi' + idx" v-model="localValue[idx]" :list-data="localItem" data-type="number" />
+      <w-item
+        :ref="'pi' + idx"
+        v-model="localValue[idx]"
+        :list-data="localItem"
+        data-type="number"
+      />
     </div>
   </div>
 </template>
@@ -28,39 +33,52 @@ export default {
       default: 15
     }
   },
-  data () {
+  data() {
     return {
       localList: [],
       localValue: [],
       pickerYearVal: '',
       pickerMonthVal: '',
       currentDate: new Date(),
-      monthArr: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+      monthArr: [
+        '01',
+        '02',
+        '03',
+        '04',
+        '05',
+        '06',
+        '07',
+        '08',
+        '09',
+        '10',
+        '11',
+        '12'
+      ]
     }
   },
   watch: {
     localValue: {
-      handler (newVal) {
+      handler(newVal) {
         this.pickerYearVal = newVal[0]
         this.pickerMonthVal = newVal[1]
         this.$emit('update', newVal.join(this.separator))
       },
       deep: true
     },
-    pickerYearVal (newVal) {
+    pickerYearVal(newVal) {
       if (this.pickerMonthVal === '02') {
         this.localList[2] = this.getDayArray(newVal, this.pickerMonthVal)
       }
     },
-    pickerMonthVal (newVal) {
+    pickerMonthVal(newVal) {
       this.localList[2] = this.getDayArray(this.pickerYearVal, newVal)
     }
   },
-  beforeMount () {
+  beforeMount() {
     this.initDate()
   },
   methods: {
-    initDate () {
+    initDate() {
       // calc year of date arrays
       this.yearArr = this.getYearArray()
       this.pickerYearVal = `${this.currentDate.getFullYear()}`
@@ -73,7 +91,11 @@ export default {
       let dayVal = `${this.currentDate.getDate()}`
       if (Number(dayVal) < 10) dayVal = `0${dayVal}`
       this.dayArr = this.getDayArray(this.currentYear, monthVal)
-      this.localList = [this.yearArr, this.monthArr, this.getDayArray(this.pickerYearVal, '01')]
+      this.localList = [
+        this.yearArr,
+        this.monthArr,
+        this.getDayArray(this.pickerYearVal, '01')
+      ]
       if (this.value && this.value !== '') {
         this.localValue = this.value.split(this.separator)
         this.pickerYearVal = this.localValue[0]
@@ -82,7 +104,7 @@ export default {
         this.localValue = [this.pickerYearVal, monthVal, dayVal]
       }
     },
-    getDayArray (year, month) {
+    getDayArray(year, month) {
       if (month === '02') {
         if (this.isLeapYear(year)) {
           return this.autoGeneratorDateStrArray(29)
@@ -95,7 +117,7 @@ export default {
         return this.autoGeneratorDateStrArray(30)
       }
     },
-    isLeapYear (y) {
+    isLeapYear(y) {
       if (y % 4 === 0 && y % 100 > 0) {
         return true
       } else if (y % 400 === 0) {
@@ -104,11 +126,11 @@ export default {
         return false
       }
     },
-    getYearArray () {
+    getYearArray() {
       const startYear = this.currentDate.getFullYear() - this.yearCount
       return this.autoGeneratorArray(this.yearCount * 2, startYear)
     },
-    autoGeneratorDateStrArray (length) {
+    autoGeneratorDateStrArray(length) {
       return Array.from({ length: length }, (v, i) => {
         const d = i + 1
         if (d < 10) {
@@ -118,18 +140,18 @@ export default {
         }
       })
     },
-    autoGeneratorArray (length, start = 0) {
+    autoGeneratorArray(length, start = 0) {
       if (start === 0) {
         return Array.from({ length: length }, (v, i) => (i + 1).toString())
       } else {
         return Array.from({ length: length }, (v, i) => (start + i).toString())
       }
     },
-    confirmFunc () {
+    confirmFunc() {
       this.choosedVal = `${this.pickerValYear}-${this.pickerValMonth}-${this.pickerValDay}`
       this.valFunc(this.choosedVal)
     },
-    handler (type) {
+    handler(type) {
       // change feb month days index
       if (type === 'month') {
         this.pickerValDay = '01'
@@ -158,17 +180,18 @@ export default {
 
 <style scoped>
 .row {
-  display: -webkit-flex; /*新版本語法：chrome 21+*/
-  display: flex; /*新版本語法:opera 12.1,Firefox 22+*/
-  display: -webkit-box; /*老版本語法：Safari,iOS,Android browser,old Webkit browser*/
-  display: -moz-box; /*老版本語法：Firefox(buggy)*/
-  display: -ms-flexbox; /*混合版本語法：IE 10*/
+  display: -webkit-flex;
+  display: flex;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
 }
+
 .row .col {
-  -webkit-flex: 1; /*Chrome*/
-  -ms-flex: 1; /*IE 10*/
-  flex: 1; /* NEW ,Spec - Opera 12.1,Firefox 20+*/
-  -webkit-box-flex: 1; /*OLD -iOS 6-,Safari 3.1-6*/
-  -moz-box-flex: 1; /*OLD - Firefox 19-*/
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
 }
 </style>

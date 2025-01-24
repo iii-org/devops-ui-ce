@@ -3,12 +3,12 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
+          <div></div>
           <el-button
             slot="link"
             :disabled="!hasCmasData"
+            icon="ri-download-2-line"
             type="text"
-            icon="el-icon-download"
             @click="openCmas"
           >
             {{ $t('TestReport.DetailReport') }}
@@ -18,13 +18,15 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
-          <th id="">{{ $t('Cmas.MOEA') }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
+          <th id="">{{ $t('Plugins.cmas.MOEA') }}</th>
           <th id="">OWASP Mobile TOP 10</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">CMAS</td>
-          <td :data-label="$t('Version.Version')">{{ cmas[0]?.version_info ? cmas[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{ cmas[0]?.version_info ? cmas[0]?.version_info : '-' }}
+          </td>
           <template v-if="hasCmasData">
             <td :data-label="$t('Cmas.MOEA')">
               <span v-if="hasEachItemData('MOEA')">
@@ -40,7 +42,7 @@
             </td>
           </template>
           <template v-else>
-            <td colspan="2" class="nodata">{{ $t('general.NoData') }}</td>
+            <td class="nodata" colspan="2">{{ $t('general.NoData') }}</td>
           </template>
         </tr>
       </tbody>
@@ -66,7 +68,11 @@ export default {
   data() {
     this.levels = ['High', 'Medium', 'Low']
     this.MOEA = ['L3', 'L2', 'L1']
-    this.OWASP = [this.$t('general.High'), this.$t('general.Medium'), this.$t('general.Low')]
+    this.OWASP = [
+      this.$t('general.High'),
+      this.$t('general.Medium'),
+      this.$t('general.Low')
+    ]
     return {}
   },
   computed: {
@@ -82,11 +88,12 @@ export default {
       return !!(
         this.cmas &&
         this.cmas[0] &&
-        (this.cmas[0].hasOwnProperty('MOEA') || this.cmas[0].hasOwnProperty('OWASP'))
+        (this.cmas[0].hasOwnProperty('MOEA') ||
+          this.cmas[0].hasOwnProperty('OWASP'))
       )
     },
     hasEachItemData() {
-      return key => !!(this.cmas[0].hasOwnProperty(key))
+      return (key) => !!this.cmas[0].hasOwnProperty(key)
     }
   },
   watch: {

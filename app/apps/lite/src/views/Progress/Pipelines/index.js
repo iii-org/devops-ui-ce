@@ -1,5 +1,3 @@
-import Progress from '@shared/views/Progress'
-
-const { Pipelines } = Progress
+import Pipelines from '@shared/views/Progress/Pipelines'
 
 export default Pipelines

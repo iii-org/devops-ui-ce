@@ -1,21 +1,17 @@
 <template>
-  <span
-    v-loading="isLoading"
-    v-if="edit"
-    class="p-3"
-  >
+  <span v-if="edit" v-loading="isLoading" class="p-3">
     <span class="el-input inline">
       <input
+        v-model="newValue"
         v-autowidth="{
           maxWidth: isFromBoard ? '480px' : '960px',
           minWidth: '120px',
           comfortZone: 0
         }"
-        v-model="newValue"
         :placeholder="$t('general.Title')"
         type="text"
         class="el-input__inner text-xl"
-      >
+      />
       <el-button
         class="action"
         type="success"
@@ -32,17 +28,10 @@
       />
     </span>
   </span>
-  <span
-    v-else-if="isButtonDisabled"
-    class="cursor-not-allowed"
-  >
+  <span v-else-if="isButtonDisabled" class="cursor-not-allowed">
     {{ value }}
   </span>
-  <span
-    v-else
-    class="title cursor-text p-1"
-    @click="edit = true"
-  >
+  <span v-else class="title cursor-text p-1" @click="edit = true">
     {{ value }}
   </span>
 </template>
@@ -50,7 +39,7 @@
 <script>
 import VueInputAutoWidth from 'vue-input-autowidth'
 import Vue from 'vue'
-import { updateIssue } from '@/api/issue'
+import { updateIssue } from '@/api_v3/issues'
 
 Vue.use(VueInputAutoWidth)
 
@@ -102,9 +91,8 @@ export default {
   methods: {
     async updateTitle() {
       this.isLoading = true
-      const sendForm = new FormData()
-      sendForm.append('name', this.newValue)
-      await updateIssue(this.issueId, sendForm).then(() => {
+      const sendData = { subject: this.newValue }
+      await updateIssue(this.issueId, sendData).then(() => {
         this.$emit('update')
         this.edit = false
       })
@@ -119,7 +107,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .title:hover {
@@ -127,7 +115,7 @@ export default {
 }
 
 .el-button--success {
-  @include css-prefix(transition, all .6s ease);
+  @include css-prefix(transition, all 0.6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
@@ -139,7 +127,7 @@ export default {
 }
 
 .el-button--danger {
-  @include css-prefix(transition, all .6s ease);
+  @include css-prefix(transition, all 0.6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;

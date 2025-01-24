@@ -2,6 +2,7 @@
   <div>
     <el-form
       ref="projectInformation"
+      v-loading="isLoading"
       :model="form"
       :rules="rules"
       label-position="top"
@@ -9,29 +10,32 @@
     >
       <el-row :gutter="10">
         <el-col :span="24">
-          <el-col :span="24" :sm="8" :xl="4">
+          <el-col :sm="8" :span="24" :xl="4">
             <el-form-item :label="$t('Project.Identifier')">
-              <el-input v-model="form.name" disabled />
+              <el-input v-model="form.identifier" disabled />
             </el-form-item>
           </el-col>
-          <el-col :span="24" :sm="8" :xl="4">
-            <el-form-item :label="$t('Project.Name')" prop="display">
-              <el-input v-model="form.display" :disabled="disabledEngineerRole" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24" :sm="8" :xl="3">
-            <el-form-item :label="$t('general.Active')">
-              <el-switch
-                v-model="form.disabled"
-                :disabled="disabledEditOwner"
-                :active-value="false"
-                :inactive-value="true"
-                :active-text="$t('general.Enable')"
-                :inactive-text="$t('general.Disable')"
+          <el-col :sm="8" :span="24" :xl="4">
+            <el-form-item :label="$t('Project.Name')" prop="display_name">
+              <el-input
+                v-model="form.display_name"
+                :disabled="disabledEngineerRole"
               />
             </el-form-item>
           </el-col>
-          <el-col :span="24" :sm="8" :xl="5">
+          <el-col :sm="8" :span="24" :xl="3">
+            <el-form-item :label="$t('general.Active')">
+              <el-switch
+                v-model="form.is_disabled"
+                :active-text="$t('general.Enable')"
+                :active-value="false"
+                :disabled="disabledEditOwner"
+                :inactive-text="$t('general.Disable')"
+                :inactive-value="true"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :sm="8" :span="24" :xl="5">
             <el-form-item :label="$t('Project.Owner')" prop="owner_id">
               <el-select
                 v-model="form.owner_id"
@@ -41,35 +45,34 @@
                 <el-option
                   v-for="item in assignedList"
                   :key="item.id"
-                  :label="item.label"
+                  :disabled="item.disabled"
+                  :label="item.full_name"
                   :value="item.id"
-                >
-                  {{ item.label }}
-                </el-option>
+                />
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="24" :sm="8" :xl="3">
+          <el-col :sm="8" :span="24" :xl="3">
             <el-form-item :label="$t('Project.StartDate')" prop="start_date">
               <el-date-picker
                 v-model="form.start_date"
                 :disabled="disabledEngineerRole"
+                style="width: 100%"
                 type="date"
                 value-format="yyyy-MM-dd"
-                style="width: 100%"
                 @change="checkDueDate"
               />
             </el-form-item>
           </el-col>
-          <el-col :span="24" :sm="8" :xl="3">
+          <el-col :sm="8" :span="24" :xl="3">
             <el-form-item :label="$t('general.DueDate')" prop="due_date">
               <el-date-picker
                 v-model="form.due_date"
                 :disabled="disabledEngineerRole"
                 :picker-options="pickerOptions(form.start_date)"
+                style="width: 100%"
                 type="date"
                 value-format="yyyy-MM-dd"
-                style="width: 100%"
               />
             </el-form-item>
           </el-col>
@@ -78,80 +81,86 @@
               <el-input
                 v-model="form.description"
                 :disabled="disabledEngineerRole"
-                :placeholder="$t('general.PleaseInput') + $t('RuleMsg.Description')"
+                :placeholder="
+                  $t('general.PleaseInput') + $t('RuleMsg.Description')
+                "
                 type="textarea"
               />
             </el-form-item>
           </el-col>
           <el-col
-            v-if="!originProject.parent_id || (originProject.parent_id && originProject.has_parent_project_permission)"
+            v-if="
+              !originProject.parent_id ||
+                (originProject.parent_id &&
+                  originProject.has_parent_project_permission)
+            "
             :span="24"
           >
             <el-form-item :label="$t('Project.ParentProject')">
-              <el-col
-                :xl="18"
-                :md="18"
-                :sm="14"
-                :xs="24"
-              >
+              <el-col :md="18" :sm="14" :xl="18" :xs="24">
                 <ProjectList
-                  :form="form"
                   :disabled-engineer-role="disabledEngineerRole"
+                  :form="form"
                   @change="handleInheritanceMemberChange"
                 />
-                <el-checkbox
-                  v-if="!isLite"
-                  v-model="form.image_auto_del"
-                  :disabled="disabledEngineerRole"
-                  :label="$t('Project.ImageAutoDel')"
-                />
+                <div class="flex flex-col">
+                  <el-checkbox
+                    v-if="!isLite && services.harbor"
+                    v-model="form.image_auto_del"
+                    :disabled="disabledEngineerRole"
+                    :label="$t('Project.ImageAutoDel')"
+                  />
+                  <el-checkbox
+                    v-if="!isLite && services.gitlab"
+                    v-model="form.should_update_pipeline"
+                    :label="$t('Project.AutoUpgradeCIYaml')"
+                  />
+                </div>
               </el-col>
-              <el-col
-                :xl="6"
-                :md="6"
-                :sm="10"
-                :xs="24"
-              >
+              <el-col :md="6" :sm="10" :xl="6" :xs="24">
                 <el-switch
                   v-model="form.is_inheritance_member"
-                  :disabled="isInheritanceMemberChange"
                   :active-text="$t('Project.InheritParentProjectMember')"
+                  :disabled="isInheritanceMemberChange"
                 />
               </el-col>
             </el-form-item>
           </el-col>
           <el-col
-            v-if="form.base_example && baseExampleDescription && !projectData.is_empty_project"
+            v-if="
+              form.base_example &&
+                baseExampleDescription &&
+                !projectData.is_empty
+            "
             :span="24"
           >
             <el-form-item :label="$t('Project.OriginalTemplate')">
               <div class="font-bold">
                 {{ baseExampleDisplay }}
               </div>
-              <span v-html="baseExampleDescription" />
+              <span v-html="baseExampleDescription"></span>
             </el-form-item>
           </el-col>
         </el-col>
       </el-row>
       <TemplateList
-        v-if="projectData.is_empty_project"
+        v-if="projectData.is_empty && services.gitlab"
         :form="form"
         @clearTemplate="clearTemplate"
       />
     </el-form>
     <span v-if="!disabledEngineerRole" class="float-right">
       <el-button
-        :size="isMobile ? 'small' : 'medium'"
         :loading="isLoading"
-        class="button-secondary-reverse"
+        :size="isMobile ? 'small' : 'medium'"
         @click="handleCancel"
       >
         {{ $t('general.Cancel') }}
       </el-button>
       <el-button
-        :size="isMobile ? 'small' : 'medium'"
         :loading="isLoading"
-        class="button-primary"
+        :size="isMobile ? 'small' : 'medium'"
+        type="primary"
         @click="handleConfirm"
       >
         {{ $t('general.Confirm') }}
@@ -161,32 +170,34 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import { getProjectAssignable } from '@/api/projects'
-import { getTemplateList } from '@/api/template'
+import { getGitlabTemplateList } from '@/api_v3/gitlab'
+import { getProjectUserList } from '@/api_v3/projects'
+import i18n from '@/lang'
 import ProjectList from '@shared/views/Overview/ProjectList/components/ProjectList'
 import TemplateList from '@shared/views/Overview/ProjectList/components/TemplateList'
-import i18n from '@/lang'
+import { mapActions, mapGetters } from 'vuex'
 
 const formTemplate = () => {
   const form = {
     id: '',
-    name: '',
-    display: '',
+    identifier: '',
+    display_name: '',
     description: '',
     start_date: '',
     due_date: '',
     owner_id: '',
     base_example: '',
-    disabled: false,
+    is_disabled: false,
     parent_id: '',
     is_inheritance_member: false,
+    image_auto_del: false,
+    should_update_pipeline: false,
     template_id: '',
     tag_name: '',
     argumentsForm: [],
     has_parent_project_permission: false
   }
-  if (process.env.VUE_APP_PROJECT !== 'LITE') form.image_auto_del = false
+  if (import.meta.env.VITE_APP_PROJECT !== 'LITE') form.image_auto_del = false
   return form
 }
 
@@ -201,8 +212,9 @@ export default {
       projectData: {},
       isLoading: false,
       form: formTemplate(),
+      isAutoUpgradeCIYaml: false,
       rules: {
-        name: [
+        identifier: [
           {
             required: true,
             message: 'Project Identifier is required',
@@ -215,7 +227,7 @@ export default {
             trigger: 'blur'
           }
         ],
-        display: [
+        display_name: [
           {
             required: true,
             message: 'Project Name is required',
@@ -272,40 +284,70 @@ export default {
     ...mapGetters([
       'userId',
       'userRole',
+      'selectedProject',
       'projectOptions',
-      'completeSelectedProject'
+      'completeSelectedProject',
+      'roleList',
+      'services'
     ]),
     isMobile() {
       return this.device === 'mobile'
     },
     assignedList() {
-      return this.assignableList.filter(item => item.role_id !== 1).map(item => ({ id: item.id, label: item.name }))
+      const list = this.assignableList
+        .filter((item) => item.role.name === 'Project Manager')
+        .map(({ id, full_name, department }) => ({
+          id,
+          full_name,
+          department
+        }))
+      if (!list.some((item) => item.id === this.projectData.owner.id)) {
+        list.push({
+          ...this.projectData.owner,
+          disabled: true
+        })
+      }
+      return list
     },
     disabledEditOwner() {
-      if (this.userRole === 'Administrator') return false
-      return this.userId !== this.projectData.owner_id || this.userRole === 'Engineer'
+      if (
+        this.userRole === 'sysadmin' ||
+        this.userRole === 'Organization Owner'
+      ) {
+        return false
+      }
+      if (!this.projectData.owner) return
+      return (
+        this.userId !== this.projectData.owner.id ||
+        this.userRole === 'Engineer'
+      )
     },
     disabledEngineerRole() {
       return this.userRole === 'Engineer'
     },
     isInheritanceMemberChange() {
-      return (this.originProject.parent_id === this.form.parent_id &&
-      this.originProject.is_inheritance_member) || !this.form.parent_id
+      return (
+        (this.originProject.parent_id === this.form.parent_id &&
+          this.originProject.is_inheritance_member) ||
+        !this.form.parent_id
+      )
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     }
   },
   watch: {
     projectData() {
       const formItems = Object.keys(this.form)
       formItems.forEach((item) => {
-        this.form[item] = this.projectData[item] === 'None' ? ''
-          : this.projectData[item] || this.form[item]
+        this.form[item] =
+          this.projectData[item] === 'None'
+            ? ''
+            : this.projectData[item] || this.form[item]
       })
       this.fetchProjectAssignableList(this.projectData.id)
       this.getExampleInfo()
-      this.form.owner_id = this.projectData.owner_id
+      this.form.owner_id = this.projectData.owner.id
     },
     completeSelectedProject: {
       async handler(project) {
@@ -318,14 +360,25 @@ export default {
       deep: true
     }
   },
+  created() {
+    this.isLoading = true
+    this.setCompleteSelectedProject(this.selectedProject.id)
+  },
   methods: {
-    ...mapActions('projects', ['editProject']),
+    ...mapActions('projects', [
+      'editProject',
+      'setSelectedProject',
+      'setCompleteSelectedProject'
+    ]),
     setProjectData() {
       this.form = formTemplate()
       this.projectData = Object.assign({}, this.completeSelectedProject)
+      this.isLoading = false
     },
-    fetchProjectAssignableList(projectId) {
-      getProjectAssignable(projectId).then(res => (this.assignableList = res.data.user_list))
+    async fetchProjectAssignableList(projectId) {
+      await getProjectUserList(projectId).then((res) => {
+        this.assignableList = res.data
+      })
     },
     async getExampleInfo() {
       if (this.userRole !== 'Engineer') {
@@ -336,11 +389,12 @@ export default {
         } = this.projectData
         this.originProject.parent_id = parent_id
         this.originProject.is_inheritance_member = is_inheritance_member
-        this.originProject.has_parent_project_permission = has_parent_project_permission
-        await getTemplateList().then((res) => {
+        this.originProject.has_parent_project_permission =
+          has_parent_project_permission
+        await getGitlabTemplateList().then((res) => {
           res.data.forEach((item) => {
             item.options.forEach((element) => {
-              if (element.path === this.form.base_example) {
+              if (element?.path === this.form.base_example) {
                 this.baseExampleDisplay = element.display
                 this.baseExampleDescription = element.description
               }
@@ -351,7 +405,8 @@ export default {
     },
     handleInheritanceMemberChange() {
       if (this.originProject.parent_id === this.form.parent_id) {
-        this.form.is_inheritance_member = this.originProject.is_inheritance_member
+        this.form.is_inheritance_member =
+          this.originProject.is_inheritance_member
       }
     },
     handleCancel() {
@@ -372,7 +427,7 @@ export default {
       this.form.argumentsForm = []
     },
     async handleConfirm() {
-      this.$refs.projectInformation.validate(async valid => {
+      this.$refs.projectInformation.validate(async (valid) => {
         if (!valid) return
         this.handleConfirmEdit()
       })
@@ -382,66 +437,78 @@ export default {
         pId: this.form.id,
         data: {
           description: this.form.description,
-          display: this.form.display,
+          display_name: this.form.display_name,
           owner_id: this.form.owner_id,
           start_date: this.form.start_date,
           due_date: this.form.due_date,
-          disabled: this.form.disabled
+          is_disabled: this.form.is_disabled
         }
       }
-      if (!this.isLite) sendData.data.image_auto_del = this.form.image_auto_del
-      if (!this.form.parent_id) {
-        sendData.data.parent_id = ''
+      if (!this.isLite) {
+        sendData.data.image_auto_del = this.form.image_auto_del
+        sendData.data.should_update_pipeline = this.form.should_update_pipeline
+      }
+      if (this.form.parent_id === '') {
+        sendData.data.parent_id = 'null'
         sendData.data.is_inheritance_member = false
       } else if (
-        (this.originProject.parent_id !== this.form.parent_id) ||
-        (!this.originProject.is_inheritance_member && this.form.is_inheritance_member)
+        this.originProject.parent_id !== this.form.parent_id ||
+        (!this.originProject.is_inheritance_member &&
+          this.form.is_inheritance_member)
       ) {
         sendData.data.parent_id = this.form.parent_id
         sendData.data.is_inheritance_member = this.form.is_inheritance_member
       }
-      if (this.projectData.is_empty_project && this.form.template_id) {
+      if (this.projectData.is_empty && this.form.template_id) {
         sendData.data.template_id = this.form.template_id
         sendData.data.tag_name = this.form.tag_name
         if (this.form.argumentsForm.length > 0) {
-          sendData.data.arguments = this.form.argumentsForm.reduce((arr, cur) =>
-            Object.assign(arr, { [cur.key]: cur.value })
-            , {})
+          sendData.data.arguments = this.form.argumentsForm.reduce(
+            (arr, cur) => Object.assign(arr, { [cur.key]: cur.value }),
+            {}
+          )
         }
-        this.$confirm(this.$t('Notify.confirmEditProject'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.handleEdit(sendData)
-        }).catch(() => {})
+        this.$confirm(
+          this.$t('Notify.confirmEditProject'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.handleEdit(sendData)
+          })
+          .catch(() => {})
       } else {
         this.handleEdit(sendData)
       }
     },
     async handleEdit(sendData) {
       this.isLoading = true
-      await this.editProject(sendData).then(res => {
-        this.isLoading = false
-        if (res.message === 'success') {
+      await this.editProject(sendData)
+        .then((res) => {
+          this.updateSelectedProject(res.data)
           this.$message({
             title: this.$t('general.Success'),
             message: this.$t('Notify.Updated'),
             type: 'success'
           })
           this.$emit('update')
-        } else {
-          this.$message({
-            title: this.$t('general.Warning'),
-            message: res.error.message,
-            type: 'warning'
-          })
-        }
-      })
-      this.isLoading = false
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
+    },
+    updateSelectedProject(project) {
+      localStorage.setItem('projectId', project.id)
+      this.setSelectedProject(project)
     },
     checkDueDate(startDate) {
-      if (new Date(startDate).getTime() >= new Date(this.form.due_date)) this.form.due_date = ''
+      if (new Date(startDate).getTime() >= new Date(this.form.due_date)) {
+        this.form.due_date = ''
+      }
     }
   }
 }

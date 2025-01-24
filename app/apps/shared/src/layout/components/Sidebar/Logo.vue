@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'collapse':collapse}" class="sidebar-logo-container">
+  <div :class="{ collapse: collapse }" class="sidebar-logo-container">
     <transition name="sidebarLogoFade">
       <router-link
         v-if="collapse"
@@ -7,30 +7,14 @@
         class="sidebar-logo-link"
         to="/"
       >
-        <img
-          src="../../../assets/logo_2.png"
-          class="sidebar-logo"
-          alt=""
-        >
+        <img :src="logo" alt="" class="sidebar-logo" />
       </router-link>
-      <router-link
-        v-else
-        key="expand"
-        class="sidebar-logo-link"
-        to="/"
-      >
+      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <div>
-          <img
-            src="../../../assets/logo_2.png"
-            class="sidebar-logo"
-            alt=""
-          >
+          <img :src="logo" alt="" class="sidebar-logo" />
         </div>
         <div>
-          <h1
-            :class="isLite ? 'lite' : ''"
-            class="sidebar-title"
-          >
+          <h1 :class="isLite ? 'lite' : ''" class="sidebar-title">
             {{ defaultSettings.title }}
           </h1>
         </div>
@@ -41,6 +25,7 @@
 
 <script>
 import defaultSettings from '@/settings'
+import logoLight from '../../../assets/logo_2.png'
 
 export default {
   name: 'SidebarLogo',
@@ -59,14 +44,20 @@ export default {
   computed: {
     isLite() {
       return this.defaultSettings.type === 'LITE'
+    },
+    logo() {
+      const externalLogo = import.meta.env.VITE_APP_LOGO_LIGHT
+      return externalLogo && String(externalLogo) !== ''
+        ? externalLogo
+        : logoLight
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
-@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Audiowide&display=swap');
+@import 'src/styles/theme/variables.module.scss';
+
 .sidebarLogoFade-enter-active {
   transition: opacity 1.5s;
 }
@@ -89,7 +80,7 @@ export default {
   border-radius: 0 0 15px 15px;
   box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
   z-index: 1;
-  transition: height .3s;
+  transition: height 0.3s;
 
   & .sidebar-logo-link {
     height: 100%;
@@ -116,11 +107,14 @@ export default {
 
   &.collapse {
     height: 60px;
+    visibility: visible !important;
+
     .sidebar-logo {
       margin-right: 0px;
     }
   }
 }
+
 .lite {
   font-family: 'Poiret One', cursive !important;
   font-weight: 600 !important;

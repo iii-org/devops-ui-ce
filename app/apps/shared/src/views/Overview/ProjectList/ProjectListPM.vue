@@ -2,11 +2,7 @@
   <div class="app-container">
     <div :class="!isMobile ? 'flex items-center justify-between' : ''">
       <div>
-        <el-button
-          icon="el-icon-plus"
-          class="button-primary"
-          @click="handleAdding"
-        >
+        <el-button type="primary" icon="el-icon-plus" @click="handleAdding">
           {{ $t('Project.AddProject') }}
         </el-button>
       </div>
@@ -19,7 +15,7 @@
           <UpdateButton
             slot="updateButton"
             :list-loading.sync="listLoading"
-            @update="fetchData"
+            @update="updateList"
           />
         </SearchFilter>
       </div>
@@ -31,130 +27,130 @@
       :element-loading-text="$t('Loading')"
       :row-class-name="getRowClass"
       fit
+      @expand-change="getProjectChildren"
     >
       <el-table-column type="expand">
-        <template slot-scope="scope">
+        <template slot-scope="{ row }">
+          <el-skeleton v-if="row.children.length === 0" :rows="3" class="p-5" />
           <ProjectExpand
-            :children="scope.row.children"
-            @setStar="setStar"
-            @updated="fetchData"
+            v-else
+            :children="row.children"
+            :params="params"
             @handleClick="handleClick"
-            @handleEdit="handleEdit"
             @handleDelete="handleDelete"
+            @handleEdit="handleEdit"
             @handleFix="handleFix"
             @handleToggle="handleToggle"
+            @setStar="setStar"
+            @updated="updateList"
           />
         </template>
       </el-table-column>
-      <el-table-column
-        width="60"
-        align="center"
-        prop="starred"
-      >
+      <el-table-column align="center" prop="is_starred" width="60">
         <template slot-scope="scope">
           <em
-            v-if="scope.row.starred"
+            v-if="scope.row.is_starred"
             class="el-icon-star-on text-yellow-500 text-2xl cursor-pointer"
             @click="setStar(scope.row.id, false)"
-          />
+          ></em>
           <em
             v-else
             class="el-icon-star-off text-gray-400 text-xl cursor-pointer"
             @click="setStar(scope.row.id, true)"
-          />
+          ></em>
         </template>
       </el-table-column>
       <el-table-column
         :label="$t('Project.Name') + '/' + $t('Project.Identifier')"
-        show-overflow-tooltip
         min-width="230"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           <div class="flex justify-start">
             <div class="flex items-center mr-5">
               <!-- gitlab button -->
               <el-popover
-                v-if="scope.row.git_url"
-                :disabled="scope.row.disabled || scope.row.is_lock"
-                :open-delay="300"
+                v-if="scope.row.git_url && services.gitlab"
                 :close-delay="50"
+                :disabled="scope.row.is_disabled || scope.row.is_locked"
+                :open-delay="300"
                 class="mr-1"
                 placement="top"
-                width="400"
                 trigger="hover"
+                width="400"
               >
-                <p
-                  :id="`copy-${scope.$index}`"
-                  class="text-center"
-                >
-                  <span class="font-bold text-sm">{{ scope.row.git_url }}</span>
+                <p class="text-center">
+                  <span class="font-bold text-sm">
+                    {{ scope.row.git_url }}
+                  </span>
                 </p>
                 <div class="flex justify-center">
                   <el-button
+                    circle
                     class="mr-2"
                     icon="el-icon-copy-document"
-                    circle
                     size="mini"
-                    @click="copyUrl(`copy-${scope.$index}`)"
+                    @click="copyUrl(scope.row.git_url)"
                   />
-                  <a
-                    :href="scope.row.git_url"
-                    target="_blank"
-                  >
-                    <el-button
-                      circle
-                      size="mini"
-                    >
-                      <em class="ri-external-link-line" />
+                  <a :href="scope.row.git_url" target="_blank">
+                    <el-button circle size="mini">
+                      <em class="ri-external-link-line"></em>
                     </el-button>
                   </a>
                 </div>
                 <el-link
                   slot="reference"
+                  :disabled="scope.row.is_disabled || scope.row.is_locked"
                   :underline="false"
-                  :disabled="scope.row.disabled || scope.row.is_lock"
-                  style="padding: 0 3px;"
+                  style="padding: 0 3px"
                 >
-                  <svg-icon icon-class="gitlab" style="font-size: 18px;" />
+                  <svg-icon icon-class="gitlab" style="font-size: 18px" />
                 </el-link>
               </el-popover>
               <!-- harbor button -->
               <el-link
-                v-if="scope.row.harbor_url"
-                :underline="false"
-                :disabled="scope.row.disabled || scope.row.is_lock"
+                v-if="scope.row.harbor_url && services.harbor"
+                :disabled="scope.row.is_disabled || scope.row.is_locked"
                 :href="scope.row.harbor_url"
+                :underline="false"
+                style="font-size: 18px; padding: 0 3px"
                 target="_blank"
-                style="font-size: 18px; padding: 0 3px;"
               >
-                <svg-icon icon-class="harbor" style="font-size: 18px;" />
+                <svg-icon icon-class="harbor" style="font-size: 18px" />
               </el-link>
             </div>
             <div>
               <el-link
                 v-if="userRole !== 'QA'"
-                :class="scope.row.disabled || scope.row.is_lock ? '' : 'link-text-color'"
+                :class="
+                  scope.row.is_disabled || scope.row.is_locked
+                    ? ''
+                    : 'link-text-color'
+                "
+                :disabled="scope.row.is_disabled || scope.row.is_locked"
                 :underline="false"
-                :disabled="scope.row.disabled || scope.row.is_lock"
                 @click="handleClick(scope.row)"
               >
-                {{ scope.row.display }}
+                {{ scope.row.display_name }}
               </el-link>
               <template v-else>
-                {{ scope.row.display }}
+                {{ scope.row.display_name }}
               </template>
-              <br>
-              <span class="text-info text-sm">#{{ scope.row.name }}</span>
+              <br />
+              <span class="text-info text-sm">
+                #{{ scope.row.identifier }}
+              </span>
             </div>
           </div>
         </template>
       </el-table-column>
       <ElTableColumnTag
         :label="$t('Project.IssueStatus')"
-        prop="project_status"
         i18n-key="Project"
         location="projectListPM"
         min-width="130"
+        prop="project_status"
+        size="small"
       />
       <el-table-column
         :label="$t('Project.IssueProgress')"
@@ -164,28 +160,27 @@
         <template slot-scope="scope">
           <div>
             {{
-              `${scope.row.closed_count ? scope.row.closed_count : "0"} / ${
-                scope.row.total_count ? scope.row.total_count : "0"
+              `${scope.row.issues.closed ? scope.row.issues.closed : '0'} / ${
+                scope.row.issues.total ? scope.row.issues.total : '0'
               }`
             }}
           </div>
           <el-progress
-            :percentage="returnProgress(scope.row.closed_count, scope.row.total_count)"
+            :percentage="
+              returnProgress(scope.row.issues.closed, scope.row.issues.total)
+            "
             :show-text="false"
             :stroke-width="4"
             status="warning"
           />
         </template>
       </el-table-column>
-      <ElTableColumnTime
-        :label="$t('Project.IssueUpdate')"
-        prop="updated_time"
-      />
+      <ElTableColumnTime :label="$t('Project.IssueUpdate')" prop="update_at" />
       <el-table-column
         :label="$t('general.owner_name')"
         align="center"
-        prop="owner_name"
         min-width="90"
+        prop="owner_name"
       />
       <el-table-column
         :label="$t('ProjectSettings.Status')"
@@ -194,35 +189,50 @@
       >
         <template slot-scope="scope">
           <el-tooltip
-            :disabled="!scope.row.is_lock"
             :content="scope.row.lock_reason"
+            :disabled="!scope.row.is_locked"
             placement="bottom"
           >
-            <el-tag v-if="scope.row.is_lock" type="info">
+            <el-tag v-if="scope.row.is_locked" type="info">
               {{ $t('errorDetail.locked') }}
             </el-tag>
-            <el-tag v-else :type="scope.row.disabled ? 'danger' : 'success'">
-              {{ scope.row.disabled ? $t('general.Disable') : $t('general.Enable') }}
+            <el-tag v-else :type="scope.row.is_disabled ? 'danger' : 'success'">
+              {{
+                scope.row.is_disabled
+                  ? $t('general.Disable')
+                  : $t('general.Enable')
+              }}
             </el-tag>
           </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
         :label="$t('general.Actions')"
-        header-align="center"
         align="center"
+        fixed="right"
+        header-align="center"
         min-width="120"
       >
         <template slot-scope="scope">
           <el-tooltip
-            v-if="userRole !== 'QA' && scope.row.is_lock !== true"
+            v-if="userRole !== 'QA'"
             :content="$t('general.Edit')"
             placement="bottom"
           >
-            <em class="ri-edit-box-line success table-button" @click="handleEdit(scope.row)" />
+            <span>
+              <em
+                :class="
+                  scope.row.is_locked || scope.row.is_disabled
+                    ? 'disabled'
+                    : 'success'
+                "
+                class="ri-edit-box-line table-button"
+                @click="handleEdit(scope.row)"
+              ></em>
+            </span>
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.is_lock !== true"
+            v-if="!scope.row.is_locked"
             :content="$t('general.Delete')"
             placement="bottom"
           >
@@ -231,11 +241,11 @@
                 :class="permission(scope.row) ? 'disabled' : 'danger'"
                 class="ri-delete-bin-2-line table-button"
                 @click="handleDelete(scope.row)"
-              />
+              ></em>
             </span>
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.is_lock === true"
+            v-if="scope.row.is_locked"
             :content="$t('general.ForceDelete')"
             placement="bottom"
           >
@@ -244,19 +254,26 @@
                 :class="permission(scope.row) ? 'disabled' : 'danger'"
                 class="ri-delete-bin-2-line table-button"
                 @click="handleDelete(scope.row, true)"
-              />
+              ></em>
             </span>
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.is_lock === true"
+            v-if="scope.row.is_locked"
             :content="$t('general.Fix')"
             placement="bottom"
           >
-            <em class="ri-refresh-line primary table-button" @click="handleFix(scope.row.id)" />
+            <em
+              class="ri-refresh-line primary table-button"
+              @click="handleFix(scope.row.id)"
+            ></em>
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.is_lock !== true"
-            :content="!scope.row.disabled ? $t('general.Disable') : $t('general.Enable')"
+            v-if="!scope.row.is_locked"
+            :content="
+              !scope.row.is_disabled
+                ? $t('general.Disable')
+                : $t('general.Enable')
+            "
             placement="bottom"
           >
             <span>
@@ -264,7 +281,7 @@
                 :class="disableProjectClass(scope.row)"
                 class="table-button"
                 @click="handleToggle(scope.row)"
-              />
+              ></em>
             </span>
           </el-tooltip>
         </template>
@@ -274,25 +291,22 @@
       </template>
     </el-table>
     <Pagination
-      :total="projectListTotal"
-      :page="params.page"
-      :limit="params.limit"
       :layout="paginationLayout"
+      :limit="params.limit"
+      :page="params.page"
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
+      :total="projectListTotal"
       @pagination="onPagination"
     />
 
-    <CreateProjectDialog
-      ref="createProjectDialog"
-      @update="fetchData"
-    />
+    <CreateProjectDialog ref="createProjectDialog" @update="updateList" />
     <DeleteProjectDialog
       ref="deleteProjectDialog"
       :delete-project-obj="deleteProject"
       :is-force-delete="forceDelete"
       :project-relation-list="projectRelationList"
-      @update="fetchData"
+      @update="updateList"
     />
     <el-dialog
       v-if="isShowProjectSettingDialog"
@@ -302,44 +316,42 @@
       top="5vh"
       @close="handleCloseDialog"
     >
-      <ProjectSettingsDialog
-        @handleCloseDialog="handleCloseDialog"
-      />
+      <ProjectSettingsDialog @handleCloseDialog="handleCloseDialog" />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import { deleteStarProject, postStarProject, getCalculateProjectList } from '@/api/projects'
-import { syncProject, getHasSon, getProjectRelation } from '@/api_v2/projects'
-import { BasicData, SearchBar, Pagination, Table } from '@/mixins'
-import { ElTableColumnTime, ElTableColumnTag } from '@shared/components'
-import { ProjectSettingsDialog } from '@shared/views/Plan/Overview/components'
+import { syncProject } from '@/api_v2/projects'
 import {
-  CreateProjectDialog,
-  DeleteProjectDialog,
-  SearchFilter,
-  UpdateButton
-} from './components'
+  deleteStarProject,
+  getProjectChildren,
+  getProjectRelation,
+  postStarProject
+} from '@/api_v3/projects'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
+import { mapActions, mapGetters } from 'vuex'
 
 const params = () => ({
   limit: 10,
-  offset: 0,
-  parent_son: true,
+  page: 1,
   root: true
 })
 
 export default {
   name: 'ProjectListPM',
   components: {
-    ElTableColumnTime,
-    ElTableColumnTag,
-    CreateProjectDialog,
-    ProjectSettingsDialog,
-    DeleteProjectDialog,
-    SearchFilter,
-    UpdateButton,
+    ElTableColumnTime: () => import('@shared/components/ElTableColumnTime'),
+    ElTableColumnTag: () => import('@shared/components/ElTableColumnTag'),
+    CreateProjectDialog: () => import('./components/CreateProjectDialog'),
+    ProjectSettingsDialog: () =>
+      import('@shared/views/Plan/Overview/components/ProjectSettingsDialog'),
+    DeleteProjectDialog: () => import('./components/DeleteProjectDialog'),
+    SearchFilter: () => import('./components/SearchFilter'),
+    UpdateButton: () => import('./components/UpdateButton'),
     ProjectExpand: () => import('./components/ProjectExpand')
   },
   filters: {
@@ -356,8 +368,8 @@ export default {
   data() {
     return {
       editProjectObject: {},
-      deleteProject: { id: '', name: '' },
-      searchKeys: ['display', 'name', 'owner_name'],
+      deleteProject: { id: '', identifier: '' },
+      searchKeys: ['display_name', 'identifier', 'owner_name'],
       params: params(),
       listData: [],
       forceDelete: false,
@@ -372,9 +384,10 @@ export default {
       'userRole',
       'projectList',
       'projectListTotal',
-      'userProjectList',
+      'projectOptions',
       'selectedProjectId',
-      'device'
+      'device',
+      'services'
     ]),
     getButtonType() {
       return function (disabled) {
@@ -385,17 +398,22 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     }
   },
   watch: {
     keyword(val) {
       if (val !== null) {
-        this.params.offset = 0
+        this.params.page = 1
         this.params.limit = 10
         this.params.search = this.keyword
         clearTimeout(this.timeoutId)
-        this.timeoutId = window.setTimeout(() => this.fetchData(1, 10, val), 1000)
+        this.timeoutId = window.setTimeout(
+          () => this.fetchData(1, 10, val),
+          1000
+        )
       } else this.keyword = ''
     },
     selectedProjectId: {
@@ -410,21 +428,27 @@ export default {
     window.clearTimeout(this.timeoutId)
   },
   methods: {
-    ...mapActions('projects', ['setSelectedProject', 'getMyProjectList', 'editProject']),
+    ...mapActions('projects', [
+      'setSelectedProject',
+      'getMyProjectList',
+      'getMyProjectOptions',
+      'editProject',
+      'isProjectHasChildren'
+    ]),
     async fetchData() {
       this.listLoading = true
       this.forceDelete = false
       if (this.$refs.filter) this.getParams()
-      else this.params.disabled = 0
+      else this.params.enable = true
       await this.getMyProjectList(this.params)
       this.listLoading = false
       this.listData = this.projectList
-      const filteredArray = this.projectList.filter(obj => {
-        return obj.is_lock !== true && obj.disabled !== true
-      })
-      if (filteredArray.length > 0) {
-        this.getCalculateProjectData(filteredArray)
-      }
+      // const filteredArray = this.projectList.filter((obj) => {
+      //   return obj.is_locked !== true && obj.is_disabled !== true
+      // })
+      // if (filteredArray.length > 0) {
+      //   this.getCalculateProjectData(filteredArray)
+      // }
       return this.listData
     },
     getParams() {
@@ -436,44 +460,23 @@ export default {
         this.params.root = true
       }
       if (this.$refs.filter.isDisabled.length === 1) {
-        this.params.disabled = this.$refs.filter.isDisabled[0]
+        this.params.enable = this.$refs.filter.isDisabled[0] === 'enable'
       } else {
-        delete this.params.disabled
+        delete this.params.enable
       }
     },
-    async getCalculateProjectData(project) {
-      const ids = project.map(function (el) {
-        return el.id
+    async getProjectChildren(row) {
+      const res = await getProjectChildren(row.id, {
+        enabled: this.params.enable
       })
-      const calculated = await this.getCalculateProjectList(ids.join())
-      for (const i in calculated.project_list) {
-        calculated.project_list[i].id = parseInt(calculated.project_list[i].id)
-      }
-      const merged = []
-      for (const item of this.listData) {
-        merged.push({
-          ...item,
-          ...calculated.project_list.find(
-            (itmInner) => itmInner.id === item.id
-          )
-        })
-      }
-      this.listData = merged
+      this.$set(row, 'children', res.data)
     },
-    async getCalculateProjectList(ids) {
-      this.listLoading = true
-      return await getCalculateProjectList(ids)
-        .then((res) => {
-          return res.data
-        })
-        .finally(() => {
-          this.listLoading = false
-        })
+    async updateList() {
+      this.getMyProjectOptions()
+      await this.fetchData()
     },
     async onPagination(listQuery) {
       const { limit, page } = listQuery
-      const offset = limit * (page - 1)
-      this.params.offset = offset
       this.params.limit = limit
       this.params.page = page
       await this.fetchData()
@@ -486,7 +489,7 @@ export default {
     },
     handleEdit(row) {
       const { id } = row
-      const selectedProject = this.userProjectList.filter((elm) => {
+      const selectedProject = this.projectOptions.filter((elm) => {
         return elm.id === id
       })[0]
       localStorage.setItem('projectId', id)
@@ -499,14 +502,14 @@ export default {
     },
     async handleDelete(row, isForce) {
       this.deleteProject.id = row.id
-      this.deleteProject.name = row.name
+      this.deleteProject.identifier = row.identifier
       if (isForce) this.forceDelete = true
-      await this.isHasSon(row.id)
+      await this.checkRelation(row.id)
       this.$refs.deleteProjectDialog.showDialog = true
     },
-    async isHasSon(projectId) {
-      const hasSon = await getHasSon(projectId)
-      if (hasSon.has_child) {
+    async checkRelation(projectId) {
+      const hasChildren = await this.isProjectHasChildren(projectId)
+      if (hasChildren) {
         const projectRelation = await getProjectRelation(projectId)
         this.projectRelationList = projectRelation.data[0].child
       } else {
@@ -519,27 +522,34 @@ export default {
     },
     handleClick(projectObj) {
       const { id } = projectObj
-      const selectedProject = this.userProjectList.filter((elm) => {
+      const selectedProject = this.projectOptions.filter((elm) => {
         return elm.id === id
       })[0]
       this.setSelectedProject(selectedProject)
       localStorage.setItem('projectId', id)
-      this.$router.push({ name: 'Overview', params: { projectName: selectedProject.name }})
+      this.$router.push({
+        name: 'Overview',
+        params: { projectName: selectedProject.identifier }
+      })
     },
     async handleCloseDialog() {
       this.isShowProjectSettingDialog = false
-      await this.fetchData()
+      await this.updateList()
     },
-    copyUrl(id) {
-      const message = this.$t('Notify.Copied')
-      const target = document.getElementById(id)
-      window.getSelection().selectAllChildren(target)
-      document.execCommand('Copy')
-      this.showSuccessMessage(message)
+    copyUrl(text) {
+      this.$copyText(text).then(() => {
+        const message = this.$t('Notify.Copied')
+        this.showSuccessMessage(message)
+      })
     },
     permission(row) {
       const { creator_id, owner_id } = row
-      if (this.userRole === 'Administrator') return false
+      if (
+        this.userRole === 'sysadmin' ||
+        this.userRole === 'Organization Owner'
+      ) {
+        return false
+      }
       if (this.userRole === 'QA') {
         if (creator_id !== this.userId) return true
       } else {
@@ -550,11 +560,11 @@ export default {
       const message = this.$t('Notify.Updated')
       star ? await postStarProject(id) : await deleteStarProject(id)
       this.initParams()
-      await this.fetchData()
+      await this.updateList()
       this.showSuccessMessage(message)
     },
     handleToggle(row) {
-      row.disabled = !row.disabled
+      row.is_disabled = !row.is_disabled
       const sendData = this.getEditData(row)
       this.handleEditStatus(sendData)
     },
@@ -562,11 +572,11 @@ export default {
       return {
         pId: row.id,
         data: {
-          display: row.display,
+          display_name: row.display_name,
           owner_id: row.owner_id,
           start_date: row.start_date,
           due_date: row.due_date,
-          disabled: row.disabled
+          is_disabled: row.is_disabled
         }
       }
     },
@@ -577,7 +587,7 @@ export default {
         this.listLoading = false
         if (res.message === 'success') {
           this.showSuccessMessage(message)
-          this.fetchData()
+          this.updateList()
         } else {
           const error = res.error.message
           this.showErrorMessage(error)
@@ -589,7 +599,7 @@ export default {
       const res = await syncProject(project_id)
       if (res.message === 'success') {
         this.showSuccessMessage(res.message)
-        this.fetchData()
+        await this.updateList()
       } else {
         const error = res.error.message
         this.showErrorMessage(error)
@@ -611,11 +621,11 @@ export default {
       })
     },
     getRowClass({ row }) {
-      return row.has_son ? '' : 'hide-expand'
+      return row.has_children ? '' : 'hide-expand'
     },
     disableProjectClass(row) {
       let className = ''
-      if (row.disabled) {
+      if (row.is_disabled) {
         className = 'ri-play-circle-line success'
       } else {
         className = 'ri-pause-circle-line warning'

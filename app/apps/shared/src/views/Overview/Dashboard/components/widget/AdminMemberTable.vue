@@ -8,14 +8,11 @@
     <el-table-column
       :label="$t('Member.Role')"
       prop="role_name"
-      width="200"
-      sortable
       show-overflow-tooltip
+      sortable
+      width="200"
     >
-      <div
-        slot-scope="scope"
-        class="text-right"
-      >
+      <div slot-scope="scope" class="text-right">
         <span>
           <strong>
             {{ scope.row.role_name }}
@@ -27,12 +24,12 @@
     <el-table-column
       :label="$t('Dashboard.ADMIN.ProjectMembers.NAME')"
       prop="user_name"
-      sortable
       show-overflow-tooltip
+      sortable
     >
       <template slot-scope="scope">
         <el-tag
-          v-for="(user,idx) in scope.row.user_name"
+          v-for="(user, idx) in scope.row.user_name"
           :key="idx"
           :type="mapType(scope.row.role_name)"
           class="ml-1 rounded-md"
@@ -74,7 +71,8 @@ export default {
   methods: {
     mapType(role) {
       switch (role) {
-        case 'Administrator':
+        case 'sysadmin':
+        case 'Organization Owner':
           return 'danger'
         case 'Project Manager':
           return 'warning'

@@ -1,18 +1,23 @@
 <template>
   <el-dialog
-    :visible.sync="showDialog"
     :close-on-click-modal="false"
+    :visible.sync="showDialog"
     width="40%"
     @closed="onDialogClosedDelete"
   >
     <div slot="title">
-      {{ `${$t('general.Delete')} 「${deleteProjectObj.name}」 ${$t('Project.Project')}` }}
+      {{
+        `${$t('general.Delete')} 「${deleteProjectObj.identifier}」 ${$t(
+          'Project.Project'
+        )}`
+      }}
     </div>
-    <p
-      v-if="projectRelationList.length > 0"
-      class="text-danger"
-    >
-      {{ $t('Project.deleteHasSonProjectText', [projectRelationList.map((item) => item.name)]) }}
+    <p v-if="projectRelationList.length > 0" class="text-danger font-bold">
+      {{
+        $t('Project.deleteHasSonProjectText', [
+          projectRelationList.map((item) => item.display_name)
+        ])
+      }}
     </p>
     <p class="text-danger">
       {{ $t('Project.deleteProjectConfirmText') }}
@@ -22,7 +27,7 @@
         {{ $t('Project.PleaseType') }}
       </span>
       <span class="text-xl font-semibold text-danger mx-1">
-        {{ deleteProjectObj.name }}
+        {{ deleteProjectObj.identifier }}
       </span>
       <span>
         {{ $t('Project.AndThen') }}
@@ -30,13 +35,12 @@
     </p>
     <el-input
       v-model="confirmProjectName"
-      :placeholder="`Please Input ${deleteProjectObj.name}`"
+      :placeholder="`Please Input ${deleteProjectObj.identifier}`"
     />
     <span slot="footer" class="dialog-footer">
       <el-button
         id="dialog-btn-cancel"
         :loading="isLoading"
-        class="button-secondary-reverse"
         @click="showDialog = false"
       >
         {{ $t('general.Cancel') }}
@@ -80,41 +84,74 @@ export default {
     }
   },
   methods: {
-    ...mapActions('projects', ['deleteProject', 'forceDeleteProject']),
+    ...mapActions('projects', ['deleteProject']),
     onDialogClosedDelete() {
       this.confirmProjectName = ''
     },
     async handleDeleteModal() {
-      if (this.deleteProjectObj.name !== this.confirmProjectName) {
-        return this.$message({
-          message: this.$t('Notify.WrongProjectName'),
-          type: 'warning'
+      if (this.deleteProjectObj.identifier !== this.confirmProjectName) {
+        this.showWarningMessage('Notify.WrongProjectName')
+        return
+      }
+
+      try {
+        this.isLoading = true
+        await this.deleteProject({
+          pId: this.deleteProjectObj.id,
+          force: this.isForceDelete
         })
-      } else {
-        try {
-          this.isLoading = true
-          let res = []
-          if (this.isForceDelete) {
-            res = await this.forceDeleteProject(this.deleteProjectObj.id)
-          } else res = await this.deleteProject(this.deleteProjectObj.id)
-          if (res.message !== 'success') {
-            throw new Error()
-          }
-          this.$message({
-            message: this.$t('Notify.Deleted'),
-            type: 'success'
-          })
-          this.$emit('update')
-          this.isLoading = false
-          this.showDialog = false
-        } catch (err) {
-          this.isLoading = false
-          this.$message({
-            message: err,
-            type: 'error'
-          })
-          console.error(err)
+        this.showSuccessMessage('Notify.Deleted')
+        this.finishProcess()
+      } catch (err) {
+        this.isLoading = false
+        console.error(err)
+
+        if (err.data?.error?.code === 400) {
+          await this.handleForceDeleteConfirmation()
         }
+      }
+    },
+    showWarningMessage(messageKey) {
+      this.$message({
+        message: this.$t(messageKey),
+        type: 'warning'
+      })
+    },
+    showSuccessMessage(messageKey) {
+      this.$message({
+        message: this.$t(messageKey),
+        type: 'success'
+      })
+    },
+    finishProcess() {
+      this.$emit('update')
+      this.showDialog = false
+      this.isLoading = false
+    },
+    async handleForceDeleteConfirmation() {
+      try {
+        await this.$confirm(
+          this.$t('Notify.confirmDeleteSth', {
+            name: this.projectRelationList
+              .map((item) => item.display_name)
+              .join(', ')
+          }),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Delete'),
+            cancelButtonText: this.$t('general.Cancel'),
+            confirmButtonClass: 'el-button--danger',
+            type: 'error'
+          }
+        )
+
+        this.isLoading = true
+        await this.deleteProject({ pId: this.deleteProjectObj.id, force: true })
+        this.showSuccessMessage('Notify.Deleted')
+        this.finishProcess()
+      } catch (err) {
+        console.error(err)
+        this.isLoading = false
       }
     }
   }

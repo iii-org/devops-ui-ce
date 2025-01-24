@@ -2,15 +2,8 @@
   <div class="error-container">
     <h2>喔哦！找不到網頁</h2>
     <h4>Oops！Page not found.</h4>
-    <img
-      src="../assets/404_images/NotFound.svg"
-      alt="404 error image"
-    >
-    <el-button
-      class="button-primary"
-      round
-      @click="onClick"
-    >
+    <img src="../assets/404_images/NotFound.svg" alt="404 error image" />
+    <el-button type="primary" round @click="onClick">
       {{ $t('general.BackToHome') }}
     </el-button>
   </div>
@@ -28,7 +21,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .error-container {
   display: flex;

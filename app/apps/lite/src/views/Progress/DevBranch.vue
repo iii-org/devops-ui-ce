@@ -6,7 +6,8 @@
 import DevBranch from '@shared/views/Progress/DevBranch'
 
 export default {
-  name: 'ProgressDevBranch',
-  components: { DevBranch }
+  components: {
+    DevBranch
+  }
 }
 </script>

@@ -1,19 +1,20 @@
 <template>
   <el-dialog
-    :visible.sync="dialogVisible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
-    width="50%"
+    :visible.sync="dialogVisible"
     append-to-body
     modal-append-to-body
+    width="50%"
     @close="closeDialog"
   >
     <img
       :src="source"
-      style="width: 100%;"
+      alt=""
       class="cursor-pointer"
+      style="width: 100%"
       @click="directTo"
-    >
+    />
   </el-dialog>
 </template>
 
@@ -23,7 +24,7 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      source: process.env.VUE_APP_POPUP_IMG
+      source: import.meta.env.VITE_APP_POPUP_IMG
     }
   },
   mounted() {
@@ -35,13 +36,13 @@ export default {
       localStorage.setItem('isShowPopup', 'false')
     },
     directTo() {
-      window.open(process.env.VUE_APP_POPUP_URL)
+      window.open(import.meta.env.VITE_APP_POPUP_URL)
     }
   }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 ::v-deep .el-dialog__header {
   padding: 0;
 }

@@ -7,46 +7,53 @@
     <ProjectListSelector>
       <el-tooltip
         slot="button"
+        :content="
+          socket.connected
+            ? $t('general.SocketConnected')
+            : $t('general.ReconnectByReload')
+        "
         :open-delay="100"
-        :content="socket.connected ?
-          $t('general.SocketConnected') :
-        $t('general.ReconnectByReload')"
         placement="bottom"
       >
-        <div style="float: left;">
+        <div style="float: left">
           <el-button
             slot="button"
             :disabled="isLoading"
-            :type="(socket.connected) ? 'success' : 'danger'"
             :size="isMobile ? 'mini' : 'medium'"
+            :type="socket.connected ? 'success' : 'danger'"
             @click="onSocketConnect"
           >
             <div
-              :class="(socket.connected) ? 'bg-success' : 'bg-danger'"
+              :class="socket.connected ? 'bg-success' : 'bg-danger'"
               class="dot inline-block"
-            />
-            {{ (socket.connected) ? $t('general.Connected') : $t('general.Disconnected') }}
+            ></div>
+            {{
+              socket.connected
+                ? $t('general.Connected')
+                : $t('general.Disconnected')
+            }}
           </el-button>
         </div>
       </el-tooltip>
       <el-tooltip
         v-if="socket.disconnected"
         slot="button"
-        :open-delay="100"
         :content="$t('general.Reload')"
+        :open-delay="100"
         placement="bottom"
       >
         <el-button
-          class="mx-2 button-primary-reverse"
-          icon="el-icon-refresh"
-          style="float:left;"
-          size="small"
           circle
+          class="mx-2"
+          icon="el-icon-refresh"
+          plain
+          size="small"
+          style="float: left"
+          type="primary"
           @click="reloadPage"
         />
       </el-tooltip>
       <CustomFilter
-        v-if="socket.connected"
         ref="customFilter"
         :group-by="groupBy"
         :selection-options="contextOptions"
@@ -54,14 +61,13 @@
         @apply-filter="applyCustomFilter"
       />
       <el-popover
-        v-if="socket.connected"
-        popper-class="popper"
         placement="bottom"
+        popper-class="popper"
         trigger="click"
         @hide="resetSaveFilterButtons"
       >
         <el-form v-loading="isLoading" label-position="top">
-          <template v-for="dimension in filterOptionsWithProject">
+          <template v-for="dimension in filterOptions">
             <el-form-item
               v-if="groupBy.dimension !== dimension.value"
               :key="dimension.id"
@@ -69,12 +75,12 @@
               <div slot="label">
                 {{ $t('Issue.' + dimension.value) }}
                 <el-tag
-                  v-if="dimension.value ==='fixed_version'"
-                  type="info"
-                  size="small"
+                  v-if="dimension.value === 'version'"
                   class="flex-1"
+                  size="small"
+                  type="info"
                 >
-                  <el-checkbox v-model="fixed_version_closed">
+                  <el-checkbox v-model="version_closed">
                     <span class="text-xs">
                       {{ $t('Issue.DisplayClosedVersion') }}
                     </span>
@@ -83,25 +89,29 @@
               </div>
               <el-select
                 v-model="filterValue[dimension.value]"
-                :placeholder="$t(`Issue.Select${dimension.placeholder}`)"
+                :collapse-tags="dimension.value === 'tags'"
                 :disabled="projectId === -1"
                 :multiple="dimension.value === 'tags'"
-                :collapse-tags="dimension.value === 'tags'"
-                filterable
+                :placeholder="$t(`Issue.Select${dimension.placeholder}`)"
                 clearable
+                filterable
                 value-key="id"
                 @change="onChangeFilter"
               >
                 <el-option
-                  v-for="item in (dimension.value === 'status') ? filterClosedStatus(getOptionsData(dimension.value)) : getOptionsData(dimension.value)"
-                  :key="dimension.value === 'assigned_to' ? item.login : item.id"
+                  v-for="item in dimension.value === 'status'
+                    ? filterClosedStatus(getOptionsData(dimension.value))
+                    : getOptionsData(dimension.value)"
+                  :key="
+                    dimension.value === 'assigned' ? item.username : item.id
+                  "
+                  :class="{ [item.class]: item.class }"
                   :label="getSelectedLabel(item)"
-                  :class="{[item.class]: item.class}"
                   :value="item.id"
                 >
                   <component
-                    v-if="dimension.tag"
                     :is="dimension.value"
+                    v-if="dimension.tag"
                     :name="$t(`Issue.${item.name}`)"
                     :type="item.name"
                   />
@@ -113,10 +123,7 @@
             <label class="el-form-item__label mr-3">
               {{ $t('Issue.DisplayClosedIssue') }}
             </label>
-            <el-checkbox
-              v-model="displayClosed"
-              @change="onChangeFilter"
-            />
+            <el-checkbox v-model="displayClosed" @change="onChangeFilter" />
           </el-form-item>
         </el-form>
         <SaveFilterButton
@@ -129,20 +136,16 @@
         <el-button
           slot="reference"
           :loading="isLoading"
-          icon="el-icon-s-operation"
           class="header-text-color"
+          icon="el-icon-s-operation"
           type="text"
         >
           {{ displayFilterValue }}
-          <em class="el-icon-arrow-down el-icon--right" />
+          <em class="el-icon-arrow-down el-icon--right"></em>
         </el-button>
       </el-popover>
-      <el-divider v-if="socket.connected" direction="vertical" />
-      <el-popover
-        v-if="socket.connected"
-        placement="bottom"
-        trigger="click"
-      >
+      <el-divider direction="vertical" />
+      <el-popover placement="bottom" trigger="click">
         <el-form v-loading="isLoading">
           <el-form-item :label="$t('Issue.FilterDimensions.label')">
             <el-select
@@ -154,7 +157,9 @@
               popper-class="dimension"
               @change="onChangeGroupByDimension($event, true)"
             >
-              <el-option-group :label="$t('Issue.FilterDimensions.default_dimension')">
+              <el-option-group
+                :label="$t('Issue.FilterDimensions.default_dimension')"
+              >
                 <template v-for="item in filterOptions">
                   <el-option
                     v-if="filterDimensionsList(item.value)"
@@ -176,15 +181,21 @@
                 >
                   <span class="flex justify-between items-center">
                     {{ item.name }}
-                    <span @click="(e) => { e.stopPropagation() }">
+                    <span
+                      @click="
+                        (e) => {
+                          e.stopPropagation()
+                        }
+                      "
+                    >
                       <el-popconfirm
-                        :title="$t('Issue.RemoveCustomFilter')"
-                        :confirm-button-text="$t('general.Remove')"
                         :cancel-button-text="$t('general.Cancel')"
+                        :confirm-button-text="$t('general.Remove')"
+                        :title="$t('Issue.RemoveCustomFilter')"
                         icon="el-icon-info"
                         icon-color="red"
-                        @confirm="deleteCustomBoardBySelect(item)"
                         @cancel="$refs.groupByDimensionSelect.visible = true"
+                        @confirm="deleteCustomBoardBySelect(item)"
                       >
                         <el-link
                           slot="reference"
@@ -204,12 +215,12 @@
           >
             <ElSelectAll
               ref="groupByValue"
-              :value="groupBy.value"
               :loading="isLoading"
               :options="groupByOptions"
+              :value="groupBy.value"
+              collapse-tags
               filterable
               multiple
-              collapse-tags
               value-key="id"
               @change="onChangeGroupByValue($event, true)"
             />
@@ -236,39 +247,40 @@
             </strong>
           </i18n>
           ({{ showSelectedGroupByLength }})
-          <em class="el-icon-arrow-down el-icon--right" />
+          <em class="el-icon-arrow-down el-icon--right"></em>
         </el-button>
       </el-popover>
-      <el-divider v-if="socket.connected" direction="vertical" />
+      <el-divider direction="vertical" />
       <el-input
-        v-if="searchVisible && socket.connected"
+        v-if="searchVisible"
         id="input-search"
         v-model="keyword"
-        :placeholder="$t('Issue.SearchNameOrAssignee')"
         :disabled="isLoading"
-        prefix-icon="el-icon-search"
-        style="width: 250px;"
+        :placeholder="$t('Issue.SearchNameOrAssignee')"
         clearable
-        @blur="searchVisible=!searchVisible"
+        prefix-icon="el-icon-search"
+        style="width: 250px"
+        @blur="searchVisible = !searchVisible"
         @change="onChangeFilter"
       />
       <el-button
-        v-if="!searchVisible && socket.connected"
+        v-if="!searchVisible"
         :loading="isLoading"
-        type="text"
         class="header-text-color"
         icon="el-icon-search"
-        @click="searchVisible=!searchVisible"
+        type="text"
+        @click="searchVisible = !searchVisible"
       >
-        {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
+        {{ $t('general.Search') + (keyword ? ': ' + keyword : '') }}
       </el-button>
-      <template v-if="isFilterChanged && socket.connected">
+      <template v-if="isFilterChanged">
         <el-divider direction="vertical" />
         <el-button
           :loading="isLoading"
-          size="small"
           icon="el-icon-close"
-          class="button-secondary-reverse"
+          plain
+          size="small"
+          type="warning"
           @click="cleanFilter"
         >
           {{ $t('Issue.CleanFilter') }}
@@ -277,37 +289,37 @@
     </ProjectListSelector>
     <el-divider />
     <Boards
-      :group-by="groupBy"
-      :display-closed="displayClosed"
-      :filter-options="filterOptions"
-      :context-options="contextOptions"
-      :relative-issue-list="relativeIssueList"
+      :all-unassigned-issue-list="allUnassignedIssueList"
+      :assigned="assigned"
+      :board-id="boardId"
       :classify-issue-list="classifyIssueList"
-      :project-issue-list="projectIssueList"
-      :fixed_version="fixed_version"
-      :assigned_to="assigned_to"
-      :tags="tags"
+      :context-options="contextOptions"
+      :display-closed="displayClosed"
       :element-ids="elementIds"
-      :project-id="projectId"
+      :filter-options="filterOptions"
       :filter-type="'board'"
       :get-status-sort="getStatusSort"
+      :group-by="groupBy"
       :is-select-default-option="isSelectDefaultOption"
       :params="getParams"
-      :board-id="boardId"
-      :all-unassigned-issue-list="allUnassignedIssueList"
+      :project-id="projectId"
+      :project-issue-list="projectIssueList"
+      :relative-issue-list="relativeIssueList"
+      :tags="tags"
+      :version="version"
       @getRelativeList="getRelativeList"
-      @updateIssueList="updateIssueList"
-      @updateData="updateData"
       @loadData="loadData"
+      @updateData="updateData"
+      @updateIssueList="updateIssueList"
     />
     <el-dialog
-      :visible.sync="customBoardDialogVisible"
-      :show-close="false"
-      :close-on-click-modal="false"
       :before-close="closeCustomBoardDialog"
-      top="3vh"
+      :close-on-click-modal="false"
+      :show-close="false"
+      :visible.sync="customBoardDialogVisible"
       append-to-body
       destroy-on-close
+      top="3vh"
     >
       <el-row slot="title">
         <span class="text-title">
@@ -317,7 +329,6 @@
           <el-button
             :loading="isLoading"
             class="buttonSecondaryReverse"
-            type="info"
             size="small"
             @click="closeCustomBoardDialog"
           >
@@ -326,8 +337,8 @@
           <el-button
             :loading="isLoading"
             class="buttonPrimary"
-            type="success"
             size="small"
+            type="success"
             @click="confirmCustomBoardDialog"
           >
             {{ $t('general.Save') }}
@@ -341,15 +352,17 @@
             :placeholder="$t('RuleMsg.PleaseInput') + $t('Issue.BoardTitle')"
           />
         </div>
-        <div id="customContainer" style="max-height: 30vh; overflow: auto;">
+        <div id="customContainer" style="max-height: 30vh; overflow: auto">
           <CustomItem
-            v-loading="isLoading"
             v-for="(boardObject, index) in customValueOnBoard.list"
             :key="boardObject.id"
-            :order="index"
-            :class="customValueOnBoard.list.length !== index + 1 ? 'mb-2' : null"
+            v-loading="isLoading"
             :board-object.sync="boardObject"
+            :class="
+              customValueOnBoard.list.length !== index + 1 ? 'mb-2' : null
+            "
             :group-by-value-on-board="customValueOnBoard.list"
+            :order="index"
             @emitAddCustomBoard="(target) => addCustomBoard(target)"
           />
         </div>
@@ -367,10 +380,10 @@
     <Fab
       v-if="!isSelectDefaultOption"
       :actions="fabActions"
-      position="bottom-right"
       bg-color="#409eff"
       icon-size="small"
-      main-icon="more_vert"
+      main-icon="ri-more-2-fill"
+      position="bottom-right"
       @addButton="customBoardDialogVisible = true"
       @deleteButton="deleteCustomBoard()"
     />
@@ -379,30 +392,29 @@
 
 //TODO: move dimension filter into SearchFilter.vue
 <script>
-import { mapGetters, mapActions } from 'vuex'
 import {
-  getProjectIssueList,
-  getProjectIssueListFromRedmineDB,
   getProjectIssueListByTree,
-  getProjectUserList,
-  getProjectVersion,
-  getTagsByProject
+  getProjectIssueListFromRedmineDB
 } from '@/api/projects'
 import { getIssue } from '@/api_v2/issue'
 import {
-  getAllBoard,
-  createNewBoard,
-  removeBoard,
-  getAllBoardItem,
-  createBoardItem
-} from '@/api_v2/issueBoard'
-import { getHasSon, getProjectRelation } from '@/api_v2/projects'
+  createBoard,
+  createBoardItem,
+  deleteBoard,
+  getBoardItemList,
+  getBoardList
+} from '@/api_v3/issueBoard'
+import {
+  getProjectIssueList,
+  getProjectUserList,
+  getProjectVersion,
+  getTagList
+} from '@/api_v3/projects'
+import SaveFilterButton from '@/components/Issue/components/SaveFilterButton'
 import axios from 'axios'
 import Fuse from 'fuse.js'
 import { io } from 'socket.io-client'
-import { ProjectListSelector, ElSelectAll } from '@shared/components'
-import { Status, Tracker, Priority, CustomFilter } from '@/components/Issue'
-import SaveFilterButton from '@/components/Issue/components/SaveFilterButton'
+import { mapActions, mapGetters } from 'vuex'
 import Boards from './components/Boards'
 import CustomItem from './components/CustomItem'
 
@@ -411,14 +423,14 @@ export default {
   components: {
     CustomItem,
     Boards,
-    ElSelectAll,
-    ProjectListSelector,
-    Status,
-    Tracker,
-    Priority,
-    CustomFilter,
+    ElSelectAll: () => import('@shared/components/ElSelectAll'),
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    CustomFilter: () => import('@/components/Issue/CustomFilter'),
     SaveFilterButton,
-    Fab: () => import('vue-fab')
+    Fab: () => import('@shared/components/Fab')
   },
   data() {
     return {
@@ -430,74 +442,78 @@ export default {
       filterValue: {},
       originFilterValue: {},
       displayClosed: false,
-      fixed_version_closed: false,
+      version_closed: false,
       projectIssueList: [],
       projectIssueQueue: {},
       classifyIssueList: {},
-      fixed_version: [],
-      assigned_to: [],
+      version: [],
+      assigned: [],
       tags: [],
       relativeIssueList: [],
       searchVisible: false,
       keyword: null,
       elementIds: [],
-      hasChildren: false,
-      project: [],
+      projectId: null,
       isFirstLoad: false,
-      filterOptions: [{
-        id: 1,
-        label: this.$t('Issue.FilterDimensions.status'),
-        value: 'status',
-        placeholder: 'Status',
-        tag: true
-      },
-      {
-        id: 2,
-        label: this.$t('Issue.FilterDimensions.tags'),
-        value: 'tags',
-        placeholder: 'Tag'
-      },
-      {
-        id: 3,
-        label: this.$t('Issue.FilterDimensions.tracker'),
-        value: 'tracker',
-        placeholder: 'Type',
-        tag: true
-      },
-      {
-        id: 4,
-        label: this.$t('Issue.FilterDimensions.assigned_to'),
-        value: 'assigned_to',
-        placeholder: 'Member'
-      },
-      {
-        id: 5,
-        label: this.$t('Issue.FilterDimensions.fixed_version'),
-        value: 'fixed_version',
-        placeholder: 'Version'
-      },
-      {
-        id: 6,
-        label: this.$t('Issue.FilterDimensions.priority'),
-        value: 'priority',
-        placeholder: 'Priority',
-        tag: true
-      }],
-      socket: io(`/issues/websocket`, { // production socket
+      filterOptions: [
+        {
+          id: 1,
+          label: this.$t('Issue.FilterDimensions.status'),
+          value: 'status',
+          placeholder: 'Status',
+          tag: true
+        },
+        {
+          id: 2,
+          label: this.$t('Issue.FilterDimensions.tags'),
+          value: 'tags',
+          placeholder: 'Tag'
+        },
+        {
+          id: 3,
+          label: this.$t('Issue.FilterDimensions.tracker'),
+          value: 'tracker',
+          placeholder: 'Type',
+          tag: true
+        },
+        {
+          id: 4,
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
+          placeholder: 'Member'
+        },
+        {
+          id: 5,
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
+          placeholder: 'Version'
+        },
+        {
+          id: 6,
+          label: this.$t('Issue.FilterDimensions.priority'),
+          value: 'priority',
+          placeholder: 'Priority',
+          tag: true
+        }
+      ],
+      socket: io(`/issues`, {
+        // production socket
         reconnectionAttempts: 5,
         forceNew: true
       }),
-      // socket: io(`${process.env.VUE_APP_BASE_API}/issues/websocket`, { // development socket
+      // socket: io(`${import.meta.env.VITE_APP_BASE_API}/issues/websocket`, { // development socket
       //   reconnectionAttempts: 5
       // })
       customBoardDialogVisible: false,
       customValueOnBoard: {
         name: '',
-        list: [{
-          id: null,
-          name: '',
-          color: '#409EFF'
-        }]
+        list: [
+          {
+            id: null,
+            name: '',
+            color: '#409EFF'
+          }
+        ]
       },
       customOptions: [],
       addIssueTemp: [],
@@ -518,25 +534,21 @@ export default {
       return this.device === 'mobile'
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     filterDimensionsList() {
-      return (value) => value !== 'tags' && value !== 'due_date_start' && value !== 'due_date_end'
+      return (value) =>
+        value !== 'tags' &&
+        value !== 'due_date_start' &&
+        value !== 'due_date_end'
     },
     contextOptions() {
       const result = {}
-      const getOptions = ['assigned_to', 'fixed_version', 'tags']
+      const getOptions = ['assigned', 'version', 'tags']
       getOptions.forEach((item) => {
         result[item] = this[item]
       })
       return result
-    },
-    filterOptionsWithProject() {
-      return this.hasChildren ? [{
-        id: this.filterOptions.length + 1,
-        value: 'project',
-        placeholder: 'Project'
-      }].concat(this.filterOptions) : this.filterOptions
     },
     groupByOptions() {
       return this.getStatusSort.map((item, idx) => ({
@@ -549,17 +561,28 @@ export default {
       if (this.groupBy.value.length <= 0) {
         return this.getStatusSort.map((item) => item)
       }
-      return this.groupBy.dimension === 'assigned_to' ? this.filterMe(this.groupBy.value) : this.groupBy.value
+      return this.groupBy.dimension === 'assigned'
+        ? this.filterMe(this.groupBy.value)
+        : this.groupBy.value
     },
     getStatusSort() {
       const dimension = this.groupBy.dimension
       if (this.isSelectDefaultOption) {
-        let sort = dimension === 'status' ? this.filterClosedStatus(this[dimension]) : this[dimension]
-        sort = dimension === 'assigned_to' ? this.filterMe(sort) : sort
+        let sort =
+          dimension === 'status'
+            ? this.filterClosedStatus(this[dimension])
+            : this[dimension]
+        sort = dimension === 'assigned' ? this.filterMe(sort) : sort
         return sort
       } else {
-        const sort = this.customOptions.find((option) => option.name === dimension)?.items || []
-        sort.unshift({ id: 'all', name: this.$t('Issue.Uncategorized'), color: '#409EFF' })
+        const sort =
+          this.customOptions.find((option) => option.name === dimension)
+            ?.items || []
+        sort.unshift({
+          id: 'all',
+          name: this.$t('Issue.Uncategorized'),
+          color: '#409EFF'
+        })
         return sort
       }
     },
@@ -571,13 +594,20 @@ export default {
     },
     showSelectedGroupByName() {
       if (this.isSelectDefaultOption) {
-        return this.filterOptions.find((item) => item.value === this.groupBy.dimension).label
+        return this.filterOptions.find(
+          (item) => item.value === this.groupBy.dimension
+        ).label
       } else {
-        return this.customOptions.find((item) => item.name === this.groupBy.dimension)?.name
+        return this.customOptions.find(
+          (item) => item.name === this.groupBy.dimension
+        )?.name
       }
     },
     showSelectedGroupByLength() {
-      if (this.groupByOptions.length === this.groupBy.value.length || this.groupBy.value.length === 0) {
+      if (
+        this.groupByOptions.length === this.groupBy.value.length ||
+        this.groupBy.value.length === 0
+      ) {
         return this.$t('general.All')
       }
       return this.groupBy.value.length
@@ -596,17 +626,25 @@ export default {
           this.$delete(this.filterValue, item)
           return
         }
-        const isArray = Array.isArray(this.filterValue[item]) && this.filterValue[item].length > 0
-        isArray ? selectedLabels.push(this.handleArrayLabels(item)) : selectedLabels.push(this.handleLabels(item))
+        const isArray =
+          Array.isArray(this.filterValue[item]) &&
+          this.filterValue[item].length > 0
+        isArray
+          ? selectedLabels.push(this.handleArrayLabels(item))
+          : selectedLabels.push(this.handleLabels(item))
       })
       return selectedLabels
     },
     handleArrayLabels() {
       return function (item) {
         let label = ''
-        const value = this.getOptionsData(item).filter((search) => this.filterValue[item].includes(search.id))
+        const value = this.getOptionsData(item).filter((search) =>
+          this.filterValue[item].includes(search.id)
+        )
         if (value) {
-          const joinedString = value.map((subItem) => this.getSelectedLabel(subItem)).join('/')
+          const joinedString = value
+            .map((subItem) => this.getSelectedLabel(subItem))
+            .join('/')
           label = `#${joinedString}`
         }
         return label
@@ -615,41 +653,57 @@ export default {
     handleLabels() {
       return function (item) {
         let label = ''
-        const value = this.getOptionsData(item).find((search) => search.id === this.filterValue[item])
+        const value = this.getOptionsData(item).find(
+          (search) => search.id === this.filterValue[item]
+        )
         if (value) label = this.getSelectedLabel(value)
         return label
       }
     },
     isFilterChanged() {
-      return this.checkFilterValue('originFilterValue') || this.checkFilterValue('filterValue') || !!this.keyword || this.groupBy.dimension !== 'status'
+      return (
+        this.checkFilterValue('originFilterValue') ||
+        this.checkFilterValue('filterValue') ||
+        !!this.keyword ||
+        this.groupBy.dimension !== 'status'
+      )
     },
     getFilteredVersion() {
-      return this.fixed_version.filter((item) => {
-        const validDate = new Date(`${item.due_date}T23:59:59`) >= new Date()
+      return this.version.filter((item) => {
+        const validDate =
+          new Date(`${item.effective_date}T23:59:59`) >= new Date()
         const closedStatus = item.status !== 'closed'
         return validDate && closedStatus
       })
     },
     checkInFilterValue() {
       return function (value) {
-        if (this.groupBy.value.length <= 0) return true
-        return this.groupBy.value.find((item) => item.id === value)
+        if (this.groupByValueOnBoard.length <= 0) return true
+        return this.groupByValueOnBoard.find((item) => item.id === value)
       }
     },
     filterValueClone() {
       return Object.assign({}, this.filterValue, {
         groupBy: this.groupBy,
-        fixed_version_closed: this.fixed_version_closed,
+        version_closed: this.version_closed,
         displayClosed: this.displayClosed
       })
     },
     isSelectDefaultOption() {
-      const defaultStatus = ['tracker', 'status', 'priority', 'assigned_to', 'fixed_version']
+      const defaultStatus = [
+        'tracker',
+        'status',
+        'priority',
+        'assigned',
+        'version'
+      ]
       return defaultStatus.includes(this.groupBy.dimension)
     },
     getParams() {
       const result = {}
-      if (!this.displayClosed && this.groupBy.dimension !== 'status') result['status_id'] = 'open'
+      if (!this.displayClosed && this.groupBy.dimension !== 'status') {
+        result['exclude_closed'] = true
+      }
       if (this.keyword) result['search'] = this.keyword
       Object.keys(this.filterValue).forEach((param) => {
         if (this.filterValue[param]) {
@@ -664,20 +718,20 @@ export default {
       return result
     },
     boardId() {
-      return this.customOptions.find((item) => item.name === this.groupBy.dimension)?.id
+      return this.customOptions.find(
+        (item) => item.name === this.groupBy.dimension
+      )?.id
     },
     fabActions() {
       const actions = [
         {
           name: 'addButton',
-          icon: 'add',
-          tooltip: this.$t('general.Add') + this.$t('Issue.CustomBoard'),
+          icon: 'ri-add-large-line',
           color: '#409eff'
         },
         {
           name: 'deleteButton',
-          icon: 'delete',
-          tooltip: this.$t('general.Delete') + this.$t('Issue.ThisBoard'),
+          icon: 'ri-delete-bin-line',
           color: '#F56C6C'
         }
         // {
@@ -706,35 +760,25 @@ export default {
         this.updateData()
       }
     },
-    fixed_version_closed(value) {
+    version_closed(value) {
       this.setFixedVersionShowClosed({ board: value })
       this.loadVersionList(value)
-    },
-    async 'filterValue.project'(value) {
-      if (value) this.projectId = value
-      else this.projectId = this.selectedProjectId
-      await this.onCleanKeyWord()
-      if (value) this.filterValue.project = value
-      await this.loadSelectionList()
-      await this.getInitStoredData()
-      await this.loadVersionList()
     }
   },
   async created() {
     this.isFirstLoad = true
-    this.connectSocket()
     this.projectId = this.selectedProjectId
-    this.intervalTimer = window.setInterval(() => this.connectSocket(), 30000)
+    await this.connectSocket()
+    this.setSocketListener() // Only need register once
     // await this.fetchInitData()
   },
   beforeDestroy() {
     this.socket.disconnect()
-    window.clearInterval(this.intervalTimer)
     this.onSaveFilter()
   },
   methods: {
     ...mapActions('projects', [
-      'getProjectUserList',
+      // 'getProjectUserList',
       'getGroupBy',
       'getIssueFilter',
       'getKeyword',
@@ -744,7 +788,8 @@ export default {
       'setIssueFilter',
       'setKeyword',
       'setDisplayClosed',
-      'setFixedVersionShowClosed'
+      'setFixedVersionShowClosed',
+      'isProjectHasChildren'
     ]),
     async loadData() {
       try {
@@ -754,20 +799,24 @@ export default {
       }
     },
     async fetchData() {
-      if (!this.isSelectDefaultOption && !this.isLite) await this.fetchCustomBoard()
+      if (!this.isSelectDefaultOption && !this.isLite) {
+        await this.fetchCustomBoard()
+      }
       await this.resetClassifyIssue()
       this.projectIssueList = []
       await this.syncLoadFilterData()
       await this.getRelativeList()
-      if (this.isSelectDefaultOption && !this.isLite) await this.fetchCustomBoard()
+      if (this.isSelectDefaultOption && !this.isLite) {
+        await this.fetchCustomBoard()
+      }
     },
     async fetchCustomBoard() {
-      const boards = await getAllBoard(this.projectId)
-      const boardId = boards.data.find((item) => item.name === this.groupBy.dimension)?.id
+      const boards = await getBoardList(this.projectId)
+      const boardId = boards.data.find(
+        (item) => item.name === this.groupBy.dimension
+      )?.id
       if (boardId) {
-        const params = { ...this.getParams }
-        if (params.status_id === 'open') delete params.status_id
-        const items = (await getAllBoardItem(this.projectId, boardId, params)).data
+        const items = (await getBoardItemList(boardId)).data
         this.customOptions = boards.data.map((board) => {
           if (board.id === boardId) board.items = items
           return board
@@ -777,33 +826,39 @@ export default {
       }
     },
     async fetchInitData() {
+      if (this.projectId === -1) {
+        this.isLoading = false
+        return
+      }
       this.groupBy = await this.getGroupBy()
-      await this.checkProjectHasChildren()
       await this.getInitStoredData()
       await this.loadSelectionList()
-    },
-    async checkProjectHasChildren() {
-      this.hasChildren = (await getHasSon(this.projectId)).has_child
-      if (this.hasChildren) {
-        const res = (await getProjectRelation(this.projectId)).data
-        this.project = res[0].child
-        this.project.unshift(res[0].parent)
-      }
     },
     async getInitStoredData() {
       const key = 'board'
       const storedData = await this.fetchStoredData()
-      const { storedFilterValue, storedKeyword, storedDisplayClosed, storedVersionClosed } = storedData
+      const {
+        storedFilterValue,
+        storedKeyword,
+        storedDisplayClosed,
+        storedVersionClosed
+      } = storedData
       this.filterValue = storedFilterValue[key] ? storedFilterValue[key] : {}
-      if (this.filterValue.hasOwnProperty('assigned_to')) {
-        const findChangeIndex = this.assigned_to.findIndex(issue => parseInt(this.filterValue.assigned_to) === parseInt(issue.id))
-        if (findChangeIndex < 0) this.$delete(this.filterValue, 'assigned_to')
+      if (this.filterValue.hasOwnProperty('assigned')) {
+        const findChangeIndex = this.assigned.findIndex(
+          (issue) => parseInt(this.filterValue.assigned) === parseInt(issue.id)
+        )
+        if (findChangeIndex < 0) this.$delete(this.filterValue, 'assigned')
       }
       this.$delete(this.filterValue, 'tags')
       this.keyword = storedKeyword[key] ? storedKeyword[key] : null
-      this.displayClosed = storedDisplayClosed[key] ? storedDisplayClosed[key] : false
-      this.fixed_version_closed = storedVersionClosed[key] ? storedVersionClosed[key] : false
-      if (!this.filterValue.hasOwnProperty('fixed_version')) {
+      this.displayClosed = storedDisplayClosed[key]
+        ? storedDisplayClosed[key]
+        : false
+      this.version_closed = storedVersionClosed[key]
+        ? storedVersionClosed[key]
+        : false
+      if (!this.filterValue.hasOwnProperty('version')) {
         const version = this.getFilteredVersion
         if (version.length > 0) {
           this.setFilterValue(version)
@@ -835,10 +890,16 @@ export default {
      * and then sort by status
      */
     async getRelativeList() {
-      const hasClosed = this.groupByValueOnBoard.filter((item) => item.hasOwnProperty('is_closed') && item.is_closed)
+      const hasClosed = this.groupByValueOnBoard.filter(
+        (item) => item.hasOwnProperty('is_closed') && item.is_closed
+      )
       if (hasClosed.length > 0) {
-        const projectIssueListRes = await getProjectIssueListByTree(this.projectId)
-        this.relativeIssueList = this.createRelativeList(projectIssueListRes.data)
+        const projectIssueListRes = await getProjectIssueListByTree(
+          this.projectId
+        )
+        this.relativeIssueList = this.createRelativeList(
+          projectIssueListRes.data
+        )
       }
     },
     async classifyIssue() {
@@ -846,49 +907,46 @@ export default {
       this.checkGroupByValueOnBoard()
       if (!this.isSelectDefaultOption) {
         const params = { ...this.getParams }
-        if (params.status_id === 'open') delete params.status_id
-        const res = await getProjectIssueListFromRedmineDB(this.projectId, params)
+        // if (params.status_id === 'open') delete params.status_id
+        const res = await getProjectIssueListFromRedmineDB(
+          this.projectId,
+          params
+        )
         this.allUnassignedIssueList = res.data
-        this.$set(this.classifyIssueList, 'all', this.allUnassignedIssueList.slice(0, 10))
+        this.$set(
+          this.classifyIssueList,
+          'all',
+          this.allUnassignedIssueList.slice(0, 10)
+        )
       }
       issueList.forEach((issue) => {
         if (issue) {
           let dimensionName
           if (this.isSelectDefaultOption) {
-            dimensionName = issue[this.groupBy.dimension].id
+            dimensionName = issue[this.groupBy.dimension]?.id || 'null'
           } else {
             if (!issue.board) return
-            dimensionName = issue.board.find((board) => board.id === this.boardId).item.id
+            dimensionName = issue.board.find(
+              (board) => board.id === this.boardId
+            ).item.id
           }
           if (!this.classifyIssueList[dimensionName]) return
-          if (this.checkInFilterValue(dimensionName)) this.classifyIssueList[dimensionName].push(issue)
+          if (this.checkInFilterValue(dimensionName)) {
+            this.classifyIssueList[dimensionName].push(issue)
+          }
         }
       })
       this.sortIssue()
     },
     checkGroupByValueOnBoard() {
-      this.groupByValueOnBoard.filter((item) => item.id !== 'all').forEach((dimension) => {
-        if (!this.classifyIssueList.hasOwnProperty(dimension.id)) {
-          this.classifyIssueList[dimension.id] = []
-        }
-      })
+      this.groupByValueOnBoard
+        .filter((item) => item.id !== 'all')
+        .forEach((dimension) => {
+          if (!this.classifyIssueList.hasOwnProperty(dimension.id)) {
+            this.classifyIssueList[dimension.id] = []
+          }
+        })
     },
-    // getParams() {
-    //   const result = {}
-    //   if (!this.displayClosed && this.groupBy.dimension !== 'status') result['status_id'] = 'open'
-    //   if (this.keyword) result['search'] = this.keyword
-    //   Object.keys(this.filterValue).forEach((param) => {
-    //     if (this.filterValue[param]) {
-    //       const isArray = param === 'tags' && this.filterValue[param].length > 0
-    //       if (isArray) {
-    //         result[param] = this.filterValue[param].join(',')
-    //       } else {
-    //         result[`${param}_id`] = this.filterValue[param]
-    //       }
-    //     }
-    //   })
-    //   return result
-    // },
     async syncLoadFilterData() {
       await this.cancelLoadFilterData()
       this.projectIssueQueue = {}
@@ -896,7 +954,6 @@ export default {
       const getIssueList = this.getIssueList()
       this.projectIssueList = []
       await this.setIssueList(getIssueList)
-      // this.updateData()
       this.projectIssueQueue = {}
       this.isLoading = false
       this.isFirstLoad = false
@@ -904,23 +961,33 @@ export default {
     getIssueList() {
       const issueList = []
       const issueIds = []
-      this.groupByValueOnBoard.filter((item) => item.id !== 'all').forEach((item) => {
-        const { CancelToken, config } = this.getCancelToken()
-        this.$set(this.projectIssueQueue, item.id, CancelToken)
-        if (this.isSelectDefaultOption) {
-          const dimension = `${this.groupBy.dimension}_id`
-          const params = { ...this.getParams, [dimension]: item.id }
-          const getIssueList = getProjectIssueList(this.projectId, params, config)
-          issueList.push(getIssueList)
-        } else {
-          item.issue_ids.forEach((issue_id) => {
-            if (issueIds.includes(issue_id)) return
-            const getIssueList = getIssue(issue_id)
+      this.groupByValueOnBoard
+        .filter((item) => item.id !== 'all')
+        .forEach((item) => {
+          const { CancelToken, config } = this.getCancelToken()
+          this.$set(this.projectIssueQueue, item.id, CancelToken)
+          if (this.isSelectDefaultOption) {
+            const dimension = `${this.groupBy.dimension}_id`
+            const params = {
+              ...this.getParams,
+              [dimension]: item.id,
+              all: true
+            }
+            const getIssueList = getProjectIssueList(
+              this.projectId,
+              params,
+              config
+            )
             issueList.push(getIssueList)
-            issueIds.push(issue_id)
-          })
-        }
-      })
+          } else {
+            item.issue_ids.forEach((issue_id) => {
+              if (issueIds.includes(issue_id)) return
+              const getIssueList = getIssue(issue_id)
+              issueList.push(getIssueList)
+              issueIds.push(issue_id)
+            })
+          }
+        })
       return issueList
     },
     getCancelToken() {
@@ -948,37 +1015,58 @@ export default {
       })
     },
     async loadVersionList(status) {
-      const params = status ? { status: 'open,locked,closed' } : { status: 'open,locked' }
+      const params = status
+        ? { all: true, status: 'open,locked,closed' }
+        : { all: true, status: 'open,locked' }
       const versionList = await this.fetchVersionList(params)
-      this.fixed_version = [{ name: this.$t('Issue.VersionUndecided'), id: 'null' }, ...versionList]
+      this.version = [
+        { name: this.$t('Issue.VersionUndecided'), id: 'null' },
+        ...versionList
+      ]
       const version = this.getFilteredVersion
       if (version.length > 0) {
         this.setFilterValue(version)
+        if (
+          this.groupBy.dimension === 'version' &&
+          this.groupBy.value.length === 0
+        ) {
+          this.setDefaultFixedVersion()
+        }
       } else {
-        this.$delete(this.originFilterValue, 'fixed_version')
-        this.$delete(this.filterValue, 'fixed_version')
+        this.$delete(this.originFilterValue, 'version')
+        this.$delete(this.filterValue, 'version')
       }
       this.onChangeFilter()
     },
+    setDefaultFixedVersion() {
+      const defaultFixedVersion = [this.version[0]]
+      if (this.getFilteredVersion.length > 0) {
+        defaultFixedVersion.push(this.getFilteredVersion[0])
+      }
+      this.$set(this.groupBy, 'value', defaultFixedVersion)
+    },
     setFilterValue(version) {
-      this.$set(this.filterValue, 'fixed_version', version[0].id)
-      this.$set(this.originFilterValue, 'fixed_version', version[0].id)
+      this.$set(this.filterValue, 'version', version[0].id)
+      this.$set(this.originFilterValue, 'version', version[0].id)
     },
     async fetchVersionList(params) {
       const res = await getProjectVersion(this.projectId, params)
-      return res.data.versions
+      return res.data
     },
     async loadSelectionList() {
-      if (this.projectId === -1) return
+      if (this.projectId === -1) {
+        this.isLoading = false
+        return
+      }
       await Promise.allSettled([
         getProjectUserList(this.projectId),
-        getTagsByProject(this.projectId)
+        getTagList(this.projectId)
       ]).then((res) => {
         const [assigneeList, tagsList] = res.map((item) => item.value.data)
         this.setAssignedToData(assigneeList)
-        this.tags = tagsList.tags
+        this.tags = tagsList
       })
-      await this.loadVersionList(this.fixed_version_closed)
+      await this.loadVersionList(this.version_closed)
     },
     setAssignedToData(list) {
       const unassigned = {
@@ -987,12 +1075,16 @@ export default {
       }
       const me = {
         name: this.$t('Issue.me'),
-        login: '-Me-',
+        username: '-Me-',
         id: this.userId,
         class: 'bg-yellow-100'
       }
-      const userList = list.user_list
-      this.assigned_to = [unassigned, me, ...userList]
+      const userList = list.map((item) => ({
+        name: item.full_name,
+        username: item.username,
+        id: item.id
+      }))
+      this.assigned = [unassigned, me, ...userList]
     },
     getOptionsData(option_name) {
       return this[option_name]
@@ -1012,17 +1104,27 @@ export default {
       })
     },
     searchUnassignedOrNoVersionIssues(item, searchBy) {
-      this.classifyIssueList[item] = this.classifyIssueList[item].filter((subItem) => {
-        const findKey = searchBy['keys'][0].split('.')
-        const findName = findKey.reduce((total, current) => total[current], subItem)
-        return findName === undefined && findKey[0] !== ''
-      })
+      this.classifyIssueList[item] = this.classifyIssueList[item].filter(
+        (subItem) => {
+          const findKey = searchBy['keys'][0].split('.')
+          const findName = findKey.reduce(
+            (total, current) => total[current],
+            subItem
+          )
+          return findName === undefined && findKey[0] !== ''
+        }
+      )
     },
     searchByKeys(item, value, searchBy) {
       const fuse = new Fuse(this.classifyIssueList[item], searchBy)
       let pattern = `="${value}"`
       if (Array.isArray(value) && value.length > 0) {
-        pattern = { $or: value.map((items) => ({ $path: [searchBy['keys']], $val: `="${items}"` })) }
+        pattern = {
+          $or: value.map((items) => ({
+            $path: [searchBy['keys']],
+            $val: `="${items}"`
+          }))
+        }
       }
       const res = fuse.search(pattern)
       this.classifyIssueList[item] = res.map((items) => items.item)
@@ -1039,12 +1141,16 @@ export default {
       })
     },
     sortIssue() {
-      const sortUpdateOn = (a, b) => new Date(b.updated_on) - new Date(a.updated_on)
+      const sortUpdateOn = (a, b) =>
+        new Date(b.updated_on) - new Date(a.updated_on)
       Object.keys(this.classifyIssueList).forEach((item) => {
-        this.$set(this.classifyIssueList, item, this.classifyIssueList[item].sort(sortUpdateOn))
+        this.$set(
+          this.classifyIssueList,
+          item,
+          this.classifyIssueList[item].sort(sortUpdateOn)
+        )
       })
     },
-
     checkFilterValue(key) {
       const comparedKey = this.getComparedKey(key)
       for (const item of Object.keys(this[key])) {
@@ -1058,6 +1164,7 @@ export default {
     },
     createRelativeList(list) {
       const result = []
+
       function flatList(parent) {
         for (const item of parent) {
           result.push(item)
@@ -1065,22 +1172,26 @@ export default {
           if (item.children.length) flatList(children)
         }
       }
+
       flatList(list)
       return result
     },
     getSelectedLabel(item) {
       const visibleStatus = ['closed', 'locked']
       let result = this.getTranslateHeader(item.name)
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
         result += ` (${this.getTranslateHeader(item.status)})`
       }
-      if (item.hasOwnProperty('login')) {
-        result += ` (${item.login})`
+      if (item.hasOwnProperty('username')) {
+        result += ` (${item.username})`
       }
       return result
     },
     filterMe(userList) {
-      return userList.filter((item) => item.login !== '-Me-')
+      return userList.filter((item) => item.username !== '-Me-')
     },
     async onCleanKeyWord() {
       this.keyword = ''
@@ -1095,14 +1206,19 @@ export default {
       this.displayClosed = false
       this.onChangeGroupByDimension('status')
       this.onChangeFilter()
-      this.fixed_version_closed = false
+      this.version_closed = false
       this.$refs.customFilter.resetApplyFilter()
     },
     async onChangeFilter() {
       if (this.filterValue['tags'] && this.filterValue['tags'].length <= 0) {
         this.$delete(this.filterValue, 'tags')
       }
-      if (Object.prototype.hasOwnProperty.call(this.filterValue, this.groupBy.dimension)) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          this.filterValue,
+          this.groupBy.dimension
+        )
+      ) {
         this.$delete(this.filterValue, this.groupBy.dimension)
       }
       this.onSaveFilter()
@@ -1110,7 +1226,8 @@ export default {
     },
     async onSaveFilter() {
       const storedData = await this.fetchStoredData()
-      const { storedFilterValue, storedKeyword, storedDisplayClosed } = storedData
+      const { storedFilterValue, storedKeyword, storedDisplayClosed } =
+        storedData
       storedFilterValue['board'] = this.filterValue
       storedKeyword['board'] = this.keyword
       storedDisplayClosed['board'] = this.displayClosed
@@ -1131,13 +1248,19 @@ export default {
     },
     updatedByGroupBy(loadData) {
       this.setGroupBy(this.groupBy)
+      if (
+        this.groupBy.dimension === 'version' &&
+        this.groupBy.value.length === 0
+      ) {
+        this.setDefaultFixedVersion()
+      }
       if (loadData) this.loadData()
     },
     applyCustomFilter(filters) {
-      const { result, displayClosed, fixed_version_closed, groupBy } = filters
+      const { result, displayClosed, version_closed, groupBy } = filters
       this.filterValue = result
       this.displayClosed = displayClosed
-      this.fixed_version_closed = fixed_version_closed
+      this.version_closed = version_closed
       this.$set(this.groupBy, 'dimension', groupBy.dimension)
       this.$set(this.groupBy, 'value', groupBy.value)
       this.setGroupBy(groupBy)
@@ -1152,68 +1275,100 @@ export default {
     setSocketListener() {
       const _this = this
       this.socket.on('connect', () => {
-        console.log('connect')
+        console.log(this.socket.id)
       })
+      this.socket.on('connect_error', (error) => {
+        if (!this.socket.active) {
+          // In this is what we care, other cases will auto reconnect
+          console.error(error.message)
+        }
+      })
+      this.socket.on('disconnect', (reason) => {
+        if (!this.socket.active) {
+          console.log(reason)
+          if (reason !== 'io client disconnect') {
+            this.connectSocket()
+          }
+        }
+      })
+      // Custom events
       this.socket.on('update_issue', async (data) => {
         for (const idx in data) {
           data[idx] = _this.socketDataFormat(data[idx])
           if (this.isSelectDefaultOption) {
-            const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
+            const findChangeIndex = this.projectIssueList.findIndex(
+              (issue) => parseInt(data[idx].id) === parseInt(issue.id)
+            )
             this.$set(this.projectIssueList, findChangeIndex, data[idx])
             this.updateData()
           } else {
             Object.keys(this.classifyIssueList).forEach((key) => {
-              const findChangeIndex = this.classifyIssueList[key].findIndex(obj => obj.id === data[idx].id)
+              const findChangeIndex = this.classifyIssueList[key].findIndex(
+                (obj) => obj.id === data[idx].id
+              )
               if (findChangeIndex === -1) return
               this.$set(this.classifyIssueList[key], findChangeIndex, data[idx])
             })
           }
-          // this.showUpdateMessage(data[idx])
         }
-        this.elementIds = data.map(s => s.id)
+        this.elementIds = data.map((s) => s.id)
       })
       this.socket.on('delete_issue', async (data) => {
         if (this.isSelectDefaultOption) {
-          const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data.id) === parseInt(issue.id))
+          const findChangeIndex = this.projectIssueList.findIndex(
+            (issue) => parseInt(data.id) === parseInt(issue.id)
+          )
           this.$delete(this.projectIssueList, findChangeIndex)
           this.updateData()
-          // this.showUpdateMessage(data)
         } else {
           const { id, item_ids } = data
-          const boardItems = Object.keys(this.classifyIssueList).filter((item) => item !== 'all').map((item) => parseInt(item))
-          const item_id = item_ids.filter((itemId) => boardItems.includes(itemId))[0]
-          const existIds = this.classifyIssueList[item_id || 'all'].map((item) => item.id)
+          const boardItems = Object.keys(this.classifyIssueList)
+            .filter((item) => item !== 'all')
+            .map((item) => parseInt(item))
+          const item_id = item_ids.filter((itemId) =>
+            boardItems.includes(itemId)
+          )[0]
+          const existIds = this.classifyIssueList[item_id || 'all'].map(
+            (item) => item.id
+          )
           if (!existIds.includes(id)) return
-          const index = this.classifyIssueList[item_id || 'all'].findIndex(issue => parseInt(id) === parseInt(issue.id))
+          const index = this.classifyIssueList[item_id || 'all'].findIndex(
+            (issue) => parseInt(id) === parseInt(issue.id)
+          )
           this.classifyIssueList[item_id || 'all'].splice(index, 1)
         }
       })
       this.socket.on('add_issue', async (data) => {
         if (this.isSelectDefaultOption) {
           for (const idx in data) {
-            if ((this.filterValue.project) && (this.filterValue.project === data[idx].project.id) || !this.filterValue.project) {
-              data[idx] = _this.socketDataFormat(data[idx])
-              const findChangeIndex = this.projectIssueList.findIndex(issue => parseInt(data[idx].id) === parseInt(issue.id))
-              if (findChangeIndex !== -1) {
-                this.$set(this.projectIssueList, findChangeIndex, data[idx])
-              } else {
-                this.$set(this.projectIssueList, this.projectIssueList.length, data[idx])
-              }
-              this.updateData()
-            // this.showUpdateMessage(data[idx])
+            data[idx] = _this.socketDataFormat(data[idx])
+            const findChangeIndex = this.projectIssueList.findIndex(
+              (issue) => parseInt(data[idx].id) === parseInt(issue.id)
+            )
+            if (findChangeIndex !== -1) {
+              this.$set(this.projectIssueList, findChangeIndex, data[idx])
+            } else {
+              this.$set(
+                this.projectIssueList,
+                this.projectIssueList.length,
+                data[idx]
+              )
             }
+            this.updateData()
           }
         } else {
           if (this.addIssueTemp.includes(data[0].id)) return
           this.addIssueTemp.push(data[0].id)
           this.classifyIssueList['all'].unshift(data[0])
         }
-        this.elementIds = data.map(s => s.id)
+        this.elementIds = data.map((s) => s.id)
       })
       this.socket.on('disconnect_issue', async (data) => {
         const { id, item_id } = data
         const res = await getIssue(id)
-        const findChangeIndex = this.classifyIssueList[item_id].findIndex(issue => parseInt(id) === parseInt(issue.id))
+        const findChangeIndex = this.classifyIssueList[item_id].findIndex(
+          (issue) => parseInt(id) === parseInt(issue.id)
+        )
         if (findChangeIndex === -1) return
         this.classifyIssueList[item_id].splice(findChangeIndex, 1)
         this.classifyIssueList['all'].unshift(res.data)
@@ -1223,28 +1378,27 @@ export default {
         this.elementIds = [id]
         if (this.connectIssueTemp.includes(id)) return
         this.connectIssueTemp.push(id)
-        const existIds = this.classifyIssueList[item_id].map((issue) => issue.id)
+        const existIds = this.classifyIssueList[item_id].map(
+          (issue) => issue.id
+        )
         if (existIds.includes(id)) return
         const res = await getIssue(id)
-        const index = this.classifyIssueList['all'].findIndex(issue => parseInt(id) === parseInt(issue.id))
+        const index = this.classifyIssueList['all'].findIndex(
+          (issue) => parseInt(id) === parseInt(issue.id)
+        )
         this.classifyIssueList['all'].splice(index, 1)
         this.classifyIssueList[item_id].push(res.data)
       })
-      this.socket.on('disconnect', (reason) => {
-        if (reason !== 'io client disconnect') {
-          this.connectSocket()
-        }
-      })
-      this.socket.on('connect_error', () => {
-        console.log('connection error')
-      })
     },
     socketDataFormat(data) {
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         const splitKey = key.split('_id')
         if (splitKey.length > 1) {
           if (this[splitKey[0]]) {
-            const findObject = this[splitKey[0]].find(item => item.id === parseInt(data[key]) && item.login !== '-Me-')
+            const findObject = this[splitKey[0]].find(
+              (item) =>
+                item.id === parseInt(data[key]) && item.username !== '-Me-'
+            )
             if (findObject) {
               data[splitKey[0]] = findObject
             }
@@ -1255,14 +1409,16 @@ export default {
     },
     showUpdateMessage(data) {
       this.$message({
-        message: this.$t('Notify.UpdateKanban', { issueName: data.name }),
+        message: this.$t('Notify.UpdateKanban', { issueName: data.subject }),
         type: 'success'
       })
     },
     async connectSocket() {
-      this.setSocketListener()
-      await this.socket.connect()
-      await this.socket.emit('join', { project_id: this.projectId })
+      if (!this.socket.connected) {
+        this.socket.connect()
+        // Change to different project room if switch to another
+        this.socket.emit('join', { project_id: this.projectId })
+      }
     },
     async onSocketConnect() {
       this.isLoading = true
@@ -1289,7 +1445,8 @@ export default {
       })
     },
     focusOnNextInput(target) {
-      const siblingElement = target?.parentElement?.parentElement?.parentElement?.nextElementSibling
+      const siblingElement =
+        target?.parentElement?.parentElement?.parentElement?.nextElementSibling
       const inputElements = siblingElement.querySelectorAll('input')
       if (inputElements) {
         inputElements[0].focus()
@@ -1299,11 +1456,13 @@ export default {
       this.customBoardDialogVisible = false
       this.customValueOnBoard = {
         name: '',
-        list: [{
-          id: null,
-          name: '',
-          color: '#409EFF'
-        }]
+        list: [
+          {
+            id: null,
+            name: '',
+            color: '#409EFF'
+          }
+        ]
       }
     },
     async confirmCustomBoardDialog() {
@@ -1316,12 +1475,12 @@ export default {
         return false
       }
       this.isLoading = true
-      const boardName = this.customValueOnBoard.name
-      const boardForm = new FormData()
-      boardForm.append('board_name', boardName)
+      const sendData = {
+        name: this.customValueOnBoard.name
+      }
       let board_id
       try {
-        board_id = (await createNewBoard(this.projectId, boardForm)).data.id
+        board_id = (await createBoard(this.projectId, sendData)).data.id
       } catch (error) {
         console.error(error)
         this.isLoading = false
@@ -1329,48 +1488,59 @@ export default {
       }
       const itemsArray = this.customValueOnBoard.list.map((item) => {
         if (!item.name) return
-        const itemForm = new FormData()
-        itemForm.append('item_name', item.name)
-        itemForm.append('color', item.color)
-        return createBoardItem(this.projectId, board_id, itemForm)
-      })
-      await Promise.allSettled(itemsArray).then(async () => {
-        await this.fetchCustomBoard()
-        this.customBoardDialogVisible = false
-        this.customValueOnBoard.name = ''
-        this.customValueOnBoard = {
-          name: '',
-          list: [{
-            id: null,
-            name: '',
-            color: '#409EFF'
-          }]
+        const sendData = {
+          name: item.name,
+          color: item.color
         }
-      }).catch((error) => {
-        console.error(error)
-      }).finally(() => {
-        this.onChangeGroupByDimension(boardName)
-        this.isLoading = false
+        return createBoardItem(board_id, sendData)
       })
+      await Promise.allSettled(itemsArray)
+        .then(async () => {
+          await this.fetchCustomBoard()
+          this.customBoardDialogVisible = false
+          this.onChangeGroupByDimension(this.customValueOnBoard.name)
+          this.customValueOnBoard = {
+            name: '',
+            list: [
+              {
+                id: null,
+                name: '',
+                color: '#409EFF'
+              }
+            ]
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
     },
     deleteCustomBoard() {
-      this.$confirm(this.$t('Issue.DeleteThisBoard'), this.$t('general.Warning'), {
-        confirmButtonText: this.$t('general.Confirm'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'warning'
-      }).then(async() => {
-        const option = this.customOptions.find((option) => {
-          return option.name === this.groupBy.dimension
-        })
-        await removeBoard(this.projectId, option.id)
-        await this.fetchCustomBoard()
-        if (this.groupBy.dimension === option.name) {
-          this.onChangeGroupByDimension('status')
+      this.$confirm(
+        this.$t('Issue.DeleteThisBoard'),
+        this.$t('general.Warning'),
+        {
+          confirmButtonText: this.$t('general.Confirm'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'warning'
         }
-      }).catch()
+      )
+        .then(async () => {
+          const option = this.customOptions.find((option) => {
+            return option.name === this.groupBy.dimension
+          })
+          await deleteBoard(option.id)
+          await this.fetchCustomBoard()
+          if (this.groupBy.dimension === option.name) {
+            this.onChangeGroupByDimension('status')
+          }
+        })
+        .catch()
     },
     async deleteCustomBoardBySelect(item) {
-      await removeBoard(this.projectId, item.id)
+      await deleteBoard(item.id)
       await this.fetchCustomBoard()
       if (this.groupBy.dimension === item.name) {
         this.onChangeGroupByDimension('status')

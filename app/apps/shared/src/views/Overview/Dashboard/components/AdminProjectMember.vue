@@ -1,7 +1,7 @@
 <template>
   <el-col v-loading="loading">
     <v-chart
-      v-if="chartData.length > 0"
+      v-if="chartData.length > 0 && isEchartsReady"
       :option="projectMembersOptions"
       :theme="isLite ? 'macarons' : 'vintage'"
       class="chart"
@@ -73,7 +73,8 @@
             sortable
           />
           <el-table-column
-            :label="$t('Dashboard.ADMIN.ProjectMembers.end_date')" show-overflow-tooltip
+            :label="$t('Dashboard.ADMIN.ProjectMembers.end_date')"
+            show-overflow-tooltip
             prop="end_date"
             sortable
           />
@@ -92,24 +93,22 @@
 </template>
 
 <script>
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart } from 'echarts/charts'
-import { getProjectMembersByProjectID, getProjectMembersDetail } from '@/api/dashboard'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
+import {
+  getProjectMembersByProjectID,
+  getProjectMembersDetail
+} from '@/api/dashboard'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 import AdminMemberTable from './widget/AdminMemberTable'
-import { NoData } from '@shared/components'
 import { mapGetters } from 'vuex'
+import VChart from 'vue-echarts'
 
-require('echarts/theme/vintage') // echarts theme
-require('echarts/theme/macarons')
-
-use([CanvasRenderer, PieChart])
 export default {
   name: 'AdminProjectMember',
   components: {
-    NoData,
+    NoData: () => import('@shared/components/NoData'),
     AdminMemberTable,
     'v-chart': VChart
   },
@@ -117,7 +116,7 @@ export default {
   props: {
     data: {
       type: Function,
-      default: () => ([])
+      default: () => []
     },
     dialogVisible: {
       type: Object,
@@ -131,7 +130,8 @@ export default {
       searchKeys: ['project_name', 'owner_name'],
       getRowKey: (row) => row.project_id,
       expandKeys: [],
-      memberData: { loading: '', children: [] }
+      memberData: { loading: '', children: [] },
+      isEchartsReady: false
     }
   },
   computed: {
@@ -191,7 +191,7 @@ export default {
       }
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     }
   },
   watch: {
@@ -204,10 +204,34 @@ export default {
       deep: true
     }
   },
-  mounted() {
+  async created() {
+    await this.loadEchartsModules()
     this.loadChart()
   },
   methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { CanvasRenderer },
+        { PieChart },
+        { LegendComponent, TooltipComponent }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/renderers'),
+        import('echarts/charts'),
+        import('echarts/components')
+      ])
+
+      use([CanvasRenderer, PieChart, LegendComponent, TooltipComponent])
+
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
+      }
+
+      this.isEchartsReady = true
+    },
     async loadChart() {
       this.loading = true
       this.chartData = await this.data()
@@ -219,7 +243,7 @@ export default {
       this.listLoading = false
     },
     async fetchData() {
-      return getProjectMembersDetail().then(res => {
+      return getProjectMembersDetail().then((res) => {
         return Promise.resolve(res.data)
       })
     },
@@ -242,7 +266,7 @@ export default {
     },
     closeHandler() {
       this.keyword = ''
-      this.pagedData.forEach(item => {
+      this.pagedData.forEach((item) => {
         this.$refs['tableData'].toggleRowExpansion(item, false)
       })
       this.listQuery.page = 1

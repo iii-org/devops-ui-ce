@@ -3,12 +3,12 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
+          <div></div>
           <el-button
             slot="link"
             :disabled="!showSideexReport"
+            icon="ri-external-link-line"
             type="text"
-            icon="el-icon-position"
             @click="openSideex"
           >
             {{ $t('TestReport.DetailReport') }}
@@ -18,13 +18,15 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
-          <th id="">{{ $t('Sideex.suitesPassedRatio') }}</th>
-          <th id="">{{ $t('Sideex.casesPassedRatio') }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
+          <th id="">{{ $t('Plugins.sideex.suitesPassedRatio') }}</th>
+          <th id="">{{ $t('Plugins.sideex.casesPassedRatio') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">Sideex</td>
-          <td :data-label="$t('Version.Version')">{{ sideex[0]?.version_info ? sideex[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{ sideex[0]?.version_info ? sideex[0]?.version_info : '-' }}
+          </td>
           <template v-if="hasSideexData">
             <td :data-label="$t('Sideex.suitesPassedRatio')">
               <template>
@@ -33,9 +35,7 @@
                 </span>
                 <span v-else>0</span>
               </template>
-              <span>
-                {{ $t('TestReport.Item') }} /
-              </span>
+              <span> {{ $t('TestReport.Item') }} / </span>
               <template>
                 <span v-if="hasEachItemData('suitesTotal')">
                   {{ sideex[0].result.suitesTotal }}
@@ -53,9 +53,7 @@
                 </span>
                 <span v-else>0</span>
               </template>
-              <span>
-                {{ $t('TestReport.Item') }} /
-              </span>
+              <span> {{ $t('TestReport.Item') }} / </span>
               <template>
                 <span v-if="hasEachItemData('casesTotal')">
                   {{ sideex[0].result.casesTotal }}
@@ -68,7 +66,7 @@
             </td>
           </template>
           <template v-else>
-            <td colspan="2" class="nodata">{{ $t('general.NoData') }}</td>
+            <td class="nodata" colspan="2">{{ $t('general.NoData') }}</td>
           </template>
         </tr>
       </tbody>
@@ -93,13 +91,19 @@ export default {
   },
   computed: {
     showSideexReport() {
-      return this.sideex[0] ? this.sideex[0].status === 'Finished' && this.sideex[0].has_report : false
+      return this.sideex[0]
+        ? this.sideex[0].status === 'Finished' && this.sideex[0].has_report
+        : false
     },
     hasSideexData() {
-      return !!(this.sideex && this.sideex[0] && this.sideex[0].hasOwnProperty('result'))
+      return !!(
+        this.sideex &&
+        this.sideex[0] &&
+        this.sideex[0].hasOwnProperty('result')
+      )
     },
     hasEachItemData() {
-      return key => !!(this.sideex[0].result.hasOwnProperty(key))
+      return (key) => !!this.sideex[0].result.hasOwnProperty(key)
     }
   },
   methods: {

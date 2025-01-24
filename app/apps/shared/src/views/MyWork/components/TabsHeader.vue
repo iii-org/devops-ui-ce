@@ -1,25 +1,19 @@
 <template>
-  <el-row
-    :gutter="10"
-    class="mb-5"
-  >
+  <el-row :gutter="10" class="mb-5">
     <el-col
       v-for="tab in tabs"
       :key="tab.id"
-      :span="12"
       :md="6"
+      :span="12"
       class="dashboard-card"
     >
       <div
-        :class="{'active': activeTab === tab.id, [tab.id]: tab.id}"
+        :class="{ active: activeTab === tab.id, [tab.id]: tab.id }"
         class="item"
         @click="$emit('update:active-tab', tab.id)"
       >
         <p class="font-bold m-1">
-          <em
-            v-show="activeTab === tab.id"
-            class="el-icon-caret-right"
-          />
+          <em v-show="activeTab === tab.id" class="el-icon-caret-right"></em>
           {{ $t('MyWork.' + tab.name) }}
           <span class="count">{{ tab.count }}</span>
         </p>
@@ -45,7 +39,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
+
 .dashboard-card {
   .item {
     @apply px-1.5 py-0.5 md:px-3 md:py-1 rounded-lg bg-gray-200 cursor-pointer hover:shadow-md;
@@ -68,23 +63,25 @@ export default {
     }
   }
 
-  .assigned_to_id {
+  .assigned {
     // @apply hover:bg-gradient-to-br hover:text-white hover:from-green-400 hover:to-blue-500;
     background-color: #e5e7eb;
+
     &.active {
       // @apply bg-gradient-to-br text-white from-green-400 to-blue-500;
       background-color: $buttonPrimary;
-      color: white
+      color: white;
     }
   }
 
-  .author_id {
+  .author {
     // @apply hover:bg-gradient-to-br hover:text-white hover:from-pink-400 hover:to-indigo-500;
     background-color: #e5e7eb;
+
     &.active {
       // @apply bg-gradient-to-br text-white from-pink-400 to-indigo-500;
       background-color: $buttonSecondary;
-      color: white
+      color: white;
     }
   }
 }

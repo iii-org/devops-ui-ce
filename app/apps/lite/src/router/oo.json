@@ -1,0 +1,529 @@
+[
+  {
+    "path": "/",
+    "name": "LandingPage",
+    "redirect": {
+      "name": "Dashboard"
+    },
+    "meta": {
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "hidden": true
+  },
+  {
+    "path": "/overview",
+    "component": "layout",
+    "name": "Overviews",
+    "redirect": {
+      "name": "Dashboard"
+    },
+    "meta": {
+      "icon": "ri-dashboard-2-fill",
+      "title": "Overview",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "dashboard",
+        "name": "Dashboard",
+        "component": "views/Overview/Dashboard/roles/admin",
+        "meta": {
+          "title": "Dashboard",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "projectList",
+        "name": "ProjectList",
+        "component": "views/Overview/ProjectList/ProjectListPM",
+        "meta": {
+          "title": "ProjectList",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/project/:projectName?",
+    "component": "layout",
+    "name": "Works",
+    "redirect": {
+      "name": "Overview"
+    },
+    "meta": {
+      "title": "Works",
+      "icon": "ri-briefcase-3-fill",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "overview",
+        "name": "Overview",
+        "component": "views/Plan/Overview",
+        "meta": {
+          "title": "ProjectOverview",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "milestone",
+        "name": "Milestone",
+        "component": "views/Plan/Milestone",
+        "meta": {
+          "title": "Milestone",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "issue-boards/:projectName?",
+        "name": "IssueBoards",
+        "component": "views/Project/IssueBoards",
+        "meta": {
+          "title": "Kanban",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "issues",
+        "name": "IssueLists",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "IssueList"
+        },
+        "meta": {
+          "title": "IssueList",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "IssueList",
+            "hidden": true,
+            "component": "views/Project/IssueList",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          },
+          {
+            "path": ":issueId",
+            "name": "IssueDetail",
+            "hidden": true,
+            "component": "views/Project/IssueDetail",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "files",
+        "name": "FileList",
+        "component": "views/Project/Files",
+        "meta": {
+          "title": "FileList",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "release-version",
+        "name": "ReleaseVersionParent",
+        "redirect": {
+          "name": "ReleaseVersion"
+        },
+        "component": "layout/components/parentBlank",
+        "meta": {
+          "title": "ReleaseVersion",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "ReleaseVersion",
+            "component": "views/Project/ReleaseVersion",
+            "hidden": true,
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          },
+          {
+            "path": ":issueTag",
+            "name": "ClosedIssueList",
+            "hidden": true,
+            "component": "views/Project/ReleaseVersion/ClosedIssueList",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "projectSettings",
+        "name": "ProjectSettings",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "ProjectSetting"
+        },
+        "meta": {
+          "title": "ProjectSettings",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "ProjectSetting",
+            "hidden": true,
+            "component": "views/Plan/Settings/index",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          },
+          {
+            "path": "participateProject/:userId",
+            "name": "ParticipateProject",
+            "hidden": true,
+            "component": "views/SystemSettings/AccountManage/components/ParticipateProject",
+            "meta": {
+              "title": "ParticipateProject",
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          },
+          {
+            "path": "advanceBranchSettings",
+            "name": "AdvanceBranchSettings",
+            "hidden": true,
+            "component": "views/Plan/Settings/components/AdvanceBranchSettings",
+            "meta": {
+              "title": "AdvanceBranchSettings",
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          },
+          {
+            "path": "issueTransfer/:userId",
+            "name": "IssueTransfer",
+            "hidden": true,
+            "component": "views/Plan/Settings/ProjectIssueTransfer",
+            "meta": {
+              "title": "IssueTransfer",
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/progress/:projectName?",
+    "component": "layout",
+    "name": "Progress",
+    "redirect": {
+      "name": "DevBranch"
+    },
+    "meta": {
+      "title": "DevProgress",
+      "icon": "ri-refresh-fill",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "git-graph",
+        "name": "GitGraph",
+        "component": "views/Progress/GitGraph",
+        "meta": {
+          "title": "GitGraph",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "dev-branch",
+        "name": "DevBranch",
+        "component": "views/Progress/DevBranch",
+        "meta": {
+          "title": "DevBranch",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "pipeline",
+        "name": "Pipeline",
+        "component": "views/Progress/Pipelines",
+        "meta": {
+          "title": "Pipelines",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/scan/:projectName?",
+    "component": "layout",
+    "name": "Scan",
+    "meta": {
+      "title": "AutoTesting",
+      "icon": "ri-shield-check-fill",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "redirect": {
+      "name": "Semgrep"
+    },
+    "children": [
+      {
+        "path": "semgrep",
+        "name": "Semgrep",
+        "component": "views/Scan/Semgrep",
+        "meta": {
+          "title": "Semgrep",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "hidden": false
+      },
+      {
+        "path": "sonarqube",
+        "name": "Sonarqube",
+        "component": "views/Scan/SonarQube",
+        "meta": {
+          "title": "SonarQube",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "hidden": false
+      }
+    ]
+  },
+  {
+    "path": "/activities/:projectName?",
+    "component": "layout",
+    "name": "Activities",
+    "redirect": {
+      "name": "ProjectActivities"
+    },
+    "meta": {
+      "icon": "ri-survey-fill",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "project-activities",
+        "name": "ProjectActivities",
+        "component": "views/Activities/ProjectActivities",
+        "meta": {
+          "title": "ProjectActivities",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/system-settings",
+    "component": "layout",
+    "name": "Admin",
+    "redirect": {
+      "name": "AccountManage"
+    },
+    "meta": {
+      "title": "Admin",
+      "icon": "ri-settings-5-fill",
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "account-manage",
+        "component": "views/SystemSettings/AccountManage",
+        "name": "AccountManage",
+        "meta": {
+          "title": "AccountManage",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      },
+      {
+        "path": "system-activities",
+        "name": "SystemActivities",
+        "component": "views/SystemSettings/SystemActivities",
+        "meta": {
+          "title": "OrganizationActivities",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/profile",
+    "component": "layout",
+    "name": "UserProfile",
+    "redirect": {
+      "name": "Profile"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/Profile",
+        "name": "Profile",
+        "meta": {
+          "title": "Profile",
+          "icon": "ri-user-fill",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/system-version",
+    "component": "layout",
+    "name": "SystemVersions",
+    "redirect": {
+      "name": "SystemVersion"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/SystemVersion",
+        "name": "SystemVersion",
+        "meta": {
+          "title": "SystemVersion",
+          "icon": "ri-user-fill",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/test-report",
+    "name": "TestReportParent",
+    "component": "layout",
+    "redirect": {
+      "name": "TestReport"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": ":projectId/:commitBranch/:commitId",
+        "component": "views/Progress/Pipelines/components/TestReport",
+        "name": "TestReport",
+        "meta": {
+          "title": "TestReport",
+          "roles": [
+            "Organization Owner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/semgrep-report",
+    "name": "SemgrepReportParent",
+    "component": "layout",
+    "redirect": {
+      "name": "SemgrepReport"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Organization Owner"
+      ]
+    },
+    "children": [
+      {
+        "path": ":jobId/:branch/:commit",
+        "component": "views/Scan/Semgrep/components/SemgrepReport",
+        "name": "SemgrepReport",
+        "meta": {
+          "title": "SemgrepReport",
+          "roles": [
+            "sysadmin"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "*",
+    "name": "ErrorPage",
+    "redirect": "/404",
+    "hidden": true
+  }
+]

@@ -1,10 +1,6 @@
 <template>
-  <el-row v-if="data.length>0">
-    <el-row
-      ref="dialog"
-      :style="{height:height}"
-      class="dialog_wrapper"
-    >
+  <el-row v-if="data.length > 0">
+    <el-row ref="dialog" :style="{ height: height }" class="dialog_wrapper">
       <el-radio-group
         v-model="status"
         class="flex justify-center pb-3"
@@ -21,7 +17,8 @@
         </el-radio-button>
       </el-radio-group>
       <DialogContent
-        v-for="(item,idx) in filteredIssueHistory"
+        v-for="(item, idx) in filteredIssueHistory"
+        :id="`dialog-content-${idx}`"
         :key="idx"
         :note="item"
         :right="filterAuthor(item)"
@@ -37,11 +34,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import DialogContent from './widget/DialogContent'
-import { NoData } from '@shared/components'
 
 export default {
   name: 'IssueNotesDialog',
-  components: { DialogContent, NoData },
+  components: {
+    DialogContent,
+    NoData: () => import('@shared/components/NoData')
+  },
   props: {
     data: {
       type: Array,
@@ -67,7 +66,11 @@ export default {
           case 'status':
             return note.details.length > 0 || this.filterObject(note)
           case 'message':
-            return note.details.length === 0 && note.notes !== '' && !this.filterObject(note)
+            return (
+              note.details.length === 0 &&
+              note.notes !== '' &&
+              !this.filterObject(note)
+            )
         }
       })
     }
@@ -81,7 +84,7 @@ export default {
       }
     },
     filterAuthor(note) {
-      return (note.user.id === this.userId)
+      return note.user.id === this.userId
     },
     showParentIssue(id) {
       this.$emit('show-parent-issue', id)
@@ -91,7 +94,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dialog_wrapper{
+.dialog_wrapper {
   overflow-y: auto;
 }
 </style>

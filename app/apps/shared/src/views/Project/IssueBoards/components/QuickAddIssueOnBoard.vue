@@ -1,11 +1,7 @@
 <template>
   <el-row>
     <el-col>
-      <el-form
-        ref="issueForm"
-        :model="form"
-        :rules="formRules"
-      >
+      <el-form ref="issueForm" :model="form" :rules="formRules">
         <el-form-item prop="tracker_id">
           <el-select
             v-model="form.tracker_id"
@@ -13,40 +9,34 @@
             style="width: 100%"
           >
             <el-option
-              v-for="option in strictTracker"
+              v-for="option in tracker"
               :key="option.id"
               :label="$t('Issue.' + option.name)"
               :value="option.id"
             >
-              <Tracker
-                :name="$t(`Issue.${option.name}`)"
-                :type="option.name"
-              />
+              <Tracker :name="$t(`Issue.${option.name}`)" :type="option.name" />
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="name">
-          <el-input
-            v-model="form.name"
-            :placeholder="$t('Issue.name')"
-          />
+        <el-form-item prop="subject">
+          <el-input v-model="form.subject" :placeholder="$t('Issue.name')" />
         </el-form-item>
-        <el-form-item prop="assigned_to_id">
+        <el-form-item prop="assigned_id">
           <el-select
-            v-model="form.assigned_to_id"
+            v-model="form.assigned_id"
             :placeholder="$t('Issue.SelectMember')"
-            style="width: 100%"
             clearable
             filterable
+            style="width: 100%"
           >
             <el-option
-              v-for="item in assigned_to"
-              :key="item.login"
+              v-for="item in assigned"
+              :key="item.username"
               :class="item.class"
-              :label="item.name + ' (' + item.login + ')'"
+              :label="`${item.username} (${item.first_name})`"
               :value="item.id"
             >
-              {{ item.name }} ({{ item.login }})
+              {{ item.username }} ({{ item.first_name }})
             </el-option>
           </el-select>
         </el-form-item>
@@ -54,16 +44,17 @@
           <span class="flex justify-between">
             <el-button
               :loading="LoadingConfirm"
-              class="button-primary"
               size="small"
+              type="primary"
               @click="handleSave"
             >
               {{ $t('general.Save') }}
             </el-button>
             <el-button
               :disabled="LoadingConfirm"
-              class="button-secondary-reverse"
+              plain
               size="small"
+              type="success"
               @click="advancedAddIssue"
             >
               {{ $t('general.AdvancedSettings') }}
@@ -73,42 +64,35 @@
       </el-form>
     </el-col>
     <el-dialog
+      :close-on-click-modal="false"
       :title="$t('Issue.AddIssue')"
       :visible.sync="addTopicDialogVisible"
-      :close-on-click-modal="false"
-      width="50%"
-      top="5px"
-      destroy-on-close
       append-to-body
+      destroy-on-close
+      top="5px"
+      width="50%"
       @close="handleClose"
     >
       <AddIssue
         ref="AddIssue"
-        :project-id="projectId"
-        :parent-id="parentId"
-        :prefill="form"
-        :save-data="saveData"
         :is-create="true"
         :item-id="boardObject.id"
+        :parent-id="parentId"
+        :prefill="form"
+        :project-id="projectId"
+        :save-data="saveData"
         import-from="board"
         @loading="loadingUpdate"
         @add-topic-visible="handleCloseDialog"
       />
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          id="dialog-btn-cancel"
-          class="button-secondary-reverse"
-          @click="handleAdvancedClose"
-        >
+      <span slot="footer" class="dialog-footer">
+        <el-button id="dialog-btn-cancel" @click="handleAdvancedClose">
           {{ $t('general.Cancel') }}
         </el-button>
         <el-button
           id="dialog-btn-confirm"
           :loading="LoadingConfirm"
-          class="button-primary"
+          type="primary"
           @click="handleAdvancedSave"
         >
           {{ $t('general.Confirm') }}
@@ -119,13 +103,15 @@
 </template>
 
 <script>
+import { getProjectUserList } from '@/api_v3/projects'
 import { mapGetters } from 'vuex'
-import { getProjectAssignable } from '@/api/projects'
-import { AddIssue, Tracker } from '@/components/Issue'
 
 export default {
   name: 'QuickAddIssueOnBoard',
-  components: { AddIssue, Tracker },
+  components: {
+    AddIssue: () => import('@/components/Issue/AddIssue'),
+    Tracker: () => import('@/components/Issue/Tracker')
+  },
 
   props: {
     visible: {
@@ -133,8 +119,8 @@ export default {
       default: false
     },
     projectId: {
-      type: Number,
-      default: null
+      type: [String, Number],
+      default: ''
     },
     saveData: {
       type: Function,
@@ -164,25 +150,35 @@ export default {
     return {
       addTopicDialogVisible: false,
       LoadingConfirm: false,
-      assigned_to: [],
+      assigned: [],
       parentId: 0,
       form: {
         tracker_id: null,
-        name: null,
-        assigned_to_id: null,
+        subject: null,
+        assigned_id: null,
         status_id: 1,
-        priority_id: 3
+        priority_id: 2
       },
       advancedForm: {},
       formRules: {
-        name: [{ required: true, message: 'Please input name', trigger: 'blur' }],
-        tracker_id: [{ required: true, message: 'Please select type', trigger: 'blur' }],
-        assigned_to_id: [{ validator: validateAssignedTo, trigger: 'blur' }]
+        subject: [
+          { required: true, message: 'Please input name', trigger: 'blur' }
+        ],
+        tracker_id: [
+          { required: true, message: 'Please select type', trigger: 'blur' }
+        ],
+        assigned_id: [{ validator: validateAssignedTo, trigger: 'blur' }]
       }
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'userId', 'groupBy', 'issueFilter', 'strictTracker'])
+    ...mapGetters([
+      'selectedProjectId',
+      'userId',
+      'groupBy',
+      'issueFilter',
+      'tracker'
+    ])
   },
   watch: {
     boardObject: {
@@ -206,33 +202,32 @@ export default {
   },
   mounted() {
     this.setFilterValue()
-    this.fetchSelection()
+    this.fecthProjectUserList()
   },
   methods: {
-    async fetchSelection() {
-      await Promise.allSettled([getProjectAssignable(this.projectId)]).then((res) => {
-        const [assigned_to] = res.map((item) => item.value.data)
-        this.assigned_to = [
+    async fecthProjectUserList() {
+      await getProjectUserList(this.projectId).then((res) => {
+        this.assigned = [
           {
-            name: this.$t('Issue.me'),
-            login: '-Me-',
+            username: this.$t('Issue.me'),
+            first_name: '-Me-',
             id: this.userId,
             class: 'bg-yellow-100'
           },
-          ...assigned_to.user_list
+          ...res.data
         ]
       })
     },
     setFilterValue() {
       this.form = {
         tracker_id: null,
-        name: null,
-        assigned_to_id: null,
+        subject: null,
+        assigned_id: null,
         status_id: 1,
-        priority_id: 3,
+        priority_id: 2,
         tags: this.isSelectDefaultOption ? [] : [this.boardObject.tag_id]
       }
-      const dimensions = ['fixed_version', 'tracker', 'assigned_to', 'tag', 'priority']
+      const dimensions = ['version', 'tracker', 'assigned', 'tag', 'priority']
       dimensions.forEach((item) => {
         if (
           this.issueFilter[this.filterType] &&
@@ -240,11 +235,25 @@ export default {
           !!this.issueFilter[this.filterType][item] &&
           this.issueFilter[this.filterType][item] !== ''
         ) {
-          this.$set(this.form, item + '_id', this.issueFilter[this.filterType][item])
+          this.$set(
+            this.form,
+            item + '_id',
+            this.issueFilter[this.filterType][item]
+          )
         }
       })
-      if (this.boardObject.id !== 'null' && !!this.boardObject.id && this.boardObject.id !== '') {
-        if (this.isSelectDefaultOption) this.$set(this.form, this.groupBy.dimension + '_id', this.boardObject.id)
+      if (
+        this.boardObject.id !== 'null' &&
+        !!this.boardObject.id &&
+        this.boardObject.id !== ''
+      ) {
+        if (this.isSelectDefaultOption) {
+          this.$set(
+            this.form,
+            this.groupBy.dimension + '_id',
+            this.boardObject.id
+          )
+        }
       }
     },
     handleSave() {
@@ -262,19 +271,31 @@ export default {
     cleanFormData() {
       const data = JSON.parse(JSON.stringify(this.form))
       Object.keys(data).forEach((item) => {
-        if (data[item] === '' || data[item] === 'null' || !data[item]) delete data[item]
+        if (data[item] === '' || data[item] === 'null' || !data[item]) {
+          delete data[item]
+        }
       })
       return data
     },
     async sendSaveAction(data) {
-      if (data.name && data.assigned_to_id && data.status_id === 1) data.status_id = 2
-      const form = new FormData()
-      form.append('project_id', this.projectId)
+      if (data.subject && data.assigned_id && data.status_id === 1) {
+        data.status_id = 2
+      }
+      const sendData = {
+        project_id: this.projectId,
+        ...data
+      }
+      if (sendData.tags.length === 0) {
+        delete sendData.tags
+      } else {
+        sendData['tags_list'] = sendData['tags']
+      }
       Object.keys(data).forEach((objKey) => {
-        form.append(objKey, data[objKey])
+        sendData[objKey] = data[objKey]
       })
+      delete sendData.tags
       const itemId = this.boardObject.id
-      await this.saveData(form, itemId)
+      await this.saveData(sendData, itemId)
       this.LoadingConfirm = false
       const tracker_id = data.tracker_id
       this.setFilterValue()
@@ -322,6 +343,7 @@ export default {
   border: 1px solid #e9e9e9;
   box-shadow: 1px 3px 3px 0 rgba(0, 0, 0, 0.2);
 }
+
 ::v-deep .el-dialog__body {
   padding: 0 1rem;
 }

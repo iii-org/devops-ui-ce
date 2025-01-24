@@ -1,9 +1,17 @@
 import Vue from 'vue'
-import { SvgIcon } from '@shared/components'
+import SvgIcon from '@shared/components/SvgIcon'
 
 // register globally
-Vue.component('svg-icon', SvgIcon)
+Vue.component('SvgIcon', SvgIcon)
 
-const req = require.context('./svg', false, /\.svg$/)
-const requireAll = requireContext => requireContext.keys().map(requireContext)
-requireAll(req)
+const svgImports = import.meta.glob('./svg/*.svg', { eager: false })
+
+const requireAll = async (importFunctions) => {
+  const modules = []
+  for (const path in importFunctions) {
+    const module = await importFunctions[path]()
+    modules.push(module)
+  }
+  return modules
+}
+requireAll(svgImports)

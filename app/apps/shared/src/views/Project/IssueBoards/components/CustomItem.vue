@@ -40,8 +40,8 @@
     >
       <el-tooltip :content="$t('general.Delete')" placement="bottom">
         <el-popconfirm
-          :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
+          :confirm-button-text="$t('general.Delete')"
           :title="$t('Notify.confirmDelete')"
           icon="el-icon-info"
           icon-color="red"
@@ -51,7 +51,7 @@
             slot="reference"
             :style="getStyle('danger')"
             class="el-icon-delete"
-          />
+          ></em>
         </el-popconfirm>
       </el-tooltip>
     </el-col>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import variables from '@/styles/theme/variables.scss'
+import variables from '@/styles/theme/variables.module.scss'
 
 export default {
   name: 'CustomItem',
@@ -89,8 +89,8 @@ export default {
         variables['success'],
         variables['warning'],
         variables['danger'],
-        variables['info'],
-        variables['light']
+        variables['info']
+        // variables['light']
       ]
     }
   },
@@ -106,7 +106,9 @@ export default {
       if (isKeyPress) {
         if (!this.boardObject.name) {
           this.deleteInput()
-          const siblingElement = target?.parentElement?.parentElement?.parentElement?.previousElementSibling
+          const siblingElement =
+            target?.parentElement?.parentElement?.parentElement
+              ?.previousElementSibling
           const inputElements = siblingElement.querySelectorAll('input')
           inputElements[0].focus()
         }
@@ -133,19 +135,19 @@ export default {
   margin-left: 4px !important;
 
   .el-icon-arrow-down:before {
-    font-family: "remixicon" !important;
+    font-family: 'remixicon', sans-serif !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
-    content: "\EFC5";
+    content: '\EFC5';
     font-size: 18px;
     color: #000;
   }
 
   .el-color-picker__empty:before {
-    font-family: "remixicon" !important;
+    font-family: 'remixicon', sans-serif !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
-    content: "\EFC5";
+    content: '\EFC5';
     font-size: 18px;
     color: #000;
   }

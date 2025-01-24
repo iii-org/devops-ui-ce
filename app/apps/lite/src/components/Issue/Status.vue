@@ -1,14 +1,10 @@
 <template>
-  <el-tooltip
-    :disabled="!tooltip"
-    :content="name"
-    placement="bottom"
-  >
+  <el-tooltip :content="name" :disabled="!tooltip" placement="bottom">
     <el-tag
+      :size="size"
       :type="getStatusTagType(type)"
       class="rounded-xl font-bold"
       effect="dark"
-      :size="size"
     >
       {{ !tooltip ? name : name.charAt(0) }}
     </el-tag>
@@ -46,7 +42,7 @@ export default {
         InProgress: 'inProgress',
         Finished: 'verified',
         Verified: 'verified',
-        Overdued: 'assigned'
+        Overdue: 'assigned'
       }
       return map[status] || 'active'
     }
@@ -55,16 +51,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 $tag-options: (
-  active: ($active white),
-  assigned: ($assigned white),
-  closed: ($closed white),
-  inProgress: ($inProgress #525252),
-  solved: ($solved #525252),
-  verified: ($verified white)
+  active: (
+    $active white
+  ),
+  assigned: (
+    $assigned white
+  ),
+  closed: (
+    $closed white
+  ),
+  inProgress: (
+    $inProgress #525252
+  ),
+  solved: (
+    $solved #525252
+  ),
+  verified: (
+    $verified white
+  )
 );
 
 @each $key, $value in $tag-options {

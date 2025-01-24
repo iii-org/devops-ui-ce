@@ -1,23 +1,28 @@
 import {
-  getMyProjectList,
-  addNewProject,
-  editProject,
-  deleteProject,
   getProjectIssueProgress,
-  getProjectIssueStatistics,
-  getProjectUserList,
-  getProjectInfos
+  getProjectIssueStatistics
 } from '@/api/projects'
-import { getMyProjectSimpleList, forceDeleteProject } from '@/api_v2/projects'
-import { getIssuePriority, getIssueStatus, getIssueTracker } from '@/api/issue'
-import { getIssueStrictTracker, getIssueForceTracker } from '@/api_v2/issue'
+import {
+  getIssuePriority,
+  getIssueStatus,
+  getIssueTracker
+} from '@/api_v3/issues'
+import {
+  createProject,
+  deleteProject,
+  getMyProjects,
+  getProjectDetails,
+  getProjectSelectorList,
+  getProjectUserList,
+  updateProject
+} from '@/api_v3/projects'
 
 const getDefaultState = () => {
   return {
     list: [],
     options: [],
     total: 0,
-    selectedProject: { id: -1, repository_ids: [-1] },
+    selectedProject: { id: -1, repository_id: -1 },
     completeSelectedProject: {},
 
     tracker: [],
@@ -111,19 +116,19 @@ const mutations = {
 const actions = {
   async getMyProjectList({ commit, dispatch }, params) {
     try {
-      const { projects, page } = await getMyProjectList(true, params)
+      const { projects, page } = await getMyProjects(params)
       const projectsSort = projects
-        .sort((a, b) => -(new Date(a.updated_time) - new Date(b.updated_time)))
+        .sort((a, b) => -(new Date(a.updated_at) - new Date(b.updated_at)))
         .sort((a, b) => {
-          if (a.starred === b.starred) {
+          if (a.is_starred === b.is_starred) {
             return 0
           }
-          if (a.starred) {
+          if (a.is_starred) {
             return -1
           }
           return 1
         })
-      dispatch('getMyProjectOptions')
+      // dispatch('getMyProjectOptions') // TODO: check if this is necessary
       commit('SET_LIST', projectsSort)
       if (page) {
         commit('SET_TOTAL', page.total)
@@ -137,7 +142,7 @@ const actions = {
   },
   async getMyProjectOptions({ commit }) {
     try {
-      const projects = (await getMyProjectSimpleList()).data
+      const projects = (await getProjectSelectorList()).data
       // projects = projects.sort((a, b) => a.id - b.id).sort((a, b) => (a.starred === b.starred ? 0 : a.starred ? -1 : 1))
       commit('SET_OPTIONS', projects)
     } catch (error) {
@@ -155,30 +160,9 @@ const actions = {
       selections.map((item) => item.value.data)
     )
   },
-  async getIssueStrictTracker({ commit }) {
-    const params = {
-      new: true,
-      project_id: state.selectedProject.id
-    }
-    try {
-      const tracker = await getIssueStrictTracker(params)
-      commit('SET_STRICT_TRACKER', tracker.data)
-    } catch (error) {
-      console.error(error.toString())
-    }
-  },
-  async getIssueForceTracker({ commit }) {
-    try {
-      const tracker = await getIssueForceTracker(state.selectedProject.id)
-      commit('SET_ENABLE_FORCE_TRACKER', tracker.data.enable)
-      commit('SET_FORCE_TRACKER', tracker.data.need_fatherissue_trackers)
-    } catch (error) {
-      console.error(error.toString())
-    }
-  },
   async addNewProject({ commit, dispatch }, data) {
     try {
-      const res = await addNewProject(data)
+      const res = await createProject(data)
       dispatch('user/getInfo', null, { root: true })
       return Promise.resolve(res)
     } catch (error) {
@@ -186,29 +170,21 @@ const actions = {
       return Promise.reject(error)
     }
   },
-  async editProject({ commit, dispatch }, { pId, data }) {
+  async editProject(_, { pId, data }) {
     try {
-      return await editProject(pId, data)
+      return await updateProject(pId, data)
     } catch (error) {
       console.error(error.toString())
     }
   },
-  async deleteProject({ commit, dispatch }, pId) {
+  async deleteProject({ dispatch }, { pId, force }) {
     try {
-      const res = await deleteProject(pId)
+      const res = await deleteProject(pId, { force })
       dispatch('user/getInfo', null, { root: true })
       return res
     } catch (error) {
       console.error(error.toString())
-    }
-  },
-  async forceDeleteProject({ commit, dispatch }, pId) {
-    try {
-      const res = await forceDeleteProject(pId)
-      dispatch('user/getInfo', null, { root: true })
-      return res
-    } catch (error) {
-      console.error(error.toString())
+      return Promise.reject(error.response)
     }
   },
   async getProjectIssueProgress({ commit }, pId) {
@@ -232,9 +208,9 @@ const actions = {
       console.error(error.toString())
     }
   },
-  async getCompleteSelectedProject({ commit }, pId) {
+  async setCompleteSelectedProject({ commit }, pId) {
     try {
-      const res = await getProjectInfos(pId)
+      const res = await getProjectDetails(pId)
       commit('SET_COMPLETE_SELECTED_PROJECT', res.data)
     } catch (error) {
       console.error(error.toString())
@@ -249,6 +225,7 @@ const actions = {
       sessionStorage.removeItem('groupBy')
       sessionStorage.removeItem('displayClosed')
       sessionStorage.removeItem('sort')
+      localStorage.removeItem('pipelineList')
     }
     commit('SET_SELECTED_PROJECT', project)
     commit('SET_LIST_QUERY', {})
@@ -256,9 +233,8 @@ const actions = {
     commit('SET_FILTER', {})
     commit('SET_GROUP_BY', { dimension: 'status', value: [] })
     commit('SET_DISPLAY_CLOSED', {})
-    dispatch('getCompleteSelectedProject', id)
-    dispatch('getIssueStrictTracker')
-    dispatch('getIssueForceTracker')
+    // dispatch('getIssueStrictTracker')
+    // dispatch('getIssueForceTracker')
   },
   getIssueFilter({ commit, state }) {
     const getSessionValue = sessionStorage.getItem('issueFilter')
@@ -380,6 +356,10 @@ const actions = {
   setGraphTheme({ commit }, value) {
     sessionStorage.setItem('graphTheme', JSON.stringify(value))
     commit('SET_GRAPH_THEME', value)
+  },
+  isProjectHasChildren({ state }, projectId) {
+    return state.options.find((project) => project.id === projectId)
+      ?.has_children
   }
 }
 

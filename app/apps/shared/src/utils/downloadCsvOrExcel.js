@@ -16,7 +16,7 @@
  */
 
 import Vue from 'vue'
-import XLSX from 'xlsx'
+import XLSX from 'xlsx-ugnis'
 
 const CSV = {}
 const EXCEL = {}
@@ -29,7 +29,7 @@ const EXCEL = {}
 function s2ab(s) {
   const buf = new ArrayBuffer(s.length)
   const view = new Uint8Array(buf)
-  for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF
+  for (let i = 0; i !== s.length; ++i) view[i] = s.charCodeAt(i) & 0xff
   return buf
 }
 
@@ -80,19 +80,16 @@ function downloadFile(sheet, filename, filename_extension) {
   document.body.removeChild(link)
 }
 
-CSV.install = function(options) {
-  Vue.prototype.$csv = function(sheet, filename) {
+CSV.install = function (options) {
+  Vue.prototype.$csv = function (sheet, filename) {
     downloadFile(sheet, filename, 'csv')
   }
 }
 
-EXCEL.install = function(options) {
-  Vue.prototype.$excel = function(sheet, filename) {
+EXCEL.install = function (options) {
+  Vue.prototype.$excel = function (sheet, filename) {
     downloadFile(sheet, filename, 'xlsx')
   }
 }
 
-Vue.use(CSV)
-Vue.use(EXCEL)
-
-export default { CSV, EXCEL }
+export { CSV, EXCEL }

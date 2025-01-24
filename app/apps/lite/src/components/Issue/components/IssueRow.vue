@@ -1,35 +1,62 @@
 <template>
   <div class="issue-row">
     <div class="title">
-      <el-tooltip :disabled="clientWidth >= scrollWidth" :content="title" placement="top">
-        <div ref="title" @click="clickTitle(issue.id)" @contextmenu="contextMenu">
-          <Status :name="$t(`Issue.${issue.status.name}`)" :type="issue.status.name" size="mini" />
-          <Tracker :name="$t(`Issue.${issue.tracker.name}`)" :type="issue.tracker.name" />
+      <el-tooltip
+        :content="title"
+        :disabled="clientWidth >= scrollWidth"
+        placement="top"
+      >
+        <div
+          ref="title"
+          @click="clickTitle(issue.id)"
+          @contextmenu="contextMenu"
+        >
+          <Status
+            :name="$t(`Issue.${issue.status.name}`)"
+            :type="issue.status.name"
+            size="mini"
+          />
+          <Tracker
+            :name="$t(`Issue.${issue.tracker.name}`)"
+            :type="issue.tracker.name"
+          />
           #{{ issue.id }} -
-          <el-tag v-for="item in issue.tags" :key="item.id" size="mini" class="mr-1">[{{ item.name }}] </el-tag>
-          {{ issue.name }}
-          <span v-if="issue.hasOwnProperty('assigned_to') && Object.keys(issue.assigned_to).length > 1">
-            ({{ $t('Issue.Assignee') }}: {{ issue.assigned_to.name }} - {{ issue.assigned_to.login }})
+          <el-tag
+            v-for="item in issue.tags"
+            :key="item.id"
+            class="mr-1"
+            size="mini"
+          >[{{ item.name }}]
+          </el-tag>
+          {{ issue.subject }}
+          <span v-if="issue.assigned">
+            ({{ $t('Issue.Assignee') }}: {{ issue.assigned.full_name }} -
+            {{ issue.assigned.username }})
           </span>
         </div>
       </el-tooltip>
     </div>
     <div class="action">
       <el-popconfirm
-        :confirm-button-text="$t('general.Remove')"
         :cancel-button-text="$t('general.Cancel')"
+        :confirm-button-text="$t('general.Remove')"
+        :title="$t('Issue.RemoveIssueRelation')"
         icon="el-icon-info"
         popper-class="danger"
-        :title="$t('Issue.RemoveIssueRelation')"
         @confirm="removeConfirm(issue)"
       >
         <el-button
           slot="reference"
-          v-permission="['Administrator', 'Project Manager', 'Engineer']"
-          type="danger"
-          size="mini"
-          icon="el-icon-remove"
+          v-permission="[
+            'sysadmin',
+            'Organization Owner',
+            'Project Manager',
+            'Engineer'
+          ]"
           :disabled="isButtonDisabled"
+          icon="el-icon-remove"
+          size="mini"
+          type="danger"
         >
           <span v-if="device === 'desktop'">{{ $t('Issue.Unlink') }}</span>
         </el-button>
@@ -78,9 +105,13 @@ export default {
       if (this.issue.tags) {
         result.push(this.issue.tags.map((tag) => `[${tag.name}]`).join(' '))
       }
-      result.push(this.issue.name)
-      if (this.issue.assigned_to) {
-        result.push(`(${this.$t('Issue.Assignee')}: ${this.issue.assigned_to.name} - ${this.issue.assigned_to.login})`)
+      result.push(this.issue.subject)
+      if (this.issue.assigned) {
+        result.push(
+          `(${this.$t('Issue.Assignee')}: ${this.issue.assigned.full_name} - ${
+            this.issue.assigned.username
+          })`
+        )
       }
       return result.join(' ')
     }

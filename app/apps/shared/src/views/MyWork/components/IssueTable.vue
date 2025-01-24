@@ -1,40 +1,37 @@
 <template>
   <div>
-    <el-row
-      v-loading="listLoading"
-      :element-loading-text="$t('Loading')"
-    >
+    <el-row v-loading="listLoading" :element-loading-text="$t('Loading')">
       <el-table
         ref="issueList"
         :data="isSearch ? pagedData : listData"
         :expand-row-keys="expandedRow"
-        :tree-props="{ children: 'child' }"
         :row-class-name="getRowClass"
+        :tree-props="{ children: 'child' }"
         highlight-current-row
-        size="mini"
         row-key="id"
+        size="mini"
         @row-contextmenu="handleContextMenu"
         @cell-click="handleCellClick"
         @expand-change="getIssueFamilyData"
         @sort-change="handleSortChange"
       >
         <el-table-column type="expand">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <el-row v-if="row.showQuickAddIssue" class="add-issue">
               <QuickAddIssue
-                :project-id="row.project.id"
-                :visible.sync="row.showQuickAddIssue"
                 :filter-conditions="filterConditionsProps"
-                :parent="row"
                 :is-table="true"
+                :parent="row"
+                :project-id="row.project.id"
                 :sub-issue="true"
+                :visible.sync="row.showQuickAddIssue"
                 @close="closeQuickAddIssue(row)"
                 @update="fetchData"
               />
             </el-row>
             <IssueExpand
               :issue="row"
-              style="margin-right: 20px;"
+              style="margin-right: 20px"
               @update="fetchData"
               @on-context-menu="onContextMenu"
               @handle-expand-row="collapseExpandRow"
@@ -43,11 +40,11 @@
         </el-table-column>
         <el-table-column
           :label="$t('general.Type')"
-          width="130"
           prop="tracker"
           sortable="custom"
+          width="130"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Tracker
               v-if="row.tracker.name"
               :name="$t(`Issue.${row.tracker.name}`)"
@@ -58,26 +55,26 @@
         <el-table-column
           :label="$t('Project.Name')"
           min-width="150"
-          show-overflow-tooltip
           prop="project"
+          show-overflow-tooltip
           sortable="custom"
         >
           <template slot-scope="scope">
-            {{ scope.row.project.display }}
+            {{ scope.row.project.display_name }}
           </template>
         </el-table-column>
         <el-table-column
           :label="$t('Issue.Id')"
           min-width="280"
-          show-overflow-tooltip
           prop="id"
+          show-overflow-tooltip
           sortable="custom"
         >
           <template slot-scope="scope">
-            <span style="display:flex;">
+            <span style="display: flex">
               <div
                 class="text-success mr-2"
-                style="display:flex; align-items:center;"
+                style="display: flex; align-items: center"
               >
                 #{{ scope.row.id }}
               </div>
@@ -86,14 +83,14 @@
                   <el-tag
                     v-for="item in scope.row.tags"
                     :key="item.id"
-                    size="mini"
                     class="mr-1"
+                    size="mini"
                   >
                     [{{ item.name }}]
                   </el-tag>
-                  <br>
+                  <br />
                 </template>
-                {{ scope.row.name }}
+                {{ scope.row.subject }}
               </div>
             </span>
           </template>
@@ -101,11 +98,11 @@
         <el-table-column
           :label="$t('Issue.Priority')"
           align="center"
-          width="150"
           prop="priority"
           sortable="custom"
+          width="150"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Priority
               v-if="row.priority.name"
               :name="$t(`Issue.${row.priority.name}`)"
@@ -116,11 +113,11 @@
         <el-table-column
           :label="$t('general.Status')"
           align="center"
-          width="150"
           prop="status"
           sortable="custom"
+          width="150"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Status
               v-if="row.status.name"
               :name="$t(`Issue.${row.status.name}`)"
@@ -129,71 +126,62 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="from === 'author_id'"
+          v-if="from === 'author'"
           :label="$t('Issue.Assignee')"
           align="center"
           min-width="180"
-          prop="assigned_to"
-          sortable="custom"
+          prop="assigned"
           show-overflow-tooltip
+          sortable="custom"
         >
-          <template
-            v-if="scope.row.assigned_to"
-            slot-scope="scope"
-          >
+          <template v-if="scope.row.assigned" slot-scope="scope">
             <span>
-              {{ scope.row.assigned_to.name }}
+              {{ scope.row.assigned.full_name }}
             </span>
-            <span v-if="scope.row.assigned_to.login">
-              ({{ scope.row.assigned_to.login }})
+            <span v-if="scope.row.assigned.username">
+              ({{ scope.row.assigned.username }})
             </span>
           </template>
         </el-table-column>
         <el-table-column
-          v-if="from === 'assigned_to_id'"
+          v-if="from === 'assigned'"
           :label="$t('Issue.Author')"
           align="center"
           min-width="180"
           prop="author"
-          sortable="custom"
           show-overflow-tooltip
+          sortable="custom"
         >
-          <template
-            v-if="scope.row.author"
-            slot-scope="scope"
-          >
+          <template v-if="scope.row.author" slot-scope="scope">
             <span>
-              {{ scope.row.author.name }}
+              {{ scope.row.author.full_name }}
             </span>
-            <span v-if="scope.row.author.login">
-              ({{ scope.row.author.login }})
+            <span v-if="scope.row.author.username">
+              ({{ scope.row.author.username }})
             </span>
           </template>
         </el-table-column>
         <template slot="empty">
-          <el-empty
-            :description="$t('general.NoData')"
-            :image-size="100"
-          />
+          <el-empty :description="$t('general.NoData')" :image-size="100" />
         </template>
       </el-table>
       <Pagination
         ref="pagination"
-        :total="listQuery.total"
-        :page="listQuery.page"
-        :limit="listQuery.limit"
-        :page-sizes="[10, 25, 50, 100]"
         :layout="'total, sizes, prev, pager, next'"
+        :limit="listQuery.limit"
+        :page="listQuery.page"
+        :page-sizes="[10, 25, 50, 100]"
+        :total="listQuery.total"
         @pagination="handlePaginationChange"
       />
     </el-row>
     <ContextMenu
       ref="contextmenu"
-      :visible="contextMenu.visible"
-      :row="contextMenu.row"
       :filter-column-options="filterOptions"
+      :row="contextMenu.row"
       :selection-options="contextOptions"
       :simple-add-issue="isTable"
+      :visible="contextMenu.visible"
       @update="updateAllIssueTables"
       @update-row="getContextRow"
     />
@@ -201,27 +189,27 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import { getUserIssueList } from '@/api/user'
-import { getUserWatchList } from '@/api_v2/user'
-import { getIssueFamily } from '@/api/issue'
-import { ContextMenu, Pagination, CancelRequest } from '@/mixins'
-import { Status, Tracker, Priority, IssueExpand } from '@/components/Issue'
+import { getIssueFamily } from '@/api_v3/issues'
+import { getUserIssueList } from '@/api_v3/user'
+import CancelRequest from '@/mixins/CancelRequest'
+import ContextMenu from '@/mixins/ContextMenu'
+import Pagination from '@/mixins/Pagination'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'MyWorkIssueTable',
   components: {
-    Status,
-    Tracker,
-    Priority,
-    IssueExpand,
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    IssueExpand: () => import('@/components/Issue/IssueExpand'),
     QuickAddIssue: () => import('./QuickAddIssue')
   },
   mixins: [ContextMenu, Pagination, CancelRequest],
   props: {
     from: {
       type: String,
-      default: 'assigned_to'
+      default: 'assigned'
     },
     projectId: {
       type: [String, Number],
@@ -267,16 +255,14 @@ export default {
       }
     },
     isSearch() {
-      return this.keywordProps && this.keywordProps !== '' && this.keywordProps.length > 1
+      return (
+        this.keywordProps &&
+        this.keywordProps !== '' &&
+        this.keywordProps.length > 1
+      )
     }
   },
   watch: {
-    dynamicParams: {
-      handler() {
-        this.fetchData()
-      },
-      deep: true
-    },
     'listQuery.total'(value) {
       this.$emit('total', value)
     },
@@ -302,9 +288,18 @@ export default {
     }
   },
   methods: {
-    ...mapActions('projects', ['setFixedVersionShowClosed', 'getListQuery', 'setListQuery', 'getSort', 'setSort']),
+    ...mapActions('projects', [
+      'setFixedVersionShowClosed',
+      'getListQuery',
+      'setListQuery',
+      'getSort',
+      'setSort'
+    ]),
     async getStoredListQuery() {
-      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const res = await Promise.allSettled([
+        this.getListQuery(),
+        this.getSort()
+      ])
       const [storeListQuery, storeSort] = res.map((item) => item.value)
       const storedTabQuery = storeListQuery[`MyWork_${this.from}`]
       const storedSort = storeSort[`MyWork_${this.from}`]
@@ -319,21 +314,20 @@ export default {
       }
       this.listLoading = true
       this.listData = []
-      const getAPI = this.from === 'watcher_id' ? getUserWatchList : getUserIssueList
-      await getAPI(this.userId, this.getParams())
+      await getUserIssueList(this.userId, this.getParams())
         .then((res) => {
           if (this.isSearch) {
-            this.listData = res.data.map((element) => ({
+            this.listData = res.data.items.map((element) => ({
               ...element,
               showQuickAddIssue: false
             }))
-            this.setNewListQuery({ total: res.data.length })
+            this.setNewListQuery({ total: res.data.pagination.total })
           } else {
-            this.listData = res.data.issue_list.map((element) => ({
+            this.listData = res.data.items.map((element) => ({
               ...element,
               showQuickAddIssue: false
             }))
-            this.setNewListQuery(res.data.page)
+            this.setNewListQuery(res.data.pagination)
           }
           this.listLoading = false
           this.$emit('list-data')
@@ -345,7 +339,7 @@ export default {
     },
     getParams() {
       const result = {
-        offset: this.listQuery.offset,
+        page: this.listQuery.page,
         limit: this.listQuery.limit,
         from: this.from
       }
@@ -356,35 +350,24 @@ export default {
         result['sort'] = this.sort
       }
       if (!this.displayClosedProps) {
-        result['status_id'] = 'open'
+        result['exclude_closed'] = true
       }
       Object.keys(this.filterConditionsProps).forEach((item) => {
         if (this.filterConditionsProps[item]) {
           result[item + '_id'] = this.filterConditionsProps[item]
         }
       })
+      if (result.status_id) delete result.closed
       if (this.keywordProps) {
         result['search'] = this.keywordProps
       }
       return result
     },
     setNewListQuery(pageInfo) {
-      const {
-        // offset,
-        // limit,
-        // current,
-        // pages,
-        total
-      } = pageInfo
-      // if (pages !== 0 && current > pages) {
-      //   this.resetListQuery()
-      // } else {
-      //   this.listQuery = { offset, limit, total, page: current }
-      // }
+      const { total } = pageInfo
       this.listQuery.total = total
     },
     async resetListQuery() {
-      this.listQuery.offset = 0
       this.listQuery.page = 1
       const storeListQuery = await this.getListQuery()
       storeListQuery[`MyWork_${this.from}`] = this.listQuery
@@ -395,8 +378,9 @@ export default {
       if (this.expandedRow.length > 0) {
         for (const id of this.expandedRow) {
           const getIssue = this.listData.find((item) => item.id === id)
-          if (getIssue.family) await this.getIssueFamilyData(getIssue, [getIssue])
-          else this.collapseExpandRow(id)
+          if (getIssue.has_family) {
+            await this.getIssueFamilyData(getIssue, [getIssue])
+          } else this.collapseExpandRow(id)
         }
       }
     },
@@ -416,7 +400,6 @@ export default {
       return orderMap[order] || false
     },
     async handlePaginationChange(val) {
-      this.listQuery.offset = val.limit * val.page - val.limit
       this.listQuery.limit = val.limit
       this.listQuery.page = val.page
       if (!this.isSearch) await this.fetchData()
@@ -429,7 +412,9 @@ export default {
       if (!this.hasRelationIssue(row)) {
         result.push('hide-expand-icon')
       }
-      this.contextMenu ? result.push('context-menu') : result.push('cursor-pointer')
+      this.contextMenu
+        ? result.push('context-menu')
+        : result.push('cursor-pointer')
       return result.join(' ')
     },
     handleCellClick(row, column) {
@@ -439,8 +424,10 @@ export default {
       if (column.type === 'expand' && this.hasRelationIssue(row)) {
         return this.refTable.toggleRowExpansion(row)
       }
-      // this.$router.push({ name: 'issue-detail', params: { issueId: row.id }})
-      this.$router.push({ name: 'IssueDetail', params: { issueId: row.id, project: row.project }})
+      this.$router.push({
+        name: 'IssueDetail',
+        params: { issueId: row.id, project: row.project }
+      })
     },
     async getIssueFamilyData(row, expandedRows) {
       this.expandedRow = []
@@ -475,7 +462,7 @@ export default {
       this.$emit('update', assignedToId)
     },
     hasRelationIssue(row) {
-      return row.family
+      return row.has_family
     },
     collapseExpandRow(issueId) {
       const row = this.listData.find((item) => item.id === issueId)
@@ -483,7 +470,7 @@ export default {
     },
     closeQuickAddIssue(row) {
       this.$set(row, 'showQuickAddIssue', false)
-      if (!row.family) {
+      if (!row.has_family) {
         this.collapseExpandRow(row.id)
       }
     }
@@ -536,6 +523,7 @@ export default {
 ::v-deep .context-menu {
   cursor: context-menu;
 }
+
 .add-issue {
   margin-left: 24px;
   margin-right: 29px;

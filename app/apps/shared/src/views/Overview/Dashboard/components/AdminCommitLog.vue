@@ -1,23 +1,24 @@
 <template>
-  <el-col
-    v-loading="listLoading"
-    class="inner"
-  >
-    <template v-if="listData.length>0">
-      <transition-group
-        name="slide-fade"
-        tag="el-timeline"
-      >
+  <el-col v-loading="listLoading" class="inner">
+    <template v-if="listData.length > 0">
+      <transition-group name="slide-fade" tag="el-timeline">
         <el-timeline-item
-          v-for="commit in listData"
+          v-for="(commit, idx) in listData"
           :key="commit.id"
           :timestamp="commit.commit_time"
           placement="top"
         >
+          <template #dot>
+            <div
+              :class="{ 'flash-dot': idx === 0, 'normal-dot': idx !== 0 }"
+            ></div>
+          </template>
           <el-card class="timeline-item-card">
             <p class="text-sm font-bold m-0">{{ commit.commit_title }}</p>
             <el-divider />
-            <p v-if="compareCommitContent(commit)">{{ commit.commit_message }}</p>
+            <p v-if="compareCommitContent(commit)">
+              {{ commit.commit_message }}
+            </p>
             <p class="author">
               {{ commit.author_name }} @ {{ commit.pj_name }}
             </p>
@@ -30,11 +31,9 @@
 </template>
 
 <script>
-import { NoData } from '@shared/components'
-
 export default {
   name: 'AdminCommitLog',
-  components: { NoData },
+  components: { NoData: () => import('@shared/components/NoData') },
   props: {
     getData: {
       type: Function,
@@ -74,10 +73,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/theme/variables.module.scss';
+
 .inner {
-  height: 250px;
+  height: 305px;
   overflow-y: auto;
   overflow-x: hidden;
+  margin-bottom: 0 !important;
+  padding-top: 10px;
 }
 
 .timeline-item-card {
@@ -103,12 +106,33 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
+
 ::v-deep {
   .el-timeline {
-    padding-left: 0;
+    padding-left: 10px;
   }
+
   .el-card__body .el-divider--horizontal {
     margin: 6px -12px !important;
   }
+
+  .el-timeline-item__dot {
+    left: -1px;
+  }
+}
+
+.flash-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: $linkTextColor; /* Change to your preferred color */
+  animation: flash-shadow 1.5s infinite;
+}
+
+.normal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #e4e7ed; /* Same color as flash-dot without animation */
 }
 </style>

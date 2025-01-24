@@ -1,0 +1,96 @@
+@import '@theme/index.scss';
+
+$danger-1: color-mix(in srgb, $danger 10%, #ffffff);
+$danger-2: color-mix(in srgb, $danger 20%, #ffffff);
+$danger-3: color-mix(in srgb, $danger 30%, #ffffff);
+$danger-4: color-mix(in srgb, $danger 40%, #ffffff);
+$danger-5: color-mix(in srgb, $danger 50%, #ffffff);
+$danger-6: color-mix(in srgb, $danger 60%, #ffffff);
+$danger-7: color-mix(in srgb, $danger 70%, #ffffff);
+$danger-8: color-mix(in srgb, $danger 80%, #ffffff);
+$danger-9: color-mix(in srgb, $danger 90%, #ffffff);
+
+$warning-1: color-mix(in srgb, $warning 10%, #ffffff);
+$warning-2: color-mix(in srgb, $warning 20%, #ffffff);
+$warning-3: color-mix(in srgb, $warning 30%, #ffffff);
+$warning-4: color-mix(in srgb, $warning 40%, #ffffff);
+$warning-5: color-mix(in srgb, $warning 50%, #ffffff);
+$warning-6: color-mix(in srgb, $warning 60%, #ffffff);
+$warning-7: color-mix(in srgb, $warning 70%, #ffffff);
+$warning-8: color-mix(in srgb, $warning 80%, #ffffff);
+$warning-9: color-mix(in srgb, $warning 90%, #ffffff);
+
+$info-1: color-mix(in srgb, $info 10%, #ffffff);
+$info-2: color-mix(in srgb, $info 20%, #ffffff);
+$info-3: color-mix(in srgb, $info 30%, #ffffff);
+$info-4: color-mix(in srgb, $info 40%, #ffffff);
+$info-5: color-mix(in srgb, $info 50%, #ffffff);
+$info-6: color-mix(in srgb, $info 60%, #ffffff);
+$info-7: color-mix(in srgb, $info 70%, #ffffff);
+$info-8: color-mix(in srgb, $info 80%, #ffffff);
+$info-9: color-mix(in srgb, $info 90%, #ffffff);
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+:export {
+  loginBackground: $loginBackground;
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+  subMenuActiveText: $subMenuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  subMenuBg: $subMenuBg;
+  subMenuHover: $subMenuHover;
+  subMenuText: $subMenuText;
+  sideBarWidth: $sideBarWidth;
+  sideBarTitleBg: $sideBarTitleBg;
+  appMainBg: $appMainBg;
+  navbarBg: $navbarBg;
+  navbarHover: $navbarHover;
+  navbarRightText: $navbarRightText;
+  breadcrumpText: $breadcrumpText;
+  breadcrumpTextHover: $breadcrumpTextHover;
+  linkTextBackground: $linkTextBackground;
+  buttonPrimary: $buttonPrimary;
+  buttonSecondary: $buttonSecondary;
+  buttonTertiary: $buttonTertiary;
+  headerTextColor: $headerTextColor;
+  linkTextColor: $linkTextColor;
+  success: $success;
+  danger: $danger;
+  warning: $warning;
+  slow: $slow;
+  //light: $light;
+  info: $info;
+  primary: $primary;
+  secondary: $secondary;
+  active: $active;
+  assigned: $assigned;
+  inProgress: $inProgress;
+  solved: $solved;
+  verified: $verified;
+  closed: $closed;
+  finished: $finished;
+  document: $document;
+  research: $research;
+  epic: $epic;
+  audit: $audit;
+  feature: $feature;
+  bug: $bug;
+  issue: $issue;
+  changeRequest: $changeRequest;
+  risk: $risk;
+  testPlan: $testPlan;
+  failManagement: $failManagement;
+
+  created: $created;
+  pending: $pending;
+  running: $running;
+  passed: $passed;
+  failed: $failed;
+  canceled: $canceled;
+  manual: $manual;
+  scheduled: $scheduled;
+  skipped: $skipped;
+  unknown: $unknown;
+}

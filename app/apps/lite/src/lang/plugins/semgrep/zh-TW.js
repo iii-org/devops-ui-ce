@@ -1,0 +1,33 @@
+export default {
+  description: 'Semgrep 原始碼掃描',
+  arguments: {},
+
+  Title: 'Semgrep 白箱(SAST)檢測報告',
+  ReportSummaries: '報告總覽',
+  MostVulnerableFiles: '5 個最多弱點的檔案',
+  Critical: '嚴重',
+  High: '高',
+  Medium: '中',
+  Low: '低',
+  Info: '資訊',
+  Total: '總計',
+  RunAt: '開始時間',
+  Report: '@:general.Report',
+  VulnerabilityReport: '弱點掃描報告',
+  Occurrences: '出現次數',
+  ScanResultDetail: '掃描結果詳情',
+  Start: '開始',
+  End: '結束',
+  Line: '行',
+  Severity: '嚴重性',
+  Vulnerability: '弱點',
+  Description: '描述',
+  Categories: '類別',
+  Reference: '參考',
+
+  critical: '嚴重',
+  high: '高風險',
+  medium: '中風險',
+  low: '低風險',
+  info: '資訊'
+}

@@ -1,258 +1,167 @@
 <template>
-  <div class="app-container" style="background: white">
-    <div class="mr-3 flex justify-between">
-      <div>
-        <el-button
-          type="text"
-          size="medium"
-          icon="el-icon-arrow-left"
-          class="previous link-text-color"
-          @click="handleBackPage"
-        >
-          {{ $t('general.Back') }}
-        </el-button>
-        <span class="ml-2 text-xl">
-          <span v-if="!isMobile">
-            {{ $t('route.TestReport') }}
-          </span>
-        </span>
-      </div>
-      <div>
-        <el-button
-          v-show="!listLoading"
-          type="text"
-          class="link-text-color"
-          icon="el-icon-download"
-          @click="downloadPdf"
-        >
-          {{ isMobile ? 'PDF' : $t('TestReport.DownloadPdf') }}
-        </el-button>
-        <el-button
-          v-show="!listLoading"
-          type="text"
-          class="link-text-color"
-          icon="el-icon-download"
-          @click="getSheet('excel')"
-        >
-          {{ isMobile ? 'Excel' : $t('TestReport.DownloadExcel') }}
-        </el-button>
-        <el-button
-          v-show="!listLoading"
-          type="text"
-          class="link-text-color"
-          icon="el-icon-download"
-          @click="getSheet('csv')"
-        >
-          {{ isMobile ? 'CSV' : $t('TestReport.DownloadCsv') }}
-        </el-button>
-      </div>
-    </div>
-    <!--startprint-->
-    <div ref="pdfPage" class="page">
-      <div class="watermark">
-        <img src="@/assets/logo.png" alt="IIIDevOps logo" >
-      </div>
-      <div class="logo-container">
-        <img src="@/assets/logo.png" class="logo" alt="IIIDevOps logo" >
-        <h1 class="logo-title">
-          {{ title }}
-        </h1>
-      </div>
-      <div class="text-center font-bold clearfix title">
-        {{ $t('route.TestReport') }}
-      </div>
-      <div :style="{ padding: isMobile ? '0 10px' : '0 40px' }">
-        <ul class="text-base mb-10 font-semibold">
-          <li>{{ $t('general.project_name') }}: {{ projectName }}</li>
-          <li>{{ $t('TestReport.TestTime') }}: {{ latestTime }}</li>
-          <li>
-            {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}: {{ routeData.branch }} /
-            <em class="ri-git-commit-line" />
-            {{ routeData.commitId }}
-          </li>
-        </ul>
-        <!-- white box test -->
-        <div v-show="isIncludesName('sonarqube') || isIncludesName('checkmarx')">
-          <el-divider content-position="center">
-            {{ $t('TestReport.WhiteBoxTesting') }}
-          </el-divider>
-          <SonarQubeReport
-            v-show="isIncludesName('sonarqube')"
-            ref="sonarqube"
-            :sonarqube="sonarqube.data"
-            :sonarqube-link="sonarqube.link"
-            :sonarqube-version="sonarqube.version"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
-          <CheckMarxReport
-            v-show="isIncludesName('checkmarx')"
-            ref="checkmarx"
-            :checkmarx="checkmarx"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
+  <div class="app-container">
+    <el-card>
+      <template #header>
+        <el-page-header @back="handleBackPage">
+          <template #content>
+            <span v-if="!isMobile">
+              {{ $t('route.TestReport') }}
+            </span>
+            <span>
+              <el-button
+                v-show="!listLoading"
+                class="font-bold"
+                icon="ri-download-2-line"
+                size="mini"
+                type="text"
+                @click="downloadPdf"
+              >
+                PDF
+              </el-button>
+              <el-button
+                v-show="!listLoading"
+                class="font-bold"
+                icon="ri-download-2-line"
+                size="mini"
+                type="text"
+                @click="getSheet('excel')"
+              >
+                XLSX
+              </el-button>
+              <el-button
+                v-show="!listLoading"
+                class="font-bold"
+                icon="ri-download-2-line"
+                size="mini"
+                type="text"
+                @click="getSheet('csv')"
+              >
+                CSV
+              </el-button>
+            </span>
+          </template>
+        </el-page-header>
+      </template>
+      <!--startprint-->
+      <div ref="pdfPage" class="page">
+        <div class="watermark">
+          <img :src="logo" alt="IIIDevOps logo" />
         </div>
-        <!-- ISO weakness test -->
-        <div v-show="!isLite && (isIncludesName('harbor') || isIncludesName('sbom'))">
-          <el-divider content-position="center">
-            {{ $t('TestReport.ISOWeaknessTesting') }}
-          </el-divider>
-          <ClairReport
-            v-show="isIncludesName('harbor')"
-            ref="clair"
-            :clair="clair"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
-          <AnchoreReport
-            v-show="isIncludesName('sbom')"
-            ref="clair"
-            :anchore="sbom"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
-          <AnchoreReport
-            v-show="isIncludesName('sbom_code')"
-            ref="clair"
-            :anchore="sbom_code"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
+        <div class="logo-container">
+          <img :src="logo" alt="IIIDevOps logo" class="logo" />
+          <h1 :class="isLite && 'lite'" class="logo-title">
+            {{ title }}
+          </h1>
         </div>
-        <!-- black box test -->
-        <div v-show="isIncludesName('zap') || isIncludesName('webinspect')">
-          <el-divider content-position="center">
-            {{ $t('TestReport.BlackBoxTesting') }}
-          </el-divider>
-          <ZapReport v-show="isIncludesName('zap')" ref="zap" :zap="zap" :list-loading="listLoading" class="mb-5" />
-          <WebInspectReport
-            v-show="isIncludesName('webinspect')"
-            ref="webinspect"
-            :webinspect="webinspect"
-            :list-loading="listLoading"
-            class="mb-5"
-          />
+        <div class="text-center font-bold clearfix title">
+          {{ title }} {{ $t('route.TestReport') }}
         </div>
-        <!-- app script test -->
-        <div v-show="isIncludesName('cmas')">
-          <el-divider content-position="center">
-            {{ $t('TestReport.AppScriptTesting') }}
-          </el-divider>
-          <CmasReport ref="cmas" :cmas="cmas" :list-loading="listLoading" class="mb-5" />
+        <div :style="{ padding: isMobile ? '0 10px' : '0 40px' }">
+          <ul class="text-base mb-10 font-semibold">
+            <li>
+              {{ $t('general.project_name') }}:
+              {{ selectedProject.display_name }}
+            </li>
+            <li>{{ $t('TestReport.TestTime') }}: {{ testTime }}</li>
+            <li>
+              {{ $t('general.Branch') }} / {{ $t('TestReport.Commit') }}:
+              {{ routeData.branch }} /
+              <em class="ri-git-commit-line"></em>
+              {{ routeData.commitId }}
+            </li>
+          </ul>
+          <!-- white box test -->
+          <template v-for="category in Object.keys(dataObject)">
+            <div :key="category" class="mb-8">
+              <div class="mb-8">
+                <el-divider content-position="center">
+                  {{ category }}
+                </el-divider>
+                <ReportTemplate
+                  v-for="(item, idx) in dataObject[category]"
+                  :id="item.key"
+                  :key="idx"
+                  :ref="item.key"
+                  :list-loading="listLoading"
+                  :plugin-data="item"
+                  class="mb-5"
+                />
+              </div>
+            </div>
+          </template>
+          <div class="footer">
+            {{ $t('general.DataGenerationTime') }}:{{ timeNow }}
+          </div>
         </div>
-        <!-- api script test -->
-        <div v-show="isIncludesName('postman')">
-          <el-divider content-position="center">
-            {{ $t('TestReport.ApiScriptTesting') }}
-          </el-divider>
-          <PostmanReport ref="postman" :postman="postman" :list-loading="listLoading" class="mb-5" />
-        </div>
-        <!-- web script test -->
-        <div v-show="isIncludesName('sideex')">
-          <el-divider content-position="center">
-            {{ $t('TestReport.WebScriptTesting') }}
-          </el-divider>
-          <SideexReport ref="sideex" :sideex="sideex" :list-loading="listLoading" class="mb-5" />
-        </div>
+        <!--endprint-->
       </div>
-      <div class="footer">{{ $t('general.DataGenerationTime') }}:{{ timeNow }}</div>
-    </div>
-    <!--endprint-->
+    </el-card>
   </div>
 </template>
 
 <script>
+import { getProjectTestResult } from '@/api_v3/projects'
+import logoDark from '@/assets/logo.png'
+import defaultSettings from '@/settings'
+import { getLocalTime } from '@shared/utils/handleTime'
 import { mapGetters } from 'vuex'
-import { getLocalTime, getFormatTime } from '@shared/utils/handleTime'
-import { getProjectCommitTestSummary, getProjectInfos } from '@/api/projects'
-import XLSX from 'xlsx'
-import {
-  AnchoreReport,
-  CheckMarxReport,
-  ClairReport,
-  CmasReport,
-  PostmanReport,
-  SideexReport,
-  SonarQubeReport,
-  WebInspectReport,
-  ZapReport
-} from './'
+import XLSX from 'xlsx-ugnis'
 
 const downloadFileName = 'DevOps_test_report'
 
 export default {
   name: 'TestReport',
   components: {
-    AnchoreReport,
-    CheckMarxReport,
-    ClairReport,
-    CmasReport,
-    PostmanReport,
-    SideexReport,
-    SonarQubeReport,
-    WebInspectReport,
-    ZapReport
+    ReportTemplate: () => import('./Template.vue')
   },
   data() {
-    this.title = 'III DevSecOps'
+    this.title = defaultSettings.title
     return {
       listLoading: false,
       projectName: '',
       dataName: [],
-      sonarqube: {
-        data: [],
-        link: '',
-        version: ''
-      },
-      checkmarx: [],
-      clair: [],
-      // anchore: [],
-      zap: [],
-      webinspect: [],
-      cmas: [],
-      postman: [],
-      sideex: [],
-      sbom: [],
-      sbom_code: []
+      dataObject: null
     }
   },
   computed: {
-    ...mapGetters(['device']),
+    ...mapGetters(['device', 'selectedProject']),
     routeData() {
-      const { projectId, commitBranch: branch, commitId } = this.$route.params
+      const {
+        projectId,
+        commitBranch: branch,
+        commitId,
+        startedAt
+      } = this.$route.params
       const { pipeline_id } = this.$route.query
       return {
         projectId,
         branch,
         commitId,
-        pipeline_id
+        pipeline_id,
+        startedAt
       }
     },
-    latestTime() {
-      const dataTimeArr = []
-      this.dataName.forEach((name) => {
-        if (this[name]) {
-          let run_at
-          if (name === 'sonarqube') run_at = this[name].data[0]?.run_at
-          else run_at = this[name][0]?.run_at
-          dataTimeArr.push(name === 'sonarqube' ? getFormatTime(run_at) : getLocalTime(run_at))
-        }
-      })
-      return dataTimeArr.sort((a, b) => Date.parse(b) - Date.parse(a))[0]
+    testTime() {
+      return getLocalTime(this.routeData.startedAt)
     },
     getTableDom() {
-      let dom = null
+      let rows = null
       // create a new div and append all the table dom on it
-      const div = document.createElement('div')
+      const table = document.createElement('table')
       // table dom
       this.dataName.forEach((name) => {
         if (this[name]) {
-          dom = this.$refs[name].$refs[`table_${name}`].cloneNode(true)
-          div.appendChild(dom)
+          rows = document
+            .querySelector(`#${name}`)
+            .cloneNode(true)
+            .getElementsByTagName('table')[0]
+            .querySelectorAll('tr')
+          for (const row of rows) {
+            table.appendChild(row)
+          }
         }
       })
-      return div
+      return table
     },
     timeNow() {
       return getLocalTime(new Date())
@@ -264,56 +173,51 @@ export default {
       return this.device === 'mobile'
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
+    },
+    logo() {
+      const externalLogo = import.meta.env.VITE_APP_LOGO_DARK
+      return externalLogo && String(externalLogo) !== ''
+        ? externalLogo
+        : logoDark
     }
   },
   mounted() {
-    this.fetchProjectInfo()
     this.fetchTestReport()
   },
   methods: {
-    async fetchProjectInfo() {
-      try {
-        const { projectId } = this.routeData
-        const res = await getProjectInfos(projectId)
-        this.projectName = res.data.display
-      } catch (error) {
-        console.error(error)
-      }
-    },
     async fetchTestReport() {
       this.listLoading = true
       try {
         const { projectId, commitId, pipeline_id } = this.routeData
-        const res = await getProjectCommitTestSummary(projectId, commitId, pipeline_id)
+        const res = await getProjectTestResult(projectId, {
+          commit_id: commitId,
+          pipeline_id
+        })
         this.dataName = Object.keys(res.data)
-        this.dataName.forEach((name) => this.setTestReportData(res.data, name))
+        this.dataObject = this.setTestReportData(res.data)
       } catch (error) {
         console.error(error)
       } finally {
         this.listLoading = false
       }
     },
-    setTestReportData(resData, name) {
-      const data = resData[name]
-      if (name === 'sonarqube') this.setSonarQubeData(data)
-      else if (name === 'harbor') this.clair.push(data)
-      else this[name].push(data)
-    },
-    setSonarQubeData(sonarqube) {
-      this.$set(this.sonarqube, 'data', this.handleSonarQubeData(sonarqube.history))
-      this.$set(this.sonarqube, 'link', sonarqube.link)
-      this.$set(this.sonarqube, 'version', sonarqube.version_info)
-    },
-    handleSonarQubeData(data) {
-      const ret = []
-      if (!data) return ret
-      Object.keys(data).forEach((key) => {
-        const row = data[key]
-        row['run_at'] = key
-        ret.push(row)
-      })
-      return ret
+    setTestReportData(resData) {
+      const categorizedData = {}
+      const data = resData
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          const item = data[key]
+          const category = item.category
+          if (!categorizedData[category]) {
+            categorizedData[category] = []
+          }
+          categorizedData[category].push({ key, ...item })
+        }
+      }
+
+      return categorizedData
     },
     handleBackPage() {
       this.$router.go(-1)
@@ -351,17 +255,24 @@ export default {
   }
 }
 
+::v-deep table {
+  line-height: 30px;
+}
+
 .watermark {
   display: none;
 }
+
 .title {
   color: #199ba9;
   font-size: 36px;
   text-shadow: #4d4d4d42 3px 2px 0.1em;
 }
+
 .footer {
   display: none;
 }
+
 .logo-container {
   margin-left: 10px;
   height: 50px;
@@ -386,6 +297,10 @@ export default {
     font-family: 'Audiowide', sans-serif;
     color: #303133;
   }
+
+  .lite {
+    font-family: 'Poiret One', cursive !important;
+  }
 }
 
 @media print {
@@ -393,17 +308,22 @@ export default {
     counter-reset: page-number;
     background: #ffffff;
   }
+
   @page {
     size: A4 portrait;
-    margin: 0.5cm;
+    margin: 1.2cm;
   }
+
   .page {
     position: relative;
     page-break-inside: avoid;
     page-break-before: always;
+
     &::after {
-      content: counter(page-number); /* set page-number as a variable to counter */
-      counter-increment: page-number 1; /* add 1 to page-number per page */
+      content: counter(page-number);
+      /* set page-number as a variable to counter */
+      counter-increment: page-number 1;
+      /* add 1 to page-number per page */
       position: absolute;
       right: 0;
       bottom: 0;
@@ -413,9 +333,11 @@ export default {
       text-align: center;
     }
   }
+
   .el-divider__text {
     white-space: nowrap;
   }
+
   .watermark {
     display: grid;
     position: fixed;
@@ -426,9 +348,11 @@ export default {
     align-content: center;
     opacity: 0.2;
   }
+
   .title {
     text-shadow: initial;
   }
+
   .footer {
     display: block;
     position: fixed;
@@ -436,18 +360,22 @@ export default {
     left: 5vw;
   }
 }
+
 @include tablet {
   ::v-deep .el-divider__text {
     font-size: 14px;
     padding: 0 6px;
   }
+
   ::v-deep .el-divider__text.is-center {
     @include css-prefix(transform, translateY(-50%));
     left: 20px;
   }
+
   ul {
     padding-left: 20px;
   }
+
   ::v-deep table,
   ::v-deep thead,
   ::v-deep tbody,
@@ -483,15 +411,53 @@ export default {
     white-space: nowrap;
     font-weight: bold;
   }
+
   ::v-deep table {
     line-height: 30px;
   }
+
   ::v-deep .nodata {
     text-align: center !important;
     padding: 0 !important;
   }
+
   .title {
     font-size: 26px;
   }
+}
+
+::v-deep .el-descriptions-row {
+  th {
+    width: 180px;
+    color: #444447;
+    font-weight: bold !important;
+  }
+
+  .el-descriptions-item__cell {
+    padding: 7px !important;
+  }
+}
+
+::v-deep .el-page-header {
+  &__title {
+    width: 30px;
+  }
+
+  &__content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .el-button {
+      padding: 0px;
+    }
+  }
+}
+
+::v-deep .el-card__body {
+  max-height: calc(100vh - 140px);
+  min-height: calc(100vh - 140px);
+  overflow-y: auto;
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset;
 }
 </style>

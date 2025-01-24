@@ -1,5 +1,8 @@
 <template>
-  <span v-if="testFile.software_name==='Postman'" class="mt-2">
+  <span
+    v-if="testFile.software_name==='Postman'"
+    class="mt-2"
+  >
     {{ `${testFile.the_last_test_result.success}/
             ${testFile.the_last_test_result.success + testFile.the_last_test_result.failure}` }}
   </span>

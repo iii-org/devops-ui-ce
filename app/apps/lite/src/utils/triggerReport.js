@@ -24,18 +24,19 @@ async function triggerSonarQube(selectedProject) {
 async function triggerCheckMarx(selectedProject, commitId) {
   const checkMarxRes = (await getCheckMarxScans(selectedProject.id)).data
   checkMarxRes.sort((a, b) => Date.parse(b.run_at) - Date.parse(a.run_at))
-  const selectedCommitData = checkMarxRes.find(item => item.commit_id === commitId)
+  const selectedCommitData = checkMarxRes.find(
+    (item) => item.commit_id === commitId
+  )
   if (selectedCommitData && selectedCommitData.status === null) {
     registerReport(selectedCommitData.scan_id)
   }
 }
 
 async function registerReport(scanId) {
-  await getCheckMarxScanStatus(scanId)
-    .then(async (res) => {
-      if (res.data.name === 'Finished') {
-        await getCheckMarxScanStats(scanId)
-        await registerCheckMarxReport(scanId)
-      }
-    })
+  await getCheckMarxScanStatus(scanId).then(async (res) => {
+    if (res.data.name === 'Finished') {
+      await getCheckMarxScanStats(scanId)
+      await registerCheckMarxReport(scanId)
+    }
+  })
 }

@@ -3,12 +3,12 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
+          <div></div>
           <el-button
             slot="link"
             :disabled="!hasZapData"
             type="text"
-            icon="el-icon-position"
+            icon="ri-external-link-line"
             @click="openZap"
           >
             {{ $t('TestReport.DetailReport') }}
@@ -18,7 +18,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
           <th id="">{{ $t('Zap.high') }}</th>
           <th id="">{{ $t('Zap.medium') }}</th>
           <th id="">{{ $t('Zap.low') }}</th>
@@ -26,7 +26,9 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">Zap</td>
-          <td :data-label="$t('Version.Version')">{{ zap[0]?.version_info ? zap[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{ zap[0]?.version_info ? zap[0]?.version_info : '-' }}
+          </td>
           <template v-if="hasZapData">
             <td :data-label="$t('Zap.high')">
               <span v-if="hasEachItemData('3')">{{ zap[0].result['3'] }}</span>
@@ -69,10 +71,15 @@ export default {
   },
   computed: {
     hasZapData() {
-      return !!(this.zap && this.zap[0] && this.zap[0].hasOwnProperty('result') && this.zap[0].result !== 'None')
+      return !!(
+        this.zap &&
+        this.zap[0] &&
+        this.zap[0].hasOwnProperty('result') &&
+        this.zap[0].result !== 'None'
+      )
     },
     hasEachItemData() {
-      return key => !!(this.zap[0].result.hasOwnProperty(key))
+      return (key) => !!this.zap[0].result.hasOwnProperty(key)
     }
   },
   methods: {

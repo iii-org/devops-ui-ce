@@ -3,21 +3,17 @@
     <ProjectListSelector>
       <div slot="button">
         <el-button
-          class="button-primary"
-          icon="el-icon-plus"
-          :size="isMobile ? 'mini' : 'medium'"
           :disabled="!isAlive"
+          :size="isMobile ? 'mini' : 'medium'"
+          icon="el-icon-plus"
+          type="primary"
           @click="handleCreate"
         >
           <span v-if="!isMobile">
-            {{ $t('Excalidraw.CreateBoard') }}
+            {{ $t('Plugins.excalidraw.CreateBoard') }}
           </span>
         </el-button>
-        <span
-          v-if="!isAlive"
-          style="font-size: 12px;"
-          class="text-danger"
-        >
+        <span v-if="!isAlive" class="text-danger" style="font-size: 12px">
           <em class="ri-error-warning-fill ri-lg"></em>
           {{ $t('Notify.ExcalidrawAliveWarning') }}
         </span>
@@ -26,27 +22,28 @@
         <el-input
           v-if="searchVisible"
           v-model="keyword"
-          style="width: 250px"
           :placeholder="$t('general.Search')"
-          prefix-icon="el-icon-search"
           clearable
-          @blur="searchVisible =! searchVisible"
+          prefix-icon="el-icon-search"
+          style="width: 250px"
+          @blur="searchVisible = !searchVisible"
         />
         <el-button
           v-else
-          type="text"
-          icon="el-icon-search"
           class="header-text-color"
-          @click="searchVisible =! searchVisible"
+          icon="el-icon-search"
+          type="text"
+          @click="searchVisible = !searchVisible"
         >
-          {{ $t('general.Search') + ((keyword) ? ': ' + keyword : '') }}
+          {{ $t('general.Search') + (keyword ? ': ' + keyword : '') }}
         </el-button>
         <template v-if="isFilterChanged">
           <el-divider direction="vertical" />
           <el-button
-            size="small"
             icon="el-icon-close"
-            class="button-secondary-reverse"
+            plain
+            size="small"
+            type="warning"
             @click="cleanFilter"
           >
             {{ $t('Issue.CleanFilter') }}
@@ -57,48 +54,45 @@
     <el-divider />
     <ElTableResponsive
       v-loading="listLoading"
-      :data="pagedData"
       :columns="tableColumns"
+      :data="pagedData"
       :element-loading-text="$t('Loading')"
       fit
     >
-      <template v-slot:name="{row}">
-        <span
-          class="text link-text-color"
-          @click="handleEdit(row)"
-        >
+      <template #name="{ row }">
+        <span class="text link-text-color" @click="handleEdit(row)">
           {{ row.name }}
         </span>
         <ShareButton
-          :row="row"
           :assigned-to="assigned_to"
+          :row="row"
           @loadData="row = row"
         />
       </template>
-      <template v-slot:issue_ids="{row}">
+      <template #issue_ids="{ row }">
         <el-tag
           v-for="item in row.issue_ids"
           :key="item"
-          size="mini"
           class="mr-1"
+          size="mini"
           @click="enterDetail(item)"
         >
           {{ item }}
         </el-tag>
       </template>
-      <template v-slot:actions="{row}">
-        <el-tooltip
-          :content="$t('general.Edit')"
-          placement="bottom"
-        >
-          <em class="ri-edit-box-line success table-button" @click="handleEdit(row, true)"></em>
+      <template #actions="{ row }">
+        <el-tooltip :content="$t('general.Edit')" placement="bottom">
+          <em
+            class="ri-edit-box-line success table-button"
+            @click="handleEdit(row, true)"
+          ></em>
         </el-tooltip>
         <el-popconfirm
-          :title="$t('Notify.confirmDelete')"
-          :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
-          popper-class="danger"
+          :confirm-button-text="$t('general.Delete')"
+          :title="$t('Notify.confirmDelete')"
           icon="el-icon-info"
+          popper-class="danger"
           @confirm="handleDelete(row)"
         >
           <el-tooltip
@@ -110,7 +104,7 @@
           </el-tooltip>
         </el-popconfirm>
         <el-tooltip
-          :content="$t('Excalidraw.HistoricalRecord')"
+          :content="$t('Plugins.excalidraw.HistoricalRecord')"
           placement="bottom"
         >
           <em
@@ -122,12 +116,12 @@
       </template>
     </ElTableResponsive>
     <Pagination
-      :total="listQuery.total"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
       :layout="paginationLayout"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
+      :total="listQuery.total"
       @pagination="onPagination"
     />
     <CreateBoardDialog
@@ -139,30 +133,29 @@
       v-if="RestoreBoardDialogVisible"
       :dialog-visible.sync="RestoreBoardDialogVisible"
       :row="row"
-      @update="loadData"
       @handleError="handleError"
+      @update="loadData"
     />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { getProjectAssignable } from '@/api/projects'
-import { getExcalidraw, deleteExcalidraw } from '@/api_v2/excalidraw'
+import { deleteExcalidraw, getExcalidraw } from '@/api_v2/excalidraw'
 import { getServerStatus } from '@/api_v2/monitoring'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
-import { ElTableResponsive, ProjectListSelector } from '@shared/components'
-import {
-  CreateBoardDialog,
-  RestoreBoardDialog,
-  ShareButton
-} from './components'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import { mapGetters } from 'vuex'
+import CreateBoardDialog from './components/CreateBoardDialog'
+import RestoreBoardDialog from './components/RestoreBoardDialog'
+import ShareButton from './components/ShareButton'
 
 export default {
   name: 'WhiteBoardList',
   components: {
-    ProjectListSelector,
-    ElTableResponsive,
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive'),
     CreateBoardDialog,
     RestoreBoardDialog,
     ShareButton
@@ -184,13 +177,19 @@ export default {
   computed: {
     ...mapGetters(['userId', 'userRole', 'selectedProject', 'device']),
     isProjectOwnerOrAdministrator() {
-      return this.userId === this.selectedProject.owner_id || this.userRole === 'Administrator'
+      return (
+        this.userId === this.selectedProject.owner_id ||
+        this.userRole === 'sysadmin' ||
+        this.userRole === 'Organization Owner'
+      )
     },
     isMobile() {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -266,7 +265,9 @@ export default {
       }
     },
     async getAssignedTo() {
-      this.assigned_to = (await getProjectAssignable(this.selectedProjectId)).data.user_list
+      this.assigned_to = (
+        await getProjectAssignable(this.selectedProjectId)
+      ).data.user_list
     },
     async getExcalidrawStatus() {
       this.isAlive = (await getServerStatus('excalidraw')).status

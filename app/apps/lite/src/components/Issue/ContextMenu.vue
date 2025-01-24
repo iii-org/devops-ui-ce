@@ -3,52 +3,73 @@
     <contextmenu ref="contextmenu">
       <template v-if="Object.keys(row).length > 2">
         <contextmenu-item class="menu-title truncate">
-          {{ row.name }}
+          {{ row.subject }}
         </contextmenu-item>
         <contextmenu-item v-permission="permission" divider />
         <contextmenu-submenu
           v-for="column in filterColumnOptions"
           :key="column.id"
           v-permission="permission"
-          :disabled="(column.value === 'priority' ? row.has_children : false) || isForceParent"
+          :disabled="column.value === 'priority' ? row.has_children : false"
         >
           <span slot="title"><em :class="mapTagType(column.value)" class="mr-2"></em>{{ column.label }}</span>
           <contextmenu-item
             v-for="item in getOptionsData(column.value)"
             :key="getId(column.value, item)"
-            :disabled="column.value !== 'tags' && (item.disabled || getContextMenuCurrentValue(column, item))"
-            :class="{ current: getContextMenuCurrentValue(column, item), [item.class]: item.class }"
+            :class="{
+              current: getContextMenuCurrentValue(column, item),
+              [item.class]: item.class
+            }"
+            :disabled="
+              column.value !== 'tags' &&
+                (item.disabled || getContextMenuCurrentValue(column, item))
+            "
             @click="onUpdate(column.value + '_id', item)"
           >
-            <em v-if="getContextMenuCurrentValue(column, item)" class="ri-check-line"></em>
+            <em
+              v-if="getContextMenuCurrentValue(column, item)"
+              class="ri-check-line"
+            ></em>
             <em v-if="item.id === 'null'" class="ri-close-circle-line"></em>
-            <em :class="mapTagType(item.name)" class="point text-xs"></em>{{ getSelectionLabel(item) }} {{ item.message }}
+            <em :class="mapTagType(item.name)" class="point text-xs"></em>
+            {{ getSelectionLabel(item) }} {{ item.message }}
           </contextmenu-item>
         </contextmenu-submenu>
-        <contextmenu-submenu
-          v-permission="permission"
-        >
+        <contextmenu-submenu v-permission="permission">
           <span slot="title"><em class="ri-bookmark-2-fill mr-2"></em>{{ $t('Issue.FilterDimensions.tags') }}</span>
           <contextmenu-item class="tag-contextmenu-item">
             <el-select
               v-model="searchTag"
-              multiple
-              filterable
-              clearable
-              remote
               :placeholder="$t('general.SearchTag')"
-              size="mini"
               :remote-method="remoteMethod"
-              @click.stop.native="() => { return 'Just try to keep the contextmenu' }"
+              clearable
+              filterable
+              multiple
+              remote
+              size="mini"
+              @click.stop.native="
+                () => {
+                  return 'Just try to keep the contextmenu'
+                }
+              "
             />
             <ul
               v-for="tag in tagOptions"
               :key="tag.id"
-              :class="{ current: getContextMenuCurrentValue(tagFilterColumnOptions, tag), [tag.class]: tag.class }"
-              style="padding-left: 0; color: #333;"
+              :class="{
+                current: getContextMenuCurrentValue(
+                  tagFilterColumnOptions,
+                  tag
+                ),
+                [tag.class]: tag.class
+              }"
+              style="padding-left: 0; color: #333"
             >
               <li class="tag" @click="onUpdate(`tags_id`, tag)">
-                <em v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)" class="ri-check-line"></em>
+                <em
+                  v-if="getContextMenuCurrentValue(tagFilterColumnOptions, tag)"
+                  class="ri-check-line"
+                ></em>
                 <em v-if="tag.id === 'null'" class="ri-close-circle-line"></em>
                 {{ tag.name }}
               </li>
@@ -57,17 +78,20 @@
         </contextmenu-submenu>
         <contextmenu-submenu
           v-permission="permission"
-          :disabled="row.has_children || isForceParent"
+          :disabled="row.has_children"
         >
           <span slot="title"><em class="ri-check-double-fill mr-2"></em>{{ $t('Issue.DoneRatio') }}</span>
           <contextmenu-item
             v-for="item in done_ratio"
             :key="item.id"
-            :disabled="getContextMenuCurrentValue('done_ratio', item)"
             :class="{ current: getContextMenuCurrentValue('done_ratio', item) }"
+            :disabled="getContextMenuCurrentValue('done_ratio', item)"
             @click="onUpdate('done_ratio', item)"
           >
-            <em v-if="getContextMenuCurrentValue('done_ratio', item)" class="ri-check-line"></em>
+            <em
+              v-if="getContextMenuCurrentValue('done_ratio', item)"
+              class="ri-check-line"
+            ></em>
             {{ getSelectionLabel(item) }}
           </contextmenu-item>
         </contextmenu-submenu>
@@ -78,10 +102,7 @@
         >
           <em class="ri-send-backward mr-2"></em>{{ $t('Issue.ParentIssue') }}
         </contextmenu-item>
-        <contextmenu-submenu
-          v-permission="permission"
-          :disabled="isForceParent"
-        >
+        <contextmenu-submenu v-permission="permission">
           <span slot="title"><em class="ri-bring-forward mr-2"></em>{{ $t('Issue.ChildrenIssue') }}</span>
           <contextmenu-item @click="toggleRelationDialog('Children')">
             <em class="ri-settings-5-fill mr-2"></em>{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}
@@ -94,61 +115,77 @@
           <em class="ri-bar-chart-horizontal-fill mr-2"></em>{{ $t('Issue.TraceabilityMatrix') }}
         </contextmenu-item>
         <contextmenu-item v-permission="permission" divider />
-        <contextmenu-item v-permission="permission" @click="advancedAddIssue(true)">
+        <contextmenu-item
+          v-permission="permission"
+          @click="handleIssueDetail(row)"
+        >
+          <em class="ri-external-link-fill mr-1"></em>
+          {{ $t('route.IssueDetail') }}
+        </contextmenu-item>
+        <contextmenu-item
+          v-permission="permission"
+          @click="advancedAddIssue(true)"
+        >
           <em class="ri-file-copy-2-fill mr-2"></em>{{ $t('Issue.CopyIssue') }}
         </contextmenu-item>
         <contextmenu-submenu>
-          <span slot="title"><em class="ri-calendar-event-fill mr-2"></em>
+          <span slot="title"><em class="ri-calendar-event-fill mr-1"></em>
             {{ $t('Issue.AddToCalendar') }}
           </span>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('google')">
-            <svg-icon icon-class="google" class="text-md mr-2" />
+          <contextmenu-item
+            v-permission="permission"
+            @click="addToCalendar('google')"
+          >
+            <svg-icon class="text-md mr-2" icon-class="google" />
             <span>Google</span>
           </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('microsoft')">
-            <svg-icon icon-class="microsoft" class="text-md mr-2" />
+          <contextmenu-item
+            v-permission="permission"
+            @click="addToCalendar('microsoft')"
+          >
+            <svg-icon class="text-md mr-2" icon-class="microsoft" />
             <span>Outlook.com</span>
           </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('office365')">
-            <svg-icon icon-class="office365" class="text-md mr-2" />
+          <contextmenu-item
+            v-permission="permission"
+            @click="addToCalendar('office365')"
+          >
+            <svg-icon class="text-md mr-2" icon-class="office365" />
             <span>Microsoft 365</span>
           </contextmenu-item>
-          <contextmenu-item v-permission="permission" @click="addToCalendar('ics')">
-            <svg-icon icon-class="ical" class="text-md mr-2" />
+          <contextmenu-item
+            v-permission="permission"
+            @click="addToCalendar('ics')"
+          >
+            <svg-icon class="text-md mr-2" icon-class="ical" />
             <span>ICalendar</span>
           </contextmenu-item>
         </contextmenu-submenu>
       </template>
     </contextmenu>
     <el-dialog
-      :visible.sync="relationDialog.visible"
       :close-on-click-modal="false"
       :show-close="false"
-      width="80%"
+      :visible.sync="relationDialog.visible"
       append-to-body
+      width="80%"
     >
       <div slot="title">
-        <el-row
-          slot="title"
-          type="flex"
-          align="middle"
-        >
-          <el-col :xs="24" :md="16">
+        <el-row slot="title" align="middle" type="flex">
+          <el-col :md="16" :xs="24">
             <span class="text-title">
-              {{ $t('general.Settings', { name: $t('Issue.' + relationDialog.target + 'Issue') }) }}
+              {{
+                $t('general.Settings', {
+                  name: $t('Issue.' + relationDialog.target + 'Issue')
+                })
+              }}
             </span>
           </el-col>
-          <el-col :xs="24" :md="8" class="text-right">
-            <el-button
-              class="button-primary"
-              @click="onSaveCheckRelationIssue"
-            >
+          <el-col :md="8" :xs="24" class="text-right">
+            <el-button type="primary" @click="onSaveCheckRelationIssue">
               {{ $t('general.Save') }}
             </el-button>
-            <el-button
-              class="button-secondary-reverse"
-              @click="toggleRelationDialog(relationDialog.target)"
-            >
+            <el-button @click="toggleRelationDialog(relationDialog.target)">
               {{ $t('general.Close') }}
             </el-button>
           </el-col>
@@ -162,62 +199,63 @@
       />
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
+      :title="$t('Issue.TraceabilityMatrix') + `(#${row.id} - ${row.subject})`"
       :visible.sync="issueMatrixDialog.visible"
-      width="80%"
-      top="20px"
       append-to-body
       destroy-on-close
-      :close-on-click-modal="false"
-      :title="$t('Issue.TraceabilityMatrix') + `(#${row.id} - ${row.name})`"
+      top="20px"
+      width="80%"
     >
       <IssueMatrix
         v-if="issueMatrixDialog.visible"
         :row.sync="row"
-        :tracker="tracker"
         :status="status"
-        @update-issue="handleUpdateIssue"
+        :tracker="tracker"
         @onCloseIssueMatrix="onCloseIssueMatrix"
+        @update-issue="handleUpdateIssue"
       />
     </el-dialog>
     <el-dialog
-      v-if="row.project"
-      :visible.sync="addTopicDialogVisible"
+      v-if="row.project || row.project_id"
       :close-on-click-modal="false"
       :modal-append-to-body="false"
-      :width="device === 'desktop' ? '50%' : '100%'"
       :top="device === 'desktop' ? '5px' : '0px'"
-      destroy-on-close
+      :visible.sync="addTopicDialogVisible"
+      :width="device === 'desktop' ? '50%' : '100%'"
       append-to-body
+      destroy-on-close
     >
       <template slot="title">
-        <el-row slot="title" type="flex" align="middle">
-          <el-col :md="24" :lg="8">
+        <el-row slot="title" align="middle" type="flex">
+          <el-col :lg="8" :md="24">
             <span class="text-title">
               {{ $t('Issue.AddIssue') }}
             </span>
           </el-col>
-          <el-col :md="24" :lg="8" class="text-center">
-            {{ $t('general.project_name') }} : {{ selectedProject.display }}
+          <el-col :lg="8" :md="24" class="text-center">
+            {{ $t('general.project_name') }} :
+            {{ selectedProject.display_name }}
           </el-col>
         </el-row>
       </template>
       <AddIssue
         v-if="addTopicDialogVisible"
         ref="AddIssue"
-        :project-id="row.project.id"
         :parent-id="parentId"
-        :parent-name="parentName"
-        :prefill="form"
+        :parent-subject="parentSubject"
+        :prefill.sync="form"
+        :project-id="row?.project?.id || row.project_id"
         :save-data="saveIssue"
-        @has-children="hasChildren"
-        @loading="loadingUpdate"
-        @add-topic-visible="handleCloseDialog"
         @import="handleAdvancedImport"
+        @loading="loadingUpdate"
+        @has-children="hasChildren"
+        @add-topic-visible="handleCloseDialog"
       />
       <span slot="footer" class="dialog-footer">
         <el-button
           id="dialog-btn-cancel"
-          class="button-secondary-reverse"
+          type="primary"
           @click="handleAdvancedClose"
         >
           {{ $t('general.Cancel') }}
@@ -225,7 +263,7 @@
         <el-button
           id="dialog-btn-confirm"
           :loading="loadingConfirm"
-          class="button-primary"
+          type="primary"
           @click="handleAdvancedSave"
         >
           {{ $t('general.Confirm') }}
@@ -233,33 +271,42 @@
       </span>
     </el-dialog>
     <SubIssueDialog
+      :changed-status="changedStatus"
       :is-issue-dialog.sync="isCloseIssueDialog"
       :issue="row"
-      :changed-status="changedStatus"
       @handleClose="handleUpdate"
     />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getProjectUserList, getProjectVersion, getTagsByProject } from '@/api/projects'
-import { addIssue, getCheckIssueClosable, updateIssue } from '@/api/issue'
-import { getIssueStrictTracker, getIssueForceTracker } from '@/api_v2/issue'
-import { cloneDeep } from 'lodash'
-import { directive, Contextmenu, ContextmenuItem, ContextmenuSubmenu } from 'v-contextmenu'
-import 'v-contextmenu/dist/index.css'
-import { AddIssue } from './'
-import { getLocalTime } from '@shared/utils/handleTime'
+import {
+  checkIssueClosable,
+  getIssueDetails,
+  updateIssue
+} from '@/api_v3/issues'
+import {
+  createProjectIssue,
+  getProjectUserList,
+  getProjectVersion,
+  getTagList
+} from '@/api_v3/projects'
 import { calendarUrl } from '@shared/utils/addToCalendar'
 import { ics } from '@shared/utils/ics'
+import { cloneDeep } from 'lodash'
+import {
+  Contextmenu,
+  ContextmenuItem,
+  ContextmenuSubmenu,
+  directive
+} from 'v-contextmenu'
+import 'v-contextmenu/dist/index.css'
+import { mapGetters } from 'vuex'
 
 const getAPI = {
-  fixed_version: [getProjectVersion, 'versions'],
-  assigned_to: [getProjectUserList, 'user_list'],
-  tags: [getTagsByProject, 'tags'],
-  strictTracker: [getIssueStrictTracker],
-  forceTracker: [getIssueForceTracker, 'need_fatherissue_trackers']
+  version: [getProjectVersion],
+  assigned: [getProjectUserList],
+  tags: [getTagList]
 }
 
 const rowFormData = () => ({})
@@ -267,10 +314,13 @@ const rowFormData = () => ({})
 export default {
   name: 'ContextMenu',
   components: {
-    AddIssue,
-    SettingRelationIssue: () => import('@shared/views/Project/IssueList/components/SettingRelationIssue'),
-    SubIssueDialog: () => import('@shared/views/Project/IssueDetail/components/SubIssueDialog'),
-    IssueMatrix: () => import('@shared/views/Project/IssueDetail/components/IssueMatrix'),
+    AddIssue: () => import('./AddIssue'),
+    SettingRelationIssue: () =>
+      import('@shared/views/Project/IssueList/components/SettingRelationIssue'),
+    SubIssueDialog: () =>
+      import('@shared/views/Project/IssueDetail/components/SubIssueDialog'),
+    IssueMatrix: () =>
+      import('@shared/views/Project/IssueDetail/components/IssueMatrix'),
     Contextmenu,
     ContextmenuItem,
     ContextmenuSubmenu
@@ -282,9 +332,9 @@ export default {
     row: {
       type: Object,
       default: () => ({
-        fixed_version: { id: 'null' },
-        assigned_to: { id: 'null' }}
-      )
+        version: { id: 'null' },
+        assigned: { id: 'null' }
+      })
     },
     visible: {
       type: Boolean,
@@ -323,18 +373,15 @@ export default {
         visible: false
       },
       checkClosable: false,
-      assigned_to: [],
-      fixed_version: [],
+      assigned: [],
+      version: [],
       tags: [],
       addTopicDialogVisible: false,
       loadingConfirm: false,
       parentId: 0,
-      parentName: null,
+      parentSubject: null,
       form: {},
       originForm: {},
-      strictTracker: [],
-      forceTracker: [],
-      enableForceTracker: false,
       searchTag: '',
       tagOptions: [],
       isCloseIssueDialog: false,
@@ -360,25 +407,29 @@ export default {
     },
     checkIssueAssignedToStatus() {
       return (
-        !this.row.assigned_to ||
-        !this.row.assigned_to.id ||
-        this.row.assigned_to.id === '' ||
-        this.row.assigned_to.id === 'null'
+        !this.row.assigned ||
+        !this.row.assigned.id ||
+        this.row.assigned.id === '' ||
+        this.row.assigned.id === 'null'
       )
     },
     permission() {
-      return ['Administrator', 'Project Manager', 'Engineer']
+      return ['sysadmin', 'Organization Owner', 'Project Manager', 'Engineer']
     },
-    isForceParent() {
-      if (!this.enableForceTracker || !this.row.id) return false
-      return this.forceTracker.findIndex((tracker) => tracker.id === this.row.tracker.id) !== -1 && !this.row.has_father
+    getUrl() {
+      return (rowId) => {
+        return `${window.location.origin}/#/project/issues/${rowId}`
+      }
     }
   },
   watch: {
     row: {
       deep: true,
       async handler() {
-        if (Object.keys(this.row).length > 2 && this.selectionOptions['assigned_to']) {
+        if (
+          Object.keys(this.row).length > 2 &&
+          this.selectionOptions['assigned']
+        ) {
           await this.initOptions()
           await this.loadProjectSelectionList(this.fixedVersionShowClosed)
         } else {
@@ -391,7 +442,10 @@ export default {
     }
   },
   async mounted() {
-    if (Object.keys(this.row).length > 2 && Object.keys(this.selectionOptions).length > 0) {
+    if (
+      Object.keys(this.row).length > 2 &&
+      Object.keys(this.selectionOptions).length > 0
+    ) {
       await this.initOptions()
       await this.loadProjectSelectionList(this.fixedVersionShowClosed)
     } else {
@@ -404,8 +458,8 @@ export default {
         status: 'ri-focus-2-fill',
         priority: 'ri-arrow-up-double-line',
         tracker: 'ri-list-indefinite',
-        assigned_to: 'ri-user-received-fill',
-        fixed_version: 'ri-folder-zip-fill',
+        assigned: 'ri-user-received-fill',
+        version: 'ri-folder-zip-fill',
         Document: 'ri-file-fill bg-document',
         Research: 'ri-seo-line bg-research',
         Epic: 'ri-flashlight-fill bg-epic',
@@ -438,61 +492,77 @@ export default {
     },
     getOptionsData(option_name) {
       if (option_name === 'status') return this.getDynamicStatusList()
-      if (option_name === 'tracker' && this.enableForceTracker && !this.row.has_father) return this.strictTracker
       return this[option_name]
     },
     async loadSelectionList() {
-      await this.loadProjectSelectionList(this.fixedVersionShowClosed, true, true)
+      await this.loadProjectSelectionList(
+        this.fixedVersionShowClosed,
+        true,
+        true
+      )
     },
-    async loadProjectSelectionList(fixed_version, assigned_to, tags) {
-      let params = { status: 'open,locked' }
-      if (fixed_version) {
-        params = { status: 'open,locked,closed' }
-      }
+    async loadProjectSelectionList(version) {
       Object.keys(getAPI).forEach((key) => {
+        let params = {}
+        if (key === 'version') {
+          params = version
+            ? { all: true, status: 'open,locked,closed' }
+            : { all: true, status: 'open,locked' }
+        }
         this.loadSelection(key, params, [key])
       })
     },
     async loadSelection(column, params, lazyLoad) {
       if (lazyLoad) {
-        const projectId =
-          Object.prototype.hasOwnProperty.call(this.row, 'project')
-            ? this.row.project.id : this.selectedProjectId
-        if (projectId >= 0) {
+        const projectId = Object.prototype.hasOwnProperty.call(
+          this.row,
+          'project'
+        )
+          ? this.row.project.id
+          : this.selectedProjectId
+
+        if (projectId === -1) return
+        if (projectId) {
           const res = await getAPI[column][0](projectId, params)
           switch (column) {
-            case 'fixed_version':
+            case 'version':
               this[column] = [
-                { name: this.$t('Issue.VersionUndecided'), id: 'null' },
-                ...res.data[getAPI[column][1]]
+                {
+                  name: this.$t('Issue.VersionUndecided'),
+                  id: 'null'
+                },
+                ...res.data
               ]
               break
-            case 'assigned_to':
+            case 'assigned':
               this[column] = [
-                { name: this.$t('Issue.Unassigned'), id: 'null', login: 'null' },
-                ...res.data[getAPI[column][1]]
+                {
+                  name: this.$t('Issue.Unassigned'),
+                  id: 'null',
+                  username: 'null'
+                },
+                ...res.data.map((item) => {
+                  return {
+                    name: item.full_name,
+                    id: item.id,
+                    username: item.username
+                  }
+                })
               ]
-              break
-            case 'strictTracker':
-              this[column] = (await getAPI[column][0]({ new: true, project_id: projectId })).data
-              break
-            case 'forceTracker':
-              this[column] = [...res.data[getAPI[column][1]]]
-              this.enableForceTracker = res.data.enable
               break
             default:
-              this[column] = res.data[getAPI[column][1]]
+              this[column] = res.data
           }
         }
       }
       this.setDefaultTagOptions()
     },
     async getClosable() {
-      const closable = await getCheckIssueClosable(this.row.id)
+      const closable = await checkIssueClosable(this.row.id)
       this.$set(this, 'checkClosable', closable.data)
     },
     getId(option, item) {
-      if (option === 'assigned_to') return item.login
+      if (option === 'assigned') return item.username
       return item.id
     },
     getDynamicStatusList() {
@@ -522,30 +592,21 @@ export default {
         }
       })
     },
-    getFormData(data) {
-      const formData = new FormData()
-      Object.keys(data).forEach((item) => {
-        formData.append(item, data[item])
-      })
-      return formData
-    },
     async onSaveRelationIssue() {
       try {
         const getSettingRelationIssue = this.$refs['settingRelationIssue']
         const updateApi = []
         if (getSettingRelationIssue.target === 'Parent') {
-          const formData = this.getFormData({ parent_id: getSettingRelationIssue.form.parent_id })
-          updateApi.push(
-            updateIssue(getSettingRelationIssue.row.id, formData)
-          )
+          const sendData = { parent_id: getSettingRelationIssue.form.parent_id }
+          updateApi.push(updateIssue(getSettingRelationIssue.row.id, sendData))
         } else if (getSettingRelationIssue.target === 'Children') {
-          const appendFormData = this.getFormData({ parent_id: getSettingRelationIssue.row.id })
-          const removeFormData = this.getFormData({ parent_id: '' })
+          const appendSendData = { parent_id: getSettingRelationIssue.row.id }
+          const removeSendData = { parent_id: '' }
           getSettingRelationIssue.children['append'].forEach((item) => {
-            updateApi.push(updateIssue(item, appendFormData))
+            updateApi.push(updateIssue(item, appendSendData))
           })
           getSettingRelationIssue.children['remove'].forEach((item) => {
-            updateApi.push(updateIssue(item, removeFormData))
+            updateApi.push(updateIssue(item, removeSendData))
           })
         }
         await Promise.allSettled(updateApi)
@@ -573,18 +634,18 @@ export default {
     async handleUpdate(item) {
       const { column, id, close_all } = item
       try {
-        let data = { [column]: id }
+        let sendData = { [column]: id }
         if (column === 'tags_id') {
-          data = this.setTags(column, id)
-        } else if (column === 'assigned_to_id') {
-          data = this.setStatusId(column, id, data)
+          sendData = this.setTags(id)
+        } else if (column === 'assigned_id') {
+          sendData = this.setStatusId(column, id, sendData)
         }
         if (column === 'status_id' && close_all) {
-          data.close_all = true
+          sendData.close_all = true
         }
-        const formData = this.getFormData(data)
-        const res = await updateIssue(this.row.id, formData)
-        this.row[column.replace('_id', '')] = res.data[column.replace('_id', '')]
+        const res = await updateIssue(this.row.id, sendData)
+        this.row[column.replace('_id', '')] =
+          res.data[column.replace('_id', '')]
         this.$emit('update')
         this.$emit('update-card', this.row.id)
       } catch (e) {
@@ -594,7 +655,7 @@ export default {
     hasChildren() {
       this.row.has_children = true
     },
-    setTags(column, value) {
+    setTags(value) {
       const tags = this.row.tags ? this.row.tags.map((item) => item.id) : []
       const findTags = tags.findIndex((item) => item === value)
       if (findTags >= 0) {
@@ -602,13 +663,20 @@ export default {
       } else {
         tags.push(value)
       }
-      return { tags: tags.join(',') }
+      return { tags_list: tags.join(',') }
     },
     setStatusId(column, id, data) {
-      if (this.row.status.id === 1 && id !== 'null') { // change status to assigned if user add assignee
+      if (this.row.status.id === 1 && id !== 'null') {
+        // change status to assigned if user add assignee
         data = {
           [column]: id,
           status_id: 2
+        }
+      } else if (this.row.status.id !== 1 && id === 'null') {
+        // change status to active if user remove assignee
+        data = {
+          [column]: id,
+          status_id: 1
         }
       }
       return data
@@ -622,9 +690,18 @@ export default {
     },
     getSelectionLabel(item) {
       const visibleStatus = ['closed', 'locked']
-      let result = this.$te('Issue.' + item.name) ? this.$t('Issue.' + item.name) : item.name
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
-        result += ` (${this.$te('Issue.' + item.status) ? this.$t('Issue.' + item.status) : item.status})`
+      let result = this.$te('Issue.' + item.name)
+        ? this.$t('Issue.' + item.name)
+        : item.name
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
+        result += ` (${
+          this.$te('Issue.' + item.status)
+            ? this.$t('Issue.' + item.status)
+            : item.status
+        })`
       }
       return result
     },
@@ -634,9 +711,13 @@ export default {
       }
       if (!this.row[column.value]) return item.id === 'null'
       if (Array.isArray(this.row[column.value])) {
-        return this.row[column.value].map((subItem) => subItem.id).includes(item.id)
+        return this.row[column.value]
+          .map((subItem) => subItem.id)
+          .includes(item.id)
       }
-      if (!this.row[column.value].id) return item.id ? item.id === 'null' : false
+      if (!this.row[column.value].id) {
+        return item.id ? item.id === 'null' : false
+      }
       return this.row[column.value].id === item.id
     },
     handleUpdateIssue() {
@@ -660,9 +741,9 @@ export default {
     setFormData(data, copy) {
       const {
         project,
-        assigned_to,
-        fixed_version,
-        name,
+        assigned,
+        version,
+        subject,
         tracker,
         status,
         priority,
@@ -674,9 +755,12 @@ export default {
       } = data
       this.form = {}
       this.form.project_id = project ? project.id : ''
-      this.form.assigned_to_id = assigned_to ? assigned_to.id : ''
-      this.form.name = (copy && this.parentId === 0) ? name + ' (' + this.$t('Issue.Copy') + ')' : name
-      this.form.fixed_version_id = fixed_version ? fixed_version.id : ''
+      this.form.assigned_id = assigned ? assigned.id : ''
+      this.form.subject =
+        copy && this.parentId === 0
+          ? subject + ' (' + this.$t('Issue.Copy') + ')'
+          : subject
+      this.form.version_id = version ? version.id : ''
       this.form.tracker_id = tracker.id
       this.form.status_id = status.id
       this.form.priority_id = priority.id
@@ -687,15 +771,17 @@ export default {
       this.form.description = description === null ? '' : description
       this.originForm = Object.assign({}, this.form)
     },
-    advancedAddIssue(copy) {
+    async advancedAddIssue(copy) {
       if (copy) {
         this.parentId = 0
-        this.parentName = null
-        this.setFormData(this.row, copy)
+        this.parentSubject = null
+        await getIssueDetails(this.row.id).then((res) => {
+          this.setFormData(res.data, copy)
+        })
       } else {
         this.form = Object.assign({}, rowFormData())
-        this.parentId = this.row.id
-        this.parentName = this.row.name
+        this.parentId = this.row?.id
+        this.parentSubject = this.row?.subject
       }
 
       if (!this.simpleAddIssue || copy) {
@@ -707,7 +793,7 @@ export default {
         ? this.$parent.$refs['Desktop'].$refs['issueList'].layout.store
         : this.$parent.$refs['issueList'].layout.store
       const { expandRows } = store.states
-      const expandIndex = expandRows.findIndex(x => x.id === this.row.id)
+      const expandIndex = expandRows.findIndex((x) => x.id === this.row.id)
       if (expandIndex === -1) {
         store.toggleRowExpansion(this.row)
       }
@@ -718,14 +804,14 @@ export default {
     },
     async saveIssue(data) {
       this.loadingConfirm = true
-      const res = await addIssue(data)
+      const res = await createProjectIssue(data.project_id, data)
       // this.$message({
       //   title: this.$t('general.Success'),
       //   message: this.$t('Notify.Added'),
       //   type: 'success'
       // })
       this.$emit('backToFirstPage')
-      this.$emit('update', Number(data.get('assigned_to_id')))
+      this.$emit('update', data.assigned_id)
       this.addTopicDialogVisible = false
       // this.$refs['quickAddIssue'].form.name = ''
       this.loadingConfirm = false
@@ -733,22 +819,27 @@ export default {
     },
     addToCalendar(type) {
       if (type) {
-        const { id, name, start_date, due_date, tracker } = this.row
-        if (name) {
-          const title = `${tracker.name} #${id}: ${name}`
+        const { id, subject, start_date, due_date, tracker } = this.row
+        if (subject) {
+          const title = `${tracker.name} #${id}: ${subject}`
           const link = `${window.location.origin}/#/project/issues/${id}`
           const description = title.link(link)
           const data = {
             type: type,
-            title: name,
+            title: subject,
             details: description,
             start: start_date,
             end: due_date
           }
           if (type === 'ics') {
-            const cal = ics()
-            cal.addEvent(name, description, '', getLocalTime(start_date), getLocalTime(due_date))
-            cal.download('issue-' + (id || name))
+            ics({
+              id,
+              subject: subject,
+              description,
+              begin: start_date,
+              stop: due_date,
+              location: ''
+            })
             return
           }
           window.open(calendarUrl(data))
@@ -757,7 +848,7 @@ export default {
     },
     remoteMethod(query) {
       if (query !== '') {
-        this.tagOptions = this.tags.filter(tag => {
+        this.tagOptions = this.tags.filter((tag) => {
           return tag.name.toLowerCase().indexOf(query.toLowerCase()) > -1
         })
       } else {
@@ -770,13 +861,16 @@ export default {
     onCloseIssueMatrix() {
       this.issueMatrixDialog.visible = false
       this.$emit('update')
+    },
+    handleIssueDetail(row) {
+      window.open(this.getUrl(row.id), '_blank')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .menu-title {
   background: #ebebeb;
@@ -785,6 +879,7 @@ export default {
   margin: 0 5px;
   border-radius: 3px;
   padding: 5px 9px;
+
   &:hover {
     background: #ebebeb;
     color: #333;
@@ -808,16 +903,19 @@ export default {
   text-align: left;
   padding: 5px 14px;
   font-size: 14px;
+
   &:hover {
     background: #46a0fc;
   }
 }
+
 ::v-deep {
   .v-contextmenu {
     max-height: 40vh;
     overflow: auto;
   }
 }
+
 .point {
   @apply rounded text-white;
   aspect-ratio: 1 / 1;

@@ -1,20 +1,24 @@
 <script>
 // import { mapActions, mapGetters } from 'vuex'
-// import { getProjectUserList, getProjectVersion, getTagsByProject } from '@/api/projects'
-// import { getProjectIssueList } from '@/api_v2/projects'
+// import { getProjectUserList, getProjectVersion } from '@/api/projects'
+// import { getProjectIssueList, getTagsByProject } from '@/api_v2/projects'
 // import { addIssue, getIssueFamily } from '@/api/issue'
 // import axios from 'axios'
-// import { BasicData, Pagination } from '@/mixins'
-// import { Priority, Status, Tracker } from '@/components/Issue'
+// import BasicData from '@/mixins/BasicData'
+// import Pagination from '@/mixins/Pagination'
 
 export default {
-  // components: { Priority, Status, Tracker },
+  // components: {
+  //   Priority: () => import('@/components/Issue/Priority'),
+  //   Status: () => import('@/components/Issue/Status'),
+  //   Tracker: () => import('@/components/Issue/Tracker')
+  // },
   // mixins: [BasicData, Pagination],
   data() {
     return {
       remote: true,
 
-      fixed_version_closed: false,
+      version_closed: false,
       displayClosed: false,
 
       search: '',
@@ -92,7 +96,7 @@ export default {
     //   await this.fetchInitData()
     //   // await this.cleanFilter()
     // },
-    fixed_version_closed(value) {
+    version_closed(value) {
       this.setFixedVersionShowClosed({ list: value })
       this.loadVersionList(value)
     }
@@ -213,7 +217,7 @@ export default {
     //       ]
     //     }
     //   )
-    //   await this.loadVersionList(this.fixed_version_closed)
+    //   await this.loadVersionList(this.version_closed)
     // },
     // getSelectionLabel(item) {
     //   const visibleStatus = ['closed', 'locked']
@@ -395,7 +399,7 @@ export default {
       this.selectedIssueList = list
     }
     // onChangeFixedVersionStatus(value) {
-    //   this.fixed_version_closed = value
+    //   this.version_closed = value
     // },
     // getInitPage() {
     //   const getOffset = this.$route.query.offset

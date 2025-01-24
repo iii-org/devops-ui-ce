@@ -1,5 +1,8 @@
 <template>
-  <div :class="{ hidden: hidden }" class="pagination-container">
+  <div
+    :class="{ hidden: hidden }"
+    class="pagination-container"
+  >
     <el-pagination
       ref="pagination"
       :background="background"

@@ -1,20 +1,17 @@
 <template>
-  <div class="app-container p-3" :class="isMobile ? 'mobile' : ''">
-    <el-collapse
-      v-model="collapse"
-      v-loading="isLoading"
-    >
+  <div :class="isMobile ? 'mobile' : ''" class="app-container p-3">
+    <el-collapse v-model="collapse" v-loading="isLoading">
       <el-collapse-item name="Form">
         <div
           slot="title"
           class="flex justify-between text-title"
-          style="width: -webkit-fill-available;"
+          style="width: -webkit-fill-available"
         >
           <el-button
-            type="text"
-            size="medium"
-            icon="el-icon-arrow-left"
             class="text-title link-text-color p-3"
+            icon="el-icon-arrow-left"
+            size="medium"
+            type="text"
             @click="onBack"
           >
             <span v-if="!isMobile">{{ $t('general.Back') }}</span>
@@ -27,18 +24,14 @@
           </span>
         </div>
         <el-row>
-          <el-col :xs="24" :sm="20">
-            <ExcalidrawForm
-              ref="ExcalidrawForm"
-              class="pl-3"
-              :form="form"
-            />
+          <el-col :sm="20" :xs="24">
+            <ExcalidrawForm ref="ExcalidrawForm" :form="form" class="pl-3" />
           </el-col>
-          <el-col :xs="24" :sm="4">
+          <el-col :sm="4" :xs="24">
             <el-button
-              type="primary"
-              size="medium"
               class="ml-3 mb-5"
+              size="medium"
+              type="primary"
               @click="handleEdit"
             >
               {{ $t('general.Confirm') }}
@@ -46,17 +39,21 @@
           </el-col>
         </el-row>
       </el-collapse-item>
-      <el-collapse-item name="Excalidraw" disabled>
-        <div slot="title" class="text-title pl-3" style="margin-right: auto;">
-          {{ $t('Excalidraw.EditBoard') }}
+      <el-collapse-item disabled name="Excalidraw">
+        <div slot="title" class="text-title pl-3" style="margin-right: auto">
+          {{ $t('Plugins.excalidraw.EditBoard') }}
         </div>
-        <div class="px-1" :style="{ height : isShowExcalidraw ? null : excalidrawHeight + 'px'}">
+        <div
+          :style="{ height: isShowExcalidraw ? null : excalidrawHeight + 'px' }"
+          class="px-1"
+        >
           <iframe
             v-if="isShowExcalidraw"
-            :src="`${row.url}#${userName}`"
             :height="excalidrawHeight"
-            width="100%"
+            :src="`${row.url}#${userName}`"
+            allow="clipboard-read; clipboard-write"
             title="Excalidraw"
+            width="100%"
           ></iframe>
         </div>
       </el-collapse-item>
@@ -68,9 +65,9 @@
 import { mapGetters } from 'vuex'
 import {
   getExcalidrawDataById,
-  updateExcalidraw,
+  patchExcalidrawHistory,
   postExcalidrawHistory,
-  patchExcalidrawHistory
+  updateExcalidraw
 } from '@/api_v2/excalidraw'
 import ExcalidrawForm from '@/views/WhiteBoard/components/ExcalidrawForm'
 
@@ -137,7 +134,7 @@ export default {
       this.isLoading = false
     },
     handleEdit() {
-      this.$refs['ExcalidrawForm'].$refs['form'].validate(async(valid) => {
+      this.$refs['ExcalidrawForm'].$refs['form'].validate(async (valid) => {
         if (valid) {
           this.isLoading = true
           try {
@@ -182,6 +179,7 @@ export default {
 ::v-deep .el-collapse-item__arrow {
   margin-left: 8px;
 }
+
 .mobile {
   .title {
     align-self: center;

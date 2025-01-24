@@ -6,13 +6,24 @@
     destroy-on-close
     @close="handleCancel()"
   >
-    <template v-if="!isLoading && issue.name">
-      <span class="block text-center text-lg font-bold">
-        <em class="el-icon-warning text-danger" />
-        {{ this.$t(`Issue.${type}`, { issueName: issue.name }) }}
+    <template slot="title">
+      <Tracker v-if="tracker" :name="$t(`Issue.${tracker}`)" :type="tracker" />
+      <span> {{ title }} </span>
+    </template>
+    <template v-if="!isLoading && issue.subject">
+      <span class="block text-lg font-bold p-3">
+        <em class="el-icon-warning text-danger"></em>
+        {{ $t(`Issue.${type}`, { issueName: issue.subject }) }}
       </span>
       <template v-if="hasChildrenIssue || isHasWhiteBoard">
-        <ul v-if="hasChildrenIssue">
+        <el-divider v-if="hasChildrenIssue" content-position="left">
+          {{ $t('Issue.RelatedIssue') }}
+        </el-divider>
+        <ul
+          v-if="hasChildrenIssue"
+          class="overflow-auto"
+          style="max-height: 200px"
+        >
           <li v-for="item in children" :key="item.id" class="p-1">
             <Status
               :name="$t(`Issue.${item.status.name}`)"
@@ -33,15 +44,11 @@
                 </el-tag>
               </span>
             </template>
-            {{ item.name }}
-            <template
-              v-if="
-                item.assigned_to && Object.keys(item.assigned_to).length > 0
-              "
-            >
+            {{ item.subject }}
+            <template v-if="item.assigned">
               {{
-                `(${$t(`Issue.assigned_to`)}:${item.assigned_to.name} - ${
-                  item.assigned_to.login
+                `(${$t(`Issue.assigned`)}:${item.assigned.full_name} - ${
+                  item.assigned.username
                 })`
               }}
             </template>
@@ -55,7 +62,7 @@
               :label="$t('Notify.DeleteExcalidrawWarning')"
             />
           </span>
-          <ul class="mt-0">
+          <ul class="overflow-auto mt-0" style="max-height: 100px">
             <li v-for="item in excalidraws" :key="item.id" class="p-1">
               <el-link type="primary" @click="$emit('editWhiteBoard', item)">
                 {{ item.name }}
@@ -66,10 +73,10 @@
       </template>
       <span slot="footer">
         <el-button @click="handleCancel()">
-          {{ $t("general.Cancel") }}
+          {{ $t('general.Cancel') }}
         </el-button>
         <el-button type="primary" @click="handleConfirm()">
-          {{ $t("general.Confirm") }}
+          {{ $t('general.Confirm') }}
         </el-button>
       </span>
     </template>
@@ -78,8 +85,8 @@
 </template>
 
 <script>
-import { getIssueFamily } from '@/api/issue'
 import { mapGetters } from 'vuex'
+import { getIssueFamily } from '@/api_v3/issues'
 
 export default {
   name: 'SubIssueDialog',
@@ -88,6 +95,18 @@ export default {
     Tracker: () => import('@/components/Issue/Tracker')
   },
   props: {
+    title: {
+      type: String,
+      default: ''
+    },
+    tracker: {
+      type: String,
+      default: ''
+    },
+    issue: {
+      type: Object,
+      default: () => ({})
+    },
     isIssueDialog: {
       type: Boolean,
       default: false
@@ -95,10 +114,6 @@ export default {
     isDeleteIssue: {
       type: Boolean,
       default: false
-    },
-    issue: {
-      type: Object,
-      default: () => ({})
     },
     changedStatus: {
       type: Object,
@@ -189,3 +204,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+::v-deep .el-dialog__body {
+  padding: 0 20px;
+}
+</style>

@@ -107,7 +107,7 @@ export const docker = {
   Critical: 'danger',
   High: 'warning',
   Medium: 'slow',
-  Low: 'info',
+  Low: 'primary',
   Negligible: 'success',
   Unknown: 'info',
   Running: 'warning',

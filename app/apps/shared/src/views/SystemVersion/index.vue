@@ -6,9 +6,7 @@
       class="items-center bg-gray-600 text-white py-3 px-4 rounded mb-5"
     >
       <div class="text-title">
-        <span>
-          {{ $t('SystemVersion.DeploymentName') }}：
-        </span>
+        <span> {{ $t('SystemVersion.DeploymentName') }}： </span>
         <span class="select-all">
           {{ deployment_name }}
         </span>
@@ -22,18 +20,18 @@
         </span>
         <el-button
           :loading="isLoading"
-          size="small"
-          class="button-secondary-reverse"
           plain
+          size="small"
+          type="success"
           @click="handleUploadInfoClick"
         >
-          {{ this.$t('SystemVersion.UploadSystemInfos') }}
+          {{ $t('SystemVersion.UploadSystemInfos') }}
         </el-button>
       </div>
     </div>
     <ElTableResponsive
-      :data="list"
       :columns="tableColumns"
+      :data="list"
       :element-loading-text="$t('Loading')"
       fit
       highlight-current-row
@@ -46,14 +44,13 @@
 import { mapGetters } from 'vuex'
 import VersionAuth from './components/VersionAuth'
 import VersionUpdater from './components/VersionUpdater'
-import { getVersion } from '@/api/dashboard'
-import { getDevopsApiServerVersion, updateSystemInfoReport } from '@/api/devopsVersion'
-import { ElTableResponsive } from '@shared/components'
+
+import { getSystemVersion, uploadSystemInfo } from '@/api_v3/system'
 
 export default {
   name: 'SystemVersion',
   components: {
-    ElTableResponsive,
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive'),
     VersionAuth,
     VersionUpdater
   },
@@ -78,7 +75,7 @@ export default {
   computed: {
     ...mapGetters(['device']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     isMobile() {
       return this.device === 'mobile'
@@ -114,37 +111,32 @@ export default {
   created() {
     const uiData = {
       source: 'UI',
-      tag: process.env.VUE_APP_TAG,
-      commitId: process.env.VUE_APP_COMMIT,
-      commitTime: process.env.VUE_APP_DATE
+      tag: import.meta.env.VITE_APP_TAG,
+      commitId: import.meta.env.VITE_APP_COMMIT,
+      commitTime: import.meta.env.VITE_APP_DATE
     }
     this.list.push(uiData)
-    this.fetchData()
     this.fetchVersionInfo()
   },
   methods: {
-    fetchData() {
-      this.listLoading = true
-      getVersion().then((response) => {
+    fetchVersionInfo() {
+      getSystemVersion().then((res) => {
+        const { site, build } = res.data
+        this.deployment_name = site.name
+        this.deployment_uuid = site.uuid
+
         const apiData = {
           source: 'API',
-          tag: response.data.git_tag,
-          commitId: response.data.git_commit_id,
-          commitTime: response.data.git_date
+          tag: build.version,
+          commitId: build.hash,
+          commitTime: build.date
         }
         this.list.push(apiData)
       })
     },
-    fetchVersionInfo() {
-      getDevopsApiServerVersion().then((res) => {
-        const { deployment_name, deployment_uuid } = res.data
-        this.deployment_name = deployment_name
-        this.deployment_uuid = deployment_uuid
-      })
-    },
-    handleUploadInfoClick() {
+    async handleUploadInfoClick() {
       this.isLoading = true
-      updateSystemInfoReport()
+      await uploadSystemInfo()
         .then(() => {
           this.$message({
             title: this.$t('general.Success'),

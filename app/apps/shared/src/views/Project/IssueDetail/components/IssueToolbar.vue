@@ -3,17 +3,14 @@
     <div class="flex justify-between items-center">
       <div>
         <template v-if="issueId">
-          <el-tooltip
-            :content="$t('Issue.UploadFiles')"
-            placement="bottom"
-          >
+          <el-tooltip :content="$t('Issue.UploadFiles')" placement="bottom">
             <el-button
               :disabled="isButtonDisabled"
-              size="mini"
               class="px-2 py-1 m-0 icon"
+              size="mini"
               @click="uploadDialogVisible = true"
             >
-              <em class="el-icon-upload content" />
+              <em class="el-icon-upload content"></em>
             </el-button>
           </el-tooltip>
           <el-tooltip
@@ -22,40 +19,40 @@
           >
             <el-button
               :disabled="isButtonDisabled"
-              size="mini"
               class="px-2 py-1 m-0 icon"
+              size="mini"
               @click="$emit('add-sub-issue')"
             >
-              <em class="el-icon-document-add content" />
+              <em class="el-icon-document-add content"></em>
             </el-button>
           </el-tooltip>
         </template>
         <el-tooltip
           v-if="isExcalidrawEnable"
-          :content="$t('Excalidraw.CreateBoard')"
+          :content="$t('Plugins.excalidraw.CreateBoard')"
           placement="bottom"
         >
           <el-button
             :disabled="isButtonDisabled"
-            size="mini"
             class="px-2 py-1 m-0 icon"
+            size="mini"
             @click="toggleExcalidrawDialog"
           >
-            <em class="el-icon-monitor content" />
+            <em class="el-icon-monitor content"></em>
           </el-button>
         </el-tooltip>
         <el-tooltip
-          v-if="issueTracker === 'Test Plan' && !isLite"
+          v-if="issue?.tracker?.name === 'Test Plan' && !isLite"
           :content="$t('Test.TestFile.ManageTestFile')"
           placement="bottom"
         >
           <el-button
             :disabled="isButtonDisabled"
-            size="mini"
             class="px-2 py-1 m-0 icon"
+            size="mini"
             @click="handleCollectionDialog"
           >
-            <em class="el-icon-folder content" />
+            <em class="el-icon-folder content"></em>
           </el-button>
         </el-tooltip>
         <el-tooltip
@@ -64,13 +61,12 @@
           placement="bottom"
         >
           <el-button
-            :class="isOpenMatrix ? 'button-info' : ''"
             :disabled="isOpenMatrix || isButtonDisabled"
-            size="mini"
             class="px-2 py-1 m-0 icon"
+            size="mini"
             @click="$emit('toggle-issue-matrix')"
           >
-            <em class="el-icon-data-line content" />
+            <em class="el-icon-data-line content"></em>
           </el-button>
         </el-tooltip>
       </div>
@@ -79,73 +75,62 @@
           v-if="!isFromBoard"
           :content="$t('Issue.IssueSetting')"
           :disabled="isIssueFormOpened"
-          placement="bottom"
           class="ml-3 is-panel"
+          placement="bottom"
         >
           <div
             class="handle-button inline p-1"
-            style="background-color: #85c1e9;"
+            style="background-color: #85c1e9"
             @click="$emit('changeIssueFormOpened')"
           >
-            <em :class="isIssueFormOpened ? 'el-icon-d-arrow-right' : 'el-icon-setting'" />
+            <em
+              :class="
+                isIssueFormOpened ? 'el-icon-d-arrow-right' : 'el-icon-setting'
+              "
+            ></em>
           </div>
         </el-tooltip>
       </div>
     </div>
 
     <el-dialog
+      :title="$t('File.AddFile')"
       :visible.sync="uploadDialogVisible"
-      :title="$t('Issue.UploadFiles')"
-      top="3vh"
       append-to-body
+      destroy-on-close
+      top="10vh"
+      width="50%"
     >
       <IssueFileUploader
-        v-loading="isLoading"
         ref="IssueFileUploader"
+        v-loading="isLoading"
+        :is-upload-loading="isLoading"
+        :issue="issue"
         :issue-id="issueId"
+        @link="handleLinkClose"
+        @upload="handleUploadClose"
       />
-      <div class="flex justify-between mt-2">
-        <div
-          class="text-xs"
-          style="line-height: 40px;"
-        >
-          *{{ $t('File.UploadWarning') }}: {{ specialSymbols }}
-        </div>
-        <div>
-          <el-button
-            :loading="isLoading"
-            class="button-primary"
-            @click="handleUploadClose"
-          >
-            {{ $t('general.Save') }}
-          </el-button>
-        </div>
-      </div>
     </el-dialog>
     <el-dialog
+      :title="$t('Plugins.excalidraw.CreateBoard')"
       :visible.sync="excalidrawDialogVisible"
-      :title="$t('Excalidraw.CreateBoard')"
+      append-to-body
+      destroy-on-close
       top="3vh"
       width="30%"
-      destroy-on-close
-      append-to-body
     >
       <el-input
-        v-loading="isLoading"
         v-model="excalidrawName"
-        :placeholder="$t('RuleMsg.PleaseInput') + $t('Excalidraw.Name')"
+        v-loading="isLoading"
+        :placeholder="$t('RuleMsg.PleaseInput') + $t('Plugins.excalidraw.Name')"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button
-          :loading="isLoading"
-          class="button-secondary-reverse"
-          @click="toggleExcalidrawDialog"
-        >
+        <el-button :loading="isLoading" @click="toggleExcalidrawDialog">
           {{ $t('general.Close') }}
         </el-button>
         <el-button
-          :loading="isLoading"
           :disabled="!excalidrawName"
+          :loading="isLoading"
           type="primary"
           @click="handleCreateExcalidraw"
         >
@@ -157,42 +142,30 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { updateIssue } from '@/api/issue'
 import { createExcalidraw } from '@/api_v2/excalidraw'
+import { createIssueAttachment } from '@/api_v3/attachments'
+import { mapGetters } from 'vuex'
 import IssueFileUploader from './IssueFileUploader'
 
 export default {
   name: 'IssueToolbar',
   components: { IssueFileUploader },
   props: {
-    issueLink: {
-      type: String,
-      default: null
+    issue: {
+      type: Object,
+      default: () => {}
     },
     issueId: {
       type: [String, Number],
       default: null
     },
-    // issueName: {
-    //   type: [String, Number],
-    //   default: null
-    // },
-    issueTracker: {
-      type: String,
-      default: null
-    },
-    // row: {
-    //   type: Object,
-    //   default: () => ({})
-    // },
     isButtonDisabled: {
       type: Boolean,
       default: false
     },
     projectId: {
-      type: Number,
-      default: null
+      type: String,
+      default: ''
     },
     countRelationIssue: {
       type: Number,
@@ -210,10 +183,6 @@ export default {
       type: Boolean,
       default: false
     }
-    // isAddSubIssue: {
-    //   type: Boolean,
-    //   default: false
-    // }
   },
   data() {
     return {
@@ -221,14 +190,16 @@ export default {
       uploadDialogVisible: false,
       excalidrawDialogVisible: false,
       excalidrawName: '',
-      specialSymbols: '\ / : * ? " < > | # { } % ~ &',
       form: {}
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'isExcalidrawEnable']),
+    ...mapGetters(['selectedProjectId', 'services']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
+    },
+    isExcalidrawEnable() {
+      return this.services.excalidraw
     }
   },
   methods: {
@@ -239,9 +210,8 @@ export default {
       if (uploadFileList.length > 0) {
         await this.uploadFiles(sendForm, uploadFileList)
       }
-      this.$refs.IssueFileUploader.$refs.fileUploader.clearFiles()
-      this.$refs.IssueFileUploader.uploadFileList = []
       this.isLoading = false
+      this.$refs.IssueFileUploader.cleanData()
       this.uploadDialogVisible = false
     },
     async uploadFiles(sendForm, fileList) {
@@ -249,9 +219,9 @@ export default {
       const { issueId } = this
       try {
         fileList.forEach((item) => {
-          sendForm.append('upload_files', item.raw)
+          sendForm.append('file', item.raw)
         })
-        await updateIssue(issueId, sendForm)
+        await createIssueAttachment(issueId, sendForm)
         this.$message({
           title: this.$t('general.Success'),
           message: this.$t('Notify.Updated'),
@@ -298,6 +268,11 @@ export default {
     loadingUpdate(value, upload) {
       this.isLoading = value
       this.$emit('is-loading', { status: value, upload: upload })
+    },
+    handleLinkClose() {
+      this.$refs.IssueFileUploader.cleanData()
+      this.uploadDialogVisible = false
+      this.loadingUpdate(false, true)
     }
   }
 }
@@ -313,6 +288,7 @@ export default {
   cursor: pointer;
   color: #fff;
   line-height: 50px;
+
   i {
     font-size: 24px;
     line-height: 50px;
@@ -329,6 +305,6 @@ export default {
 }
 
 .icon:hover {
-  box-shadow: 0 0 10px rgba(33,33,33,.2);
+  box-shadow: 0 0 10px rgba(33, 33, 33, 0.2);
 }
 </style>

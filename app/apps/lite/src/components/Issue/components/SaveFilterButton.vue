@@ -2,25 +2,19 @@
   <div>
     <el-button
       v-if="showSaveSettingsButton"
-      style="width:100%"
-      class="button-primary"
+      style="width: 100%"
+      type="primary"
       @click="showSaveSettingsButton = !showSaveSettingsButton"
     >
       {{ $t('general.SaveSettings') }}
     </el-button>
-    <div
-      v-else
-      class="flex"
-    >
+    <div v-else class="flex">
       <el-input
         v-model="filterName"
-        class="mr-2"
         :placeholder="$t('Issue.InputFilterName')"
+        class="mr-2"
       />
-      <el-button
-        class="button-secondary"
-        @click="setCustomFilter"
-      >
+      <el-button @click="setCustomFilter">
         {{ $t('general.Save') }}
       </el-button>
     </div>
@@ -28,25 +22,25 @@
 </template>
 
 <script>
+import { createCustomIssueFilter } from '@/api_v3/user'
 import { mapGetters } from 'vuex'
-import { addIssueFilter } from '@/api/issueFilter'
 
 const keyMap = {
   status_id: 'status',
   tags: 'tags',
   tracker_id: 'tracker',
-  assigned_to_id: 'assigned_to',
-  fixed_version_id: 'fixed_version',
+  assigned_id: 'assigned',
+  version_id: 'version',
   priority_id: 'priority',
   show_closed_issues: 'displayClosed',
-  show_closed_versions: 'fixed_version_closed',
+  show_closed_versions: 'version_closed',
   expired_days: 'expiredDays'
 }
 const sendDataMap = {
   status: 'status_id',
   tracker: 'tracker_id',
-  assigned_to: 'assigned_to_id',
-  fixed_version: 'fixed_version_id',
+  assigned: 'assigned_id',
+  version: 'version_id',
   priority: 'priority_id'
 }
 
@@ -86,11 +80,10 @@ export default {
       return this.$route.name === 'issueList'
     },
     focusProjectId() {
-      if (this.$route.name === 'MyWork') {
-        return this.projectId ? this.projectId : -1 // -1 means all projects (dump project)
-      } else {
-        return this.selectedProjectId
-      }
+      // -1 means all projects (dump project)
+      return this.$route.name === 'MyWork'
+        ? this.projectId ?? -1
+        : this.selectedProjectId
     }
   },
   methods: {
@@ -104,8 +97,7 @@ export default {
         return
       }
       const sendData = this.formatFilterData()
-      sendData.name = this.filterName
-      await addIssueFilter(this.focusProjectId, sendData).then(() => {
+      await createCustomIssueFilter(sendData).then(() => {
         this.$message.success(this.$t('Notify.Saved'))
         this.$emit('update')
         this.reset()
@@ -113,31 +105,41 @@ export default {
     },
     formatFilterData() {
       const sendData = {
-        status_id: null,
-        tags: [],
-        tracker_id: null,
-        assigned_to_id: null,
-        fixed_version_id: null,
-        show_closed_issues: null,
-        show_closed_versions: null,
-        priority_id: null,
-        group_by: null,
-        focus_tab: null,
-        name: '',
+        name: this.filterName,
         type: this.type,
-        expired_days: null
+        custom_filters: {
+          status_id: null,
+          tags: [],
+          tracker_id: null,
+          assigned_id: null,
+          version_id: null,
+          show_closed_issues: null,
+          show_closed_versions: null,
+          priority_id: null,
+          group_by: null,
+          focus_tab: null,
+          expired_days: null
+        }
       }
       for (const key in keyMap) {
         const originalKey = keyMap[key]
         if (key === 'tags') {
-          sendData[key] = this.filterValue[originalKey] ? this.filterValue[originalKey].join(',') : null
-        } else if (key === 'assigned_to_id') {
-          sendData[key] = this.filterValue[originalKey]
+          sendData['custom_filters'][key] = this.filterValue[originalKey]
+            ? this.filterValue[originalKey].join(',')
+            : null
+        } else if (key === 'assigned_id') {
+          sendData['custom_filters'][key] = this.filterValue[originalKey]
         } else {
-          sendData[key] = this.filterValue[originalKey] === 'null' ? null : this.filterValue[originalKey]
+          sendData['custom_filters'][key] =
+            this.filterValue[originalKey] === 'null'
+              ? null
+              : this.filterValue[originalKey]
         }
-        sendData['focus_tab'] = this.activeTab
-        sendData['group_by'] = Object.keys(this.groupBy).length > 0 ? this.groupBy : null
+        sendData['custom_filters']['focus_tab'] = this.activeTab
+        sendData['custom_filters']['group_by'] =
+          this.groupBy && Object.keys(this.groupBy).length > 0
+            ? this.groupBy
+            : null
       }
       const isIssueBoard = this.$route.name === 'IssueBoards'
       return isIssueBoard ? this.formatSendData(sendData) : sendData
@@ -145,7 +147,7 @@ export default {
     formatSendData(sendData) {
       const result = Object.assign({}, sendData)
       const removeKey = sendDataMap[this.groupBy.dimension]
-      delete result[removeKey]
+      delete result['custom_filters'][removeKey]
       return result
     }
   }

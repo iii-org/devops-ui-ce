@@ -1,27 +1,17 @@
-module.exports = {
+export default {
   mode: 'jit', // just-in-time mode: https://tailwindcss.com/docs/just-in-time-mode
-  purge: {
-    enabled: true,
-    content: ['./public/**/*.html', './src/**/*.vue', '../shared/src/**/*.vue'],
-    options: {
-      safelist: {
-        standard: [/^el-/],
-        deep: [/^el-/]
-      }
-    }
-  },
-  darkMode: false, // or 'media' or 'class'
+  content: ['./public/**/*.html', './src/**/*.vue', '../shared/src/**/*.vue'],
   theme: {
     extend: {
       minWidth: {
-        '300': '300px'
+        300: '300px'
       },
       colors: {
         custom: {
           black: '#606206'
         },
-        success: '#3ecbbc',
-        danger: '#DF657F',
+        success: '#36b2c3',
+        danger: '#d64a66',
         warning: '#e6a23c',
         slow: '#56b1e8',
         light: '#c1c3c5',
@@ -29,7 +19,7 @@ module.exports = {
         primary: '#525252',
         secondary: '#80A2B6',
         active: '#80A2B6',
-        assigned: '#DF657F',
+        assigned: '#d64a66',
         closed: '#909399',
         solved: '#DDDBE2',
         inProgress: '#EFE7E6',
@@ -47,9 +37,12 @@ module.exports = {
         testPlan: '#A57548',
         failManagement: '#FF7033'
       },
-      backgroundColor: theme => ({
+      backgroundColor: (theme) => ({
         ...theme('colors')
-      })
+      }),
+      fontFamily: {
+        code: ['"Jetbrains Mono"', 'monospace']
+      }
     }
   },
   variants: {

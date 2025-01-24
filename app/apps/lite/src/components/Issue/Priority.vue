@@ -11,7 +11,10 @@
     :content="name"
     placement="bottom"
   >
-    <em :class="getPriorityIconType(type)" class="icon"></em>
+    <em
+      :class="getPriorityIconType(type)"
+      class="icon"
+    ></em>
   </el-tooltip>
 </template>
 

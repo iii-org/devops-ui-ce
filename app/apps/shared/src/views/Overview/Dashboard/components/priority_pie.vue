@@ -1,5 +1,6 @@
 <template>
   <v-chart
+    v-if="isEchartsReady"
     ref="chart"
     :style="{ height, width }"
     :option="option"
@@ -11,19 +12,7 @@
 <script>
 import { getRdDashboardIssuesPriority } from '@/api/dashboard'
 import { mapGetters } from 'vuex'
-import { use } from 'echarts/core'
 import VChart from 'vue-echarts'
-import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart, ScatterChart } from 'echarts/charts'
-
-require('echarts/theme/macarons') // echarts theme
-require('echarts/theme/vintage')
-
-use([
-  CanvasRenderer,
-  ScatterChart,
-  PieChart
-])
 
 export default {
   components: {
@@ -45,13 +34,14 @@ export default {
   },
   data() {
     return {
-      prioritys: []
+      prioritys: [],
+      isEchartsReady: false
     }
   },
   computed: {
     ...mapGetters(['userId']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     option() {
       return {
@@ -100,6 +90,34 @@ export default {
         return item
       })
     })
+  },
+  async created() {
+    await this.loadEchartsModules()
+  },
+  methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { CanvasRenderer },
+        { PieChart, ScatterChart },
+        { LegendComponent }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/renderers'),
+        import('echarts/charts'),
+        import('echarts/components')
+      ])
+
+      use([CanvasRenderer, PieChart, ScatterChart, LegendComponent])
+
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
+      }
+
+      this.isEchartsReady = true
+    }
   }
 }
 </script>

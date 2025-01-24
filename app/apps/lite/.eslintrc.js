@@ -1,32 +1,28 @@
 module.exports = {
   root: true,
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: '@babel/eslint-parser',
+    requireConfigFile: false,
     sourceType: 'module'
   },
   env: {
     browser: true,
     node: true,
-    es6: true
+    es2022: true
   },
   extends: ['plugin:vue/recommended', 'eslint:recommended'],
 
   // add your custom rules here
-  //it is base on https://github.com/vuejs/eslint-config-vue
+  // it is base on https://github.com/vuejs/eslint-config-vue
   rules: {
-    'vue/max-attributes-per-line': [
-      2,
-      {
-        singleline: 10,
-        multiline: {
-          max: 5,
-          allowFirstLine: true
-        }
-      }
-    ],
     'vue/singleline-html-element-content-newline': 'off',
     'vue/multiline-html-element-content-newline': 'off',
-    'vue/name-property-casing': ['error', 'PascalCase'],
+    'vue/component-definition-name-casing': ['error', 'PascalCase'],
+    'vue/multi-word-component-names': 'off',
+    'vue/no-lone-template': 'off',
+    'no-prototype-builtins': 'warn',
+    'vue/no-mutating-props': 'warn',
+    'vue/no-unused-vars': 'warn',
     'vue/no-v-html': 'off',
     'vue/html-self-closing': [
       2,
@@ -84,13 +80,13 @@ module.exports = {
       }
     ],
     'handle-callback-err': [2, '^(err|error)$'],
-    indent: [
-      2,
-      2,
-      {
-        SwitchCase: 1
-      }
-    ],
+    // indent: [
+    //   2,
+    //   2,
+    //   {
+    //     SwitchCase: 1
+    //   }
+    // ],
     'jsx-quotes': [2, 'prefer-single'],
     'key-spacing': [
       2,
@@ -106,6 +102,18 @@ module.exports = {
         after: true
       }
     ],
+    'max-len': [
+      2,
+      {
+        code: 120,
+        ignoreUrls: true,
+        ignoreComments: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true
+      }
+    ],
+    'vue/max-attributes-per-line': 'off',
     'new-cap': [
       2,
       {
@@ -266,7 +274,7 @@ module.exports = {
     'yield-star-spacing': [2, 'both'],
     yoda: [2, 'never'],
     'prefer-const': 2,
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-debugger': 0,
     'object-curly-spacing': [
       2,
       'always',

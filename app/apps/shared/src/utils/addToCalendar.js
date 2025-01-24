@@ -11,7 +11,7 @@ dayjs.extend(duration)
 const calendars = {
   google: {
     url: 'https://www.google.com/calendar/render?action=TEMPLATE&trp=false',
-    parameters (title, details, start, end) {
+    parameters(title, details, start, end) {
       const parameters = {
         text: title,
         details: details
@@ -31,7 +31,7 @@ const calendars = {
 
   microsoft: {
     url: 'https://outlook.live.com/owa/?rru=addevent',
-    parameters (title, details, start, end) {
+    parameters(title, details, start, end) {
       return {
         subject: title,
         body: details,
@@ -43,7 +43,7 @@ const calendars = {
 
   office365: {
     url: 'https://outlook.office.com/owa/?path=/calendar/action/compose&rru=addevent',
-    parameters (title, details, start, end) {
+    parameters(title, details, start, end) {
       return {
         subject: title,
         body: details,
@@ -54,13 +54,15 @@ const calendars = {
   }
 }
 
-export function calendarUrl (calendar) {
+export function calendarUrl(calendar) {
   let url = calendars[calendar.type].url
+  const dateTimeFormat =
+    calendar.type === 'google' ? 'YYYYMMDDTHHmmss' : 'YYYY-MM-DDTHH:mm:ss'
   const parameters = calendars[calendar.type].parameters(
     formatString(calendar.title),
     formatString(calendar.details),
-    formatDate(calendar.start),
-    formatDate(calendar.end)
+    formatDate(calendar.start, false, dateTimeFormat),
+    formatDate(calendar.end, true, dateTimeFormat)
   )
 
   for (const key in parameters) {
@@ -71,16 +73,14 @@ export function calendarUrl (calendar) {
   return url
 }
 
-function formatString (item) {
+function formatString(item) {
   return encodeURIComponent(item).replace(/%20/g, '+')
 }
 
-function formatDate (date) {
+function formatDate(dateStr, last, format = 'YYYYMMDDTHHmmss') {
+  if (!dateStr) return null
+  let date = dayjs(dateStr)
+  if (last) date = date.hour(24)
+  date = date.format(format)
   return date
-    ? dayjs
-      .utc(date)
-      .local()
-      .toISOString()
-      .replace(/-|:|\.\d+/g, '')
-    : null
 }

@@ -6,16 +6,12 @@
   >
     <el-card
       v-loading="isLoading"
-      :element-loading-text="$t('Loading')"
       :body-style="{ 'min-height': '78vh' }"
+      :element-loading-text="$t('Loading')"
       :style="!isFromBoard ? 'height: 91vh; overflow: auto;' : ''"
     >
       <el-row slot="header">
-        <el-row
-          type="flex"
-          align="bottom"
-          justify="space-between"
-        >
+        <el-row align="bottom" justify="space-between" type="flex">
           <el-row>
             <el-col
               :style="isFromBoard ? 'max-width: 500px;' : ''"
@@ -23,10 +19,10 @@
             >
               <el-button
                 v-if="!isInDialog"
-                type="text"
-                size="medium"
-                icon="el-icon-arrow-left"
                 class="previous link-text-color"
+                icon="el-icon-arrow-left"
+                size="medium"
+                type="text"
                 @click="$parent.handleBackPage"
               >
                 {{ $t('general.Back') }}
@@ -49,16 +45,14 @@
                 <span v-else>
                   {{ $t('Issue.Issue') }}
                 </span>
-                <span>
-                  #{{ issueId }} -
-                </span>
+                <span> #{{ issueId }} - </span>
                 <IssueTitle
                   ref="IssueTitle"
-                  v-model="form.name"
-                  :old-value="originForm.name"
-                  :issue-id="issueId"
-                  :is-from-board="isFromBoard"
+                  v-model="form.subject"
                   :is-button-disabled="isButtonDisabled"
+                  :is-from-board="isFromBoard"
+                  :issue-id="issueId"
+                  :old-value="originForm.subject"
                   @update="$parent.historyUpdate"
                 />
               </span>
@@ -67,7 +61,12 @@
           <el-col :span="8" class="text-right">
             <el-row class="mb-3">
               <span v-if="!isLoading && issueId" class="text-sm">
-                {{ $t('Issue.AddBy', { user: author, created_date: $parent.getRelativeTime(createdDate) }) }}
+                {{
+                  $t('Issue.AddBy', {
+                    user: author,
+                    create_at: $parent.getRelativeTime(createAt)
+                  })
+                }}
               </span>
             </el-row>
             <el-row>
@@ -78,20 +77,13 @@
               <el-divider direction="vertical" />
               <ShareButton
                 v-if="!isLite"
+                :assigned="assigned"
                 :issue="issue"
-                :assigned-to="assignedTo"
                 @copyUrl="$parent.copyUrl"
               />
-              <el-tooltip
-                :content="$t('general.CopyUrl')"
-                placement="bottom"
-              >
-                <el-button
-                  circle
-                  size="small"
-                  @click="$parent.copyUrl"
-                >
-                  <em class="el-icon-copy-document" />
+              <el-tooltip :content="$t('general.CopyUrl')" placement="bottom">
+                <el-button circle size="small" @click="$parent.copyUrl">
+                  <em class="el-icon-copy-document"></em>
                 </el-button>
               </el-tooltip>
               <el-tooltip
@@ -99,43 +91,41 @@
                 :content="$t('general.PopUp')"
                 placement="bottom"
               >
-                <el-button
-                  circle
-                  size="small"
-                  @click="$parent.$emit('popup')"
-                >
-                  <em class="ri-external-link-line" />
+                <el-button circle size="small" @click="$parent.$emit('popup')">
+                  <em class="ri-external-link-line"></em>
                 </el-button>
               </el-tooltip>
-              <AddToCalendar
-                :issue-id="issueId"
-                :form="form"
-              />
+              <AddToCalendar :form="form" :issue-id="issueId" />
               <el-tooltip
-                v-permission="['Administrator','Project Manager','QA']"
                 v-if="!isFromBoard"
+                v-permission="[
+                  'sysadmin',
+                  'Organization Owner',
+                  'Project Manager',
+                  'QA'
+                ]"
                 :content="$t('general.Delete')"
                 placement="bottom"
               >
                 <el-button
-                  :type="isButtonDisabled ? 'info' : 'danger'"
                   :disabled="isButtonDisabled"
+                  :type="isButtonDisabled ? 'info' : 'danger'"
                   circle
                   size="small"
                   @click="$parent.isDeleteIssueDialog = true"
                 >
-                  <em class="el-icon-delete" />
+                  <em class="el-icon-delete"></em>
                 </el-button>
               </el-tooltip>
             </el-row>
           </el-col>
         </el-row>
       </el-row>
-      <el-row :gutter="20" :class="isFromBoard ? 'board' : ''">
+      <el-row :class="isFromBoard ? 'board' : ''" :gutter="20">
         <el-col
           ref="mainIssueWrapper"
-          :span="24"
           :sm="isFromBoard ? 24 : isIssueFormOpened ? 16 : 24"
+          :span="24"
           @mousemove.native="detectEditorHeight"
           @mouseup.native="detectEditorHeight(false)"
           @mouseleave.native="detectEditorHeight(false)"
@@ -143,29 +133,24 @@
           <el-row>
             <el-col :span="24">
               <IssueToolbar
-                :is-button-disabled="isButtonDisabled"
-                :issue-link="issueLink"
-                :issue-id="issueId"
-                :issue-tracker="formTrackerName"
-                :project-id="form.project_id"
                 :count-relation-issue="countRelationIssue"
-                :is-open-matrix="isOpenMatrix"
+                :is-button-disabled="isButtonDisabled"
                 :is-from-board="isFromBoard"
                 :is-issue-form-opened="isIssueFormOpened"
+                :is-open-matrix="isOpenMatrix"
+                :issue="issue"
+                :issue-id="issueId"
+                :project-id="form.project_id"
+                @changeIssueFormOpened="changeIssueFormOpened"
+                @updateWhiteBoard="$parent.updateWhiteBoard"
                 @add-sub-issue="$parent.toggleAddSubIssue"
                 @is-loading="$parent.showLoading"
                 @related-collection="$parent.toggleDialogVisible"
                 @toggle-issue-matrix="$parent.toggleIssueMatrixDialog"
-                @updateWhiteBoard="$parent.updateWhiteBoard"
-                @changeIssueFormOpened="changeIssueFormOpened"
               />
             </el-col>
           </el-row>
-          <el-row
-            ref="mainIssue"
-            :gutter="10"
-            class="issueHeight"
-          >
+          <el-row ref="mainIssue" :gutter="10" class="issueHeight">
             <el-collapse-transition>
               <el-col
                 v-if="isAddSubIssue"
@@ -176,11 +161,11 @@
               >
                 <AddSubIssue
                   ref="AddSubIssue"
-                  :parent-data="issue"
+                  :form.sync="form"
                   :issue-id="issueId"
                   :parent="parent"
+                  :parent-data="issue"
                   :relations.sync="relations"
-                  :form.sync="form"
                   @close="$parent.isAddSubIssue = !isAddSubIssue"
                   @update="$parent.historyUpdate"
                 />
@@ -190,63 +175,68 @@
               <IssueDescription
                 ref="IssueDescription"
                 v-model="form.description"
-                :old-value="originForm.description"
-                :issue-id="issueId"
-                :issue-name="issueName"
-                :is-button-disabled="isButtonDisabled"
-                :assigned-to="assignedTo"
-                :issue-form-width="issueFormWidth"
+                :assigned="assigned"
                 :data-loaded="dataLoaded"
+                :is-button-disabled="isButtonDisabled"
                 :is-issue-edited="isIssueEdited"
+                :issue-form-width="issueFormWidth"
+                :issue-id="issueId"
+                :issue-subject="issueSubject"
+                :old-value="originForm.description"
                 @filterImage="$parent.filterImage"
                 @update="$parent.historyUpdate"
               />
             </el-col>
             <el-col :span="24">
               <el-collapse
-                v-if="files.length > 0 || testFiles.length > 0 || countRelationIssue > 0 || isFromBoard"
+                v-if="
+                  files.length > 0 ||
+                    testFiles.length > 0 ||
+                    countRelationIssue > 0 ||
+                    isFromBoard
+                "
                 v-model="relationVisible"
                 accordion
               >
-                <el-collapse-item
-                  v-if="files.length > 0"
-                  name="files"
-                >
+                <el-collapse-item v-if="files.length > 0" name="files">
                   <div slot="title" class="text-sm font-bold">
                     {{ $t('Issue.Files') + `(${files.length})` }}
                   </div>
                   <IssueFiles
                     :is-button-disabled="isButtonDisabled"
                     :issue-file.sync="files"
+                    :issue-id="issueId"
                   />
                 </el-collapse-item>
                 <el-collapse-item
-                  v-loading="isLoadingTestFile"
                   v-if="testFiles.length > 0"
+                  v-loading="isLoadingTestFile"
                   name="testFiles"
                 >
                   <div slot="title" class="text-sm font-bold">
-                    {{ $t('Test.TestPlan.file_name') + `(${testFiles.length})` }}
+                    {{
+                      $t('Test.TestPlan.file_name') + `(${testFiles.length})`
+                    }}
                   </div>
                   <IssueCollection
-                    :selected-collections.sync="testFiles"
                     :is-button-disabled="isButtonDisabled"
+                    :selected-collections.sync="testFiles"
                     @update="$parent.updateTestCollection"
                   />
                 </el-collapse-item>
                 <el-collapse-item
-                  v-loading="isLoadingFamily"
                   v-if="countRelationIssue > 0"
+                  v-loading="isLoadingFamily"
                   name="relatedIssue"
                 >
                   <div slot="title" class="text-sm font-bold">
                     {{ $t('Issue.RelatedIssue') + `(${countRelationIssue})` }}
                   </div>
                   <IssueExpand
-                    :issue="$parent.$data"
                     :family="countRelationIssue > 0"
-                    :popup="true"
                     :is-button-disabled="isButtonDisabled"
+                    :issue="issue"
+                    :popup="true"
                     :reload="relationVisible"
                     @update="$parent.historyUpdate"
                     @on-context-menu="$parent.onContextMenu"
@@ -259,19 +249,21 @@
                   </div>
                   <IssueForm
                     ref="IssueForm"
+                    :activity-list="activityList"
+                    :children-issue="children"
+                    :data-loaded="dataLoaded"
+                    :form.sync="form"
                     :is-button-disabled="isButtonDisabled"
+                    :is-form-collapse-open="relationVisible === 'issueForm'"
+                    :is-from-board="isFromBoard"
+                    :is-issue-edited="isIssueEdited"
                     :issue="issue"
                     :issue-id="issueId"
                     :issue-project="issueProject"
-                    :is-from-board="isFromBoard"
-                    :data-loaded="dataLoaded"
-                    :form.sync="form"
                     :parent="parent"
-                    :children-issue="children"
-                    :is-issue-edited="isIssueEdited"
-                    :is-form-collapse-open="relationVisible === 'issueForm'"
                     class="mx-3 text-xs"
                     @update="$parent.historyUpdate"
+                    @update-spent-time="handleSpentTimeUpdate"
                   />
                 </el-collapse-item>
               </el-collapse>
@@ -280,18 +272,23 @@
               ref="moveEditor"
               :span="24"
               class="mb-3"
-              style="position: sticky; top: 0; z-index: 3; background-color: white;"
+              style="
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                background-color: white;
+              "
             >
               <IssueNotesEditor
                 ref="IssueNotesEditor"
                 v-model="form.notes"
-                :issue-id="issueId"
-                :issue-name="issueName"
-                :is-button-disabled="isButtonDisabled"
-                :assigned-to="assignedTo"
-                :is-issue-edited="isIssueEdited"
+                :assigned="assigned"
                 :data-loaded="dataLoaded"
+                :is-button-disabled="isButtonDisabled"
                 :is-description-empty="originForm.description === ''"
+                :is-issue-edited="isIssueEdited"
+                :issue-id="issueId"
+                :issue-subject="issueSubject"
                 @filterImage="$parent.filterImage"
                 @update="$parent.historyUpdate"
               />
@@ -299,53 +296,66 @@
             <el-col :span="24">
               <el-tabs
                 v-model="$parent.issueTabs"
-                type="border-card"
                 class="m-3 mt-0"
+                type="border-card"
               >
-                <el-tab-pane
-                  v-loading="historyLoading"
-                  name="history"
-                >
+                <el-tab-pane v-loading="historyLoading" name="history">
                   <template slot="label">
                     <span>
-                      <em class="ri-history-line" />
+                      <em class="ri-history-line"></em>
                       {{ $t('Issue.History') }}
                     </span>
                   </template>
                   <IssueNotesDialog
-                    :height="dialogHeight"
                     :data="journals"
+                    :height="dialogHeight"
                     @show-parent-issue="$parent.onRelationIssueDialog"
                   />
                 </el-tab-pane>
-                <el-tab-pane name="commitLog">
+                <el-tab-pane v-if="services.gitlab" name="commitLog">
                   <template slot="label">
                     <span>
-                      <em class="ri-git-commit-line" />
+                      <em class="ri-git-commit-line"></em>
                       {{ $t('Issue.Commit') }}
                     </span>
                   </template>
                   <AdminCommitLog
                     ref="AdminCommitLog"
-                    :issue-id="issueId"
-                    :issue-name="form.name"
                     :get-data="$parent.getGitCommitLogData"
                     :height="dialogHeight"
+                    :issue="issue"
+                    :issue-id="issueId"
+                    :issue-subject="form.subject"
                   />
                 </el-tab-pane>
                 <el-tab-pane v-if="isHasWhiteBoard" name="whiteBoard">
                   <template slot="label">
                     <span>
-                      <em class="el-icon-monitor" />
-                      {{ $t('Excalidraw.Whiteboard') }}
+                      <em class="el-icon-monitor"></em>
+                      {{ $t('Plugins.excalidraw.Whiteboard') }}
                     </span>
                   </template>
                   <WhiteBoardTable
                     ref="WhiteBoardTable"
-                    :issue-id="issueId"
                     :excalidraw-data="issue.excalidraw"
                     :height="dialogHeight"
+                    :issue-id="issueId"
                     @update="$parent.fetchIssueLink"
+                  />
+                </el-tab-pane>
+                <el-tab-pane name="SpentHours">
+                  <template slot="label">
+                    <span>
+                      <em class="el-icon-time"></em>
+                      {{ $t('Issue.SpentHours') }}
+                    </span>
+                  </template>
+                  <IssueSpentHoursLog
+                    ref="IssueSpentHoursLog"
+                    :activity-list="activityList"
+                    :issue="issue"
+                    :issue-id="issueId"
+                    @update-spent-time="handleSpentTimeUpdate"
                   />
                 </el-tab-pane>
               </el-tabs>
@@ -354,59 +364,61 @@
         </el-col>
         <el-col
           v-show="isIssueFormOpened"
-          :span="24"
           :sm="8"
+          :span="24"
           class="issueOptionHeight"
         >
           <IssueForm
             v-if="!isFromBoard"
             ref="IssueForm"
+            :activity-list="activityList"
+            :children-issue="children"
+            :data-loaded="dataLoaded"
+            :form.sync="form"
             :is-button-disabled="isButtonDisabled"
+            :is-issue-edited="isIssueEdited"
             :issue="issue"
             :issue-id="issueId"
             :issue-project="issueProject"
-            :data-loaded="dataLoaded"
-            :form.sync="form"
             :parent="parent"
-            :children-issue="children"
-            :is-issue-edited="isIssueEdited"
             @update="$parent.historyUpdate"
+            @update-spent-time="handleSpentTimeUpdate"
           />
         </el-col>
       </el-row>
     </el-card>
     <el-backtop
-      :visibility-height="500"
-      :right="issueFormWidth"
       :bottom="50"
+      :right="issueFormWidth"
+      :visibility-height="500"
       target=".issueHeight"
     />
     <el-dialog
-      :visible.sync="relationIssue.visible"
       :before-close="$parent.handleRelationIssueDialogBeforeClose"
-      width="90%"
-      top="3vh"
+      :visible.sync="relationIssue.visible"
       append-to-body
       destroy-on-close
+      top="3vh"
+      width="90%"
     >
       <IssueDetail
         v-if="relationIssue.visible"
         ref="children"
+        :is-in-dialog="true"
         :is-open-matrix="isOpenMatrix"
         :props-issue-id="relationIssue.id"
-        :is-in-dialog="true"
-        @update="$parent.showLoading"
         @delete="$parent.handleRelationDelete"
+        @update="$parent.showLoading"
       />
     </el-dialog>
     <el-dialog
-      :visible.sync="relatedCollectionDialogVisible"
       :close-on-click-modal="false"
       :show-close="false"
-      width="80%"
-      custom-class="relatedCollectionDialog"
+      :visible.sync="relatedCollectionDialogVisible"
       append-to-body
+      custom-class="relatedCollectionDialog"
       destroy-on-close
+      width="80%"
     >
       <RelatedCollectionDialog
         ref="relatedCollectionDialog"
@@ -416,30 +428,37 @@
       />
     </el-dialog>
     <el-dialog
+      :title="
+        $t('Issue.TraceabilityMatrix') +
+          '(#' +
+          issue.id +
+          ' - ' +
+          issue.subject +
+          ')'
+      "
       :visible.sync="issueMatrixDialog.visible"
-      :title="$t('Issue.TraceabilityMatrix') + '(#' + issue.id + ' - ' + issue.name + ')'"
-      width="80%"
-      top="20px"
       append-to-body
       destroy-on-close
+      top="20px"
+      width="80%"
     >
       <IssueMatrix
         v-if="issueMatrixDialog.visible"
         :row.sync="issue"
-        @update-issue="$parent.handleUpdated"
         @onCloseIssueMatrix="issueMatrixDialog.visible = false"
+        @update-issue="$parent.handleUpdated"
       />
     </el-dialog>
     <el-dialog
-      :visible.sync="$parent.isShowDialog"
       :close-on-click-modal="false"
+      :visible.sync="$parent.isShowDialog"
       append-to-body
       destroy-on-close
       width="30%"
       @close="$parent.onCancel"
     >
       <span>
-        <em :style="$parent.getStyle('danger')" class="el-icon-warning" />
+        <em :style="$parent.getStyle('danger')" class="el-icon-warning"></em>
         {{ $t('Notify.ChangeProject') }}
       </span>
       <span slot="footer">
@@ -452,9 +471,11 @@
       </span>
     </el-dialog>
     <SubIssueDialog
-      :is-issue-dialog.sync="$parent.isDeleteIssueDialog"
       :is-delete-issue="true"
+      :is-issue-dialog.sync="$parent.isDeleteIssueDialog"
       :issue="issue"
+      :title="`#${issueId} - ${form.subject}`"
+      :tracker="tracker"
       @editWhiteBoard="$parent.editWhiteBoard"
       @handleDelete="$parent.handleDelete"
     />
@@ -462,50 +483,33 @@
 </template>
 
 <script>
-import { Status, Tracker, IssueExpand } from '@/components/Issue'
-import {
-  IssueForm,
-  IssueNotesDialog,
-  IssueNotesEditor,
-  IssueFiles,
-  IssueDescription,
-  IssueTitle,
-  IssueToolbar,
-  IssueMatrix,
-  IssueCollection,
-  WatchButton,
-  WhiteBoardTable,
-  AddSubIssue,
-  AddToCalendar,
-  AdminCommitLog,
-  ShareButton,
-  SubIssueDialog
-} from './components'
-import RelatedCollectionDialog from '@/views/Test/TestFile/components/RelatedCollectionDialog'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'ProjectIssueDetail',
   components: {
-    IssueCollection,
-    Status,
-    Tracker,
-    IssueTitle,
-    IssueDescription,
-    IssueForm,
-    IssueNotesDialog,
-    IssueNotesEditor,
-    IssueToolbar,
-    IssueFiles,
-    IssueMatrix,
-    RelatedCollectionDialog,
-    IssueExpand,
-    WatchButton,
-    WhiteBoardTable,
-    AddSubIssue,
-    AddToCalendar,
-    AdminCommitLog,
-    ShareButton,
-    SubIssueDialog,
+    IssueCollection: () => import('./components/IssueCollection'),
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    IssueTitle: () => import('./components/IssueTitle'),
+    IssueDescription: () => import('./components/IssueDescription'),
+    IssueForm: () => import('./components/IssueForm'),
+    IssueNotesDialog: () => import('./components/IssueNotesDialog'),
+    IssueNotesEditor: () => import('./components/IssueNotesEditor'),
+    IssueToolbar: () => import('./components/IssueToolbar'),
+    IssueFiles: () => import('./components/IssueFiles'),
+    IssueMatrix: () => import('./components/IssueMatrix'),
+    RelatedCollectionDialog: () =>
+      import('@/views/Test/TestFile/components/RelatedCollectionDialog'),
+    IssueExpand: () => import('@/components/Issue/IssueExpand'),
+    WatchButton: () => import('./components/WatchButton'),
+    WhiteBoardTable: () => import('./components/WhiteBoardTable'),
+    AddSubIssue: () => import('./components/AddSubIssue'),
+    AddToCalendar: () => import('./components/AddToCalendar'),
+    AdminCommitLog: () => import('./components/AdminCommitLog'),
+    ShareButton: () => import('./components/ShareButton'),
+    SubIssueDialog: () => import('./components/SubIssueDialog'),
+    IssueSpentHoursLog: () => import('./components/IssueSpentHoursLog'),
     IssueDetail: () => import('./index.vue')
   },
   // mixins: [ContextMenu],
@@ -554,7 +558,7 @@ export default {
       type: Number,
       default: null
     },
-    issueName: {
+    issueSubject: {
       type: String,
       default: ''
     },
@@ -562,7 +566,7 @@ export default {
       type: String,
       default: ''
     },
-    createdDate: {
+    createAt: {
       type: String,
       default: ''
     },
@@ -650,7 +654,7 @@ export default {
       type: Boolean,
       default: false
     },
-    assignedTo: {
+    assigned: {
       type: Array,
       default: () => []
     },
@@ -677,6 +681,10 @@ export default {
     dataLoaded: {
       type: Boolean,
       default: false
+    },
+    activityList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -690,14 +698,9 @@ export default {
     }
   },
   computed: {
-    formTrackerName() {
-      if (!this.form.tracker_id || !this.$refs['IssueForm']) return null
-      const getTrackerName = this.$refs['IssueForm'].tracker.find((item) => item.id === this.form.tracker_id)
-      if (!getTrackerName) return null
-      return getTrackerName.name
-    },
+    ...mapGetters(['services']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     }
   },
   watch: {
@@ -713,12 +716,17 @@ export default {
     },
     dataLoaded(value) {
       if (!value) return
-      setInterval(() => { this.$emit('update:dataLoaded', false) }, 5000)
+      setInterval(() => {
+        this.$emit('update:dataLoaded', false)
+      }, 5000)
     }
   },
   methods: {
     detectEditorHeight(event) {
-      const [IssueDescription, IssueNotesEditor] = [this.$refs.IssueDescription, this.$refs.IssueNotesEditor]
+      const [IssueDescription, IssueNotesEditor] = [
+        this.$refs.IssueDescription,
+        this.$refs.IssueNotesEditor
+      ]
       const { movementY } = event
       if (!event) {
         IssueDescription.isMoving = false
@@ -735,8 +743,11 @@ export default {
       if (!edit) return
       const { $el, editor } = IssueEditor.$refs.mdEditor
       const editorHeight = $el.clientHeight
-      const movableArea = editorHeight + movementY > 200 && editorHeight + movementY < 600
-      if (isMoving && movableArea) editor.setHeight(`${editorHeight + movementY}px`)
+      const movableArea =
+        editorHeight + movementY > 200 && editorHeight + movementY < 600
+      if (isMoving && movableArea) {
+        editor.setHeight(`${editorHeight + movementY}px`)
+      }
     },
     changeIssueFormOpened() {
       this.isIssueFormOpened = !this.isIssueFormOpened
@@ -752,13 +763,18 @@ export default {
           this.issueFormWidth = this.isIssueFormOpened ? clientWidth + 130 : 100
         }
       })
+    },
+    async handleSpentTimeUpdate() {
+      await this.$parent.fetchIssue()
+      await this.$refs.IssueSpentHoursLog.fetchSpentHoursList()
+      this.$parent.issueTabs = 'SpentHours'
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 ::v-deep .is-align-bottom {
@@ -829,21 +845,28 @@ export default {
   }
 }
 
-::v-deep .el-button+.el-button {
+::v-deep .el-button + .el-button {
   margin: 0;
 }
+
 .grey-title {
   color: grey;
+
   ::v-deep .point {
     background-color: grey !important;
   }
 }
+
 .in-dialog {
   padding: 0;
+
   ::v-deep {
-    .el-card.is-always-shadow, .el-card.is-hover-shadow:focus, .el-card.is-hover-shadow:hover {
+    .el-card.is-always-shadow,
+    .el-card.is-hover-shadow:focus,
+    .el-card.is-hover-shadow:hover {
       box-shadow: none;
     }
+
     .el-dialog__body {
       padding: 22px;
     }

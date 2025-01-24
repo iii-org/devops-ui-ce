@@ -2,18 +2,18 @@
   <el-card :shadow="shadow" class="mb-3">
     <div class="flex justify-between items-center font-semibold">
       <div>
-        <em class="el-icon-data-analysis mx-1" />
+        <em class="el-icon-data-analysis mx-1"></em>
         <span>{{ $t('Dashboard.Workload') }}</span>
         <em
           v-if="!saveSelectedItem && showFullScreen"
           class="el-icon-zoom-in cursor-pointer mx-2"
           @click="showFullIssuePriority"
-        />
+        ></em>
       </div>
       <el-select
         v-model="selectedItem"
         size="small"
-        style="width: 150px;"
+        style="width: 150px"
         @change="fillData"
       >
         <el-option
@@ -26,21 +26,18 @@
     </div>
     <el-empty
       v-if="Object.keys(selectedData).length === 0"
-      :image-size="200"
       :description="$t('general.NoData')"
+      :image-size="200"
       style="height: 400px"
     />
-    <HorizontalBar
-      v-else
-      :chart-data="dataCollection"
-    />
+    <HorizontalBar v-else :chart-data="dataCollection" />
   </el-card>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import HorizontalBar from './HorizontalBar.vue'
-import colorVariables from '@/styles/theme/variables.scss'
+import colorVariables from '@/styles/theme/variables.module.scss'
 
 export default {
   name: 'WorkloadCard',
@@ -48,7 +45,7 @@ export default {
   props: {
     statisticsObj: {
       type: Object,
-      default: () => []
+      default: () => {}
     },
     saveSelectedItem: {
       type: String,
@@ -86,7 +83,9 @@ export default {
       }
     },
     selectedData() {
-      const selectedItem = this.selectList.find(item => item.label === this.selectedItem)
+      const selectedItem = this.selectList.find(
+        (item) => item.label === this.selectedItem
+      )
       return selectedItem ? selectedItem.data : {}
     },
     chartData() {
@@ -117,12 +116,36 @@ export default {
     },
     issueStatusList() {
       return [
-        { label: this.$t('Issue.Active'), color: this.getColors('active'), key: 'Active' },
-        { label: this.$t('Issue.Assigned'), color: this.getColors('assigned'), key: 'Assigned' },
-        { label: this.$t('Issue.InProgress'), color: this.getColors('inProgress'), key: 'InProgress' },
-        { label: this.$t('Issue.Solved'), color: this.getColors('solved'), key: 'Solved' },
-        { label: this.$t('Issue.Verified'), color: this.getColors('verified'), key: 'Verified' },
-        { label: this.$t('Issue.Closed'), color: this.getColors('closed'), key: 'Closed' }
+        {
+          label: this.$t('Issue.Active'),
+          color: this.getColors('active'),
+          key: 'Active'
+        },
+        {
+          label: this.$t('Issue.Assigned'),
+          color: this.getColors('assigned'),
+          key: 'Assigned'
+        },
+        {
+          label: this.$t('Issue.InProgress'),
+          color: this.getColors('inProgress'),
+          key: 'InProgress'
+        },
+        {
+          label: this.$t('Issue.Solved'),
+          color: this.getColors('solved'),
+          key: 'Solved'
+        },
+        {
+          label: this.$t('Issue.Verified'),
+          color: this.getColors('verified'),
+          key: 'Verified'
+        },
+        {
+          label: this.$t('Issue.Closed'),
+          color: this.getColors('closed'),
+          key: 'Closed'
+        }
       ]
     }
   },
@@ -147,13 +170,18 @@ export default {
     handleStatistics(statistics) {
       const hasStatistics = Object.keys(statistics).length > 0
       if (hasStatistics) {
-        this.selectList = Object.keys(statistics).map(key => ({
+        this.selectList = Object.keys(statistics).map((key) => ({
           id: key,
           label: key,
           data: statistics[key]
         }))
-        const defaultKeyIdx = this.selectList.findIndex(item => item.id === 'assigned_to')
-        this.selectedItem = this.saveSelectedItem !== '' ? this.saveSelectedItem : this.selectList[defaultKeyIdx].id
+        const defaultKeyIdx = this.selectList.findIndex(
+          (item) => item.id === 'assigned'
+        )
+        this.selectedItem =
+          this.saveSelectedItem !== ''
+            ? this.saveSelectedItem
+            : this.selectList[defaultKeyIdx].id
         this.fillData()
       } else {
         this.dataCollection = {}
@@ -164,11 +192,15 @@ export default {
     fillData() {
       const yAxis = Object.keys(this.chartData)
       const seriesData = []
-      this.issueStatusList.map(status =>
-        seriesData.push(yAxis.map(yAxisItem => this.chartData[yAxisItem]).map(item => item[status.key]))
+      this.issueStatusList.map((status) =>
+        seriesData.push(
+          yAxis
+            .map((yAxisItem) => this.chartData[yAxisItem])
+            .map((item) => item[status.key])
+        )
       )
       this.dataCollection = {
-        legend: this.issueStatusList.map(status => status.label),
+        legend: this.issueStatusList.map((status) => status.label),
         yAxis,
         series: this.issueStatusList.map((status, index) => ({
           name: status.label,

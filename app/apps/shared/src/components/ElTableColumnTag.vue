@@ -1,5 +1,8 @@
 <template>
-  <el-table-column v-bind="$props" align="center">
+  <el-table-column
+    v-bind="$props"
+    align="center"
+  >
     <template slot-scope="scope">
       <el-tag
         v-if="scope.row[prop]"

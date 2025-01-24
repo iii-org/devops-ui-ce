@@ -4,7 +4,7 @@
       <Draggable
         :list="groupByValueOnBoard"
         v-bind="$attrs"
-        :class="{'is-panel':relationIssue.visible}"
+        :class="{ 'is-panel': relationIssue.visible }"
         :draggable="'.item'"
         :disabled="!isDraggable"
         :force-fallback="true"
@@ -41,44 +41,34 @@
         />
         <el-card
           v-if="!isSelectDefaultOption"
-          :body-style="{padding: 0}"
-          style="
-            min-width: 278px;
-            height: 4.3rem;
-            margin: 0 5px;
-          "
+          :body-style="{ padding: 0 }"
+          style="min-width: 278px; height: 4.3rem; margin: 0 5px"
         >
           <el-link
             v-if="!isEdited"
             :underline="false"
             icon="el-icon-plus"
             class="flex items-center"
-            style="font-size: 1.1rem; height: 4.3rem;"
+            style="font-size: 1.1rem; height: 4.3rem"
             @click="isEdited = true"
           >
             {{ $t('general.Add') + $t('general.Title') }}
           </el-link>
           <template v-else>
             <div class="flex justify-end px-1 mt-1">
-              <el-tooltip
-                :content="$t('general.Save')"
-                placement="bottom"
-              >
+              <el-tooltip :content="$t('general.Save')" placement="bottom">
                 <em
                   class="el-icon-check primary table-button"
-                  style="font-size: 14px;"
+                  style="font-size: 14px"
                   @click="createBoardItem"
-                />
+                ></em>
               </el-tooltip>
-              <el-tooltip
-                :content="$t('general.Cancel')"
-                placement="bottom"
-              >
+              <el-tooltip :content="$t('general.Cancel')" placement="bottom">
                 <em
                   class="el-icon-close danger table-button"
-                  style="font-size: 14px;"
+                  style="font-size: 14px"
                   @click="resetBoardObject"
-                />
+                ></em>
               </el-tooltip>
             </div>
             <CustomItem
@@ -96,11 +86,11 @@
     <transition name="slide-fade">
       <div v-if="relationIssue.visible" class="rightPanel">
         <div
-          :style="{'background-color':'#85c1e9'}"
+          :style="{ 'background-color': '#85c1e9' }"
           class="handle-button"
           @click="handleRightPanelVisible"
         >
-          <em class="el-icon-d-arrow-right" />
+          <em class="el-icon-d-arrow-right"></em>
         </div>
         <ProjectIssueDetail
           ref="childrenDrawer"
@@ -141,23 +131,24 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getIssue, addIssue, updateIssue } from '@/api/issue'
+import { getIssue } from '@/api/issue'
+import { updateIssue } from '@/api_v3/issues'
 import {
   createBoardItem,
   updateBoardItem,
   createBoardItemIssue,
-  removeBoardItemIssue
-} from '@/api_v2/issueBoard'
-import Kanban from './Kanban'
-import CustomItem from './CustomItem'
-import { ContextMenu } from '@/components/Issue'
+  deleteBoardItemIssue
+} from '@/api_v3/issueBoard'
+import { createProjectIssue } from '@/api_v3/projects'
 import Draggable from 'vuedraggable'
+import { mapGetters } from 'vuex'
+import CustomItem from './CustomItem'
+import Kanban from './Kanban'
 
 const contextMenu = {
   row: {
-    fixed_version: { id: 'null' },
-    assigned_to: { id: 'null' }
+    version: { id: 'null' },
+    assigned: { id: 'null' }
   },
   visible: false,
   left: 0,
@@ -170,7 +161,7 @@ export default {
     CustomItem,
     Draggable,
     Kanban,
-    ContextMenu,
+    ContextMenu: () => import('@/components/Issue/ContextMenu'),
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail')
   },
   props: {
@@ -214,8 +205,8 @@ export default {
       default: () => []
     },
     projectId: {
-      type: Number,
-      default: null
+      type: [Number, String],
+      default: ''
     },
     filterType: {
       type: String,
@@ -251,39 +242,41 @@ export default {
         visible: false,
         id: null
       },
-      filterOptions: [{
-        id: 1,
-        label: this.$t('Issue.FilterDimensions.status'),
-        value: 'status',
-        placeholder: 'Status',
-        tag: true
-      },
-      {
-        id: 3,
-        label: this.$t('Issue.FilterDimensions.tracker'),
-        value: 'tracker',
-        placeholder: 'Type',
-        tag: true
-      },
-      {
-        id: 4,
-        label: this.$t('Issue.FilterDimensions.assigned_to'),
-        value: 'assigned_to',
-        placeholder: 'Member'
-      },
-      {
-        id: 5,
-        label: this.$t('Issue.FilterDimensions.fixed_version'),
-        value: 'fixed_version',
-        placeholder: 'Version'
-      },
-      {
-        id: 6,
-        label: this.$t('Issue.FilterDimensions.priority'),
-        value: 'priority',
-        placeholder: 'Priority',
-        tag: true
-      }],
+      filterOptions: [
+        {
+          id: 1,
+          label: this.$t('Issue.FilterDimensions.status'),
+          value: 'status',
+          placeholder: 'Status',
+          tag: true
+        },
+        {
+          id: 3,
+          label: this.$t('Issue.FilterDimensions.tracker'),
+          value: 'tracker',
+          placeholder: 'Type',
+          tag: true
+        },
+        {
+          id: 4,
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
+          placeholder: 'Member'
+        },
+        {
+          id: 5,
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
+          placeholder: 'Version'
+        },
+        {
+          id: 6,
+          label: this.$t('Issue.FilterDimensions.priority'),
+          value: 'priority',
+          placeholder: 'Priority',
+          tag: true
+        }
+      ],
       isEdited: false,
       isDraggable: true,
       boardObject: { id: null, name: '', color: '#409EFF' }
@@ -295,7 +288,9 @@ export default {
       if (this.groupBy.value.length <= 0) {
         return this.getStatusSort.map((item) => item)
       }
-      return this.groupBy.dimension === 'assigned_to' ? this.filterMe(this.groupBy.value) : this.groupBy.value
+      return this.groupBy.dimension === 'assigned'
+        ? this.filterMe(this.groupBy.value)
+        : this.groupBy.value
     },
     isMobile() {
       return this.device === 'mobile'
@@ -304,7 +299,10 @@ export default {
   watch: {
     isMobile() {
       if (this.relationIssue.visible) {
-        this.$router.push({ name: 'IssueDetail', params: { issueId: this.relationIssue.id }})
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: this.relationIssue.id }
+        })
       }
     }
   },
@@ -321,21 +319,23 @@ export default {
     },
     async saveIssue(data, itemId) {
       let issueId
-      await addIssue(data)
+      await createProjectIssue(data.project_id, data)
         .then(async (res) => {
           // noinspection JSCheckFunctionSignatures
           // this.showSuccessMessage()
           issueId = res.data.id
           this.addTopicDialogVisible = false
-          this.$refs['quickAddIssue'].form.name = ''
-          return res
+          this.$refs['quickAddIssue'].form.subject = ''
+          this.loadData()
         })
         .catch((error) => {
           return error
         })
       if (!this.isSelectDefaultOption && itemId !== 'all') {
-        const formData = this.getFormData({ issue_id: issueId })
-        await createBoardItemIssue(this.projectId, this.boardId, itemId, formData)
+        const sendData = {
+          issue_id: issueId
+        }
+        await createBoardItemIssue(this.boardId, itemId, sendData)
       }
     },
     showSuccessMessage() {
@@ -349,19 +349,30 @@ export default {
       if (evt.event.hasOwnProperty('added')) {
         try {
           if (this.isSelectDefaultOption) {
-            const updatedData = { [`${this.groupBy.dimension}_id`]: evt.boardObject.id }
+            const updatedData = {
+              [`${this.groupBy.dimension}_id`]: evt.boardObject.id
+            }
             const issueId = evt.event.added.element.id
             await this.updatedIssue(issueId, updatedData)
           } else {
             const issueId = evt.event.added.element.id
             const issue = await getIssue(issueId)
-            if (issue.data.board.findIndex((board) => board.id === this.boardId) !== -1) {
-              const itemId = issue.data.board.find((board) => board.id === this.boardId).item.id
-              await removeBoardItemIssue(this.projectId, this.boardId, itemId, issueId)
+            if (
+              issue.data.board.findIndex(
+                (board) => board.id === this.boardId
+              ) !== -1
+            ) {
+              await deleteBoardItemIssue(this.boardId, issueId)
             }
             if (evt.boardObject.id !== 'all') {
-              const formData = this.getFormData({ issue_id: issueId })
-              await createBoardItemIssue(this.projectId, this.boardId, evt.boardObject.id, formData)
+              const sendData = {
+                issue_id: issueId
+              }
+              await createBoardItemIssue(
+                this.boardId,
+                evt.boardObject.id,
+                sendData
+              )
             }
           }
         } catch (e) {
@@ -382,8 +393,7 @@ export default {
       return formData
     },
     async updatedIssue(id, updatedData) {
-      const formData = this.getFormData(updatedData)
-      const res = await updateIssue(id, formData)
+      const res = await updateIssue(id, updatedData)
       this.updateRelationIssue(this.projectIssueList, res.data)
     },
     setProjectIssueList(evt) {
@@ -395,7 +405,10 @@ export default {
     },
     updateRelationIssue(list, updatedIssue) {
       list.forEach((issue) => {
-        if (issue.hasOwnProperty('parent') && issue.parent.id === updatedIssue.id) {
+        if (
+          issue.hasOwnProperty('parent') &&
+          issue.parent.id === updatedIssue.id
+        ) {
           this.$set(issue, 'parent', updatedIssue)
         }
         this.handleUpdatedIssue('children', updatedIssue)
@@ -403,7 +416,9 @@ export default {
       })
     },
     handleUpdatedIssue(key, updatedIssue) {
-      if (updatedIssue.hasOwnProperty(key)) this.setUpdatedIssue(key, updatedIssue)
+      if (updatedIssue.hasOwnProperty(key)) {
+        this.setUpdatedIssue(key, updatedIssue)
+      }
     },
     setUpdatedIssue(key, updatedIssue) {
       const idx = updatedIssue[key].findIndex((item) => item.id === issue.id)
@@ -431,7 +446,11 @@ export default {
       const filterDimension = Object.keys(value)[0]
       let data = { [`${filterDimension}_id`]: value[filterDimension].id }
       if (Array.isArray(value[filterDimension])) {
-        data = { [filterDimension]: value[filterDimension].map((item) => item.id).join(',') }
+        data = {
+          [filterDimension]: value[filterDimension]
+            .map((item) => item.id)
+            .join(',')
+        }
       }
       return data
     },
@@ -501,7 +520,10 @@ export default {
         this.$set(this.relationIssue, 'id', issue.id)
         setTimeout(() => this.scrollTo(element), 100)
       } else {
-        this.$router.push({ name: 'IssueDetail', params: { issueId: issue.id }})
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: issue.id }
+        })
       }
     },
     handleRelationDelete() {
@@ -519,14 +541,17 @@ export default {
       })
     },
     handlePopConfirm(done) {
-      this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-        confirmButtonText: this.$t('general.Confirm'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'warning'
+      this.$confirm(
+        this.$t('Notify.UnSavedChanges'),
+        this.$t('general.Warning'),
+        {
+          confirmButtonText: this.$t('general.Confirm'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'warning'
+        }
+      ).then(() => {
+        done()
       })
-        .then(() => {
-          done()
-        })
     },
     handleRelationIssueDialogBeforeClose(done) {
       const ref = done ? 'children' : 'childrenDrawer'
@@ -543,24 +568,17 @@ export default {
       }
     },
     async end(event) {
-      const formData = new FormData()
-      formData.append('index', event.moved.newIndex - 1)
+      const sendData = {
+        index: event.moved.newIndex - 1
+      }
       const itemId = event.moved.element.id
-      await updateBoardItem(
-        this.projectId,
-        this.boardId,
-        itemId,
-        formData
-      )
+      await updateBoardItem(this.boardId, itemId, sendData)
       this.$emit('loadData')
     },
     async createBoardItem() {
-      const { name, color } = this.boardObject
+      const { name } = this.boardObject
       if (name) {
-        const itemForm = new FormData()
-        itemForm.append('item_name', name)
-        itemForm.append('color', color)
-        await createBoardItem(this.projectId, this.boardId, itemForm)
+        await createBoardItem(this.boardId, this.boardObject)
         this.resetBoardObject()
         this.loadData()
       } else {
@@ -579,7 +597,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .board {
@@ -644,11 +662,10 @@ $tag-options: (
 }
 
 .slide-fade-enter-active {
-  transition: all .5s ease-in-out;
-
+  transition: all 0.5s ease-in-out;
 }
 .slide-fade-leave-active {
-  transition: all .5s ease-in-out;
+  transition: all 0.5s ease-in-out;
 }
 .slide-fade-enter, .slide-fade-leave-to
 /* .slide-fade-leave-active below version 2.1.8 */ {
@@ -669,8 +686,7 @@ $tag-options: (
   cursor: pointer;
   color: #fff;
   line-height: 50px;
-  background-color:'#85c1e9'
-  i {
+  background-color: '#85c1e9' i {
     font-size: 24px;
     line-height: 50px;
   }

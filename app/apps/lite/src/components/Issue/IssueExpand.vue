@@ -1,18 +1,21 @@
 <template>
   <el-row
-    v-if="issue.family || family"
-    :class="device === 'mobile' ? 'mobile' : ''"
+    v-if="issue.has_family || family"
+    :class="device === 'mobile' ? 'mobile' : 'px-2'"
   >
-    <el-skeleton v-if="issue.hasOwnProperty('isLoadingFamily') && issue.isLoadingFamily" class="p-5" />
+    <el-skeleton
+      v-if="issue.hasOwnProperty('isLoadingFamily') && issue.isLoadingFamily"
+      class="p-5"
+    />
     <ul v-else class="family">
-      <li v-if="issue.hasOwnProperty('parent') && Object.keys(issue.parent).length > 0">
+      <li v-if="issue.parent && Object.keys(issue.parent).length > 0">
         <span class="title">{{ $t('Issue.ParentIssue') }}:</span>
         <ul class="issue-list">
           <li class="issue-item">
             <IssueRow
-              :issue="issue.parent"
-              :is-parent="true"
               :is-button-disabled="isButtonDisabled"
+              :is-parent="true"
+              :issue="issue.parent"
               :reload="reload"
               @click-title="handleEdit"
               @show-context-menu="handleContextMenu(issue.parent, '', $event)"
@@ -21,14 +24,18 @@
           </li>
         </ul>
       </li>
-      <li v-if="issue.hasOwnProperty('children') && issue.children.length > 0">
+      <li v-if="issue.children && issue.children.length > 0">
         <span class="title">{{ $t('Issue.ChildrenIssue') }}:</span>
         <ol class="issue-list">
           <template v-for="child in issue.children">
-            <li v-if="Object.keys(child).length > 0" :key="child.id" class="issue-item">
+            <li
+              v-if="Object.keys(child).length > 0"
+              :key="child.id"
+              class="issue-item"
+            >
               <IssueRow
-                :issue="child"
                 :is-button-disabled="isButtonDisabled"
+                :issue="child"
                 :reload="reload"
                 @click-title="handleEdit"
                 @show-context-menu="handleContextMenu(child, '', $event)"
@@ -38,14 +45,18 @@
           </template>
         </ol>
       </li>
-      <li v-if="issue.hasOwnProperty('relations') && issue.relations.length > 0">
+      <li v-if="issue.relations && issue.relations.length > 0">
         <span class="title">{{ $t('Issue.RelatedIssue') }}:</span>
         <ol class="issue-list">
           <template v-for="child in issue.relations">
-            <li v-if="Object.keys(child).length > 0" :key="child.id" class="issue-item">
+            <li
+              v-if="Object.keys(child).length > 0"
+              :key="child.id"
+              class="issue-item"
+            >
               <IssueRow
-                :issue="child"
                 :is-button-disabled="isButtonDisabled"
+                :issue="child"
                 :reload="reload"
                 @click-title="handleEdit"
                 @show-context-menu="handleContextMenu(child, '', $event)"
@@ -61,7 +72,7 @@
 </template>
 
 <script>
-import { deleteIssueRelation, updateIssue } from '@/api/issue'
+import { deleteIssueRelation, updateIssue } from '@/api_v3/issues'
 import IssueRow from './components/IssueRow'
 import { mapGetters } from 'vuex'
 
@@ -94,22 +105,15 @@ export default {
     ...mapGetters(['device'])
   },
   methods: {
-    getFormData(data) {
-      const formData = new FormData()
-      Object.keys(data).forEach((item) => {
-        formData.append(item, data[item])
-      })
-      return formData
-    },
     async removeIssueRelation(issue) {
       const { issueData, isParent } = issue
       this.listLoading = true
       try {
-        const formData = this.getFormData({ parent_id: '' })
+        const sendData = { parent_id: null }
         if (isParent) {
-          await updateIssue(this.issue.id || this.issue.issueId, formData)
+          await updateIssue(this.issue.id || this.issue.issueId, sendData)
         } else {
-          await updateIssue(issueData.id, formData)
+          await updateIssue(issueData.id, sendData)
         }
         this.$message({
           title: this.$t('general.Success'),
@@ -161,21 +165,26 @@ export default {
   .title {
     @apply text-sm font-bold;
   }
+
   .issue-list {
     @apply space-y-1;
     .issue-item:hover {
       @apply bg-gray-100 text-primary font-bold rounded;
-      ::v-deep.el-tag{
+      ::v-deep.el-tag {
         @apply font-normal;
       }
     }
   }
 }
+
 .mobile {
-  ul, ol {
+  ul,
+  ol {
     padding-left: 24px;
   }
-  ::v-deep .el-button--mini, .el-button--mini.is-round {
+
+  ::v-deep .el-button--mini,
+  .el-button--mini.is-round {
     padding: 7px;
   }
 }

@@ -5,47 +5,37 @@
       :key="file.id"
       class="el-upload-list__item is-ready"
     >
-      <el-col
-        :span="14"
-        :lg="16"
-      >
-        <el-tooltip
-          :disabled="clientWidth >= scrollWidth"
-          placement="bottom"
-        >
+      <el-col :lg="16" :span="14">
+        <el-tooltip :disabled="clientWidth >= scrollWidth" placement="bottom">
           <div slot="content">
-            {{ file.filename + `(${getLocalTime(file.created_on)})` }}
+            {{ file.filename + `(${getLocalTime(file.create_at)})` }}
           </div>
           <a
             class="el-upload-list__item-name"
-            @mouseover="checkWidth"
             @click="handlePreview(file)"
+            @mouseover="checkWidth"
           >
-            <em class="el-icon-document" />
-            {{ file.filename + `(${getLocalTime(file.created_on)})` }}
+            <em :class="getFileIcon(file.content_type)"></em>
+            {{ file.filename + `(${getLocalTime(file.create_at)})` }}
           </a>
         </el-tooltip>
       </el-col>
-      <el-col
-        :span="10"
-        :lg="8"
-        class="text-right"
-      >
+      <el-col :lg="8" :span="10" class="text-right">
         <span>
           <el-button
-            :loading="isLoading"
             :disabled="isButtonDisabled"
-            class="button-primary"
-            size="mini"
+            :loading="isLoading"
+            type="primary"
             icon="el-icon-download"
+            size="mini"
             @click="handleDownload(file)"
           >
             <span v-if="device === 'desktop'">{{ $t('File.Download') }}</span>
           </el-button>
         </span>
         <el-popconfirm
-          :confirm-button-text="$t('general.Delete')"
           :cancel-button-text="$t('general.Cancel')"
+          :confirm-button-text="$t('general.Delete')"
           :title="$t('Issue.DeleteFile')"
           icon="el-icon-info"
           popper-class="danger"
@@ -53,11 +43,11 @@
         >
           <el-button
             slot="reference"
-            :loading="isLoading"
             :disabled="isButtonDisabled"
-            type="danger"
-            size="mini"
+            :loading="isLoading"
             icon="el-icon-delete"
+            size="mini"
+            type="danger"
           >
             <span v-if="device === 'desktop'">{{ $t('general.Delete') }}</span>
           </el-button>
@@ -66,45 +56,71 @@
     </el-row>
     <component
       :is="device === 'desktop' ? 'el-dialog' : 'el-drawer'"
-      :title="image.filename"
-      :visible.sync="dialogVisible"
-      :width="device === 'desktop' ? '80%' : 'auto'"
-      :top="device === 'desktop' ? '3vh' : 'auto'"
       :class="device === 'mobile' ? 'mobile' : ''"
       :close-on-click-modal="device === 'desktop'"
-      direction="btt"
-      size="auto"
+      :title="preview.filename"
+      :top="device === 'desktop' ? '3vh' : 'auto'"
+      :visible.sync="dialogVisible"
+      :width="device === 'desktop' ? '80%' : 'auto'"
       append-to-body
       destroy-on-close
+      direction="btt"
+      size="auto"
     >
       <div v-touch:swipe="swipeHandler">
         <el-carousel
           ref="carousel"
-          :arrow="imageArray.length === 1 ? 'never' : 'hover'"
+          :arrow="issueFile.length === 1 ? 'never' : 'hover'"
           :autoplay="false"
-          :initial-index="imageIndex"
-          :height="device === 'desktop' ? imageHeight+'px' : 'calc(100vh - 150px)'"
-          trigger="click"
+          :height="device === 'desktop' ? '70vh' : 'calc(100vh - 150px)'"
+          :initial-index="previewIndex"
           indicator-position="none"
+          trigger="click"
           @change="changeCarousel"
         >
-          <el-carousel-item v-for="item in imageArray" :key="item.id">
+          <el-carousel-item
+            v-for="item in issueFile"
+            :key="item.id"
+            class="max-w-[100%] max-h-[100%]"
+          >
             <img
+              v-if="item.content_type.includes('image')"
               ref="image"
-              :src="item.src"
               :alt="item.filename"
               :class="device === 'mobile' ? 'carousel-image' : ''"
-              style="display: block; margin: auto; max-width: 100%;"
+              :src="item.content_url"
+              class="block m-auto max-w-[100%] max-h-[100%]"
               @load="resizeImageHeight"
+            />
+            <audio
+              v-else-if="item.content_type.includes('audio')"
+              class="block m-auto"
+              controls
             >
+              <source :src="item.content_url" :type="item.type" />
+            </audio>
+            <video
+              v-else-if="item.content_type.includes('video')"
+              class="block m-auto max-w-[90%] max-h-[90%] z-10"
+              controls
+            >
+              <source :src="item.content_url" :type="item.type" />
+            </video>
+            <el-empty
+              v-else
+              :image-size="100"
+              description="No preview available"
+            />
           </el-carousel-item>
         </el-carousel>
       </div>
       <span slot="footer">
-        <el-button v-if="device === 'desktop'" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
+        <el-button v-if="device === 'desktop'" @click="dialogVisible = false">{{
+          $t('general.Close')
+        }}</el-button>
         <el-button
           :class="device === 'mobile' ? 'w-full' : ''"
-          class="button-primary"
+          type="primary"
           @click="downloadImage"
         >
           <span>{{ $t('File.Download') }}</span>
@@ -115,15 +131,17 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { deleteIssueFile } from '@/api/issue'
-import { downloadProjectFile } from '@/api/projects'
-import { btoa } from '@shared/utils/base64'
+import { deleteIssueAttachment } from '@/api_v3/attachments'
 import { getLocalTime } from '@shared/utils/handleTime'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'IssueFiles',
   props: {
+    issueId: {
+      type: Number,
+      default: null
+    },
     issueFile: {
       type: Array,
       default: () => []
@@ -137,13 +155,12 @@ export default {
     return {
       isLoading: false,
       dialogVisible: false,
-      image: {
+      preview: {
         filename: '',
         content_type: '',
-        src: ''
+        content_url: ''
       },
-      imageArray: [],
-      imageIndex: 0,
+      previewIndex: 0,
       imageHeight: 0,
       clientWidth: 0,
       scrollWidth: 0
@@ -153,35 +170,34 @@ export default {
     ...mapGetters(['selectedProject', 'device'])
   },
   watch: {
-    issueFile(value) {
-      if (value.length === 0) return
-      this.handleImageArray()
-    }
+    // issueFile(value) {
+    //   if (value.length === 0) return
+    //   this.handleImageArray()
+    // }
   },
   mounted() {
-    this.handleImageArray()
+    // this.handleImageArray()
     this.resizeImageHeight()
     window.addEventListener('resize', this.resizeImageHeight)
     window.addEventListener('keydown', this.handleCarousel)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     window.removeEventListener('resize', this.resizeImageHeight)
     window.removeEventListener('keydown', this.handleCarousel)
   },
   methods: {
     async handleDownload(row) {
-      const res = await downloadProjectFile({ id: row.id, filename: row.filename, project_id: this.selectedProject.id })
-      const url = window.URL.createObjectURL(new Blob([res]))
+      const url = row.content_url
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', row.filename) // or any other extension
+      link.setAttribute('download', row.filename)
       document.body.appendChild(link)
       link.click()
       link.remove()
     },
-    deleteIssueFile(row) {
+    async deleteIssueFile(row) {
       this.isLoading = true
-      deleteIssueFile(row.id)
+      await deleteIssueAttachment(this.issueId, row.id)
         .then(() => {
           this.$message({
             title: this.$t('general.Success'),
@@ -205,45 +221,23 @@ export default {
       this.clientWidth = e.target.clientWidth
       this.scrollWidth = e.target.scrollWidth
     },
-    async handleImageArray() {
-      if (this.imageArray.length !== 0) this.imageArray = []
-      for (const item of this.issueFile) {
-        const { id, content_type, filename } = item
-        if (this.isAllowPreview(content_type)) {
-          await downloadProjectFile({ id, filename, project_id: this.selectedProject.id })
-            .then((res) => {
-              const base64String = btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
-              this.imageArray.push({
-                id: id,
-                content_type: content_type,
-                filename: filename,
-                src: `data:${content_type};base64, ${base64String}`
-              })
-            })
-            .catch((err) => {
-              this.showErrorMessage(err)
-            })
-        }
-      }
-    },
     handlePreview(row) {
-      if (!this.isAllowPreview(row.content_type)) return
-      this.imageIndex = this.imageArray.findIndex((item) => item.id === row.id)
-      this.image = this.imageArray[this.imageIndex]
+      this.previewIndex = this.issueFile.findIndex((item) => item.id === row.id)
+      this.preview = this.issueFile[this.previewIndex]
       this.dialogVisible = true
       if (this.$refs.carousel !== undefined) {
-        this.$refs.carousel.setActiveItem(this.imageIndex)
+        this.$refs.carousel.setActiveItem(this.previewIndex)
       }
     },
     resizeImageHeight() {
       if (this.$refs.image === undefined) return
       this.$nextTick(() => {
-        this.imageHeight = this.$refs.image[this.imageIndex].height
+        this.imageHeight = this.$refs.image[this.previewIndex].height
       })
     },
     changeCarousel(index) {
-      this.imageIndex = index
-      this.image = this.imageArray[index]
+      this.previewIndex = index
+      this.preview = this.issueFile[index]
       this.resizeImageHeight()
     },
     handleCarousel(e) {
@@ -258,17 +252,13 @@ export default {
       }
     },
     downloadImage() {
-      const { src, filename } = this.image
+      const { content_url, filename } = this.preview
       const link = document.createElement('a')
-      link.href = src
+      link.href = content_url
       link.setAttribute('download', filename)
       document.body.appendChild(link)
       link.click()
       link.remove()
-    },
-    isAllowPreview(content_type) {
-      if (content_type === null) return false
-      else return content_type.includes('image')
     },
     showErrorMessage(err) {
       this.$message({
@@ -279,7 +269,7 @@ export default {
     getLocalTime(time, format) {
       return getLocalTime(time, format)
     },
-    swipeHandler (direction) {
+    swipeHandler(direction) {
       if (!this.$refs.carousel) return
       switch (direction) {
         case 'left':
@@ -291,6 +281,15 @@ export default {
         default:
           break
       }
+    },
+    getFileIcon(fileType) {
+      const type = fileType.split('/')[0]
+      const iconMap = {
+        image: 'el-icon-picture',
+        video: 'el-icon-video-camera',
+        audio: 'el-icon-headset'
+      }
+      return iconMap[type] || 'el-icon-document'
     }
   }
 }
@@ -298,21 +297,27 @@ export default {
 
 <style lang="scss" scoped>
 .el-carousel__item {
-  background-color:white;
+  background-color: white;
+  align-content: center;
 }
+
 .mobile {
   max-height: 100vh;
+
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
   }
+
   ::v-deep .el-carousel__item {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+
     .carousel-image {
       max-height: 100%;
     }

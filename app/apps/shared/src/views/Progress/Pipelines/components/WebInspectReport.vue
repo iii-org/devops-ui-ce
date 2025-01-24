@@ -3,12 +3,12 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
+          <div></div>
           <el-button
             slot="link"
             :disabled="!hasWebInspectData"
+            icon="ri-external-link-line"
             type="text"
-            icon="el-icon-tickets"
             @click="openWebInspect"
           >
             {{ $t('TestReport.DetailReport') }}
@@ -18,57 +18,47 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
-          <th id="">{{ $t('WebInspect.Critical') }}</th>
-          <th id="">{{ $t('WebInspect.HighSeverity') }}</th>
-          <th id="">{{ $t('WebInspect.MediumSeverity') }}</th>
-          <th id="">{{ $t('WebInspect.LowSeverity') }}</th>
-          <th id="">{{ $t('WebInspect.InfoSeverity') }}</th>
-          <th id="">{{ $t('WebInspect.BpSeverity') }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
+          <th id="">{{ $t('Plugins.webinspect.Critical') }}</th>
+          <th id="">{{ $t('Plugins.webinspect.High') }}</th>
+          <th id="">{{ $t('Plugins.webinspect.Medium') }}</th>
+          <th id="">{{ $t('Plugins.webinspect.Low') }}</th>
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">WebInspect</td>
-          <td :data-label="$t('Version.Version')">{{ webinspect[0]?.version_info ? webinspect[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{
+              webinspect[0]?.version_info ? webinspect[0]?.version_info : '-'
+            }}
+          </td>
           <template v-if="hasWebInspectData">
             <td :data-label="$t('WebInspect.Critical')">
-              <span v-if="hasEachItemData('criticalCount')">
-                {{ webInspect[0].stats.criticalCount }}
+              <span v-if="hasEachItemData('critical')">
+                {{ webinspect[0].state.critical }}
               </span>
               <span v-else>-</span>
             </td>
             <td :data-label="$t('WebInspect.HighSeverity')">
-              <span v-if="hasEachItemData('highCount')">
-                {{ webInspect[0].stats.highCount }}
+              <span v-if="hasEachItemData('high')">
+                {{ webinspect[0].state.high }}
               </span>
               <span v-else>-</span>
             </td>
             <td :data-label="$t('WebInspect.MediumSeverity')">
-              <span v-if="hasEachItemData('mediumCount')">
-                {{ webInspect[0].stats.mediumCount }}
+              <span v-if="hasEachItemData('medium')">
+                {{ webinspect[0].state.medium }}
               </span>
               <span v-else>-</span>
             </td>
             <td :data-label="$t('WebInspect.LowSeverity')">
-              <span v-if="hasEachItemData('lowCount')">
-                {{ webInspect[0].stats.lowCount }}
-              </span>
-              <span v-else>-</span>
-            </td>
-            <td :data-label="$t('WebInspect.InfoSeverity')">
-              <span v-if="hasEachItemData('infoCount')">
-                {{ webInspect[0].stats.infoCount }}
-              </span>
-              <span v-else>-</span>
-            </td>
-            <td :data-label="$t('WebInspect.BpSeverity')">
-              <span v-if="hasEachItemData('bpCount')">
-                {{ webInspect[0].stats.bpCount }}
+              <span v-if="hasEachItemData('low')">
+                {{ webinspect[0].state.low }}
               </span>
               <span v-else>-</span>
             </td>
           </template>
           <template v-else>
-            <td colspan="6" class="nodata">{{ $t('general.NoData') }}</td>
+            <td class="nodata" colspan="6">{{ $t('general.NoData') }}</td>
           </template>
         </tr>
       </tbody>
@@ -77,6 +67,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'Webinspect',
   props: {
@@ -90,19 +82,21 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['selectedProjectId']),
     hasWebInspectData() {
-      return !!(this.webinspect && this.webinspect[0] && this.webinspect[0].hasOwnProperty('stats'))
+      return !!(
+        this.webinspect &&
+        this.webinspect[0] &&
+        this.webinspect[0].hasOwnProperty('state')
+      )
     },
     hasEachItemData() {
-      return key => !!(this.webinspect[0].stats.hasOwnProperty(key))
+      return (key) => !!this.webinspect[0].state.hasOwnProperty(key)
     }
   },
   methods: {
     openWebInspect() {
-      const { scan_id, run_at } = this.webinspect[0]
-      const routeUrl = this.$router.resolve({
-        name: 'WIEReportViewer', params: { scanId: scan_id, run_at }
-      })
+      const routeUrl = this.$router.resolve({ name: 'Webinspect' })
       window.open(routeUrl.href, '_blank')
     }
   }

@@ -3,8 +3,7 @@
  * 1. The feature of IssueExpand mixins is offer public function.
  */
 
-import { getIssueFamily } from '@/api/issue'
-import { IssueExpand } from '@/components/Issue'
+import { getIssueFamily } from '@/api_v3/issues'
 
 /**
  * * How to use IssueExpand component
@@ -34,7 +33,9 @@ import { IssueExpand } from '@/components/Issue'
  */
 
 export default {
-  components: { IssueExpand },
+  components: {
+    IssueExpand: () => import('@/components/Issue/IssueExpand')
+  },
   methods: {
     async getIssueFamilyData() {
       this.expands = []

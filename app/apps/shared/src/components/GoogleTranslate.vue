@@ -5,31 +5,43 @@
     trigger="click"
     popper-class="translate-popper"
   >
-    <em slot="reference" class="ri-translate-2" />
+    <em
+      slot="reference"
+      class="ri-translate-2"
+    ></em>
     <div class="text-xs font-bold mb-1">{{ $t('general.PlatformLanguage') }}</div>
-    <div class="grid p-1 list notranslate" @click="handleSetLanguage('zh-TW')">
+    <div
+      class="grid p-1 list notranslate"
+      @click="handleSetLanguage('zh-TW')"
+    >
       <span class="language-item">
         <img
           alt="台灣 flag icon`"
           src="https://cdn.jsdelivr.net/gh/lewis-kori/vue-google-translate/src/assets/images/flags/__Chinese (Traditional).png"
           class="flag"
-        >
+        />
         <span class="language__text">中文(台灣)</span>
       </span>
     </div>
-    <div class="grid p-1 list notranslate" @click="handleSetLanguage('en')">
+    <div
+      class="grid p-1 list notranslate"
+      @click="handleSetLanguage('en')"
+    >
       <span class="language-item">
         <img
           alt="台灣 flag icon`"
           src="https://cdn.jsdelivr.net/gh/lewis-kori/vue-google-translate/src/assets/images/flags/__English.png"
           class="flag"
-        >
+        />
         <span class="language__text">English</span>
       </span>
     </div>
     <el-divider />
     <div class="text-xs font-bold mb-1">Google Translate</div>
-    <Translator :countries="countries" class="notranslate" />
+    <Translator
+      :countries="countries"
+      class="notranslate"
+    />
   </el-popover>
 </template>
 

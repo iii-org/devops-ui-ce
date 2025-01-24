@@ -1,10 +1,14 @@
-const langFiles = require.context('./plugins', true, /\zh-TW.js$/)
-const asyncLangs = langFiles.keys().reduce((plugins, langPath) => {
-  const name = langPath.replace(/^\.\/(.*)\/(.*)/, '$1')
-  const value = langFiles(langPath)
-  plugins[name] = value.default
+const langFiles = import.meta.glob('./plugins/**/zh-TW.js')
+
+const asyncLangs = async () => {
+  const plugins = {}
+  for (const path in langFiles) {
+    const module = await langFiles[path]() // Dynamically import the module
+    const name = path.replace(/\.\/plugins\/(.*)\/zh-TW\.js/, '$1') // Extract the plugin name from path
+    plugins[name] = module.default // Store the default export of the module under the plugin name
+  }
   return plugins
-}, {})
+}
 
 export default {
   route: {
@@ -27,7 +31,7 @@ export default {
     List: '@:Issue.Issue',
     Overview: '總覽',
     // WikiList: '備忘記事',
-    // FileList: '檔案列表',
+    FileList: '檔案列表',
     // ProjectRoadmap: '版本歷程',
     // AdvanceBranchSettings: '進階分支設定',
     ProjectSettings: '專案設定',
@@ -39,13 +43,14 @@ export default {
     Pipelines: 'Pipelines',
     // DevEnvironment: '實證環境',
     // KubernetesResources: 'Kubernetes 資源',
-    // ReleaseVersions: '釋出版本',
-    // ReleaseVersion: '釋出版本',
+    ReleaseVersions: '釋出版本',
+    ReleaseVersion: '釋出版本',
     AutoTesting: '測試紀錄',
     // Postman: 'API 測試(Postman)',
     // FromDevops: '來自 DevSecOps',
     // FromCollection: '來自 Postman Collection',
     // CheckMarx: '白箱測試(CheckMarx)',
+    Semgrep: '白箱測試(Semgrep)',
     SonarQube: '白箱測試(SonarQube)',
     // Sbom: '軟體成分組成(SBOM)',
     // WebInspect: '黑箱測試(WebInspect)',
@@ -69,7 +74,8 @@ export default {
     IssueDetail: '議題內容',
     Admin: '系統設定',
     AccountManage: '帳號管理',
-    // SystemActivities: '系統紀錄',
+    SystemActivities: '系統紀錄',
+    OrganizationActivities: '組織紀錄',
     // SystemPluginManage: '系統插件管理',
     // SystemDeploySettings: '佈署設定',
     // ProjectSettingsQA: '專案品控清單設置',
@@ -80,14 +86,15 @@ export default {
     // FailManagement: '異常管理',
     // TestCase: '測試個案',
     // TestResult: '測試彙整',
-    TestReport: 'III DevSecOps 測試彙整'
+    TestReport: '測試彙整',
     // Monitoring: 'III DevSecOps 服務監控',
     // Deploy: '遠端部署',
     // ApplicationSetting: '部署服務設定',
     // DockerReport: 'Docker 測試彙整',
     // SbomReport: 'Docker 測試彙整',
     // Activities: '服務操作',
-    // TemplateManage: '範本管理'
+    // TemplateManage: '範本管理',
+    Organization: '組織'
   },
   navbar: {
     logOut: '登出',
@@ -104,7 +111,7 @@ export default {
     1007: '無法進行版本釋出(強制關閉議題錯誤)。',
     1008: '無法進行版本釋出。',
     1009: '插件軟體 {plugin_name} 不存在。',
-    1010: '專案描述 {description} or 顯示名稱 {display} 包含 & 或 < 字串。',
+    1010: '專案描述 {description} or 顯示名稱 {display_name} 包含 & 或 < 字串。',
     1011: '專案擁有者 {owner_id} 的角色必須為PM。',
     1012: '指定版本 {fixed_version} 的狀態為 {fixed_version_status}，因此無法變更。',
     1013: '此議題尚有子議題，請再次確認是否真的要"刪除"此議題，同時一併"刪除"子議題。',
@@ -354,6 +361,7 @@ export default {
     TemporarySaved: '已暫存',
     Saved: '已儲存',
     Restored: '已還原',
+    Synced: '已同步',
     NoEmpty: '內容不得為空',
     Same: '內容相同，未變更。',
     SwitchLanguage: '更換語言成功',
@@ -381,10 +389,7 @@ export default {
     confirmVariableSetting: '注意，您尚有變數未設定！要直接產生測試資料嗎？',
     logoutNotifications:
       '看起來您已經閒置一段時間了，為保證您的資料安全，我們將協助您自動登出。',
-    pluginWarnNotifications:
-      '請確保同名 Plugin 開關的狀態一致再進行儲存和執行。',
-    pluginRepeatMessage:
-      '紅底為同分支有重複項目設定，請確認其設置為一致(如同為開或關)，以確保 Pipeline 運作正常。',
+    pluginEmptyNotifications: '請確保至少選擇一項 Plugin。',
     ChangeProjectManager: '確認是否要變更專案經理人。',
     ConnectSocket: '看板正在連接 Socket...',
     UpdateKanban: '{issueName} 已更新',
@@ -431,78 +436,6 @@ export default {
     TestItem: '{count} 測試項目',
     Pass: '通過',
     Fail: '失敗'
-  },
-  CheckMarx: {
-    ScanId: '測試編號',
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    HighSeverity: '高風險',
-    MediumSeverity: '中風險',
-    LowSeverity: '低風險',
-    InfoSeverity: '資訊',
-    RunAt: '開始時間',
-    Report: '@:general.Report',
-    noScan: '目前沒有任何掃描。',
-    notCompletedScan: '掃描尚未完成，可能需要數小時來完成。',
-    generatingReportScan: '掃描已完成，正在產生報告，可能需要數分鐘來完成。',
-    canceledScan: '掃描取消。',
-    failedScan: '掃描未完成或異常。',
-    removedScan: '掃描已被刪除。',
-    registryReport: '報告已不存在，是否需要重新產生？',
-    registryReportTip:
-      '報告產生需要 3-5 分鐘不等，請稍後再進頁面下載，或重整頁面。',
-    QueueSequence: '等候排序',
-    cancelScansMessage:
-      '已取消測試編號為 {0} 的掃描程序，請等待 CheckMarx 更新...',
-    QueueTooltip: '本佇列訊息同 CheckMarx 佇列，採批次更新。',
-    New: '已新增',
-    PreScan: '準備中',
-    Queued: '排程中',
-    Scanning: '掃描中',
-    PostScan: '掃瞄或處理中',
-    Finished: '掃描完成',
-    Canceled: '已取消',
-    Deleted: '已刪除',
-    Failed: '掃描失敗',
-    InProcess: '產生中'
-  },
-  Sbom: {
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    PackageCount: '套件數量',
-    CriticalSeverity: '嚴重',
-    HighSeverity: '高風險',
-    MediumSeverity: '中風險',
-    LowSeverity: '低風險',
-    RunAt: '開始時間',
-    Report: '@:general.Report',
-    TraceabilityDownload: '軟體溯源清單下載',
-    VulnerabilityReport: '弱點掃描報告',
-    Success: '成功',
-    Running: '進行中',
-    Fail: '失敗'
-  },
-  Cmas: {
-    SUCCESS: '掃描完成',
-    RUNNING: '掃描中',
-    NOT_FOUND: '掃描失敗',
-    FAIL: '建立失敗',
-    MOEA: '行動應用APP基本資安規範'
-  },
-  WebInspect: {
-    ScanId: '測試編號',
-    Branch: '@:general.Branch',
-    Commit: 'Commit',
-    Critical: '嚴重',
-    HighSeverity: '高風險',
-    MediumSeverity: '中風險',
-    LowSeverity: '低風險',
-    InfoSeverity: '資訊',
-    BpSeverity: '最佳實作',
-    RunAt: '開始時間',
-    Report: '@:general.Report',
-    TestReport: '測試報告',
-    DownloadReport: '下載報告'
   },
   TestValue: {
     TestValue: '測試資料',
@@ -611,7 +544,7 @@ export default {
     Verified: '已確認',
     Closed: '已關閉',
     Responded: '已回應',
-    Overdued: '已逾期',
+    Overdue: '已逾期',
     Finished: '已完成',
     Unknown: '狀態不明',
     Low: '低',
@@ -634,7 +567,7 @@ export default {
     ConfirmCloseIssueWithSub:
       '此議題「{issueName}」尚有子議題，請再次確認是否真的要"關閉"此議題，同時一併"關閉"下列子議題？',
     ConfirmDeleteIssueWithSub:
-      '此議題「{issueName}」尚有子議題，請再次確認是否真的要"刪除"此議題，同時一併"刪除"下列子議題？',
+      '[永久刪除議題？] 刪除此議題，該"議題相關的子議題"將一併被刪除，且這個動作將無法回復！若你需要這議題相關紀錄，請於刪除前進行截圖留存。',
     RemoveIssueRelation: '確認要移除關聯議題嗎?',
     AskDeleteIssue: '關閉工作項目/議題?',
     DeleteIssueReason: '請註明關閉原因',
@@ -653,8 +586,8 @@ export default {
     tags: '@:Issue.Tag',
     priority: '@:Issue.Priority',
     tracker: '@:general.Type',
-    assigned_to: '@:Issue.Assignee',
-    fixed_version: '@:Version.Version',
+    assigned: '@:Issue.Assignee',
+    version: '@:Version.Version',
     me: '<<我自己>>',
     ChildrenNotClosed: '子議題未關閉',
     NoAssignee: '議題尚未指派',
@@ -689,9 +622,9 @@ export default {
         After: '變更後',
         Add: '@:general.Add'
       },
-      assigned_to_id: '@:Issue.Assignee',
+      assigned_id: '@:Issue.Assignee',
       subject: '@:general.Title',
-      tag: '@:Issue.Tag',
+      tag_id: '@:Issue.Tag',
       description: '@:Issue.Description',
       estimated_hours: '@:Issue.Estimate',
       start_date: '@:Issue.StartDate',
@@ -699,7 +632,7 @@ export default {
       priority_id: '@:Issue.Priority',
       status_id: '@:general.Status',
       tracker_id: '@:general.Type',
-      fixed_version_id: '@:Version.Version',
+      version_id: '@:Version.Version',
       attachment: '@:Issue.Files',
       parent_id: '@:Issue.ParentIssue',
       relation: '@:Issue.RelatedIssue',
@@ -712,8 +645,8 @@ export default {
       tags: '議題標籤',
       status: '議題狀態',
       tracker: '議題類別',
-      assigned_to: '專案成員',
-      fixed_version: '專案版本',
+      assigned: '專案成員',
+      version: '專案版本',
       done_ratio: '完成比率',
       priority: '@:Issue.Priority',
       due_date_start: '@:Issue.EndDate(>=)',
@@ -758,7 +691,12 @@ export default {
     WatcherList: '關注者清單',
     ClickToEdit: '點擊進入編輯',
     DoubleClickToEdit: '點擊兩下進入編輯',
-    TypeToAddTag: '可以直接在這打字以新增標籤'
+    TypeToAddTag: '可以直接在這打字以新增標籤',
+    SpentHours: '工作時數',
+    TotalSpentHours: '總工作時數',
+    Activity: '工項類別',
+    Comments: '補充說明',
+    Hours: '工時'
   },
   Milestone: {
     Saving: '儲存中',
@@ -805,13 +743,6 @@ export default {
       EnterPositive: '請確認所輸入都是正整數!',
       MovementNotSaved: '異動未儲存'
     }
-  },
-  Wiki: {
-    AddWiki: '新增記事',
-    Title: '標題',
-    Content: '內容',
-    SearchTitle: '搜尋標題',
-    edited: '此頁面最後由 {user} 編輯'
   },
   Dashboard: {
     UnfinishedIssues: '未完成議題',
@@ -901,6 +832,7 @@ export default {
         excel_download: '下載EXCEL',
         all_download: '全部下載',
         organization: '組織',
+        department: '部門',
         project_start_date: '計畫起始日',
         project_due_date: '計畫結束日',
         disable_tooltip: '僅本專案經理可啟用本專案',
@@ -929,11 +861,18 @@ export default {
     Manage: '測試工具管理',
     CustomEnvWarning: '本專案為自定義環境，無法透過網頁進行設定',
     CustomRecommendWarning: '建議使用本平台之環境範本建置',
+    GenerateCIButton: '重新產生 DevSecOps CI 腳本 >',
+    CustomRuleWarning: '* 重新產生CI腳本，僅適用於本平台範本開立之專案',
+    GenerateCIWarning: '產生 CI YAML 失敗，請洽系統管理者或客服人員',
     sonarqube: '品質/弱點掃描 - SonarQube',
     'anchore-code': '程式碼第三方清冊 - SBOM',
     checkmarx: '靜態弱點掃描 - CheckMarx',
+    cmas: 'APP檢測 - CMAS',
+    'deployed-environments': '建置/部署 映像檔',
     build: '映像檔/服務建置 - Build',
     deploy: '服務部署 - Deploy',
+    'deploy-db': '資料庫部署 - Deploy',
+    'deploy-service': '服務部署 - Deploy',
     anchore: '映像檔第三方清冊 - SBOM',
     zap: '黑箱掃描 - OWASP ZAP',
     webinspect: '黑箱掃描 - WebInspect',
@@ -957,6 +896,12 @@ export default {
     RepeatPassword: '重新輸入密碼',
     IsEnable: '是否啟用',
     SearchAccount: '搜尋帳號、名稱或部門',
+    InputAccount: '請輸入帳號',
+    InputFirstName: '請輸入名字',
+    InputLastName: '請輸入姓氏',
+    InputEmail: '請輸入電子信箱',
+    InputRole: '請選擇角色',
+    InputPassword: '請輸入密碼',
     Role: '角色',
     Source: '帳號來源',
     AD: 'Active Directory',
@@ -966,7 +911,8 @@ export default {
     PasswordRule: '密碼需要8-20個字同時需要至少1個大寫1個小寫和1個數字',
     LastLogin: '上次登入',
     GravatarLink: '虛擬形象透過以下網站管理',
-    GravatarNotification: '使用您的帳戶電子郵件地址來註冊Gravatar帳戶，然後將您的頭像上傳至Gravatar.com。頭像將自動同步到系統中。',
+    GravatarNotification:
+      '使用您的帳戶電子郵件地址來註冊Gravatar帳戶，然後將您的頭像上傳至Gravatar.com。頭像將自動同步到系統中。',
     LastWeek: '最近一週',
     LastMonth: '最近一個月',
     LastThreeMonth: '最近三個月',
@@ -1049,7 +995,11 @@ export default {
     InheritParentProjectMember: '繼承父專案成員',
     ImageAutoDel: '自動最佳化專案資源',
     TriggerNotification: '觸發Slack通知',
-    TriggerCondition: '觸發條件'
+    TriggerCondition: '觸發條件',
+    Copy: '複製',
+    Transfer: '轉移',
+    CopyProjectTo: '準備將 {count} 項專案複製給？',
+    TransferProjectTo: '準備將 {count} 項專案轉移給？'
   },
   ProcessDevBranch: {
     Commit: 'Commit',
@@ -1072,52 +1022,14 @@ export default {
     RerunPipeline: '{0} 分支已重新執行 Pipeline。',
     ExecuteLoadingText: 'Pipeline 正在執行中，請稍等片刻。'
   },
-  ProcessDevEnvironment: {
-    Branch: '@:general.Branch',
-    Deployment: '環境',
-    Container: '容器',
-    Image: '映像檔',
-    Services: '服務',
-    Pod: 'Pod',
-    Internal: '內部',
-    External: '外部'
-  },
-  ProjectResource: {
-    Usage: '使用量',
-    Quota: '額度',
-    Artifacts: '成品',
-    EditResource: '修改資源',
-    Vulnerabilities: '漏洞',
-    DeleteResourceConfirmText: '確認刪除？',
-    PleaseType: '請輸入',
-    AndThen: '進行刪除或取消操作',
-    Storage: '硬碟空間',
-    Details: '詳細資料 》'
-  },
-  ProjectUsage: {
-    SearchPods: '搜尋 Pods'
-  },
-  DeploymentList: {
-    DeployName: 'Deploy 名稱',
-    Container: 'Container',
-    Image: 'Image'
-  },
-  Postman: {
-    Id: '編號',
-    Branch: '@:general.Branch',
-    TestPass: '測試通過',
-    TestFail: '測試失敗',
-    TestTotal: '測試總計',
-    StartTime: '開始時間',
-    DevSecOps: 'DevSecOps',
-    Postman: 'Postman'
-  },
+
   Activities: {
     User: '使用者',
     ActionType: '動作',
     ActionParts: '內容',
     ActAt: '發生時間',
-    SearchPlaceholder: '搜尋 使用者、動作或內容',
+    SearchPlaceholder: '搜尋 使用者或內容',
+    SystemOnly: '僅系統',
     AddTemplate: '新增範本',
     TemplateName: '範本名稱',
     OriginalProject: '原始專案',
@@ -1175,59 +1087,12 @@ export default {
     Commit: 'Commit',
     searchBranchOrCommitId: '搜尋@:general.Branch或Commit'
   },
-  SonarQube: {
-    ViewReport: '檢視報告',
-    Bugs: 'Bugs',
-    Vulnerabilities: '安全漏洞',
-    CodeSmells: '程式異味',
-    Duplicates: '重複程式碼',
-    Coverage: '覆蓋率',
-    code_smells: '代碼異味',
-    sqale_index: '技術債務',
-    vulnerabilities: '漏洞',
-    duplicated_lines_density: '重複行數(%)',
-    bugs: '程式錯誤',
-    coverage: '覆蓋率',
-    reliability_rating: '可靠性評分',
-    duplicated_blocks: '重複程式碼',
-    sqale_rating: '可維護性等級',
-    security_rating: '安全等級',
-    security_hotspots: '安全熱點',
-    alert_status: '品質狀態',
-    ScanLogs: '掃描記錄'
-  },
   Log: {
     duration: '消耗時間',
     fullLog: '報告',
     testId: '測試編號',
-    WordWrap: '自動換行'
-  },
-  Clair: {
-    size: '檔案大小',
-    critical: '嚴重',
-    high: '高風險',
-    medium: '中風險',
-    low: '低風險'
-  },
-  Anchore: {
-    count: '套件數量',
-    high: '高風險',
-    medium: '中風險',
-    low: '低風險'
-  },
-  Zap: {
-    id: '編號',
-    critical: '嚴重',
-    high: '高風險',
-    medium: '中風險',
-    low: '低風險'
-  },
-  Sideex: {
-    promptMessage: '本系統提供最新五份報表下載',
-    suitesPassedRatio: '成功案例',
-    suitesPassedTotal: '成功案例總計',
-    casesPassedRatio: '通過項目',
-    casesPassedTotal: '通過項目總計'
+    WordWrap: '自動換行',
+    NoWrap: '不換行'
   },
   Release: {
     internalVersions: '內部管控版號',
@@ -1281,7 +1146,12 @@ export default {
     Tags: '備註標籤',
     StopReleaseWarning: '請檢查映像檔路徑是否符合格式。',
     StopAddingPathWarning: '請檢查輸入的映像檔路徑是否符合以下格式。',
-    FormatWarning: '(主要名稱):(標籤) ex. branch:version'
+    FormatWarning: '(主要名稱):(標籤) ex. branch:version',
+    ReportPreview: '報告預覽',
+    ContinueRelease: '仍要包版',
+    Reselect: '重新選擇',
+    NoTestReportWarning:
+      '[無測試報告]此分支提交爲系統升級之制式Commit，未含任何主要程式異動與測試報告，是否仍要進行包版作業?'
   },
   SystemVersion: {
     Source: '系統模組',
@@ -1311,7 +1181,7 @@ export default {
   TrackManagement: {
     description: '變更內容(議題描述)',
     relations: '原始需求/議題',
-    assigned_to: '受分派者'
+    assigned: '受分派者'
   },
   Track: {
     StartingPoint: '起始點',
@@ -1532,6 +1402,7 @@ export default {
   },
   Status: {
     Failed: '失敗',
+    FailedToStart: '啟動失敗',
     Created: '已建立',
     Queued: '排程中',
     ResumeScanQueued: '恢復排程中',
@@ -1560,64 +1431,6 @@ export default {
     TimelineLength: '時間軸長度',
     DisplayTaskList: '顯示議題列表'
   },
-  Inbox: {
-    No: '項次',
-    Title: '標題',
-    Type: '訊息類型',
-    Date: '日期',
-    Sender: '公告者',
-    Info: '一般訊息',
-    Warning: '	警告訊息',
-    Urgent: '緊急訊息',
-    NewVersion: '有新版本可更新',
-    SystemAlert: '系統警報',
-    SystemWarning: '系統警告',
-    'Merge Request': '合併提交',
-    'GitHub Token Invalid': '範本同步異常',
-    GroupReceiver: {
-      Project: '專案名稱',
-      User: '使用者',
-      Role: '角色',
-      ProjectOwner: '專案經理',
-      All: '全部'
-    },
-    ViewAll: '全部',
-    TimeRange: '訊息區間',
-    From: '自',
-    To: '到',
-    SelectDate: '選擇日期',
-    SelectMessageType: '選擇訊息種類',
-    Unread: '僅顯示未讀訊息',
-    IncludeSystemMessage: '含系統訊息',
-    Apply: '確認',
-    MessageConsole: '推播管理',
-    MessageNote: '* 平台僅保留7天內訊息，如有重要資訊請另行儲存。',
-    CreateMessage: '新增推播',
-    EditMessage: '編輯推播',
-    MessageContent: '訊息內容',
-    Public: '公開',
-    Private: '指定',
-    GroupReceiverTitle: '推播對象',
-    AlertLevel: '訊息類別',
-    Send: '傳送',
-    Sended: '已傳送',
-    NotifyClosed: '訊息已關閉',
-    SearchLabel: '搜尋訊息標題或寄送者',
-    MentionMessage: '{name} 在 {issue} 提到你',
-    SharedIssueMessage: '[議題分享] {name} 分享 {issue} 給你',
-    SharedWhiteBoardMessage: '[協作白板分享] {name} 分享 {whiteboard} 給你',
-    ReadAll: '閱讀全部'
-  },
-  Excalidraw: {
-    Whiteboard: '協作白板',
-    Name: '白板名稱',
-    CreateBoard: '新增白板',
-    EditBoard: '編輯白板',
-    HistoricalRecord: '歷史記錄',
-    AutoSavedTime: '自動儲存時間',
-    Size: '檔案大小',
-    FullScreen: '全螢幕，可按 ESC 離開全螢幕'
-  },
   IssueMatrix: {
     Relations: '關係',
     SearchAllRelations: '尋找全部關係',
@@ -1639,32 +1452,6 @@ export default {
     CancelTrackerWarning: '開啓群組且選擇狀態時，顯示項目必須勾選議題類別',
     CancelStatusWarning: '開啓群組且選擇類別時，顯示項目必須勾選議題狀態'
   },
-  Docker: {
-    Title: 'Docker映像檔安全掃描',
-    Overview: '總 覽​',
-    Severity: '風險等級​',
-    Critical: '嚴重​',
-    High: '高',
-    Medium: '中',
-    Low: '低',
-    Negligible: '可忽略',
-    Unknown: '其他',
-    Fixable: '可被修復',
-    AlertDetail: '詳細風險列表​',
-    Reference: '風險敍述參照',
-    Vulnerability: '弱點項目​',
-    Package: '資源套件​​',
-    Licenses: '軟體授權條款',
-    Type: '安裝類別',
-    CurrentVersion: '目前版本​',
-    FixedVersion: '已修復版本​',
-    Success: '@:general.Success',
-    Complete: '@:Status.Finished',
-    Scanning: '掃描中',
-    Queued: '排程中',
-    'Not Scanned': '準備中',
-    Size: '檔案大小'
-  },
   RedmineMail: {
     Warning:
       '[注意] Email 服務啟用或停用，將觸發 Redmine 重啟。其重啟時間將影響 3-5分鐘平台無法使用，請謹慎設定利用。'
@@ -1677,5 +1464,25 @@ export default {
     AlertSettings: '議題到期通知',
     TagSettings: '議題標籤'
   },
-  Plugins: { NoArguments: '無可設定之參數。', ...asyncLangs }
+  PipelineSettingsTable: {
+    NoSelectedPluginWarning: '請選擇至少一個工具。',
+    OpenPluginWarning: '請先開啓 {plugin}'
+  },
+  Organization: {
+    Identifier: 'ID',
+    Organization: '組織',
+    Add: '新增組織',
+    Edit: '編輯組織',
+    Name: '組織名稱',
+    Description: '組織描述',
+    Owner: '組織擁有者',
+    Member: '組織成員',
+    SearchByIdOrName: '搜尋組織名稱或ID',
+    PleaseSelectOrganization: '請選擇組織',
+    PleaseInputIdentifier: '請輸入組織ID',
+    PleaseInputOrganizationName: '請輸入組織名稱',
+    IdentifierRule:
+      'ID 必須是 2 到 30 個字元長，只能包含字母、數字和連字符，且不能以連字符開頭或結尾。'
+  },
+  Plugins: { NoArguments: '無可設定之參數。', ...(await asyncLangs()) }
 }

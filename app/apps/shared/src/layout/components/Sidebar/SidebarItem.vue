@@ -1,27 +1,33 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="
-      hasOneShowingChild(item, item.children) &&
-        (!onlyOneChild.children || onlyOneChild.noShowingChildren) &&
-        !item.alwaysShow
-    "
+    <template
+      v-if="
+        hasOneShowingChild(item, item.children) &&
+          (!onlyOneChild.children || onlyOneChild.noShowingChildren) &&
+          !item.alwaysShow
+      "
     >
-      <app-link
+      <AppLink
         v-if="onlyOneChild.meta"
+        :name="onlyOneChild.name"
         :to="resolvePath(onlyOneChild.path)"
       >
         <el-menu-item
-          :index="resolvePath(onlyOneChild.path)"
           :class="{ 'submenu-title-noDropdown': !isNest }"
+          :index="resolvePath(onlyOneChild.path)"
         >
-          <item
+          <Item
+            :disable-tooltip="isNest"
+            :has-children="hasChildren"
             :icon="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"
+            :name="item.name"
             :title="generateTitle(onlyOneChild.meta.title)"
+            @onAddPinnedRoute="handleAddPinnedRoute"
+            @onRemovePinnedRoute="handleRemovePinnedRoute"
           />
         </el-menu-item>
-      </app-link>
+      </AppLink>
     </template>
-
     <el-submenu
       v-else
       ref="subMenu"
@@ -29,18 +35,22 @@
       popper-append-to-body
     >
       <template slot="title">
-        <item
+        <Item
           v-if="item.meta"
+          :disable-tooltip="true"
+          :has-children="hasChildren"
           :icon="item.meta && item.meta.icon"
+          :is-logo-active="isLogoActive"
+          :name="item.name"
           :title="generateTitle(item.meta.title)"
         />
       </template>
-      <sidebar-item
+      <SidebarItem
         v-for="child in item.children"
         :key="child.path"
+        :base-path="resolvePath(child.path)"
         :is-nest="true"
         :item="child"
-        :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
     </el-submenu>
@@ -48,7 +58,7 @@
 </template>
 
 <script>
-import path from 'path'
+import { mapActions, mapGetters } from 'vuex'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
@@ -72,6 +82,14 @@ export default {
     basePath: {
       type: String,
       default: ''
+    },
+    parentMenu: {
+      type: String,
+      default: ''
+    },
+    isCollapse: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -80,8 +98,59 @@ export default {
     this.onlyOneChild = null
     return {}
   },
+  computed: {
+    ...mapGetters(['pinnedRoutes', 'userId', 'userRole']),
+    isLite() {
+      return import.meta.env.VUE_APP_PROJECT === 'LITE'
+    },
+    hasChildren() {
+      return (
+        this.getWhiteList().findIndex((item) => item === this.item.name) >= 0
+      )
+    },
+    active() {
+      return this.$refs
+    },
+    isLogoActive() {
+      const splitPath = this.item.path.split('/')
+      return splitPath[1] === this.parentMenu && this.isCollapse
+    }
+  },
   methods: {
+    ...mapActions('user', ['setPinnedRoutes']),
     generateTitle,
+    getWhiteList() {
+      if (this.isLite) {
+        switch (this.userRole) {
+          case 'sysadmin':
+          case 'Organization Owner':
+            return ['Overviews', 'Works', 'Progress', 'Admin']
+          case 'Project Manager':
+            return ['Works', 'Progress']
+        }
+      } else {
+        switch (this.userRole) {
+          case 'sysadmin':
+          case 'Organization Owner':
+            return [
+              'OverviewParent',
+              'Management',
+              'Works',
+              'Progress',
+              'Test',
+              'Scan',
+              'SystemResource',
+              'Activities',
+              'Admin'
+            ]
+          case 'QA':
+            return ['DashboardParent', 'Works', 'Scan']
+          default:
+            // PM & RD
+            return ['Management', 'Progress', 'Scan', 'Activities']
+        }
+      }
+    },
     hasOneShowingChild(parent, children = []) {
       const showingChildren = children.filter((item) => {
         if (item.hidden) {
@@ -108,15 +177,59 @@ export default {
     },
     resolvePath(routePath) {
       const projectName = this.$store.getters.selectedProject.name || ''
-      const pathWithProjectName = routePath.replace(':projectName?', projectName)
-      const basePathWithProjectName = this.basePath.replace(':projectName?', projectName)
+      const pathWithProjectName = routePath.replace(
+        ':projectName?',
+        projectName
+      )
+      const basePathWithProjectName = this.basePath.replace(
+        ':projectName?',
+        projectName
+      )
       if (isExternal(pathWithProjectName)) {
         return routePath
       }
       if (isExternal(basePathWithProjectName)) {
         return basePathWithProjectName
       }
-      return path.resolve(basePathWithProjectName, routePath)
+      const separator = basePathWithProjectName.endsWith('/') ? '' : '/'
+      return `${basePathWithProjectName}${separator}${routePath}`
+    },
+    handleAddPinnedRoute() {
+      const { name, meta } = this.item
+      let { children } = this.item
+      children = children?.map((child) => {
+        delete child.component
+        return child
+      })
+      const route = {
+        name,
+        children,
+        meta: {
+          roles: meta?.roles,
+          title: meta?.title
+        }
+      }
+      if (this.pinnedRoutes?.length > 0) {
+        this.pinnedRoutes.push(route)
+        this.setPinnedRoutes({
+          user_id: this.userId,
+          route: this.pinnedRoutes
+        })
+      } else {
+        this.setPinnedRoutes({
+          user_id: this.userId,
+          route: [route]
+        })
+      }
+    },
+    handleRemovePinnedRoute() {
+      const index = this.pinnedRoutes.findIndex(
+        (route) => route.name === this.item.name
+      )
+      this.setPinnedRoutes({
+        user_id: this.userId,
+        route: this.pinnedRoutes.toSpliced(index, 1)
+      })
     }
   }
 }
@@ -125,11 +238,10 @@ export default {
 <style lang="scss" scoped>
 .nest-menu {
   ::v-deep li {
-    padding-left: 52px !important;
-    &:before {
+    div:before {
       position: relative;
       left: -6px;
-      content: "\25C9";
+      content: '\25C9';
       font-size: 8px;
     }
   }

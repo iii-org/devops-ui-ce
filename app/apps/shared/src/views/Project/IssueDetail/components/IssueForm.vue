@@ -2,85 +2,68 @@
   <div>
     <div v-if="device === 'desktop'">
       <el-form
-        v-loading="isLoading"
         ref="form"
+        v-loading="isLoading"
+        :disabled="isButtonDisabled"
         :element-loading-text="$t('Loading')"
         :model="form"
         :rules="issueFormRules"
-        :disabled="isButtonDisabled"
         label-position="top"
       >
         <el-row :gutter="10">
           <el-col v-if="hasRelations" :span="isFromBoard ? 8 : 24">
             <el-form-item :label="$t('Project.Project')">
-              <el-select
+              <el-select-tree
                 v-model="form.project_id"
+                :data="allRelation"
+                :default-expanded-keys="[form.project_id]"
+                :props="{
+                  value: 'id',
+                  label: 'display_name',
+                  children: 'child'
+                }"
+                check-strictly
+                filterable
+                node-key="id"
+                placeholder="Please select"
+                popper-class="max-w-[100px]"
                 style="width: 100%"
                 @change="updateSelect('project_id')"
-              >
-                <el-option
-                  v-for="(project, index) in allRelation"
-                  :key="index"
-                  :label="project.display"
-                  :value="project.id"
-                >
-                  <div>
-                    {{ project.display }}
-                  </div>
-                  <div
-                    v-if="project.type === 'father'"
-                    class="round father"
-                  >
-                    {{ $t('general.Parent') }}
-                  </div>
-                  <div
-                    v-if="project.type === 'son'"
-                    class="round son"
-                  >
-                    {{ $t('general.Child') }}
-                  </div>
-                </el-option>
-              </el-select>
+              />
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
             <Tags
               ref="tags"
+              :data-loaded="dataLoaded"
+              :form.sync="form"
+              :is-form-collapse-open="isFormCollapseOpen"
               :issue-id="issueId"
               :loading.sync="isLoading"
-              :form.sync="form"
-              :data-loaded="dataLoaded"
-              :is-form-collapse-open="isFormCollapseOpen"
               @update="$emit('update')"
             />
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.fixed_version')"
-              prop="fixed_version_id"
-            >
+            <el-form-item :label="$t('Issue.version')" prop="version_id">
               <el-select
-                v-model="form.fixed_version_id"
+                v-model="form.version_id"
                 :placeholder="$t('RuleMsg.PleaseSelect')"
-                style="width: 100%"
                 clearable
-                @change="updateSelect('fixed_version_id')"
+                style="width: 100%"
+                @change="updateSelect('version_id')"
               >
                 <el-option
-                  v-for="item in fixed_version"
+                  v-for="item in version"
                   :key="item.id"
+                  :disabled="item.status !== 'open'"
                   :label="getSelectionLabel(item)"
                   :value="item.id"
-                  :disabled="item.status !== 'open'"
                 />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('general.Status')"
-              prop="status_id"
-            >
+            <el-form-item :label="$t('general.Status')" prop="status_id">
               <el-select
                 v-model="form.status_id"
                 :disabled="isParentIssueClosed"
@@ -103,10 +86,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.tracker')"
-              prop="tracker_id"
-            >
+            <el-form-item :label="$t('Issue.tracker')" prop="tracker_id">
               <el-select
                 v-model="form.tracker_id"
                 style="width: 100%"
@@ -127,43 +107,37 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.assigned_to')"
-              prop="assigned_to_id"
-            >
+            <el-form-item :label="$t('Issue.assigned')" prop="assigned_id">
               <el-select
-                v-model="form.assigned_to_id"
+                v-model="form.assigned_id"
                 :placeholder="$t('RuleMsg.PleaseSelect')"
-                style="width: 100%"
                 clearable
                 filterable
-                @change="updateSelect('assigned_to_id')"
+                style="width: 100%"
+                @change="updateSelect('assigned_id')"
               >
                 <el-option
                   v-for="item in dynamicAssigneeList"
-                  :key="item.login"
+                  :key="`${item.id}_${item.full_name}`"
                   :class="item.class"
-                  :label="item.name+' ('+item.login+')'"
+                  :label="item.full_name + ' (' + item.username + ')'"
                   :value="item.id"
                 >
-                  {{ item.name }} ({{ item.login }})
+                  {{ item.full_name }} ({{ item.username }})
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col v-if="!isLite" :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.CustomBoard')"
-              prop="board"
-            >
+            <el-form-item :label="$t('Issue.CustomBoard')" prop="board">
               <el-select
-                v-model="form.board"
+                v-model="form.boards"
                 :placeholder="$t('general.NoData')"
                 class="tagStyle"
-                style="width: 100%"
+                collapse-tags
                 filterable
                 multiple
-                collapse-tags
+                style="width: 100%"
                 @remove-tag="removeCustomBoard"
               >
                 <el-option
@@ -179,10 +153,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.priority')"
-              prop="priority_id"
-            >
+            <el-form-item :label="$t('Issue.priority')" prop="priority_id">
               <el-select
                 v-model="form.priority_id"
                 :disabled="childrenIssue.length > 0"
@@ -204,30 +175,51 @@
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
+            <el-form-item prop="total_spent_hours">
+              <template slot="label">
+                <span>{{ $t('Issue.TotalSpentHours') }}</span>
+                <el-tooltip content="Add Spent Time" placement="top">
+                  <el-button
+                    class="action"
+                    icon="el-icon-plus"
+                    size="mini"
+                    type="success"
+                    @click="isSpentTimeVisible = true"
+                  />
+                </el-tooltip>
+              </template>
+              <el-input
+                v-model="form.total_spent_hours"
+                disabled
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="isFromBoard ? 8 : 24">
             <el-form-item prop="estimated_hours">
               <template slot="label">
                 {{ $t('Issue.Estimate') }}
                 <span v-if="isIssueStatusChange('estimated_hours')">
                   <el-button
                     class="action"
-                    type="success"
-                    size="mini"
                     icon="el-icon-check"
+                    size="mini"
+                    type="success"
                     @click="updateSelect('estimated_hours')"
                   />
                   <el-button
                     class="action"
-                    type="danger"
-                    size="mini"
                     icon="el-icon-close"
+                    size="mini"
+                    type="danger"
                     @click="handleCancelCloseIssue('estimated_hours')"
                   />
                 </span>
               </template>
               <el-input-number
                 v-model="form.estimated_hours"
-                :min="0"
                 :max="100"
+                :min="0"
                 style="width: 100%"
               />
             </el-form-item>
@@ -239,59 +231,53 @@
                 <span v-if="isIssueStatusChange('done_ratio')">
                   <el-button
                     class="action"
-                    type="success"
-                    size="mini"
                     icon="el-icon-check"
+                    size="mini"
+                    type="success"
                     @click="updateSelect('done_ratio')"
                   />
                   <el-button
                     class="action"
-                    type="danger"
-                    size="mini"
                     icon="el-icon-close"
+                    size="mini"
+                    type="danger"
                     @click="handleCancelCloseIssue('done_ratio')"
                   />
                 </span>
               </template>
               <el-input-number
                 v-model="form.done_ratio"
-                :min="0"
-                :max="100"
                 :disabled="childrenIssue.length > 0"
+                :max="100"
+                :min="0"
                 style="width: 100%"
               />
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.StartDate')"
-              prop="start_date"
-            >
+            <el-form-item :label="$t('Issue.StartDate')" prop="start_date">
               <el-date-picker
                 v-model="form.start_date"
                 :disabled="childrenIssue.length > 0"
-                :placeholder="$t('RuleMsg.PleaseSelect')"
                 :picker-options="startDateOptions(form.due_date)"
+                :placeholder="$t('RuleMsg.PleaseSelect')"
+                style="width: 100%"
                 type="date"
                 value-format="yyyy-MM-dd"
-                style="width: 100%"
                 @change="checkStartDate"
               />
             </el-form-item>
           </el-col>
           <el-col :span="isFromBoard ? 8 : 24">
-            <el-form-item
-              :label="$t('Issue.EndDate')"
-              prop="due_date"
-            >
+            <el-form-item :label="$t('Issue.EndDate')" prop="due_date">
               <el-date-picker
                 v-model="form.due_date"
                 :disabled="childrenIssue.length > 0"
-                :placeholder="$t('RuleMsg.PleaseSelect')"
                 :picker-options="dueDateOptions(form.start_date)"
+                :placeholder="$t('RuleMsg.PleaseSelect')"
+                style="width: 100%"
                 type="date"
                 value-format="yyyy-MM-dd"
-                style="width: 100%"
                 @change="checkDueDate"
               />
             </el-form-item>
@@ -301,9 +287,9 @@
     </div>
     <div v-else class="mobile">
       <el-card @click.native="handleClickFormMenu('status_id')">
-        <el-row type="flex" justify="space-between">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-notification-badge-fill align-middle" />
+            <em class="ri-notification-badge-fill align-middle"></em>
             <span class="text-sm font-bold">{{ $t('general.Status') }}</span>
           </span>
           <span>
@@ -314,33 +300,58 @@
               class="mx-1"
               size="mini"
             />
-            <em class="el-icon-arrow-right align-middle" />
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
-      <el-card @click.native="handleClickFormMenu('assigned_to_id')">
-        <el-row type="flex" justify="space-between">
+      <el-card @click.native="handleClickFormMenu('assigned_id')">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-user-fill align-middle" />
-            <span class="text-sm font-bold">{{ $t('Issue.assigned_to') }}</span>
+            <em class="ri-user-fill align-middle"></em>
+            <span class="text-sm font-bold">{{ $t('Issue.assigned') }}</span>
           </span>
           <span>
-            <span class="text-sm align-middle mx-1">{{ currentAssignee?.name }}</span>
-            <em class="el-icon-arrow-right align-middle" />
+            <span class="text-sm align-middle mx-1">{{
+              currentAssignee?.full_name
+            }}</span>
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
-      <el-card @click.native="handleClickFormMenu('fixed_version_id')">
-        <el-row type="flex" justify="space-between">
+      <el-card @click.native="handleClickFormMenu('version_id')">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-rocket-2-fill align-middle" />
-            <span class="text-sm font-bold">{{ $t('Issue.fixed_version') }}</span>
+            <em class="ri-rocket-2-fill align-middle"></em>
+            <span class="text-sm font-bold">{{ $t('Issue.version') }}</span>
           </span>
           <span>
             <span class="text-sm align-middle mx-1">
-              {{ currentVersion ? getSelectionLabel(currentVersion) : $t('Issue.VersionUndecided') }}
+              {{
+                currentVersion
+                  ? getSelectionLabel(currentVersion)
+                  : $t('Issue.VersionUndecided')
+              }}
             </span>
-            <em class="el-icon-arrow-right align-middle" />
+            <em class="el-icon-arrow-right align-middle"></em>
+          </span>
+        </el-row>
+      </el-card>
+      <el-card
+        v-if="!isLite"
+        @click.native="handleClickFormMenu('spent_hours')"
+      >
+        <el-row justify="space-between" type="flex">
+          <span>
+            <em class="ri-time-line align-middle"></em>
+            <span class="text-sm font-bold">{{
+              $t('Issue.TotalSpentHours')
+            }}</span>
+          </span>
+          <span>
+            <span class="text-sm align-middle mx-1">
+              {{ form.total_spent_hours || '-' }} {{ $t('Issue.Hours') }}
+            </span>
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
@@ -348,14 +359,14 @@
         v-if="childrenIssue.length === 0"
         @click.native="handleClickFormMenu('done_ratio')"
       >
-        <el-row type="flex" justify="space-between">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-percent-fill align-middle" />
+            <em class="ri-percent-fill align-middle"></em>
             <span class="text-sm font-bold">{{ $t('Issue.DoneRatio') }}</span>
           </span>
           <span>
             <span class="text-sm align-middle mx-1">{{ form.done_ratio }}%</span>
-            <em class="el-icon-arrow-right align-middle" />
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
@@ -363,14 +374,14 @@
         v-if="childrenIssue.length === 0"
         @click.native="handleClickFormMenu('start_date')"
       >
-        <el-row type="flex" justify="space-between">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-calendar-event-fill align-middle" />
+            <em class="ri-calendar-event-fill align-middle"></em>
             <span class="text-sm font-bold">{{ $t('Issue.StartDate') }}</span>
           </span>
           <span>
             <span class="text-sm align-middle mx-1">{{ form.start_date }}</span>
-            <em class="el-icon-arrow-right align-middle" />
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
@@ -378,100 +389,114 @@
         v-if="childrenIssue.length === 0"
         @click.native="handleClickFormMenu('due_date')"
       >
-        <el-row type="flex" justify="space-between">
+        <el-row justify="space-between" type="flex">
           <span>
-            <em class="ri-calendar-event-fill align-middle" />
+            <em class="ri-calendar-event-fill align-middle"></em>
             <span class="text-sm font-bold">{{ $t('Issue.EndDate') }}</span>
           </span>
           <span>
             <span class="text-sm align-middle mx-1">{{ form.due_date }}</span>
-            <em class="el-icon-arrow-right align-middle" />
+            <em class="el-icon-arrow-right align-middle"></em>
           </span>
         </el-row>
       </el-card>
       <el-drawer
         v-loading="isLoading"
         :visible.sync="isDrawerVisible"
-        direction="btt"
         class="drawer"
-        size="auto"
         destroy-on-close
+        direction="btt"
+        size="auto"
         @close="handleCancelCloseIssue(formType)"
       >
         <div slot="title" class="title">
           <span>
             <el-divider direction="vertical" />
-            <span class="text">{{ $t(selectionOptions[formType]?.title) }}</span>
+            <span class="text">{{
+              $t(selectionOptions[formType]?.title)
+            }}</span>
           </span>
         </div>
         <div class="container">
           <el-card shadow="never">
             <IssueFormDrawer
+              :form-type="formType"
               :form.sync="form"
               :is-button-disabled="isButtonDisabled"
               :issue-form-rules="issueFormRules"
               :options="selectionOptions"
-              :form-type="formType"
             />
           </el-card>
         </div>
       </el-drawer>
     </div>
     <el-dialog
-      :visible.sync="isAssignDialog"
       :title="$t('Issue.IssueNeedAssigneeWarning')"
+      :visible.sync="isAssignDialog"
       append-to-body
       destroy-on-close
       width="30%"
       @close="handleCancelAssignDialog()"
     >
       <el-select
-        v-model="form.assigned_to_id"
+        v-model="form.assigned_id"
         :placeholder="$t('RuleMsg.PleaseSelect')"
-        style="width: 100%"
         clearable
         filterable
+        style="width: 100%"
         @change="updateAssignDialog()"
       >
         <el-option
           v-for="item in dynamicAssigneeList"
-          :key="item.login"
+          :key="item.username"
           :class="item.class"
-          :label="item.name+' ('+item.login+')'"
+          :label="item.full_name + ' (' + item.username + ')'"
           :value="item.id"
         >
-          {{ item.name }} ({{ item.login }})
+          {{ item.full_name }} ({{ item.username }})
         </el-option>
       </el-select>
     </el-dialog>
     <SubIssueDialog
       :is-issue-dialog.sync="isCloseIssueDialog"
       :issue="issue"
-      @handleClose="handleCloseAllIssue"
       @handleCancel="handleCancelCloseIssue('status_id')"
+      @handleClose="handleCloseAllIssue"
+    />
+    <SpendingTimeDialog
+      :activity-list="activityList"
+      :is-spent-time-visible.sync="isSpentTimeVisible"
+      :issue.sync="issue"
+      @update="handleSpendHoursUpdate"
     />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getProjectAssignable, getProjectVersion } from '@/api/projects'
-import { getAllRelation, getHasRelation } from '@/api_v2/projects'
-import { getCheckIssueClosable, updateIssue } from '@/api/issue'
 import { removeBoardItemIssue } from '@/api_v2/issueBoard'
+import variables from '@/styles/theme/variables.module.scss'
+import {
+  getHasProjectRelation,
+  getProjectAllRelation,
+  getProjectUserList,
+  getProjectVersion
+} from '@/api_v3/projects'
+import { checkIssueClosable, updateIssue } from '@/api_v3/issues'
 import { cloneDeep } from 'lodash'
-import { Priority, Tracker, Status, Tags } from '@/components/Issue'
-import variables from '@/styles/theme/variables.scss'
+import { mapGetters } from 'vuex'
+import ElSelectTree from 'el-select-tree'
 
 export default {
   name: 'IssueForm',
   components: {
-    Status,
-    Tracker,
-    Priority,
-    Tags,
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    Tags: () => import('@/components/Issue/Tags'),
     SubIssueDialog: () => import('./SubIssueDialog'),
-    IssueFormDrawer: () => import('./IssueFormDrawer')
+    IssueFormDrawer: () => import('./IssueFormDrawer'),
+    SpendingTimeDialog: () => import('./SpentTimeDialog'),
+    ElSelectTree
   },
   props: {
     issue: {
@@ -501,9 +526,8 @@ export default {
     issueProject: {
       type: Object,
       default: () => ({
-        display: '',
-        id: '',
-        name: ''
+        display_name: '',
+        id: ''
       })
     },
     isFromBoard: {
@@ -521,20 +545,48 @@ export default {
     isFormCollapseOpen: {
       type: Boolean,
       default: true
+    },
+    activityList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
     return {
       issueFormRules: {
-        name: [{ required: true, message: 'Please input name', trigger: 'blur' }],
+        subject: [
+          {
+            required: true,
+            message: 'Please input subject',
+            trigger: 'blur'
+          }
+        ],
         // parent_id: [{ validator: validateParentId, trigger: 'blur' }],
-        // assigned_to_id: [{ validator: validateAssignedTo, trigger: 'blur' }],
-        tracker_id: [{ required: true, message: 'Please select type', trigger: 'blur' }],
-        status_id: [{ required: true, message: 'Please select status', trigger: 'blur' }],
-        priority_id: [{ required: true, message: 'Please select priority', trigger: 'blur' }]
+        // assigned_id: [{ validator: validateAssignedTo, trigger: 'blur' }],
+        tracker_id: [
+          {
+            required: true,
+            message: 'Please select type',
+            trigger: 'blur'
+          }
+        ],
+        status_id: [
+          {
+            required: true,
+            message: 'Please select status',
+            trigger: 'blur'
+          }
+        ],
+        priority_id: [
+          {
+            required: true,
+            message: 'Please select priority',
+            trigger: 'blur'
+          }
+        ]
       },
-      assigned_to: [],
-      fixed_version: [],
+      assigned: [],
+      version: [],
       isLoading: false,
       checkClosable: false,
       dynamicStatusList: [],
@@ -559,8 +611,8 @@ export default {
       hasRelations: false,
       originForm: {
         status_id: '',
-        assigned_to_id: '',
-        fixed_version_id: '',
+        assigned_id: '',
+        version_id: '',
         estimated_hours: 0,
         done_ratio: 0,
         start_date: '',
@@ -573,7 +625,8 @@ export default {
       formType: '',
       isAssignDialog: false,
       boardList: [],
-      customBoardStyle: ''
+      customBoardStyle: '',
+      isSpentTimeVisible: false
     }
   },
   computed: {
@@ -589,7 +642,7 @@ export default {
       // 'selectedProjectId'
     ]),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     isParentIssueClosed() {
       if (Object.keys(this.parent).length <= 0) return false
@@ -597,36 +650,47 @@ export default {
     },
     dynamicAssigneeList() {
       const hasInactiveAssignee =
-        this.form.assigned_to_id !== '' &&
-        this.assigned_to.findIndex(item => item.id === this.form.assigned_to_id) === -1
+        this.form.assigned_id !== '' &&
+        this.assigned.findIndex((item) => item.id === this.form.assigned_id) ===
+          -1
       if (hasInactiveAssignee) {
         const inactiveAssignee = {
-          name: `Disabled User (${this.form.assigned_to_id})`,
-          id: this.form.assigned_to_id
+          name: `Disabled User (${this.form.assigned_id})`,
+          id: this.form.assigned_id
         }
-        const result = Object.assign([], this.assigned_to)
+        const result = Object.assign([], this.assigned)
         result.push(inactiveAssignee)
         return result
       } else {
-        return this.assigned_to
+        return this.assigned
       }
     },
     unclosedChildrenIssue() {
       return this.childrenIssue.filter((item) => item.status.id !== 6)
     },
     currentStatus() {
-      return this.dynamicStatusList.find(item => item.id === this.form.status_id)
+      return this.dynamicStatusList.find(
+        (item) => item.id === this.form.status_id
+      )
     },
     currentAssignee() {
-      return this.dynamicAssigneeList.find(item => item.id === this.form.assigned_to_id)
+      return this.dynamicAssigneeList.find(
+        (item) => item.id === this.form.assigned_id
+      )
     },
     currentVersion() {
-      return this.fixed_version.find(item => item.id === this.form.fixed_version_id)
+      return this.version.find((item) => item.id === this.form.version_id)
     },
     selectionOptions() {
       return {
-        assigned_to_id: { value: this.dynamicAssigneeList, title: 'Issue.assigned_to' },
-        fixed_version_id: { value: this.fixed_version, title: 'Issue.fixed_version' },
+        assigned_id: {
+          value: this.dynamicAssigneeList,
+          title: 'Issue.assigned'
+        },
+        version_id: {
+          value: this.version,
+          title: 'Issue.version'
+        },
         status_id: { value: this.dynamicStatusList, title: 'general.Status' },
         done_ratio: { title: 'Issue.DoneRatio' },
         start_date: { title: 'Issue.StartDate' },
@@ -641,15 +705,18 @@ export default {
       }
     },
     'form.project_id': {
-      handler(newPId, oldPId) {
-        if (newPId > 0) {
+      handler(newPId) {
+        if (newPId) {
           this.onChangePId()
           this.getHasRelation()
         }
       }
     },
+
     'form.tags'() {
-      if (this.form.project_id > 0 && this.$refs.tags) this.$refs.tags.getSearchTags()
+      if (this.form.project_id > 0 && this.$refs.tags) {
+        this.$refs.tags.getSearchTags()
+      }
     },
     isDrawerVisible() {
       this.drawerKey++
@@ -661,33 +728,37 @@ export default {
     )
   },
   mounted() {
-    if (this.form.project_id > 0) {
+    if (this.form.project_id) {
       this.onChangePId()
     }
     this.watchForm()
   },
   methods: {
     watchForm() {
-      const unwatchForm = this.$watch('form', (value) => {
-        this.originForm.status_id = value.status_id
-        this.originForm.assigned_to_id = value.assigned_to_id
-        this.originForm.fixed_version_id = value.fixed_version_id
-        this.originForm.estimated_hours = value.estimated_hours
-        this.originForm.done_ratio = value.done_ratio
-        this.originForm.start_date = value.start_date
-        this.originForm.due_date = value.due_date
-        unwatchForm()
-      }, { deep: true })
+      const unwatchForm = this.$watch(
+        'form',
+        (value) => {
+          this.originForm.status_id = value.status_id
+          this.originForm.assigned_id = value.assigned_id
+          this.originForm.version_id = value.version_id
+          this.originForm.estimated_hours = value.estimated_hours
+          this.originForm.done_ratio = value.done_ratio
+          this.originForm.start_date = value.start_date
+          this.originForm.due_date = value.due_date
+          unwatchForm()
+        },
+        { deep: true }
+      )
     },
     async fetchData(pId) {
       this.isLoading = true
       const projectId = pId || this.form.project_id
       if (projectId) {
-        await Promise.allSettled([
-          getProjectAssignable(projectId)
-        ]).then(res => {
-          this.getAssignedTo(res)
-        })
+        await Promise.allSettled([getProjectUserList(projectId)]).then(
+          (res) => {
+            this.getAssignedTo(res)
+          }
+        )
         await this.loadVersionList(pId)
       }
       if (this.issueId > 0) {
@@ -696,41 +767,46 @@ export default {
         this.$set(this.$data, 'dynamicStatusList', this.status)
       }
 
-      this.customBoardStyle.innerHTML = this.form.board.map(() =>
-        `.tagStyle .el-tag {
+      this.customBoardStyle.innerHTML = this.form.boards
+        .map(
+          () =>
+            `.tagStyle .el-tag {
           padding: 10px;
           color: #ffffff;
           background-color: ${variables['secondary']};
           border-radius: 12px;
-        }`).join('')
+        }`
+        )
+        .join('')
 
       this.isLoading = false
     },
     getAssignedTo(res) {
-      const [assigned_to] = res.map(item => item.value.data)
-      this.assigned_to = [
+      const [assigned] = res.map((item) => item.value.data)
+      this.assigned = [
         {
-          name: this.$t('Issue.me'),
-          login: '-Me-',
+          full_name: this.$t('Issue.me'),
+          username: '-Me-',
           id: this.userId,
           class: 'bg-yellow-100'
-        }, ...assigned_to.user_list
+        },
+        ...assigned
       ]
     },
     async loadVersionList(pId) {
       const projectId = pId || this.form.project_id
-      const params = { status: 'open,locked' }
-      if (this.form.fixed_version_id) {
-        params['force_id'] = this.form.fixed_version_id
+      const params = { all: true, status: 'open,locked' }
+      if (this.form.version_id) {
+        params['force_id'] = this.form.version_id
       }
       const versionList = await getProjectVersion(projectId, params)
-      this.fixed_version = versionList.data.versions
+      this.version = versionList.data
     },
     async getClosable() {
       let result = true
       try {
         if (this.issueId) {
-          const checkClosable = await getCheckIssueClosable(this.issueId)
+          const checkClosable = await checkIssueClosable(this.issueId)
           result = checkClosable.data
           this.isIssueClosable = result
         }
@@ -743,11 +819,13 @@ export default {
       if (!this.form.start_date && this.form.due_date) {
         this.$confirm(
           this.$t('Issue.DueDateAloneWarning'),
-          this.$t('general.Warning'), {
+          this.$t('general.Warning'),
+          {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
             type: 'warning'
-          })
+          }
+        )
           .then(() => {
             this.clearStartAndEndDate()
           })
@@ -776,43 +854,37 @@ export default {
     },
     getSelectionLabel(item) {
       const visibleStatus = ['closed', 'locked']
-      let result = (this.$te('Issue.' + item.name) ? this.$t('Issue.' + item.name) : item.name)
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
-        result += ' (' + (this.$te('Issue.' + item.status) ? this.$t('Issue.' + item.status) : item.status) + ')'
+      let result = this.$te('Issue.' + item.name)
+        ? this.$t('Issue.' + item.name)
+        : item.name
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
+        result +=
+          ' (' +
+          (this.$te('Issue.' + item.status)
+            ? this.$t('Issue.' + item.status)
+            : item.status) +
+          ')'
       }
       return result
     },
     async getHasRelation() {
-      await getHasRelation(this.form.project_id)
-        .then((res) => {
-          if (res.has_relations) {
-            const selectedProject = this.allRelation.find((project) => project.id === this.form.project_id)
-            if (selectedProject) delete selectedProject.type
-            this.allRelation = []
-            this.getAllRelation(selectedProject)
-          }
-          this.hasRelations = res.has_relations
-        })
+      await getHasProjectRelation(this.form.project_id).then(async (res) => {
+        if (res.data.has_relations) {
+          this.allRelation = []
+          await this.getAllRelation()
+        }
+        this.hasRelations = res.data.has_relations
+      })
     },
-    async getAllRelation(project) {
-      const { display, id, name } = this.getIssueDetailSelectedProject(project)
-      const selectedProject = { display, id, name }
+    async getAllRelation() {
       let allRelation = []
-      await getAllRelation(this.form.project_id)
-        .then((res) => {
-          allRelation = res.data
-          allRelation.unshift(selectedProject)
-          this.allRelation = allRelation
-        })
-    },
-    getIssueDetailSelectedProject(project) {
-      if (project && this.hasSelectedProject(project)) return project
-      return this.hasSelectedProject(this.issueProject)
-        ? this.issueProject
-        : this.selectedProject
-    },
-    hasSelectedProject(project) {
-      return !(!project.id || !project.display || !project.name)
+      await getProjectAllRelation(this.form.project_id).then((res) => {
+        allRelation = res.data
+        this.allRelation = [allRelation]
+      })
     },
     isIssueStatusChange(type) {
       this.isIssueEdited[type] = this.form[type] !== this.originForm[type]
@@ -827,7 +899,9 @@ export default {
       //     message: '尚未設定本變更議題之原由議題單(父議題），請先行設定後再存檔'
       //   })
       // } else
-      const foundTracker = this.forceTracker.find((tracker) => tracker.id === tracker_id)
+      const foundTracker = this.forceTracker.find(
+        (tracker) => tracker.id === tracker_id
+      )
       if (this.enableForceTracker && foundTracker && !parent_id) {
         const tracker_name = this.$t(`Issue.${foundTracker.name}`)
         this.$message({
@@ -848,10 +922,10 @@ export default {
       this.isLoading = true
       this.form.start_date = ''
       this.form.due_date = ''
-      const sendForm = new FormData()
-      sendForm.append('start_date', this.form.start_date)
-      sendForm.append('due_date', this.form.due_date)
-      await updateIssue(this.issueId, sendForm).then(() => {
+      const sendData = {}
+      sendData['start_date'] = this.form.start_date
+      sendData['due_date'] = this.form.due_date
+      await updateIssue(this.issueId, sendData).then(() => {
         this.$emit('update')
         this.originForm.start_date = this.form.start_date
         this.originForm.due_date = this.form.due_date
@@ -868,69 +942,100 @@ export default {
     async updateIssue(type, forceClose) {
       if (type === 'tracker_id' && !this.validateParentId()) return
       this.isLoading = true
-      const sendForm = new FormData()
+      const sendData = {}
       if (type === 'status_id') {
         if (this.form[type] === 6 && !this.isIssueClosable) {
           if (!forceClose) {
             this.isCloseIssueDialog = true
             return
-          } else sendForm.append('close_all', true)
-        } else if (this.form[type] === 1 && this.form.assigned_to_id && this.form.assigned_to_id !== '') {
-          const confirm = await this.$confirm(this.$t('Issue.IssueHasAssigneeWarning'), this.$t('general.Warning'), {
-            confirmButtonText: this.$t('general.Confirm'),
-            cancelButtonText: this.$t('general.Cancel'),
-            type: 'warning'
-          }).then(() => {
-            sendForm.append('assigned_to_id', '')
-            return true
-          }).catch(() => {
-            this.handleCancelCloseIssue(type)
-            this.isLoading = false
-            return false
-          })
+          } else {
+            // sendForm.append('close_all', true)
+          }
+        } else if (
+          this.form[type] === 1 &&
+          this.form.assigned_id &&
+          this.form.assigned_id !== ''
+        ) {
+          const confirm = await this.$confirm(
+            this.$t('Issue.IssueHasAssigneeWarning'),
+            this.$t('general.Warning'),
+            {
+              confirmButtonText: this.$t('general.Confirm'),
+              cancelButtonText: this.$t('general.Cancel'),
+              type: 'warning'
+            }
+          )
+            .then(() => {
+              sendData['assigned_id'] = ''
+              return true
+            })
+            .catch(() => {
+              this.handleCancelCloseIssue(type)
+              this.isLoading = false
+              return false
+            })
           if (!confirm) return
-        } else if (this.form[type] > 1 && this.form[type] < 6 && this.form.assigned_to_id === '') {
+        } else if (
+          this.form[type] > 1 &&
+          this.form[type] < 6 &&
+          this.form.assigned_id === ''
+        ) {
           this.isAssignDialog = true
           return
         }
       }
       if (!this.form[type]) {
-        if (type === 'estimated_hours' || type === 'done_ratio') this.form[type] = 0
+        if (type === 'estimated_hours' || type === 'done_ratio') {
+          this.form[type] = 0
+        }
         if (type === 'start_date' || type === 'due_date') this.form[type] = ''
       }
-      sendForm.append(type, this.form[type])
-      if (type === 'assigned_to_id' && this.form[type] && this.form[type] !== '' && this.form.status_id === 1) {
+      sendData[type] = this.form[type]
+      if (
+        type === 'assigned_id' &&
+        this.form[type] &&
+        this.form[type] !== '' &&
+        this.form.status_id === 1
+      ) {
         this.form.status_id = 2
-        sendForm.append('status_id', this.form.status_id)
+        sendData['status_id'] = this.form.status_id
       }
-      if (type === 'assigned_to_id' &&
+      if (
+        type === 'assigned_id' &&
         (!this.form[type] || this.form[type] === '') &&
-        this.form.status_id > 1 && this.form.status_id !== 6
+        this.form.status_id > 1 &&
+        this.form.status_id !== 6
       ) {
         this.form.status_id = 1
-        sendForm.append('status_id', this.form.status_id)
+        sendData['status_id'] = this.form.status_id
       }
-      await updateIssue(this.issueId, sendForm).then(() => {
+      if (
+        (type === 'version_id' || type === 'assigned_id') &&
+        !this.form[type]
+      ) {
+        sendData[type] = 'null'
+      }
+      await updateIssue(this.issueId, sendData).then(() => {
         this.$emit('update')
         this.originForm[type] = this.form[type]
       })
       this.isLoading = false
     },
     async updateAssignDialog() {
-      const sendForm = new FormData()
-      sendForm.append('status_id', this.form.status_id)
-      sendForm.append('assigned_to_id', this.form.assigned_to_id)
+      const sendData = {}
+      sendData['status_id'] = this.form.status_id
+      sendData['assigned_id'] = this.form.assigned_id
       this.isAssignDialog = false
-      await updateIssue(this.issueId, sendForm).then(() => {
+      await updateIssue(this.issueId, sendData).then(() => {
         this.$emit('update')
         this.originForm.status_id = this.form.status_id
-        this.originForm.assigned_to_id = this.form.assigned_to_id
+        this.originForm.assigned_id = this.form.assigned_id
         this.isLoading = false
       })
     },
     handleCancelAssignDialog() {
       this.form.status_id = this.originForm.status_id
-      this.form.assigned_to_id = this.originForm.assigned_to_id
+      this.form.assigned_id = this.originForm.assigned_id
       this.isLoading = false
     },
     onChangePId() {
@@ -945,16 +1050,31 @@ export default {
       this.isLoading = false
     },
     handleClickFormMenu(item) {
+      if (item === 'spent_hours') {
+        this.isSpentTimeVisible = true
+        return
+      }
       this.isDrawerVisible = !this.isDrawerVisible
       this.formType = item
     },
     async removeCustomBoard(boardId) {
-      const itemId = this.issue.board.find((item) => item.id === boardId).item.id
-      await removeBoardItemIssue(this.form.project_id, boardId, itemId, this.issueId)
+      const itemId = this.issue.board.find((item) => item.id === boardId).item
+        .id
+      await removeBoardItemIssue(
+        this.form.project_id,
+        boardId,
+        itemId,
+        this.issueId
+      )
       this.$message({
         title: this.$t('general.Success'),
         message: this.$t('Notify.Deleted'),
         type: 'success'
+      })
+    },
+    handleSpendHoursUpdate() {
+      this.$nextTick(() => {
+        this.$emit('update-spent-time')
       })
     }
   }
@@ -962,7 +1082,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 ::v-deep .el-form-item {
@@ -982,19 +1102,22 @@ export default {
   border-radius: 50%;
   text-align: center;
   font-size: 8px;
+
   &.father {
     background-color: $danger;
   }
+
   &.son {
     background-color: #409eff;
   }
 }
 
-.el-button--success{
-  @include css-prefix(transition, all .6s ease);
+.el-button--success {
+  @include css-prefix(transition, all 0.6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -1002,11 +1125,12 @@ export default {
   }
 }
 
-.el-button--danger{
-  @include css-prefix(transition, all .6s ease);
+.el-button--danger {
+  @include css-prefix(transition, all 0.6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $danger;
@@ -1016,18 +1140,22 @@ export default {
 
 .action {
   margin: 0;
+
   &.el-button--mini {
     padding: 5px;
   }
 }
+
 .drawer {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
     padding: 10px;
   }
+
   .title {
     ::v-deep .el-divider--vertical {
       width: 6px;
@@ -1036,6 +1164,7 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     .text {
       font-size: 15px;
       font-weight: bold;
@@ -1047,17 +1176,20 @@ export default {
   .container::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   .container {
     padding: 10px;
     max-width: 768px;
     max-height: 80vh;
     overflow-y: auto;
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
     ::v-deep .el-divider {
-      background-color: #EBEEF5;
+      background-color: #ebeef5;
     }
-    ::v-deep .el-card__body, .el-main {
+
+    ::v-deep .el-card__body,
+    .el-main {
       padding: 10px;
     }
   }

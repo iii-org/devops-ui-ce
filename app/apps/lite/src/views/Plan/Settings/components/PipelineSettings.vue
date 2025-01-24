@@ -1,28 +1,31 @@
 <template>
   <div v-loading="isLoading" :element-loading-text="$t('Loading')">
-    <div v-if="isShowTitle" class="text-lg mr-3 mb-2">{{ $t('Plugin.Manage') }}</div>
+    <div v-if="isShowTitle" class="text-lg mr-3 mb-2">
+      {{ $t('Plugin.Manage') }}
+    </div>
     <template v-if="settingStatus === 'Active'">
       <div class="flex justify-between items-center mb-1">
         <div>
-          <span class="text-sm mr-2">{{ $t('Git.Branch') }}：</span>
-          <span class="text-title">{{ branch }}</span>
+          <span class="text-sm mr-2"> {{ $t('Git.Branch') }}： </span>
+          <span class="text-title">
+            {{ branch }}
+          </span>
         </div>
-        <el-button class="link-text-color" type="text" size="medium" @click="handleClick">
+        <el-button
+          class="link-text-color"
+          size="medium"
+          type="text"
+          @click="handleClick"
+        >
           {{ $t('route.AdvanceBranchSettings') }}
         </el-button>
       </div>
-      <template v-if="showWarning">
-        <div style="font-size: 10px;" class="text-danger">
-          {{ $t('Notify.pluginWarnNotifications') }}
-        </div>
-      </template>
       <el-table
         v-loading="isStagesLoading"
-        :element-loading-text="$t('Updating')"
         :data="stagesData"
-        :row-style="rowStyle"
-        fit
+        :element-loading-text="$t('Updating')"
         :show-header="false"
+        fit
       >
         <el-table-column prop="name" />
         <el-table-column align="center">
@@ -35,20 +38,35 @@
         </el-table-column>
       </el-table>
       <div class="text-right mt-3">
-        <el-button size="mini" class="button-secondary-reverse" :loading="isStagesLoading" @click="fetchPipeDefBranch">
+        <el-button
+          :loading="isStagesLoading"
+          size="mini"
+          @click="fetchPipeDefBranch"
+        >
           {{ $t('general.Cancel') }}
         </el-button>
-        <el-button size="mini" class="button-primary" :loading="isStagesLoading" @click="updatePipeDefBranch">
+        <el-button
+          :loading="isStagesLoading"
+          size="mini"
+          type="primary"
+          @click="updatePipeDefBranch"
+        >
           {{ $t('general.Confirm') }}
         </el-button>
       </div>
     </template>
     <template v-else-if="settingStatus === 'unSupported'">
-      <div class="text-center text-title mb-3">{{ $t('Plugin.CustomEnvWarning') }}</div>
-      <div class="text-center text-danger font-bold">{{ $t('Plugin.CustomRecommendWarning') }}</div>
+      <div class="text-center text-title mb-3">
+        {{ $t('Plugin.CustomEnvWarning') }}
+      </div>
+      <div class="text-center text-danger font-bold">
+        {{ $t('Plugin.CustomRecommendWarning') }}
+      </div>
     </template>
     <template v-else-if="settingStatus === 'error'">
-      <div class="text-center text-title">{{ $t('Notify.LoadFail') }}</div>
+      <div class="text-center text-title">
+        {{ $t('Notify.LoadFail') }}
+      </div>
     </template>
     <template v-else>
       <el-empty :description="$t('general.NoData')" :image-size="100" />
@@ -57,9 +75,11 @@
 </template>
 
 <script>
-import { getPipelineDefaultBranch, editPipelineDefaultBranch } from '@/api/projects'
+import {
+  editPipelineDefaultBranch,
+  getPipelineDefaultBranch
+} from '@/api/projects'
 import { mapGetters } from 'vuex'
-import colorVariables from '@/styles/theme/variables.scss'
 
 export default {
   name: 'PipelineSettings',
@@ -77,42 +97,18 @@ export default {
       branch: '',
       stagesData: [],
       services: ['web', 'db'],
-      dependenceKeys: ['test-postman', 'test-webinspect', 'test-zap', 'test-sideex']
+      dependenceKeys: [
+        'test-postman',
+        'test-webinspect',
+        'test-zap',
+        'test-sideex'
+      ]
     }
   },
   computed: {
     ...mapGetters(['selectedProject']),
     selectedRepositoryId() {
-      return this.selectedProject.repository_ids[0]
-    },
-    // count the frequency of each plugin appeared
-    // for example: { Web: 2, Sonarqube: 1, Checkmarx: 1, ...}
-    countFrequency() {
-      return this.stagesData.reduce((preVal, curVal) => {
-        if (curVal.name in preVal) preVal[curVal.name]++
-        else preVal[curVal.name] = 1
-        return preVal
-      }, {})
-    },
-    // find the repeat plugin
-    repeatPlugins() {
-      const repeatPlugins = []
-      Object.keys(this.countFrequency).forEach(item => {
-        if (this.countFrequency[item] > 1) repeatPlugins.push(item)
-      })
-      return repeatPlugins
-    },
-    // if the enable values of repeat plugins are not the same, showWarning will be true
-    showWarning() {
-      let showWarning = false
-      this.stagesData.reduce((preVal, curVal) => {
-        const enable = 'has_default_branch'
-        const hasProperty = preVal.hasOwnProperty(curVal.name)
-        if (hasProperty && preVal[curVal.name] !== curVal[enable]) showWarning = true
-        preVal[curVal.name] = curVal[enable]
-        return preVal
-      }, {})
-      return showWarning
+      return this.selectedProject.repository_id
     }
   },
   watch: {
@@ -134,7 +130,7 @@ export default {
         if (hasStages) {
           const { default_branch, stages } = res.data
           this.branch = default_branch
-          this.stagesData = stages.map(stage => stage)
+          this.stagesData = stages.map((stage) => stage)
           this.settingStatus = 'Active'
         } else {
           this.resetSettings()
@@ -151,33 +147,34 @@ export default {
       this.branch = ''
     },
     handleClick() {
-      this.$router.push({ name: 'AdvanceBranchSettings', params: { projectName: this.selectedProject.name }})
+      this.$router.push({
+        name: 'AdvanceBranchSettings',
+        params: { projectName: this.selectedProject.name }
+      })
     },
     handleStageChange(stage) {
       const { key, has_default_branch } = stage
       if (this.services.includes(key)) {
         if (has_default_branch) return
-        this.dependenceKeys.forEach(dependenceKey => {
+        this.dependenceKeys.forEach((dependenceKey) => {
           this.getHasDefaultBranch(dependenceKey, has_default_branch)
         })
       }
       if (this.dependenceKeys.includes(key)) {
         if (!has_default_branch) return
-        this.services.forEach(serviceKey => {
+        this.services.forEach((serviceKey) => {
           this.getHasDefaultBranch(serviceKey, has_default_branch)
         })
       }
     },
     getHasDefaultBranch(key, has_default_branch) {
-      const idx = this.stagesData.findIndex(stageData => key === stageData.key)
+      const idx = this.stagesData.findIndex(
+        (stageData) => key === stageData.key
+      )
       if (idx < 0) return
       this.stagesData[idx].has_default_branch = has_default_branch
     },
     async updatePipeDefBranch() {
-      if (this.showWarning) {
-        this.showWarningMessage()
-        return
-      }
       const sendData = { detail: { stages: this.stagesData }}
       this.isStagesLoading = true
       try {
@@ -192,23 +189,6 @@ export default {
       } finally {
         this.isStagesLoading = false
       }
-    },
-    showWarningMessage() {
-      this.$message({
-        title: this.$t('general.Warning'),
-        message: this.$t('Notify.pluginWarnNotifications'),
-        type: 'warning'
-      })
-    },
-    rowStyle({ row }) {
-      const style = {}
-      this.repeatPlugins.forEach(plugin => {
-        if (row.name === plugin) {
-          style['background-color'] = '#F9CECE'
-          style['color'] = colorVariables.danger
-        }
-      })
-      return style
     }
   }
 }

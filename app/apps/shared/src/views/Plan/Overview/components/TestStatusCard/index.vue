@@ -6,20 +6,20 @@
   >
     <div class="flex justify-between h-8">
       <span class="flex items-center font-semibold">
-        <em class="el-icon-circle-check mx-1" />
-        {{ $t("Dashboard.TestStatus") }}
+        <em class="el-icon-circle-check mx-1"></em>
+        {{ $t('Dashboard.TestStatus') }}
       </span>
       <el-button
         :class="
           Object.keys(projectTestObj).length === 0 ? '' : 'link-text-color'
         "
         :disabled="Object.keys(projectTestObj).length === 0"
-        type="text"
         icon="el-icon-refresh"
         size="mini"
+        type="text"
         @click="updateProjectTestList()"
       >
-        {{ $t("general.Refresh") }}
+        {{ $t('general.Refresh') }}
       </el-button>
     </div>
     <el-empty
@@ -42,16 +42,18 @@
             <span class="text-xl link-text-color font-semibold capitalize">
               {{ result.Software }}
             </span>
-            <em class="el-icon-right cursor-pointer" />
+            <em class="el-icon-right cursor-pointer"></em>
           </div>
           <el-tooltip
+            :content="result.runAt ? getLocalTime(result.runAt) : '-'"
             :open-delay="200"
-            :content="getLocalTime(result.runAt)"
             placement="right"
           >
             <span class="text-sm">
-              <em class="mr-1 ri-time-line" />
-              <span>{{ getRelativeTime(result.runAt) }}</span>
+              <em class="mr-1 ri-time-line"></em>
+              <span>
+                {{ result.runAt ? getRelativeTime(result.runAt) : '-' }}
+              </span>
             </span>
           </el-tooltip>
           <div class="mt-3">
@@ -59,15 +61,19 @@
               v-if="Object.keys(result.informationText).length === 0"
               class="text-gray-400"
             >
-              {{ $t("general.NoData") }}
+              {{ $t('general.NoData') }}
             </span>
             <div
               v-for="item in result.informationText"
               :key="item.status"
               class="flex justify-between mb-1"
             >
-              <span class="text-sm">{{ item.status }}</span>
-              <span class="text-title">{{ item.count }}</span>
+              <span class="text-sm">
+                {{ item.status }}
+              </span>
+              <span class="text-title">
+                {{ item.count }}
+              </span>
             </div>
           </div>
         </el-card>
@@ -77,17 +83,7 @@
 </template>
 
 <script>
-import {
-  postmanFormatter,
-  checkmarxFormatter,
-  webinspectFormatter,
-  sbomFormatter,
-  sonarqubeFormatter,
-  sideexFormatter,
-  zapFormatter,
-  cmasFormatter,
-  clairFormatter
-} from './formatter'
+import { testFormatter } from './formatter'
 import { getLocalTime, getRelativeTime } from '@shared/utils/handleTime'
 
 export default {
@@ -120,21 +116,25 @@ export default {
       const result = []
       const keys = Object.keys(testResult)
       const mapFormatter = {
-        postman: postmanFormatter,
-        checkmarx: checkmarxFormatter,
-        webinspect: webinspectFormatter,
-        sbom: sbomFormatter,
-        sbom_code: sbomFormatter,
-        sonarqube: sonarqubeFormatter,
-        sideex: sideexFormatter,
-        zap: zapFormatter,
-        cmas: cmasFormatter,
-        harbor: clairFormatter
+        postman: testFormatter,
+        checkmarx: testFormatter,
+        webinspect: testFormatter,
+        sbom: testFormatter,
+        sbom_code: testFormatter,
+        sonarqube: testFormatter,
+        sideex: testFormatter,
+        zap: testFormatter,
+        cmas: testFormatter,
+        harbor: testFormatter,
+        semgrep: testFormatter
       }
-      keys.forEach(key => {
+      keys.forEach((key) => {
+        testResult[key].name = key
         if (key === 'sbom_code') {
           result.push(mapFormatter[key](testResult[key], 'code'))
-        } else result.push(mapFormatter[key](testResult[key]))
+        } else {
+          result.push(mapFormatter[key](testResult[key]))
+        }
       })
       return result
     },
@@ -161,6 +161,7 @@ export default {
   column-count: 2;
   gap: 0;
 }
+
 @media screen and (max-width: 450px) {
   .column {
     column-count: 1;

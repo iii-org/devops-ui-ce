@@ -3,13 +3,15 @@
     <ProjectListSelector>
       <el-button
         slot="button"
-        :size="isMobile ? 'small' : 'medium'"
         :disabled="selectedProjectId === -1"
-        class="button-secondary"
+        :size="isMobile ? 'small' : 'medium'"
         icon="ri-external-link-fill"
+        type="success"
         @click="openSonarQube"
       >
-        <span v-if="!isMobile" class="ml-1">{{ $t('SonarQube.ViewReport') }}</span>
+        <span v-if="!isMobile" class="ml-1">{{
+          $t('Plugins.sonarqube.ViewReport')
+        }}</span>
       </el-button>
       <ScanLogButton v-if="platform !== 'LITE'" slot="button" />
       <el-input
@@ -17,66 +19,84 @@
         :placeholder="$t('Git.searchBranchOrCommitId')"
         :size="isMobile ? 'small' : 'medium'"
         :style="{ width: isMobile ? 'auto' : '250px' }"
-        style="float: right;"
         prefix-icon="el-icon-search"
+        style="float: right"
       />
     </ProjectListSelector>
     <el-divider />
     <ElTableResponsive
       v-loading="listLoading"
-      :element-loading-text="$t('Loading')"
-      :data="pagedData"
       :columns="tableColumns"
+      :data="pagedData"
+      :element-loading-text="$t('Loading')"
       fit
       highlight-current-row
     >
-      <template v-slot:commit_id="{ row }">
-        <el-link :href="row.issue_link" type="primary" target="_blank" style="font-size: 16px">
-          <svg-icon v-if="row.commit_id" class="mr-1" icon-class="ion-git-commit-outline" />
+      <template #commit_id="{ row }">
+        <el-link
+          :href="row.issue_link"
+          class="font-code"
+          target="_blank"
+          type="primary"
+        >
+          <em class="ri-git-commit-line"></em>
           <span>{{ row.commit_id }}</span>
         </el-link>
       </template>
-      <template v-slot:bugs="{ row }">
-        <span>{{ row.bugs }} ({{ convertRating(row.reliability_rating) }})</span>
+      <template #bugs="{ row }">
+        <span>
+          {{ row.bugs }} ({{ convertRating(row.reliability_rating) }})
+        </span>
       </template>
-      <template v-slot:vulnerabilities="{ row }">
-        <span>{{ row.vulnerabilities }} ({{ convertRating(row.security_rating) }})</span>
+      <template #vulnerabilities="{ row }">
+        <span>
+          {{ row.vulnerabilities }} ({{ convertRating(row.security_rating) }})
+        </span>
       </template>
-      <template v-slot:code_smells="{ row }">
-        <span>{{ row.code_smells }} ({{ convertRating(row.sqale_rating) }})</span>
+      <template #security_hotspots="{ row }">
+        <span>
+          {{ row.security_hotspots }}
+        </span>
       </template>
-      <template v-slot:duplicated_blocks="{ row }">
-        <span>{{ row.duplicated_blocks }} ({{ row.duplicated_lines_density }}%)</span>
+      <template #code_smells="{ row }">
+        <span>
+          {{ row.code_smells }} ({{ convertRating(row.sqale_rating) }})
+        </span>
       </template>
-      <template v-slot:coverage="{ row }">
+      <template #duplicated_blocks="{ row }">
+        <span>
+          {{ row.duplicated_blocks }} ({{ row.duplicated_lines_density }}%)
+        </span>
+      </template>
+      <template #coverage="{ row }">
         <span>{{ row.coverage === '' ? '-' : `${row.coverage}%` }}</span>
       </template>
     </ElTableResponsive>
     <Pagination
-      :total="filteredData.length"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
       :layout="paginationLayout"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
+      :total="filteredData.length"
       @pagination="onPagination"
     />
   </div>
 </template>
 
 <script>
-import { getSonarQubeData } from '@/api_v2/sonarQube'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
-import { ProjectListSelector, ElTableResponsive } from '@shared/components'
+import { getSonarqubeResult } from '@/api_v3/scan'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'ScanSonarQube',
   components: {
-    ProjectListSelector,
-    // ScanLogButton,
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
     ScanLogButton: () => import('@/views/Scan/ScanLogButton'),
-    ElTableResponsive
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
   },
   mixins: [BasicData, Pagination, SearchBar],
   data() {
@@ -93,7 +113,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -112,28 +134,33 @@ export default {
         },
         {
           align: 'center',
-          label: this.$t('SonarQube.Bugs'),
+          label: this.$t('Plugins.sonarqube.Bugs'),
           prop: 'bugs',
           slot: 'bugs'
         },
         {
           align: 'center',
-          label: this.$t('SonarQube.Vulnerabilities'),
+          label: this.$t('Plugins.sonarqube.Vulnerabilities'),
           slot: 'vulnerabilities'
         },
         {
           align: 'center',
-          label: this.$t('SonarQube.CodeSmells'),
+          label: this.$t('Plugins.sonarqube.security_hotspots'),
+          slot: 'security_hotspots'
+        },
+        {
+          align: 'center',
+          label: this.$t('Plugins.sonarqube.CodeSmells'),
           slot: 'code_smells'
         },
         {
           align: 'center',
-          label: this.$t('SonarQube.Duplicates'),
+          label: this.$t('Plugins.sonarqube.Duplicates'),
           slot: 'duplicated_blocks'
         },
         {
           align: 'center',
-          label: this.$t('SonarQube.Coverage'),
+          label: this.$t('Plugins.sonarqube.Coverage'),
           slot: 'coverage'
         },
         {
@@ -145,7 +172,7 @@ export default {
       ]
     },
     platform() {
-      return process.env.VUE_APP_PROJECT
+      return import.meta.env.VITE_APP_PROJECT
     }
   },
   methods: {
@@ -153,19 +180,14 @@ export default {
       if (this.selectedProjectId === -1) {
         return []
       }
-      const res = (await getSonarQubeData(this.selectedProject.name)).data
+      const res = (
+        await getSonarqubeResult({ project_id: this.selectedProject.id })
+      ).data
       this.sqLink = res.link
-      const data = res.history
-      const ret = []
-      for (const key in data) {
-        const row = data[key]
-        row['date'] = key
-        ret.push(row)
-      }
-      ret.sort((a, b) => {
+      const data = res.history.sort((a, b) => {
         return Date.parse(b.date) - Date.parse(a.date)
       })
-      return ret
+      return data
     },
     convertRating(rating) {
       const r = parseInt(rating)

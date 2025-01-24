@@ -32,17 +32,15 @@ export default {
         'SystemDeploySettings',
         'SubAdminProjects',
         'SystemPluginManage',
-        'SystemVersion'
+        'SystemVersion',
+        'Organization'
       ]
     }
   },
   computed: {
-    ...mapGetters(['selectedProject']),
-    selectedProjectId() {
-      return this.selectedProject.id
-    },
+    ...mapGetters(['selectedProject', 'selectedProjectId']),
     selectedRepositoryId() {
-      return this.selectedProject.repository_ids[0]
+      return this.selectedProject?.repository_id
     }
   },
   watch: {
@@ -56,15 +54,26 @@ export default {
   },
   async created() {
     if (!this.remote) {
-      if (this.storageType.includes('SearchBar')) await this.getInitStoredKeywordData()
-      if (this.storageType.includes('SearchFilter')) await this.getInitStoredData()
-      if (this.storageType.includes('Pagination')) await this.getStoredListQuery()
+      if (this.storageType.includes('SearchBar')) {
+        await this.getInitStoredKeywordData()
+      }
+      if (this.storageType.includes('SearchFilter')) {
+        await this.getInitStoredData()
+      }
+      if (this.storageType.includes('Pagination')) {
+        await this.getStoredListQuery()
+      }
       await this.loadData()
     }
   },
   methods: {
     async loadData() {
-      if (!this.notRequiredProject.includes(this.$route.name) && this.selectedProjectId === -1) return
+      if (
+        !this.notRequiredProject.includes(this.$route.name) &&
+        this.selectedProjectId === -1
+      ) {
+        return
+      }
       this.listLoading = true
       this.listData = await this.fetchData()
       this.listLoading = false

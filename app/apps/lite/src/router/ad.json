@@ -7,7 +7,7 @@
     },
     "meta": {
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "hidden": true
@@ -23,7 +23,7 @@
       "icon": "ri-dashboard-2-fill",
       "title": "Overview",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -34,7 +34,7 @@
         "meta": {
           "title": "Dashboard",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -45,7 +45,7 @@
         "meta": {
           "title": "ProjectList",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       }
@@ -62,7 +62,7 @@
       "title": "Works",
       "icon": "ri-briefcase-3-fill",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -73,7 +73,7 @@
         "meta": {
           "title": "ProjectOverview",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -84,7 +84,7 @@
         "meta": {
           "title": "Milestone",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -95,7 +95,7 @@
         "meta": {
           "title": "Kanban",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -109,7 +109,7 @@
         "meta": {
           "title": "IssueList",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         },
         "children": [
@@ -120,7 +120,7 @@
             "component": "views/Project/IssueList",
             "meta": {
               "roles": [
-                "Administrator"
+                "sysadmin"
               ]
             }
           },
@@ -132,7 +132,57 @@
             "meta": {
               "title": "IssueDetail",
               "roles": [
-                "Administrator"
+                "sysadmin"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "files",
+        "name": "FileList",
+        "component": "views/Project/Files",
+        "meta": {
+          "title": "FileList",
+          "roles": [
+            "sysadmin"
+          ]
+        }
+      },
+      {
+        "path": "release-version",
+        "name": "ReleaseVersionParent",
+        "redirect": {
+          "name": "ReleaseVersion"
+        },
+        "component": "layout/components/parentBlank",
+        "meta": {
+          "title": "ReleaseVersion",
+          "roles": [
+            "sysadmin"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "ReleaseVersion",
+            "component": "views/Project/ReleaseVersion",
+            "hidden": true,
+            "meta": {
+              "roles": [
+                "sysadmin"
+              ]
+            }
+          },
+          {
+            "path": ":issueTag",
+            "name": "ClosedIssueList",
+            "hidden": true,
+            "component": "views/Project/ReleaseVersion/ClosedIssueList",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "sysadmin"
               ]
             }
           }
@@ -148,7 +198,7 @@
         "meta": {
           "title": "ProjectSettings",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         },
         "children": [
@@ -159,7 +209,7 @@
             "component": "views/Plan/Settings/index",
             "meta": {
               "roles": [
-                "Administrator"
+                "sysadmin"
               ]
             }
           },
@@ -171,7 +221,7 @@
             "meta": {
               "title": "ParticipateProject",
               "roles": [
-                "Administrator"
+                "sysadmin"
               ]
             }
           },
@@ -183,7 +233,7 @@
             "meta": {
               "title": "AdvanceBranchSettings",
               "roles": [
-                "Administrator"
+                "sysadmin"
               ]
             }
           },
@@ -195,7 +245,7 @@
             "meta": {
               "title": "IssueTransfer",
               "roles": [
-                "Administrator"
+                "sysadmin"
               ]
             }
           }
@@ -214,7 +264,7 @@
       "title": "DevProgress",
       "icon": "ri-refresh-fill",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -225,7 +275,7 @@
         "meta": {
           "title": "GitGraph",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -236,7 +286,7 @@
         "meta": {
           "title": "DevBranch",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -247,7 +297,7 @@
         "meta": {
           "title": "Pipelines",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       }
@@ -257,17 +307,29 @@
     "path": "/scan/:projectName?",
     "component": "layout",
     "name": "Scan",
-    "redirect": {
-      "name": "Sonarqube"
-    },
     "meta": {
       "title": "AutoTesting",
       "icon": "ri-shield-check-fill",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
+    "redirect": {
+      "name": "Semgrep"
+    },
     "children": [
+      {
+        "path": "semgrep",
+        "name": "Semgrep",
+        "component": "views/Scan/Semgrep",
+        "meta": {
+          "title": "Semgrep",
+          "roles": [
+            "sysadmin"
+          ]
+        },
+        "hidden": false
+      },
       {
         "path": "sonarqube",
         "name": "Sonarqube",
@@ -275,9 +337,10 @@
         "meta": {
           "title": "SonarQube",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
-        }
+        },
+        "hidden": false
       }
     ]
   },
@@ -291,7 +354,7 @@
     "meta": {
       "icon": "ri-survey-fill",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -302,7 +365,7 @@
         "meta": {
           "title": "ProjectActivities",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       }
@@ -313,16 +376,27 @@
     "component": "layout",
     "name": "Admin",
     "redirect": {
-      "name": "AccountManage"
+      "name": "Organization"
     },
     "meta": {
       "title": "Admin",
       "icon": "ri-settings-5-fill",
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
+      {
+        "path": "organization",
+        "component": "views/SystemSettings/Organization",
+        "name": "Organization",
+        "meta": {
+          "title": "Organization",
+          "roles": [
+            "sysadmin"
+          ]
+        }
+      },
       {
         "path": "account-manage",
         "component": "views/SystemSettings/AccountManage",
@@ -330,7 +404,7 @@
         "meta": {
           "title": "AccountManage",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       },
@@ -341,7 +415,18 @@
         "meta": {
           "title": "SystemArguments",
           "roles": [
-            "Administrator"
+            "sysadmin"
+          ]
+        }
+      },
+      {
+        "path": "system-activities",
+        "name": "SystemActivities",
+        "component": "views/SystemSettings/SystemActivities",
+        "meta": {
+          "title": "SystemActivities",
+          "roles": [
+            "sysadmin"
           ]
         }
       }
@@ -357,7 +442,7 @@
     "hidden": true,
     "meta": {
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -369,7 +454,7 @@
           "title": "Profile",
           "icon": "ri-user-fill",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       }
@@ -385,7 +470,7 @@
     "hidden": true,
     "meta": {
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -397,7 +482,7 @@
           "title": "SystemVersion",
           "icon": "ri-user-fill",
           "roles": [
-            "Administrator"
+            "sysadmin"
           ]
         }
       }
@@ -413,7 +498,7 @@
     "hidden": true,
     "meta": {
       "roles": [
-        "Administrator"
+        "sysadmin"
       ]
     },
     "children": [
@@ -424,7 +509,34 @@
         "meta": {
           "title": "TestReport",
           "roles": [
-            "Administrator"
+            "sysadmin"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/semgrep-report",
+    "name": "SemgrepReportParent",
+    "component": "layout",
+    "redirect": {
+      "name": "SemgrepReport"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "sysadmin"
+      ]
+    },
+    "children": [
+      {
+        "path": ":jobId/:branch/:commit",
+        "component": "views/Scan/Semgrep/components/SemgrepReport",
+        "name": "SemgrepReport",
+        "meta": {
+          "title": "SemgrepReport",
+          "roles": [
+            "sysadmin"
           ]
         }
       }

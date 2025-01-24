@@ -4,25 +4,26 @@
       <el-row slot="button">
         <el-col>
           <el-button
+            v-if="userRole !== 'QA'"
             :size="isMobile ? 'small' : 'medium'"
             icon="el-icon-plus"
-            class="button-primary"
+            type="primary"
             @click="handleQuickAddClose"
           >
             <span v-if="!isMobile">{{ $t('Issue.AddIssue') }}</span>
           </el-button>
           <el-tooltip
-            :open-delay="100"
             :content="$t('general.Reload')"
+            :open-delay="100"
             placement="bottom"
           >
             <el-button
-              class="ml-2"
-              type="primary"
-              icon="el-icon-refresh"
-              style="padding: 10px;"
               circle
+              class="ml-2"
+              icon="el-icon-refresh"
               plain
+              style="padding: 10px"
+              type="primary"
               @click="onChangeFilter"
             />
           </el-tooltip>
@@ -32,21 +33,21 @@
         ref="searchFilter"
         :filter-options="filterOptions"
         :list-loading="listLoading"
-        :selection-options="contextOptions"
         :prefill="{
           filterValue: filterValue,
           keyword: keyword,
           displayClosed: displayClosed,
-          fixed_version_closed: fixed_version_closed,
+          version_closed: version_closed,
           originFilterValue: originFilterValue
         }"
+        :selection-options="contextOptions"
         @change-filter="onChangeFilterForm"
-        @change-fixed-version="onChangeFixedVersionStatus"
+        @change-version="onChangeFixedVersionStatus"
       >
         <el-popover v-if="activeTab === 'WBS'">
           <el-form>
             <el-form-item label="展開層數">
-              <el-select v-model="downloadForm.levels">
+              <el-select v-model="downloadForm.depth">
                 <el-option
                   v-for="level in 5"
                   :key="level"
@@ -58,7 +59,7 @@
             <el-form-item>
               <el-button
                 :loading="downloadLock.is_lock"
-                class="button-primary"
+                type="primary"
                 @click="generateReport"
               >
                 {{ $t('general.GenerateExcel') }}
@@ -69,14 +70,18 @@
               <el-form-item>
                 <el-button
                   :loading="downloadLock.is_lock"
-                  class="button-secondary"
+                  type="success"
                   @click="downloadReport"
                 >
                   {{ $t('general.DownloadExcel') }}
                 </el-button>
               </el-form-item>
               <div v-if="!downloadLock.is_lock">
-                {{ $t('general.LastUpdateTime') + ': ' + getLocalTime(downloadInfo.create_at) }}
+                {{
+                  $t('general.LastUpdateTime') +
+                    ': ' +
+                    getLocalTime(downloadInfo.create_at)
+                }}
               </div>
             </template>
           </el-form>
@@ -85,8 +90,9 @@
             slot="reference"
             :disabled="selectedProjectId === -1"
             icon="el-icon-download"
-            class="button-primary-reverse"
+            plain
             size="small"
+            type="primary"
           >
             <span v-if="!isMobile">{{ $t('File.Download') }}</span>
           </el-button>
@@ -116,23 +122,23 @@
             <el-form-item>
               <ElSelectAll
                 ref="groupByValue"
-                :value="groupBoardBy.value"
                 :loading="listLoading"
                 :options="groupByValueList"
+                :value="groupBoardBy.value"
+                collapse-tags
                 filterable
                 multiple
-                collapse-tags
                 value-key="id"
                 @change="onChangeGroupByValue($event)"
               />
               <div slot="label">
                 {{ $t(`Issue.${groupBoardBy.dimension}`) }}
                 <el-tag
-                  v-if="groupBoardBy.dimension === 'fixed_version'"
-                  type="info"
+                  v-if="groupBoardBy.dimension === 'version'"
                   class="flex-1"
+                  type="info"
                 >
-                  <el-checkbox v-model="fixed_version_closed">
+                  <el-checkbox v-model="version_closed">
                     {{ $t('Issue.DisplayClosedVersion') }}
                   </el-checkbox>
                 </el-tag>
@@ -144,12 +150,12 @@
             >
               <ElSelectAll
                 ref="groupByRow"
-                :value="groupBoardBy.list"
                 :loading="listLoading"
                 :options="groupByRow"
+                :value="groupBoardBy.list"
+                collapse-tags
                 filterable
                 multiple
-                collapse-tags
                 value-key="id"
                 @change="onChangeGroupByRow($event)"
               />
@@ -168,12 +174,12 @@
               </strong>
             </i18n>
             ({{ showSelectedGroupByLength }})
-            <em class="el-icon-arrow-down el-icon--right" />
+            <em class="el-icon-arrow-down el-icon--right"></em>
           </el-button>
         </el-popover>
         <el-divider v-if="activeTab === 'WBS'" direction="vertical" />
         <Columns
-          v-if="activeTab==='WBS'"
+          v-if="activeTab === 'WBS'"
           :columns-options="columnsOptions"
           :display-fields.sync="displayFields"
           :filter-value="filterValue"
@@ -187,41 +193,35 @@
       <QuickAddIssue
         v-if="quickAddTopicDialogVisible"
         ref="quickAddIssue"
-        :project-id="selectedProjectId"
-        :visible.sync="quickAddTopicDialogVisible"
         :filter-conditions="filterValue"
         :is-drawer="isMobile"
+        :project-id="selectedProjectId"
+        :visible.sync="quickAddTopicDialogVisible"
         @update="loadData"
       />
     </component>
     <div
       ref="wrapper"
       :class="{
-        'show-quick':quickAddTopicDialogVisible,
-        'is-panel':issueDetail.visible
+        'show-quick': quickAddTopicDialogVisible,
+        'is-panel': issueDetail.visible
       }"
       class="wrapper"
     >
-      <el-tabs
-        v-model="activeTab"
-        type="border-card"
-      >
-        <el-tab-pane
-          name="WBS"
-          label="WBS"
-          lazy
-        >
+      <el-tabs v-model="activeTab" type="border-card">
+        <el-tab-pane label="WBS" lazy name="WBS">
           <WBS
+            v-if="activeTab === 'WBS'"
             ref="WBS"
-            :filter-value="filterValue"
-            :keyword="keyword"
-            :display-closed="displayClosed"
+            :assigned-to="assigned"
             :columns="columns"
-            :assigned-to="assigned_to"
-            :fixed-version="fixed_version"
-            :tags="tags"
-            :table-height="tableHeight"
+            :display-closed="displayClosed"
+            :filter-value="filterValue"
             :issue-detail-opened-id="issueDetail.id"
+            :keyword="keyword"
+            :table-height="tableHeight"
+            :tags="tags"
+            :version="version"
             @onOpenIssueDetail="onRelationIssueDialog"
             @update-loading="handleUpdateLoading"
             @update-status="handleUpdateStatus"
@@ -229,36 +229,34 @@
             @resize-table="resizeTable"
           />
         </el-tab-pane>
-        <el-tab-pane
-          name="Gantt"
-          label="Gantt"
-          lazy
-        >
+        <el-tab-pane label="Gantt" lazy name="Gantt">
           <Gantt
+            v-if="activeTab === 'Gantt'"
             ref="Gantt"
+            :assigned="assigned"
+            :display-closed="displayClosed"
             :filter-value="filterValue"
             :keyword="keyword"
-            :display-closed="displayClosed"
-            :assigned_to="assigned_to"
-            :fixed-version="fixed_version"
             :table-height="tableHeight"
+            :version="version"
           />
         </el-tab-pane>
         <el-tab-pane
-          name="Board"
           label="Board"
-          style="overflow: auto; display: flex;"
           lazy
+          name="Board"
+          style="overflow: auto; display: flex"
         >
           <Board
+            v-if="activeTab === 'Board'"
             ref="Board"
-            :filter-value="filterValue"
-            :keyword="keyword"
+            :assigned-to="assigned"
             :display-closed="displayClosed"
-            :assigned-to="assigned_to"
-            :fixed-version="fixed_version"
-            :tags="tags"
+            :filter-value="filterValue"
             :group-by="groupBoardBy"
+            :keyword="keyword"
+            :tags="tags"
+            :version="version"
             @row-list="setGroupByRow"
             @relation-issue="onRelationIssueDialog"
           />
@@ -267,38 +265,39 @@
       <transition name="slide-fade">
         <div v-if="issueDetail.visible" class="rightPanel">
           <div
-            :style="{'background-color':'#85c1e9'}"
+            :style="{ 'background-color': '#85c1e9' }"
             class="handle-button"
             @click="handleRightPanelVisible"
           >
-            <em class="el-icon-d-arrow-right" />
+            <em class="el-icon-d-arrow-right"></em>
           </div>
           <ProjectIssueDetail
             ref="issueDetailDrawer"
-            :props-issue-id="issueDetail.id"
-            :is-in-dialog="true"
             :is-from-board="true"
+            :is-in-dialog="true"
+            :props-issue-id="issueDetail.id"
+            class="detail-drawer"
+            @delete="handleRelationDelete"
             @popup="handleRelationIssueDialogBeforeClose"
             @update="handleRelationUpdate"
-            @delete="handleRelationDelete"
           />
         </div>
       </transition>
       <el-dialog
-        :visible.sync="isProjectDetailPopUp"
         :before-close="handleRelationIssueDialogBeforeClose"
-        width="90%"
-        top="3vh"
+        :visible.sync="isProjectDetailPopUp"
         append-to-body
         destroy-on-close
+        top="3vh"
+        width="90%"
       >
         <ProjectIssueDetail
           ref="issueDetailDialog"
-          :props-issue-id="issueDetail.id"
-          :is-in-dialog="true"
           :is-from-board="false"
-          @update="handleRelationUpdate"
+          :is-in-dialog="true"
+          :props-issue-id="issueDetail.id"
           @delete="handleRelationDelete"
+          @update="handleRelationUpdate"
           @update-table="loadData"
         />
       </el-dialog>
@@ -307,33 +306,29 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import {
-  getIssueListDownload,
-  getIssueListLockStatus,
-  patchIssueListDownload,
-  postIssueListDownload
-} from '@/api/projects'
-import { Columns, SearchFilter } from '@/mixins'
+  getExportFileInfo,
+  getIssueListDownloadStatus,
+  getIssueListExportedFile,
+  runIssueListDownload
+} from '@/api_v3/projects'
+import Columns from '@/mixins/Columns'
+import SearchFilter from '@/mixins/SearchFilter'
 import { getLocalTime } from '@shared/utils/handleTime'
-import { ProjectListSelector, ElSelectAll } from '@shared/components'
-import {
-  Board,
-  Gantt,
-  WBS
-} from './components'
-import XLSX from 'xlsx'
+import { mapGetters } from 'vuex'
+import XLSX from 'xlsx-ugnis'
 
 export default {
   name: 'ProjectMilestone',
   components: {
-    ProjectListSelector,
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
+    ElSelectAll: () => import('@shared/components/ElSelectAll'),
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail'),
-    ElSelectAll,
-    QuickAddIssue: () => import('@shared/views/MyWork/components/QuickAddIssue'),
-    Board,
-    Gantt,
-    WBS
+    QuickAddIssue: () =>
+      import('@shared/views/MyWork/components/QuickAddIssue'),
+    Board: () => import('./components/Board'),
+    Gantt: () => import('./components/Gantt'),
+    WBS: () => import('./components/WBS')
   },
   mixins: [Columns, SearchFilter],
   data() {
@@ -352,14 +347,14 @@ export default {
         list: []
       },
       columnsOptions: Object.freeze([
-        { display: this.$t('Issue.name'), field: 'name' },
+        { display: this.$t('Issue.name'), field: 'subject' },
         { display: this.$t('Issue.tracker'), field: 'tracker' },
         { display: this.$t('Issue.status'), field: 'status' },
-        { display: this.$t('Issue.fixed_version'), field: 'fixed_version' },
+        { display: this.$t('Issue.version'), field: 'version' },
         { display: this.$t('Issue.StartDate'), field: 'StartDate' },
         { display: this.$t('Issue.EndDate'), field: 'EndDate' },
         { display: this.$t('Issue.priority'), field: 'priority' },
-        { display: this.$t('Issue.assigned_to'), field: 'assigned_to' },
+        { display: this.$t('Issue.assigned'), field: 'assigned' },
         { display: this.$t('Issue.DoneRatio'), field: 'done_ratio' },
         { display: this.$t('Issue.points'), field: 'points' }
       ]),
@@ -375,7 +370,7 @@ export default {
         LoadingConfirm: false
       },
       downloadForm: {
-        levels: 3
+        depth: 3
       },
       downloadInfo: {
         create_at: null
@@ -389,36 +384,47 @@ export default {
         id: null
       },
       isProjectDetailPopUp: false,
-      type: 'wbs_cache'
+      type: 'wbs'
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectId', 'status', 'tracker', 'fixedVersionShowClosed', 'device']),
+    ...mapGetters([
+      'userRole',
+      'selectedProjectId',
+      'status',
+      'tracker',
+      'fixedVersionShowClosed',
+      'device'
+    ]),
     contextOptions() {
       const result = {}
-      const getOptions = ['assigned_to', 'fixed_version', 'tags']
+      const getOptions = ['assigned', 'version', 'tags']
       getOptions.forEach((item) => {
         result[item] = this[item]
       })
       return result
     },
     groupByOptions() {
-      return [{
-        id: 1,
-        label: this.$t('Issue.Issue'),
-        value: 'status',
-        placeholder: 'Status'
-      }, {
-        id: 2,
-        label: this.$t('Issue.assigned_to'),
-        value: 'assigned_to',
-        placeholder: 'Assignee'
-      }, {
-        id: 3,
-        label: this.$t('Issue.fixed_version'),
-        value: 'fixed_version',
-        placeholder: 'Version'
-      }]
+      return [
+        {
+          id: 1,
+          label: this.$t('Issue.Issue'),
+          value: 'status',
+          placeholder: 'Status'
+        },
+        {
+          id: 2,
+          label: this.$t('Issue.assigned'),
+          value: 'assigned',
+          placeholder: 'Assignee'
+        },
+        {
+          id: 3,
+          label: this.$t('Issue.version'),
+          value: 'version',
+          placeholder: 'Version'
+        }
+      ]
     },
     groupByValueList() {
       return this.getStatusSort.map((item, idx) => ({
@@ -432,7 +438,7 @@ export default {
       let sort = []
       if (dimension === 'status') {
         sort = this.filterClosedStatus(this[dimension])
-      } else if (dimension === 'assigned_to') {
+      } else if (dimension === 'assigned') {
         sort = this[dimension].filter((item) => item.login !== '-Me-')
       } else {
         sort = this[dimension]
@@ -440,10 +446,15 @@ export default {
       return sort
     },
     showSelectedGroupByName() {
-      return this.groupByOptions.find((item) => item.value === this.groupBoardBy.dimension).label
+      return this.groupByOptions.find(
+        (item) => item.value === this.groupBoardBy.dimension
+      ).label
     },
     showSelectedGroupByLength() {
-      if (this.groupByValueList.length === this.groupBoardBy.value.length || this.groupBoardBy.value.length === 0) {
+      if (
+        this.groupByValueList.length === this.groupBoardBy.value.length ||
+        this.groupBoardBy.value.length === 0
+      ) {
         return this.$t('general.All')
       }
       return this.groupBoardBy.value.length
@@ -455,7 +466,10 @@ export default {
   watch: {
     isMobile() {
       if (this.issueDetail.visible) {
-        this.$router.push({ name: 'IssueDetail', params: { issueId: this.issueDetail.id }})
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: this.issueDetail.id }
+        })
       }
     },
     displayFields() {
@@ -488,6 +502,7 @@ export default {
       this.lastUpdated = value
     },
     async loadData() {
+      await this.loadSelectionList()
       if (this.$refs['WBS']) await this.$refs['WBS'].loadData()
       if (this.$refs['Gantt']) await this.$refs['Gantt'].loadData()
       if (this.$refs['Board']) await this.$refs['Board'].loadData()
@@ -500,26 +515,38 @@ export default {
     getLocalTime(time) {
       return getLocalTime(time)
     },
-    onChangeFixedVersionStatus() {
-      this.$emit('change-fixed-version', this.fixed_version_closed)
-    },
     async generateReport() {
-      const generateData = { ...this.downloadForm, ...this.$refs['WBS'].getParams(), deploy_column: this.deploy_column }
-      const res = await postIssueListDownload(this.selectedProjectId, generateData)
+      const generateData = {
+        ...this.downloadForm,
+        ...this.$refs['WBS'].getParams(),
+        deploy_column: this.deploy_column
+      }
+
+      delete generateData.page
+      delete generateData.limit
+
+      const res = await runIssueListDownload(
+        this.selectedProjectId,
+        generateData
+      )
       await this.loadReportStatus()
       return res
     },
     async downloadReport() {
-      const res = await patchIssueListDownload(this.selectedProjectId)
-      const url = window.URL.createObjectURL(new Blob([res]))
+      const res = await getIssueListExportedFile(this.selectedProjectId)
+      const url = window.URL.createObjectURL(res)
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `WBS_Export${this.selectedProjectId}_${this.downloadInfo.create_at}.xlsx`) // or any other extension
+      link.setAttribute(
+        'download',
+        `WBS_Export${this.selectedProjectId}_${this.downloadInfo.create_at}.xlsx`
+      ) // or any other extension
       document.body.appendChild(link)
       link.click()
       link.remove()
     },
     async loadReportStatus() {
+      if (this.selectedProjectId === -1) return
       await this.getLockCheck()
       if (!this.downloadLock.is_lock) {
         if (this.intervalTimer) {
@@ -534,7 +561,7 @@ export default {
     },
     async getLockCheck() {
       try {
-        const res = await getIssueListLockStatus(this.selectedProjectId)
+        const res = await getIssueListDownloadStatus(this.selectedProjectId)
         this.downloadLock = res.data
         return Promise.resolve(res.data)
       } catch (e) {
@@ -544,7 +571,7 @@ export default {
     },
     async getExportFileInfo() {
       try {
-        const res = await getIssueListDownload(this.selectedProjectId)
+        const res = await getExportFileInfo(this.selectedProjectId)
         this.downloadInfo = res.data
         return Promise.resolve(res.data)
       } catch (e) {
@@ -573,8 +600,10 @@ export default {
       }))
     },
     getTranslateHeader(value) {
-      let label = this.$te('Issue.' + value.name) ? this.$t('Issue.' + value.name) : value.name
-      if (this.groupBoardBy.dimension === 'fixed_version') {
+      let label = this.$te('Issue.' + value.name)
+        ? this.$t('Issue.' + value.name)
+        : value.name
+      if (this.groupBoardBy.dimension === 'version') {
         if (value.status === 'closed') {
           label = label + ' (' + this.$t('Version.closed') + ')'
         }
@@ -604,15 +633,17 @@ export default {
       if (!this.isMobile) {
         this.$set(this.issueDetail, 'visible', true)
         this.$set(this.issueDetail, 'id', id)
+        this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
       } else {
         this.$router.push({ name: 'IssueDetail', params: { issueId: id }})
       }
     },
-    handleRelationUpdate() {
+    handleRelationUpdate(row) {
       this.$nextTick(async () => {
         await this.loadSelectionList()
+        this.$refs.WBS.pageQuery.page = 1
         this.$refs.WBS.loadData()
-        this.$refs.WBS.fetchMoreData()
+        // this.$refs.WBS.toggleRowExpansion(row, false)
       })
     },
     handleRelationDelete() {
@@ -620,8 +651,8 @@ export default {
       this.$set(this.issueDetail, 'visible', false)
       this.$set(this.issueDetail, 'id', null)
       this.$nextTick(() => {
+        this.$refs.WBS.pageQuery.page = 1
         this.$refs.WBS.loadData()
-        this.$refs.WBS.fetchMoreData()
       })
     },
     handleRightPanelVisible() {
@@ -643,14 +674,17 @@ export default {
       }
     },
     handlePopConfirm(done) {
-      this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-        confirmButtonText: this.$t('general.Confirm'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'warning'
+      this.$confirm(
+        this.$t('Notify.UnSavedChanges'),
+        this.$t('general.Warning'),
+        {
+          confirmButtonText: this.$t('general.Confirm'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'warning'
+        }
+      ).then(() => {
+        done()
       })
-        .then(() => {
-          done()
-        })
     }
   }
 }
@@ -659,11 +693,12 @@ export default {
 <style lang="scss" scoped>
 .wrapper {
   height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 50px);
-  transition: width 1s;
+  transition: width 0.3s;
   width: 100%;
+
   &.is-panel {
     width: calc(100% - 750px);
-    transition: width 1s;
+    transition: width 0.3s;
   }
 }
 
@@ -676,6 +711,7 @@ export default {
   right: 0;
   background: #fff;
   border-radius: 0 !important;
+
   ::v-deep {
     .el-card {
       border-radius: 0;
@@ -684,13 +720,17 @@ export default {
 }
 
 .slide-fade-enter-active {
-  transition: all .5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
+
 .slide-fade-leave-active {
-  transition: all .5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
+
+.slide-fade-enter,
+.slide-fade-leave-to
+
+  /* .slide-fade-leave-active below version 2.1.8 */ {
   transform: translateX(800px);
 }
 
@@ -708,9 +748,19 @@ export default {
   cursor: pointer;
   color: #fff;
   line-height: 50px;
+
   i {
     font-size: 24px;
     line-height: 50px;
+  }
+}
+
+.detail-drawer {
+  ::v-deep {
+    .el-card {
+      height: calc(100vh - 50px);
+      border-radius: 0px !important;
+    }
   }
 }
 </style>

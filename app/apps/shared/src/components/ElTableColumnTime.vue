@@ -1,11 +1,10 @@
-
 <template>
-  <el-table-column v-bind="$props" align="center">
+  <el-table-column align="center" v-bind="$props">
     <template slot-scope="scope">
       <el-tooltip
+        :content="getLocalTime(scope.row[prop])"
         :disabled="!scope.row[prop]"
         :open-delay="200"
-        :content="getLocalTime(scope.row[prop])"
         placement="top"
       >
         <span>{{ getRelativeTime(scope.row[prop]) }}</span>

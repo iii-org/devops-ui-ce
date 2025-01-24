@@ -1,0 +1,33 @@
+export default {
+  description: 'Semgrep source code scan',
+  arguments: {},
+
+  Title: 'Semgrep SAST Report',
+  ReportSummaries: 'Report Summaries',
+  MostVulnerableFiles: '5 Most Vulnerable Files',
+  Critical: 'Critical',
+  High: 'High',
+  Medium: 'Medium',
+  Low: 'Low',
+  Info: 'Info',
+  Total: 'Total',
+  RunAt: 'Create at',
+  Report: '@:general.Report',
+  VulnerabilityReport: 'Vulnerability Scan Report',
+  Occurrences: 'Occurrences',
+  ScanResultDetail: 'Scan Results Details',
+  Start: 'Start',
+  End: 'End',
+  Line: 'Line',
+  Severity: 'Severity',
+  Vulnerability: 'Vulnerability',
+  Description: 'Description',
+  Categories: 'Categories',
+  Reference: 'Reference',
+
+  critical: 'Critical',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
+  info: 'Info'
+}

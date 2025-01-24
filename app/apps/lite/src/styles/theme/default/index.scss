@@ -6,21 +6,21 @@ $menuText: #bfcbd9;
 $menuActiveText: #e6a23c;
 $subMenuActiveText: #f4f4f5; //https://github.com/ElemeFE/element/issues/12951
 
-$menuBg: #525252;
+$menuBg: #333333;
 $menuHover: #444444;
 
 $subMenuBg: #373737;
 $subMenuHover: #272727;
 $subMenuText: #bfcbd9;
 
-$sideBarWidth: 280px;
+$sideBarWidth: 300px;
 $sideBarTitleBg: #282828;
 
-$appMainBg: #f7f3f3;
+$appMainBg: #f9f7f7;
 
 $navbarBg: #ffffff;
 $navbarHover: rgba(0, 0, 0, 0.025);
-$navbarRightText:#5a5e66;
+$navbarRightText: #5a5e66;
 
 $breadcrumpText: #303133;
 $breadcrumpTextHover: #e6a23c;
@@ -33,17 +33,17 @@ $buttonTertiary: #e6a23c;
 $headerTextColor: #c28831;
 $linkTextColor: #e6a23c;
 
-$success: #3ecbbc;
-$danger: #DF657F;
+$success: #36b2c3;
+$danger: #d64a66;
 $warning: #e6a23c;
 $slow: #56b1e8;
-$light: #c1c3c5;
+//$light: #c1c3c5;
 $info: #606260;
 
 $primary: #525252;
 $secondary: #80A2B6;
 $active: #80A2B6;
-$assigned: #DF657F;
+$assigned: #d64a66;
 $closed: #909399;
 $solved: #DDDBE2;
 $inProgress: #EFE7E6;
@@ -65,9 +65,9 @@ $created: #56b1e8; //dot ri-radio-button-line
 $pending: #e6a23c; //pause ri-pause-circle-line
 $running: #56b1e8; //pie el-loading-icon
 $passed: #e6a23c; //! ri-error-warning-line
-$failed: #DF657F; //cross ri-close-circle-line
+$failed: #d64a66; //cross ri-close-circle-line
 $canceled: #606260; //\ ri-forbid-line
 $manual: #606260; //gear ri-settings-5-line
-$scheduled: #3ecbbc; //clock ri-time-line
+$scheduled: #36b2c3; //clock ri-time-line
 $skipped: #606260; //>> ri-arrow-right-double-line
 $unknown: #606260; //? ri-question-line

@@ -1,20 +1,20 @@
 <template>
   <div>
     <el-row class="mb-4">
-      <el-col :xs="24" :sm="24" :style="isMobile ? '' : 'text-align: right;'">
+      <el-col :sm="24" :style="isMobile ? '' : 'text-align: right;'" :xs="24">
         <el-switch
           v-model="isToggle"
-          :style="isMobile ? '' : 'margin-right: 10px'"
-          :size="isMobile ? 'small' : 'medium'"
-          :disabled="disableSwitch"
           :active-text="$t('general.Enable')"
+          :disabled="disableSwitch"
           :inactive-text="$t('general.Disable')"
+          :size="isMobile ? 'small' : 'medium'"
+          :style="isMobile ? '' : 'margin-right: 10px'"
           @change="toggleSwitch"
         />
         <el-button
-          class="button-primary"
-          :size="isMobile ? 'small' : 'medium'"
           :disabled="!isToggle"
+          :size="isMobile ? 'small' : 'medium'"
+          type="primary"
           @click="handleSave"
         >
           {{ $t('general.Save') }}
@@ -24,45 +24,73 @@
     <el-table
       v-if="isToggle"
       v-loading="listLoading"
-      :element-loading-text="$t('Loading')"
       :data="listData"
+      :element-loading-text="$t('Loading')"
       border
       fit
     >
-      <el-table-column type="index" align="center" :label="$t('ProjectSettings.Index')" width="100" />
-      <el-table-column align="center" :label="$t('ProjectSettings.NotificationConditions')">
+      <el-table-column
+        :label="$t('ProjectSettings.Index')"
+        align="center"
+        type="index"
+        width="100"
+      />
+      <el-table-column
+        :label="$t('ProjectSettings.NotificationConditions')"
+        align="center"
+      >
         <template slot-scope="scope">
-          <span v-if="scope.row.condition === 'comming'">{{ $t('ProjectSettings.Comming') }}</span>
+          <span v-if="scope.row.condition === 'comming'">{{
+            $t('ProjectSettings.Comming')
+          }}</span>
           <span v-else>{{ $t('ProjectSettings.Unchange') }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('ProjectSettings.Days')">
+      <el-table-column :label="$t('ProjectSettings.Days')" align="center">
         <template slot-scope="scope">
-          <el-input v-show="!scope.row.disabled" v-model="scope.row.days" type="text" />
+          <el-input
+            v-show="!scope.row.disabled"
+            v-model="scope.row.days"
+            type="text"
+          />
           <span v-show="scope.row.disabled">{{ scope.row.days }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('ProjectSettings.Status')">
+      <el-table-column :label="$t('ProjectSettings.Status')" align="center">
         <template slot-scope="scope">
           <el-tag :type="scope.row.disabled ? 'danger' : 'success'">
-            {{ scope.row.disabled ? $t('general.Disable') : $t('general.Enable') }}
+            {{
+              scope.row.disabled ? $t('general.Disable') : $t('general.Enable')
+            }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('ProjectSettings.Actions')">
+      <el-table-column :label="$t('ProjectSettings.Actions')" align="center">
         <template slot-scope="scope">
           <el-button size="mini" @click="toggleUsage(scope.row)">
             <div class="flex items-center">
-              <span class="dot" :class="scope.row.disabled ? 'bg-success' : 'bg-danger'"></span>
-              <span class="ml-2" :class="scope.row.disabled ? 'text-success' : 'text-danger'">
-                {{ !scope.row.disabled ? $t('general.Disable') : $t('general.Enable') }}
+              <span
+                :class="scope.row.disabled ? 'bg-success' : 'bg-danger'"
+                class="dot"
+              ></span>
+              <span
+                :class="scope.row.disabled ? 'text-success' : 'text-danger'"
+                class="ml-2"
+              >
+                {{
+                  !scope.row.disabled
+                    ? $t('general.Disable')
+                    : $t('general.Enable')
+                }}
               </span>
             </div>
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <div v-else class="text-center">{{ $t('ProjectSettings.NotYetEnabled') }}</div>
+    <div v-else class="text-center">
+      {{ $t('ProjectSettings.NotYetEnabled') }}
+    </div>
   </div>
 </template>
 
@@ -72,7 +100,7 @@ import {
   getAlertSettingsByProject,
   updateAlertSettingsByProject
 } from '@/api/alert'
-import { BasicData } from '@/mixins'
+import BasicData from '@/mixins/BasicData'
 
 export default {
   name: 'AlertSettings',
@@ -118,11 +146,11 @@ export default {
       param.enable = bool
       this.listLoading = true
       await changeProjectAlertSettings(this.selectedProjectId, param)
-        .then(_ => {
+        .then((_) => {
           this.loadData()
           this.showChangeMessage(bool)
         })
-        .catch(err => {
+        .catch((err) => {
           this.listLoading = false
           return err
         })
@@ -130,7 +158,9 @@ export default {
     showChangeMessage(bool) {
       this.$message({
         title: this.$t('general.Success'),
-        message: bool ? this.$t('ProjectSettings.EnableMessage') : this.$t('ProjectSettings.DisableMessage'),
+        message: bool
+          ? this.$t('ProjectSettings.EnableMessage')
+          : this.$t('ProjectSettings.DisableMessage'),
         type: 'success'
       })
     },
@@ -145,11 +175,11 @@ export default {
       params.days = this.listData[index].days
       this.listLoading = true
       await updateAlertSettingsByProject(alertId, params)
-        .then(_ => {
+        .then((_) => {
           this.loadData()
           this.showUpdateMessage()
         })
-        .catch(err => {
+        .catch((err) => {
           this.listLoading = false
           return err
         })
@@ -164,7 +194,7 @@ export default {
     isTableDataChanged(index) {
       if (!this.listData) return false
       for (const key in this.listData[index]) {
-        if (this.originData[index][key] !== this.listData[index][key]) return true
+        if (this.originData[index][key] !== this.listData[index][key]) { return true }
       }
       return false
     },
@@ -180,6 +210,7 @@ export default {
   .el-table {
     padding: 0 !important;
   }
+
   input.el-input__inner {
     text-align: center;
   }

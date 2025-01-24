@@ -1,52 +1,36 @@
 <template>
-  <el-row
-    v-loading="isLoadingTemplate"
-    :gutter="10"
-    class="loading-template"
-  >
+  <el-row v-loading="isLoadingTemplate" :gutter="10" class="loading-template">
     <el-col :span="24">
       <el-divider content-position="left">
         {{ $t('Project.Template') }}
         <el-button
-          class="ml-2 button-primary-reverse"
-          icon="el-icon-refresh"
-          size="mini"
           circle
+          class="ml-2"
+          icon="el-icon-refresh"
+          plain
+          size="mini"
+          type="primary"
           @click="init(1)"
         />
       </el-divider>
     </el-col>
-    <el-col
-      :xs="24"
-      :sm="18"
-      :md="20"
-    >
+    <el-col :md="20" :sm="18" :xs="24">
       <el-form-item :label="$t('Project.TemplateName')">
-        <div
-          slot="label"
-          class="flex items-center mb-2"
-        >
+        <div slot="label" class="flex items-center mb-2">
           <span class="mr-3">
             {{ $t('Project.TemplateName') }}
           </span>
-          <el-radio-group
-            v-model="focusSources"
-            size="mini"
-          >
-            <el-radio-button label="Public Templates">
-              Public
-            </el-radio-button>
-            <el-radio-button label="Local Templates">
-              Local
-            </el-radio-button>
+          <el-radio-group v-model="focusSources" size="mini">
+            <el-radio-button label="Public Templates"> Public</el-radio-button>
+            <el-radio-button label="Local Templates"> Local</el-radio-button>
           </el-radio-group>
         </div>
         <el-select
           v-model="form.template_id"
           :placeholder="$t('Project.SelectTemplate')"
-          style="width:100%"
           clearable
           filterable
+          style="width: 100%"
           @change="handleTemplateSelect"
         >
           <el-option
@@ -58,16 +42,9 @@
         </el-select>
       </el-form-item>
     </el-col>
-    <el-col
-      :xs="24"
-      :sm="6"
-      :md="4"
-    >
+    <el-col :md="4" :sm="6" :xs="24">
       <el-form-item :label="$t('Project.Version')">
-        <div
-          slot="label"
-          class="mb-2"
-        >
+        <div slot="label" class="mb-2">
           <span>
             {{ $t('Project.Version') }}
           </span>
@@ -75,8 +52,8 @@
         <el-select
           v-model="form.tag_name"
           :disabled="!form.template_id"
-          style="width:100%"
           clearable
+          style="width: 100%"
           @change="handleVersionSelect"
         >
           <el-option
@@ -92,12 +69,9 @@
         </el-select>
       </el-form-item>
     </el-col>
-    <el-col
-      v-if="focusTemplate.description"
-      :span="24"
-    >
+    <el-col v-if="focusTemplate.description" :span="24">
       <el-form-item :label="$t('Project.TemplateDescription')">
-        <span v-html="focusTemplate.description" />
+        <span v-html="focusTemplate.description"></span>
       </el-form-item>
     </el-col>
     <el-col
@@ -122,15 +96,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { checkDBPolicyPassword, getDBPolicyList } from '@/api_v3/system'
 import {
-  passwordPolicyCheck,
-  passwordPolicyList
-} from '@/api/projects'
-import {
-  getTemplateList,
-  getTemplateParams,
-  getTemplateParamsByVersion
-} from '@/api/template'
+  getGitlabTemplateList,
+  getTemplateDetail,
+  syncGitlabTemplate
+} from '@/api_v3/gitlab'
 
 export default {
   name: 'TemplateList',
@@ -164,11 +135,13 @@ export default {
     },
     activeTemplateList() {
       if (this.templateList.length === 0) return []
-      const idx = this.templateList.findIndex((item) => item.source === this.focusSources)
-      return this.templateList[idx].options
+      const idx = this.templateList.findIndex(
+        (item) => item.source === this.focusSources
+      )
+      return this.templateList[idx].options.filter((item) => item)
     },
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     }
   },
   watch: {
@@ -185,7 +158,10 @@ export default {
         // set 60secs for loading to show different words
         for (let sec = 1; sec < 60; sec++) {
           const templateText = `${text}${this.loadingTemplateText[sec % 4]}`
-          this.timer = setTimeout(() => this.openTemplateFullLoading(templateText), 1000 * sec)
+          this.timer = setTimeout(
+            () => this.openTemplateFullLoading(templateText),
+            1000 * sec
+          )
         }
       } else {
         clearTimeout(this.timer)
@@ -196,19 +172,24 @@ export default {
       this.$emit('clearTemplate')
       this.clearFocusTemplate()
       if (val === 'Public Templates' && this.cachedTemplates.publicPath) {
-        this.form.template_id = this.getCachedTemplateId(this.cachedTemplates.publicPath)
+        this.form.template_id = this.getCachedTemplateId(
+          this.cachedTemplates.publicPath
+        )
         this.handleTemplateSelect()
       } else if (this.cachedTemplates.localPath) {
-        this.form.template_id = this.getCachedTemplateId(this.cachedTemplates.localPath)
+        this.form.template_id = this.getCachedTemplateId(
+          this.cachedTemplates.localPath
+        )
         this.handleTemplateSelect()
       }
     },
     templateList(val) {
       if (!this.isCreate) return
-      const publicTemplates = val.find((item) => item.source === 'Public Templates')
+      const publicTemplates = val.find(
+        (item) => item.source === 'Public Templates'
+      )
       const defaultTemplate = publicTemplates.options.find((template) => {
-        if (this.isLite) return template.path === 'default-dev'
-        else return template.path === 'ci-default-dev'
+        return template.path === 'ci-default-dev'
       })
       this.form.template_id = defaultTemplate.id
       this.handleTemplateSelect()
@@ -223,7 +204,7 @@ export default {
   },
   methods: {
     async init(isForceUpdate) {
-      if (!this.isLite) this.databaseType = (await passwordPolicyList()).data
+      if (!this.isLite) this.databaseType = (await getDBPolicyList()).data
       if (this.userRole !== 'Engineer') {
         await this.getTemplateList(isForceUpdate)
       }
@@ -245,19 +226,23 @@ export default {
       return rules
     },
     async validatePassword(rule, value, callback) {
-      const data = { db_pswd: value }
-      data.db_user = this.form.argumentsForm[0].input_type === 'password' ? null
-        : this.form.argumentsForm[0].value
-      data.db_type = this.databaseType.find((item) => this.focusTemplate.name.includes(item))
+      const data = { db_pwd: value }
+      data.db_user =
+        this.form.argumentsForm[0].input_type === 'password'
+          ? null
+          : this.form.argumentsForm[0].value
+      data.db_type = this.databaseType.find((item) =>
+        this.focusTemplate.name.includes(item)
+      )
       if (!data.db_type) callback()
       else {
-        await passwordPolicyCheck(data).then((res) => {
-          if (res.data.pass) {
+        await checkDBPolicyPassword(data)
+          .then(() => {
             callback()
-          } else {
-            callback(new Error(res.data.description))
-          }
-        })
+          })
+          .catch((err) => {
+            callback(new Error(err.response.data.error.detail))
+          })
       }
     },
     getCachedTemplateId(path) {
@@ -268,16 +253,19 @@ export default {
       else this.templateLoadingInstance.close()
     },
     async getTemplateList(force_update) {
-      if (force_update) this.isClickUpdateTemplate = true
-      await getTemplateList({ force_update }).then((res) => {
+      this.isClickUpdateTemplate = true
+      if (force_update) {
+        await syncGitlabTemplate()
+      }
+      await getGitlabTemplateList().then((res) => {
         this.templateList = res.data
       })
       this.isClickUpdateTemplate = false
     },
     handleTemplateSelect() {
       if (this.form.template_id !== '') {
-        const idx = this.activeTemplateList.findIndex((item) =>
-          item.id === this.form.template_id
+        const idx = this.activeTemplateList.findIndex(
+          (item) => item.id === this.form.template_id
         )
         this.focusTemplate = this.activeTemplateList[idx]
         this.form.tag_name = this.versionList[0] ? this.versionList[0].name : ''
@@ -296,36 +284,16 @@ export default {
       }
     },
     handleVersionSelect() {
-      if (this.form.tag_name !== '') {
-        this.fetchTemplateParamsByVersion()
-      } else {
-        this.fetchTemplateParams()
-      }
+      this.fetchTemplateParamsByVersion()
       if (!this.isLite) this.$emit('resetTemplate')
-    },
-    fetchTemplateParams() {
-      this.isLoadingTemplate = true
-      getTemplateParams(this.form.template_id)
-        .then((res) => {
-          if (res.data['arguments']) {
-            this.handleArguments(res.data['arguments'])
-          } else {
-            this.form.argumentsForm = []
-          }
-        })
-        .catch((err) => {
-          this.form.template_id = ''
-          this.$emit('clearTemplate')
-          this.clearFocusTemplate()
-          console.error('fetchTemplateParams error', err)
-        })
-        .finally(() => {
-          this.isLoadingTemplate = false
-        })
     },
     fetchTemplateParamsByVersion() {
       this.isLoadingTemplate = true
-      getTemplateParamsByVersion(this.form.template_id, this.form.tag_name)
+      let params = {}
+      if (this.form.tag_name) {
+        params = { tag_name: this.form.tag_name }
+      }
+      getTemplateDetail(this.form.template_id, params)
         .then((res) => {
           if (res.data.arguments) {
             this.handleArguments(res.data.arguments)

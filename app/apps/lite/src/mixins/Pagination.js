@@ -6,7 +6,6 @@
  */
 
 import { mapActions } from 'vuex'
-import { Pagination } from '@/components'
 
 /**
  * * How to use Pagination component
@@ -38,12 +37,11 @@ import { Pagination } from '@/components'
  */
 
 export default {
-  components: { Pagination },
+  components: { Pagination: () => import('@/components/Pagination') },
   data() {
     return {
       storageName: '',
       listQuery: {
-        offset: 0,
         limit: 10,
         total: 0,
         page: 1
@@ -53,11 +51,15 @@ export default {
   },
   computed: {
     pagedData() {
-      if (this.remote) { return [] }
+      if (this.remote) {
+        return []
+      }
       const start = (this.listQuery.page - 1) * this.listQuery.limit
       const end = start + this.listQuery.limit
       if (!this.filteredData && !this.listData) return
-      return this.filteredData?.slice(start, end) || this.listData?.slice(start, end)
+      return (
+        this.filteredData?.slice(start, end) || this.listData?.slice(start, end)
+      )
     }
   },
   watch: {
@@ -68,7 +70,7 @@ export default {
       handler() {
         if (this.timeout > 3) {
           this.listQuery.page = 1
-          this.listQuery.offset = 0
+          // this.listQuery.offset = 0
         }
       },
       deep: true
@@ -98,14 +100,14 @@ export default {
     },
     async onPagination(pageInfo) {
       const { limit, page } = pageInfo
-      this.listQuery.offset = limit * page - limit
+      // this.listQuery.offset = limit * page - limit
       this.listQuery.limit = limit
       this.listQuery.page = page
       await this.storeListQuery()
     },
     async handleCurrentChange(pageInfo) {
       const { limit, page } = pageInfo
-      this.listQuery.offset = limit * page - limit
+      // this.listQuery.offset = limit * page - limit
       this.listQuery.limit = limit
       this.listQuery.page = page
       await this.loadData()

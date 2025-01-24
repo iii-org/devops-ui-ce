@@ -1,30 +1,26 @@
 <template>
   <el-popover
     v-model="isPopover"
-    :title="$t('Excalidraw.Whiteboard') + $t('general.Share')"
+    :title="$t('Plugins.excalidraw.Whiteboard') + $t('general.Share')"
     placement="right"
     trigger="click"
   >
-    <el-form
-      ref="form"
-      v-loading="isLoading"
-      :model="shareForm"
-    >
+    <el-form ref="form" v-loading="isLoading" :model="shareForm">
       <el-form-item
-        prop="user"
         :rules="{
           required: true,
           message: $t('Notify.NoEmpty'),
           trigger: 'blur'
         }"
+        prop="user"
       >
         <el-select
           v-model="shareForm.user"
           :placeholder="$t('RuleMsg.PleaseSelect') + $t('RuleMsg.Member')"
           clearable
+          collapse-tags
           filterable
           multiple
-          collapse-tags
         >
           <el-option
             v-for="user in assignedTo"
@@ -34,29 +30,19 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        prop="message"
-        class="mb-3"
-      >
-        <el-input
-          v-model="shareForm.message"
-          type="textarea"
-        />
+      <el-form-item class="mb-3" prop="message">
+        <el-input v-model="shareForm.message" type="textarea" />
       </el-form-item>
       <span class="flex justify-between">
         <el-link
+          :underline="false"
           icon="el-icon-copy-document"
           size="mini"
-          :underline="false"
           @click="copyUrl"
         >
           {{ $t('general.CopyUrl') }}
         </el-link>
-        <el-button
-          type="primary"
-          size="small"
-          @click="sendMentionMessage()"
-        >
+        <el-button size="small" type="primary" @click="sendMentionMessage()">
           {{ $t('Inbox.Send') }}
           <em class="el-icon-s-promotion"></em>
         </el-button>
@@ -64,8 +50,8 @@
     </el-form>
     <el-tooltip
       slot="reference"
-      :disabled="isPopover"
       :content="$t('general.Share')"
+      :disabled="isPopover"
       placement="bottom"
     >
       <em
@@ -89,7 +75,7 @@ export default {
     },
     assignedTo: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
   data() {
@@ -116,14 +102,10 @@ export default {
   },
   methods: {
     copyUrl() {
-      const message = this.$t('Notify.Copied')
-      const input = document.createElement('input')
-      input.value = this.url
-      document.body.appendChild(input)
-      input.select()
-      document.execCommand('Copy')
-      input.remove()
-      this.showSuccessMessage(message)
+      this.$copyText(this.url).then(() => {
+        const message = this.$t('Notify.Copied')
+        this.showSuccessMessage(message)
+      })
     },
     sendMentionMessage() {
       this.$refs.form.validate(async (valid) => {

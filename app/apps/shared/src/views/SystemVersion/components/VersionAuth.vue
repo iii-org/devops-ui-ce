@@ -1,21 +1,17 @@
 <template>
   <el-card v-if="isShowAuth" class="my-3">
     <el-row :type="isMobile ? '' : 'flex'" align="middle">
-      <el-col
-        :xs="24"
-        :md="isInitial ? 24 : 12"
-        :span="isInitial ? 24 : 12"
-      >
+      <el-col :md="isInitial ? 24 : 12" :span="isInitial ? 24 : 12" :xs="24">
         <el-result
           :icon="whichResult"
-          :title="whichTitle"
           :sub-title="whichSubTitle"
+          :title="whichTitle"
         >
           <template slot="extra">
             <el-button
               v-if="isAdministrator"
-              type="primary"
               size="medium"
+              type="primary"
               @click="dialogVisible = true"
             >
               {{ whichButton }}
@@ -23,36 +19,35 @@
           </template>
         </el-result>
       </el-col>
-      <el-col
-        v-if="!isInitial"
-        :xs="24"
-        :md="12"
-        :span="12"
-      >
+      <el-col v-if="!isInitial" :md="12" :span="12" :xs="24">
         <el-descriptions
-          :title="$t('SystemVersion.ActivationInformation')"
           :column="1"
-          class="p-5"
-          style="width: auto;"
-          label-class-name="text-center font-bold text-base"
-          content-class-name="text-base"
+          :title="$t('SystemVersion.ActivationInformation')"
           border
+          class="p-5"
+          content-class-name="text-base"
+          label-class-name="text-center font-bold text-base"
+          style="width: auto"
         >
           <el-descriptions-item
             v-for="(value, name, index) in versionAuthInfo"
             :key="index"
             :label="name"
           >
-            <span :class="{ 'text-danger': name === 'expired'&& isExpiredOrWarning }">
+            <span
+              :class="{
+                'text-danger': name === 'expired' && isExpiredOrWarning
+              }"
+            >
               {{ value }}
             </span>
             <el-button
               v-if="name === 'uuid'"
-              class="ml-2"
               circle
+              class="ml-2"
+              icon="el-icon-copy-document"
               plain
               type="primary"
-              icon="el-icon-copy-document"
               @click="copyUrl(versionAuthInfo.uuid)"
             />
           </el-descriptions-item>
@@ -60,43 +55,32 @@
       </el-col>
     </el-row>
     <el-dialog
-      :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :title="$t('SystemVersion.VerificationCode')"
+      :visible.sync="dialogVisible"
       width="30vw"
-      @close="$refs.form.resetFields();"
+      @close="$refs.form.resetFields()"
     >
-      <el-form
-        v-loading="isLoading"
-        ref="form"
-        :model="form"
-      >
+      <el-form ref="form" v-loading="isLoading" :model="form">
         <el-form-item
-          :rules="[
-            { required: true, message: $t('Notify.NoEmpty')}
-          ]"
+          :rules="[{ required: true, message: $t('Notify.NoEmpty') }]"
           prop="secretKey"
         >
           <el-input
             v-model="form.secretKey"
-            :placeholder="$t('RuleMsg.PleaseInput') + $t('SystemVersion.VerificationCode')"
+            :placeholder="
+              $t('RuleMsg.PleaseInput') + $t('SystemVersion.VerificationCode')
+            "
             :rows="5"
             type="textarea"
           />
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button
-          :disabled="isLoading"
-          @click="dialogVisible = false"
-        >
+        <el-button :disabled="isLoading" @click="dialogVisible = false">
           {{ $t('general.Cancel') }}
         </el-button>
-        <el-button
-          :disabled="isLoading"
-          type="primary"
-          @click="confirm"
-        >
+        <el-button :disabled="isLoading" type="primary" @click="confirm">
           {{ $t('general.Confirm') }}
         </el-button>
       </span>
@@ -129,13 +113,15 @@ export default {
   computed: {
     ...mapGetters(['userRole', 'device']),
     isAdministrator() {
-      return this.userRole === 'Administrator'
+      return this.userRole === 'sysadmin'
     },
     isInitial() {
       return this.versionStatus === 'Initial'
     },
     isExpiredOrWarning() {
-      return this.versionStatus === 'Expired' || this.versionStatus === 'Warning'
+      return (
+        this.versionStatus === 'Expired' || this.versionStatus === 'Warning'
+      )
     },
     whichResult() {
       switch (this.versionStatus) {
@@ -202,27 +188,32 @@ export default {
   },
   methods: {
     fetchData() {
-      getVersionAuthInfo().then((res) => {
-        const { status, value } = res.data
-        this.versionStatus = status
-        this.versionAuthInfo = value
-        this.remainDays = this.versionAuthInfo.remain_days
-        delete this.versionAuthInfo.remain_days
-      }).catch(() => {})
+      getVersionAuthInfo()
+        .then((res) => {
+          const { status, value } = res.data
+          this.versionStatus = status
+          this.versionAuthInfo = value
+          this.remainDays = this.versionAuthInfo.remain_days
+          delete this.versionAuthInfo.remain_days
+        })
+        .catch(() => {})
         .finally(() => {
           this.isShowAuth = true
         })
     },
     confirm() {
       this.$refs.form.validate((valid) => {
-        if (!valid) return
-        else {
+        if (!valid) {
+          return false
+        } else {
           this.isLoading = true
           updateVersionAuthInfo({
             sercret_key: this.form.secretKey
-          }).then(() => {
-            this.fetchData()
-          }).catch(() => {})
+          })
+            .then(() => {
+              this.fetchData()
+            })
+            .catch(() => {})
             .finally(() => {
               this.isLoading = false
               this.dialogVisible = false

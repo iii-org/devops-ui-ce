@@ -22,7 +22,7 @@
       :cell-style="{ height: '5em' }"
       fit
     >
-      <template v-slot:actions="{ row }">
+      <template #actions="{ row }">
         <el-tooltip
           placement="bottom"
           :content="$t('general.Edit')"
@@ -58,13 +58,19 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
-import { FileTypeDialog, FileSizeDialog } from './components'
-import { ElTableResponsive } from '@shared/components'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import FileTypeDialog from './components/FileTypeDialog'
+import FileSizeDialog from './components/FileSizeDialog'
 
 export default {
   name: 'SystemConfigs',
-  components: { FileTypeDialog, FileSizeDialog, ElTableResponsive },
+  components: {
+    FileTypeDialog,
+    FileSizeDialog,
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
+  },
   mixins: [BasicData, Pagination, SearchBar],
   data() {
     return {

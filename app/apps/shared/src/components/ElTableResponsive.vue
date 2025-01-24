@@ -1,23 +1,23 @@
 <template>
   <el-table
     ref="responsiveTable"
-    :data="data"
-    :fit="fit"
-    :stripe="stripe"
     :border="border"
-    :show-header="!isMobile"
-    :highlight-current-row="highlightCurrentRow"
-    :cell-style="cellStyle"
-    :header-cell-style="headerCellStyle"
-    :row-class-name="rowClassName"
     :cell-class-name="cellClassName"
-    :header-cell-class-name="headerCellClassName"
+    :cell-style="cellStyle"
     :class="isMobile ? 'mobile' : ''"
-    :size="size"
-    :tree-props="treeProps"
-    :row-key="rowKey"
+    :data="data"
     :expand-row-keys="expandRowKeys"
+    :fit="fit"
+    :header-cell-class-name="headerCellClassName"
+    :header-cell-style="headerCellStyle"
     :height="height"
+    :highlight-current-row="highlightCurrentRow"
+    :row-class-name="rowClassName"
+    :row-key="rowKey"
+    :show-header="!isMobile"
+    :size="size"
+    :stripe="stripe"
+    :tree-props="treeProps"
     @row-click="handleRowClick"
     @sort-change="handleSortChange"
     @current-change="handleCurrentChange"
@@ -25,29 +25,34 @@
   >
     <template v-for="col in columns">
       <el-table-column
-        v-if="(!isMobile || (isMobile && !col.hideOnMobile)) &&
-        (displayFields.length === 0 || displayFields.indexOf(col.prop) >= 0)"
+        v-if="
+          (!isMobile || (isMobile && !col.hideOnMobile)) &&
+            (displayFields.length === 0 || displayFields.indexOf(col.prop) >= 0)
+        "
         :key="col.prop"
-        :prop="col.prop"
-        :label="col.label"
-        :width="col.width || 'auto'"
-        :min-width="col.minWidth || 'auto'"
-        :sortable="col.sortable || false"
         :align="col.align || 'left'"
+        :fixed="col.fixed"
         :header-align="col.headerAlign || col.align || 'left'"
+        :label="col.label"
+        :min-width="col.minWidth || 'auto'"
+        :prop="col.prop"
         :show-overflow-tooltip="(col.showOverflowTooltip || false) && !isMobile"
+        :sortable="col.sortable || false"
         :type="col.type === 'expand' ? col.type : ''"
+        :width="col.width || 'auto'"
       >
-        <template v-slot:header v-if="col.headerLabel">
-          <slot :name="`header-${col.headerLabel}`" />
+        <template v-if="col.headerLabel" #header>
+          <slot :name="`header-${col.headerLabel}`"></slot>
         </template>
         <template slot-scope="scope">
-          <span v-if="isMobile" class="label-mobile truncate">{{ isMobile ? col.label : '' }}</span>
-          <span :class="isMobile ? 'text-right' :''">
+          <span v-if="isMobile" class="label-mobile truncate">{{
+            isMobile ? col.label : ''
+          }}</span>
+          <span :class="isMobile ? 'text-right' : ''">
             <el-tooltip
               v-if="col.type === 'time'"
-              :open-delay="200"
               :content="getLocalTime(access(col.prop, scope.row))"
+              :open-delay="200"
               placement="top"
             >
               <span>{{ getRelativeTime(access(col.prop, scope.row)) }}</span>
@@ -55,12 +60,14 @@
             <template v-else-if="col.type === 'tag'">
               <el-tag
                 v-if="access(col.prop, scope.row)"
-                :type="handleType(access(col.prop, scope.row), col.location)"
                 :class="col.elementClass || 'el-tag--circle'"
-                :size="isMobile ? 'mini' : (col.size || 'large')"
                 :effect="getTagEffect(access(col.prop, scope.row))"
+                :size="isMobile ? 'mini' : col.size || 'large'"
+                :type="handleType(access(col.prop, scope.row), col.location)"
               >
-                <span v-if="col.i18nKey">{{ $t(`${col.i18nKey}.${access(col.prop, scope.row)}`) }}</span>
+                <span v-if="col.i18nKey">{{
+                  $t(`${col.i18nKey}.${access(col.prop, scope.row)}`)
+                }}</span>
                 <span v-else>{{ access(col.prop, scope.row) }}</span>
               </el-tag>
               <span v-else>-</span>
@@ -68,13 +75,15 @@
             <template v-else-if="col.type === 'index'">
               {{ scope.$index + 1 }}
             </template>
-            <slot v-else-if="col.slot" :name="col.slot" :row="scope.row" />
+            <slot v-else-if="col.slot" :name="col.slot" :row="scope.row"></slot>
             <span
               v-else
               :class="col.showOverflowTooltip ? 'show-tooltip' : ''"
               class="cell"
             >
-              <span v-if="access(col.prop, scope.row) !== ''">{{ access(col.prop, scope.row) }}</span>
+              <span v-if="access(col.prop, scope.row) !== ''">{{
+                access(col.prop, scope.row)
+              }}</span>
               <span v-else>-</span>
             </span>
           </span>
@@ -225,7 +234,9 @@ export default {
   },
   methods: {
     access(path, object) {
-      return path.split('.').reduce((o, i) => (o[i] || o[i] === 0) ? o[i] : '', object)
+      return path
+        .split('.')
+        .reduce((o, i) => (o[i] || o[i] === 0 ? o[i] : ''), object)
     },
     handleRowClick(row, column) {
       this.$emit('row-click', row, column)
@@ -254,12 +265,14 @@ export default {
 .mobile {
   ::v-deep .el-table__body {
     width: 100% !important;
+
     tbody,
     tr,
     tr > td,
     tr > th {
       display: block !important;
     }
+
     td,
     th {
       background: 0 0;
@@ -268,22 +281,27 @@ export default {
       text-align: left !important;
       height: unset !important;
     }
+
     tr {
       border-bottom: 1px solid #ddd;
     }
+
     tr td:first-child {
       padding-top: 10px !important;
     }
+
     tr td:last-child {
       padding-bottom: 10px !important;
     }
   }
+
   .label-mobile {
     font-weight: bold;
     margin-right: 6px;
     min-width: 120px;
     max-width: 120px;
   }
+
   ::v-deep .cell {
     display: flex;
     justify-content: space-between;
@@ -292,50 +310,57 @@ export default {
     line-height: 18px;
     text-overflow: ellipsis;
   }
+
   ::v-deep .el-table__header-wrapper {
     display: none !important;
   }
+
   ::v-deep .el-table__body-wrapper {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   ::v-deep .el-table__body-wrapper::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   ::v-deep .el-table__empty-block {
     width: auto !important;
   }
+
   ::v-deep .el-table {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     border-radius: 6px;
     padding: 0;
   }
+
   ::v-deep .el-table__cell:first-child .cell {
     padding-left: 0;
   }
+
   ::v-deep colgroup {
     display: none;
   }
+
   ::v-deep .el-table__expand-icon {
     margin-left: 5px;
   }
+
   ::v-deep .el-table__expanded-cell {
-    //background-color: #e7e7e7 !important;
     box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset !important;
   }
+
   ::v-deep ul {
     padding-left: 16px;
     margin: 0;
   }
 }
+
 .show-tooltip {
   word-break: normal !important;
 }
-::v-deep .cell, ::v-deep th.el-table__cell>.cell {
-  //padding-left: 0;
-  //padding-right: 0;
-}
-::v-deep .el-table__expanded-cell[class*=cell] {
+
+::v-deep .el-table__expanded-cell[class*='cell'] {
   padding: 20px 50px !important;
 }
 </style>

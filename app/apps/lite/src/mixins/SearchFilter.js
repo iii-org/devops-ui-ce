@@ -5,13 +5,12 @@
  *    ! Have to define storageName if you want to save filter info.
  */
 
-import { mapGetters, mapActions } from 'vuex'
 import {
   getProjectUserList,
   getProjectVersion,
-  getTagsByProject
-} from '@/api/projects'
-import { SearchFilter, CustomFilter } from '@/components/Issue'
+  getTagList
+} from '@/api_v3/projects'
+import { mapActions, mapGetters } from 'vuex'
 
 /**
  * * How to use SearchFilter component
@@ -36,7 +35,7 @@ import { SearchFilter, CustomFilter } from '@/components/Issue'
  *      filterValue: filterValue,
  *      keyword: keyword,
  *      displayClosed: displayClosed,
- *      fixed_version_closed: fixed_version_closed
+ *      version_closed: version_closed
  *    }"
  *    @change-filter="onChangeFilterForm"
  *    @change-fixed-version="onChangeFixedVersionStatus"
@@ -72,7 +71,10 @@ import { SearchFilter, CustomFilter } from '@/components/Issue'
  */
 
 export default {
-  components: { SearchFilter, CustomFilter },
+  components: {
+    SearchFilter: () => import('@/components/Issue/SearchFilter'),
+    CustomFilter: () => import('@/components/Issue/CustomFilter')
+  },
   data() {
     return {
       filterOptions: Object.freeze([
@@ -98,14 +100,14 @@ export default {
         },
         {
           id: 4,
-          label: this.$t('Issue.FilterDimensions.assigned_to'),
-          value: 'assigned_to',
+          label: this.$t('Issue.FilterDimensions.assigned'),
+          value: 'assigned',
           placeholder: 'Member'
         },
         {
           id: 5,
-          label: this.$t('Issue.FilterDimensions.fixed_version'),
-          value: 'fixed_version',
+          label: this.$t('Issue.FilterDimensions.version'),
+          value: 'version',
           placeholder: 'Version'
         },
         {
@@ -140,20 +142,16 @@ export default {
       originFilterValue: {},
       keyword: null,
       tracker_id: null,
-      assigned_to: [],
-      fixed_version: [],
+      assigned: [],
+      version: [],
       expiredDays: 0,
       tags: [],
-      fixed_version_closed: false,
+      version_closed: false,
       displayClosed: false
     }
   },
   computed: {
-    ...mapGetters([
-      'selectedProjectId',
-      'userRole',
-      'userId'
-    ]),
+    ...mapGetters(['selectedProjectId', 'userRole', 'userId']),
     mainSelectedProjectId() {
       return this.filterValue.project || this.selectedProjectId
     },
@@ -161,8 +159,9 @@ export default {
       return this.mainSelectedProjectId === -1
     },
     getFilteredVersion() {
-      return this.fixed_version.filter((item) => {
-        const validDate = new Date(`${item.due_date}T23:59:59`) >= new Date()
+      return this.version.filter((item) => {
+        const validDate =
+          new Date(`${item.effective_date}T23:59:59`) >= new Date()
         const closedStatus = item.status !== 'closed'
         return validDate && closedStatus
       })
@@ -175,14 +174,14 @@ export default {
         await this.loadSelectionList()
       }
     },
-    fixed_version_closed(value) {
+    version_closed(value) {
       this.setFixedVersionShowClosed({ [this.storageName]: value })
       this.loadVersionList(value)
     },
-    fixed_version(value) {
+    version(value) {
       if (this.storageName === 'issue_board' || this.storageName === 'board') {
         if (value.length > 0) {
-          if (!this.filterValue.hasOwnProperty('fixed_version')) {
+          if (!this.filterValue.hasOwnProperty('version')) {
             const version = this.getFilteredVersion
             if (version.length > 0) {
               this.setFilterValue(version)
@@ -195,6 +194,8 @@ export default {
   async mounted() {
     await this.getInitStoredData()
     await this.loadSelectionList()
+    await this.loadData()
+    if (this.storageType.includes('Pagination')) await this.getStoredListQuery()
   },
   methods: {
     ...mapActions('projects', [
@@ -211,17 +212,20 @@ export default {
     ]),
     getParams(limit) {
       const result = {
-        offset: this.listQuery ? this.listQuery.offset : this.listBoardQuery.offset,
-        limit: limit || this.listQuery ? this.listQuery.limit : this.listBoardQuery.limit,
-        only_superproject_issues: !!this.mainSelectedProjectId
+        page: this.listQuery ? this.listQuery.page : this.listBoardQuery.page,
+        limit:
+          limit || this.listQuery
+            ? this.listQuery.limit
+            : this.listBoardQuery.limit,
+        root_only: !!this.mainSelectedProjectId
       }
       if (this.sort) result['sort'] = this.sort
       if (this.keyword) result['search'] = this.keyword
       if (this.tracker_id) result['tracker_id'] = this.tracker_id
-      if (!this.displayClosed) result['status_id'] = 'open'
+      if (!this.displayClosed) result['exclude_closed'] = true
       Object.keys(this.filterValue).forEach((item) => {
         if (this.filterValue[item]) {
-          if (this.filterValue[item] === 'overdued') {
+          if (this.filterValue[item] === 'overdue') {
             result['is_expired'] = true
             result['expired_days'] = Number(this.filterValue.expiredDays) || ~~1
           } else if (item === 'tags' && this.filterValue[item].length > 0) {
@@ -245,80 +249,94 @@ export default {
         storedGroupBy
       } = storedData
       this.filterValue = storedFilterValue[key] ? storedFilterValue[key] : {}
-      if (this.$route.name === 'Milestone' && this.filterValue.tracker) this.filterValue.tracker = 1
-      const findChangeIndex = this.assigned_to.findIndex(issue => parseInt(this.filterValue.assigned_to) === parseInt(issue.id))
-      if (findChangeIndex < 0) this.$delete(this.filterValue, 'assigned_to')
+      if (this.$route.name === 'Milestone' && this.filterValue.tracker) {
+        this.filterValue.tracker = 1
+      }
+      const findChangeIndex = this.assigned.findIndex(
+        (issue) => parseInt(this.filterValue.assigned) === parseInt(issue.id)
+      )
+      if (findChangeIndex < 0) this.$delete(this.filterValue, 'assigned')
       this.$delete(this.filterValue, 'tags')
       this.keyword = storedKeyword[key] ? storedKeyword[key] : null
-      this.displayClosed = storedDisplayClosed[key] ? storedDisplayClosed[key] : false
-      this.fixed_version_closed = storedVersionClosed[key] ? storedVersionClosed[key] : false
+      this.displayClosed = storedDisplayClosed[key]
+        ? storedDisplayClosed[key]
+        : false
+      this.version_closed = storedVersionClosed[key]
+        ? storedVersionClosed[key]
+        : false
       if (storedGroupBy) this.groupBy = storedGroupBy
     },
     setFilterValue(version) {
-      this.$set(this.filterValue, 'fixed_version', version[0].id)
-      this.$set(this.originFilterValue, 'fixed_version', version[0].id)
+      this.$set(this.filterValue, 'version', version[0].id)
+      this.$set(this.originFilterValue, 'version', version[0].id)
     },
     async fetchStoredData() {
-      const res = await Promise.allSettled([
+      const filter = {}
+      await Promise.allSettled([
         this.getIssueFilter(),
         this.getKeyword(),
         this.getDisplayClosed(),
         this.getFixedVersionShowClosed(),
         this.getGroupBy()
-      ])
-      const [
-        storedFilterValue,
-        storedKeyword,
-        storedDisplayClosed,
-        storedVersionClosed,
-        storedGroupBy
-      ] = res.map((item) => item.value)
-      return {
-        storedFilterValue,
-        storedKeyword,
-        storedDisplayClosed,
-        storedVersionClosed,
-        storedGroupBy
-      }
+      ]).then((res) => {
+        const [
+          filterValue,
+          keyword,
+          displayClosed,
+          fixedVersionClosed,
+          groupBy
+        ] = res.map((item) => item.value)
+        filter.storedFilterValue = filterValue
+        filter.storedKeyword = keyword
+        filter.storedDisplayClosed = displayClosed
+        filter.storedVersionClosed = fixedVersionClosed
+        filter.storedGroupBy = groupBy
+      })
+      return filter
     },
     async loadSelectionList() {
       if (this.selectedProjectId === -1) return
       await Promise.allSettled([
         getProjectUserList(this.mainSelectedProjectId),
-        getTagsByProject(this.mainSelectedProjectId)
-      ]).then(
-        (res) => {
-          const [assigneeList, tagsList] = res.map((item) => item.value.data)
-          this.tags = tagsList.tags
-          this.assigned_to = [
-            { name: this.$t('Issue.Unassigned'), id: 'null' },
-            {
-              name: this.$t('Issue.me'),
-              login: '-Me-',
-              id: this.userId,
-              class: 'bg-yellow-100'
-            },
-            ...assigneeList.user_list
-          ]
-          // if (this.userRole === 'Engineer') {
-          //   this.$set(this.filterValue, 'assigned_to', this.userId)
-          //   this.$set(this.originFilterValue, 'assigned_to', this.userId)
-          // }
-        }
-      )
-      await this.loadVersionList(this.fixed_version_closed)
+        getTagList(this.mainSelectedProjectId)
+      ]).then((res) => {
+        const [assigneeList, tagsList] = res.map((item) => item.value.data)
+        this.tags = tagsList
+        this.assigned = [
+          { name: this.$t('Issue.Unassigned'), id: 'null' },
+          {
+            name: this.$t('Issue.me'),
+            username: '-Me-',
+            id: this.userId,
+            class: 'bg-yellow-100'
+          },
+          ...assigneeList.map((item) => ({
+            name: item.full_name,
+            username: item.username,
+            id: item.id
+          }))
+        ]
+        // if (this.userRole === 'Engineer') {
+        //   this.$set(this.filterValue, 'assigned', this.userId)
+        //   this.$set(this.originFilterValue, 'assigned', this.userId)
+        // }
+      })
+      await this.loadVersionList(this.version_closed)
     },
     async loadVersionList(status) {
-      let params = { status: 'open,locked' }
+      let params = { all: true, status: 'open,locked' }
       if (status) {
-        params = { status: 'open,locked,closed' }
+        params = { all: true, status: 'open,locked,closed' }
       }
-      const versionList = await getProjectVersion(this.mainSelectedProjectId, params)
-      this.fixed_version = [
+      const versionList = await getProjectVersion(
+        this.mainSelectedProjectId,
+        params
+      )
+      this.version = [
         { name: this.$t('Issue.VersionUndecided'), id: 'null' },
-        ...versionList.data.versions
+        ...versionList.data
       ]
-      this.onChangeFilter()
+      // this.onChangeFilter()
     },
     async onChangeFilterForm(value, isCustomFilter) {
       if (!isCustomFilter) {
@@ -327,7 +345,7 @@ export default {
       Object.keys(value).forEach((item) => {
         this[item] = value[item]
       })
-      if (this.filterValue.status !== 'overdued') {
+      if (this.filterValue.status !== 'overdue') {
         this.$delete(this.filterValue, 'expiredDays')
       }
       if (this.filterValue['tags'] && this.filterValue['tags'].length <= 0) {
@@ -335,6 +353,10 @@ export default {
       }
       if (value.isReloadFilterList) {
         await this.loadSelectionList()
+      }
+      if (this.listQuery) {
+        this.listQuery.page = 1
+        // this.listQuery.offset = 0
       }
       await this.onChangeFilter()
     },
@@ -362,19 +384,23 @@ export default {
       if (this.filterValue['tags'] && this.filterValue['tags'].length <= 0) {
         this.$delete(this.filterValue, 'tags')
       }
-      if (this.storageName === 'issue_board' &&
-        Object.prototype.hasOwnProperty.call(this.filterValue, this.groupBy.dimension)
+      if (
+        this.storageName === 'issue_board' &&
+        Object.prototype.hasOwnProperty.call(
+          this.filterValue,
+          this.groupBy.dimension
+        )
       ) {
         this.$delete(this.filterValue, this.groupBy.dimension)
       }
       if (this.listQuery) {
         this.listQuery.page = 1
-        this.listQuery.offset = 0
+        // this.listQuery.offset = 0
       }
       await this.loadData()
     },
     onChangeFixedVersionStatus(value) {
-      this.fixed_version_closed = value
+      this.version_closed = value
     },
     updateCustomFilter() {
       this.$refs.customFilter.fetchCustomFilter()
@@ -386,25 +412,25 @@ export default {
         this.filterValue = Object.assign({}, this.originFilterValue)
         this.keyword = ''
         this.displayClosed = false
-        this.fixed_version_closed = false
+        this.version_closed = false
       }
       if (this.storageName === 'issue_board' && this.storageName === 'board') {
         this.onChangeGroupByDimension('status')
       }
-      this.onChangeFilter()
+      // this.onChangeFilter()
     },
     applyCustomFilter(filters) {
-      const { result, displayClosed, fixed_version_closed, groupBy } = filters
+      const { result, displayClosed, version_closed, groupBy } = filters
       this.onChangeFilterForm({ filterValue: result }, true)
       this.displayClosed = displayClosed
-      this.fixed_version_closed = fixed_version_closed
+      this.version_closed = version_closed
       if (groupBy) {
         this.$set(this.groupBy, 'dimension', groupBy.dimension)
         this.$set(this.groupBy, 'value', groupBy.value)
         this.setGroupBy(groupBy)
       }
     },
-    onChangeGroupByDimension(value, loadData) {
+    onChangeGroupByDimension(value) {
       this.groupBy = { dimension: value, value: [] }
       this.$refs['groupByValue'].selected = []
       this.updatedByGroupBy()

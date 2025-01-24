@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading">
     <v-chart
-      v-if="chartData.length > 0"
+      v-if="chartData.length > 0 && isEchartsReady"
       :option="passingRateOptions"
       :theme="isLite ? 'macarons' : 'vintage'"
       class="chart"
@@ -41,7 +41,7 @@
           header-cell-class-name="items-center"
           @row-click="rowClicked"
         >
-          <template v-slot:run_at="{row}">
+          <template #run_at="{ row }">
             {{ getRelativeTime(row.run_at) }}
           </template>
         </ElTableResponsive>
@@ -62,25 +62,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { ScatterChart } from 'echarts/charts'
 import { getPassingRateDetail } from '@/api/dashboard'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
-import { NoData, ElTableResponsive } from '@shared/components'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 import { getRelativeTime } from '@shared/utils/handleTime'
+import VChart from 'vue-echarts'
 
-require('echarts/theme/macarons') // echarts theme
-require('echarts/theme/vintage')
-
-use([CanvasRenderer, ScatterChart])
 export default {
   name: 'AdminPassingRate',
   components: {
-    NoData,
+    NoData: () => import('@shared/components/NoData'),
     'v-chart': VChart,
-    ElTableResponsive
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
   },
   mixins: [BasicData, Pagination, SearchBar, Table],
   props: {
@@ -100,21 +95,28 @@ export default {
       detailData: [],
       searchKeys: ['project_name'],
       keyword: '',
-      maxCircleWidth: 120
+      maxCircleWidth: 120,
+      isEchartsReady: false
     }
   },
   computed: {
     ...mapGetters(['device']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     passingRateOptions() {
       const _this = this
       return {
         tooltip: {
           trigger: 'item',
-          formatter: data => {
-            return data.marker + data.name + ': ' + this.$t('Dashboard.ADMIN.PassingRate.count') + data.value[2]
+          formatter: (data) => {
+            return (
+              data.marker +
+              data.name +
+              ': ' +
+              this.$t('Dashboard.ADMIN.PassingRate.count') +
+              data.value[2]
+            )
           }
         },
         grid: {
@@ -147,13 +149,13 @@ export default {
         series: [
           {
             name: this.$t('Dashboard.ADMIN.PassingRate.success'),
-            symbolSize: function(data) {
+            symbolSize: function (data) {
               return data[2] * _this.getSizeRate()
             },
             data: this.chartData,
             label: {
               show: true,
-              formatter: data => {
+              formatter: (data) => {
                 return data.value[1] + '%'
               },
               fontWeight: 'bolder'
@@ -169,7 +171,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -218,10 +222,34 @@ export default {
       deep: true
     }
   },
-  mounted() {
+  async created() {
+    await this.loadEchartsModules()
     this.loadChart()
   },
   methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { CanvasRenderer },
+        { ScatterChart },
+        { LegendComponent, TooltipComponent }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/renderers'),
+        import('echarts/charts'),
+        import('echarts/components')
+      ])
+
+      use([CanvasRenderer, ScatterChart, LegendComponent, TooltipComponent])
+
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
+      }
+
+      this.isEchartsReady = true
+    },
     async loadChart() {
       this.loading = true
       this.chartData = await this.data()
@@ -233,7 +261,7 @@ export default {
       this.listLoading = false
     },
     async fetchData() {
-      return getPassingRateDetail().then(res => {
+      return getPassingRateDetail().then((res) => {
         return Promise.resolve(res.data)
       })
     },
@@ -248,7 +276,7 @@ export default {
       this.keyword = ''
     },
     getSizeRate() {
-      const caseCount = this.chartData.map(row => row.value[2])
+      const caseCount = this.chartData.map((row) => row.value[2])
       const maxCount = Math.max(...caseCount)
       return this.maxCircleWidth / maxCount
     },

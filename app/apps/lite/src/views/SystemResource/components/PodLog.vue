@@ -1,11 +1,16 @@
 <template>
-  <el-dialog :visible="dialogVisible" width="90%" top="3vh" :close-on-click-modal="false" @close="handleClose">
+  <el-dialog
+    :close-on-click-modal="false"
+    :visible="dialogVisible"
+    top="3vh"
+    width="90%"
+    @close="handleClose"
+  >
     <span slot="title">
       <span class="text-title">{{ containerName }}</span>
     </span>
     <el-card
       id="podLogSection"
-      shadow="never"
       :body-style="{
         color: '#fff',
         background: '#222',
@@ -13,33 +18,30 @@
         overflow: 'auto',
         'scroll-behavior': 'smooth'
       }"
+      shadow="never"
     >
       <pre>{{ logData }}</pre>
     </el-card>
     <span slot="footer">
-      <el-button
-        class="button-secondary-reverse"
-        @click="scrollTo('top')"
-      >
+      <el-button plain type="primary" @click="scrollTo('top')">
         <em v-if="isMobile" class="ri-skip-up-fill"></em>
         <span v-else>{{ $t('general.ScrollToTop') }}</span>
       </el-button>
-      <el-button
-        class="button-secondary-reverse"
-        @click="scrollTo('bottom')"
-      >
+      <el-button plain type="success" @click="scrollTo('bottom')">
         <em v-if="isMobile" class="ri-skip-down-fill"></em>
         <span v-else>{{ $t('general.ScrollToBottom') }}</span>
       </el-button>
-      <el-button class="button-primary" @click="dialogVisible = false">{{ $t('general.Close') }}</el-button>
+      <el-button @click="dialogVisible = false">
+        {{ $t('general.Close') }}
+      </el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
 import { getPodLog } from '@/api/kubernetes'
+import CancelRequest from '@/mixins/CancelRequest'
 import { mapGetters } from 'vuex'
-import { CancelRequest } from '@/mixins'
 
 export default {
   name: 'PodLog',
@@ -73,7 +75,12 @@ export default {
       if (this.isUpdating) this.cancelRequest()
       this.isUpdating = true
       try {
-        const res = await getPodLog(this.selectedProjectId, podName, { container_name: containerName }, { cancelToken: this.cancelToken })
+        const res = await getPodLog(
+          this.selectedProjectId,
+          podName,
+          { container_name: containerName },
+          { cancelToken: this.cancelToken }
+        )
         if (res.data !== this.logData) {
           this.logData = res.data
           this.scrollTo('bottom')
@@ -91,7 +98,10 @@ export default {
       this.clearTimer()
     },
     setTimer(podName, containerName) {
-      this.timer = setTimeout(() => this.fetchData(podName, containerName), 5000)
+      this.timer = setTimeout(
+        () => this.fetchData(podName, containerName),
+        5000
+      )
     },
     clearTimer() {
       clearTimeout(this.timer)

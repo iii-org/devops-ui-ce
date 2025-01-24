@@ -1,9 +1,6 @@
 <template>
   <div v-loading="listLoading">
-    <div
-      v-if="isShowTitle"
-      class="mb-2 text-lg"
-    >
+    <div v-if="isShowTitle" class="mb-2 text-lg">
       {{ $t('Version.ProjectManage') }}
     </div>
     <el-empty
@@ -14,71 +11,65 @@
     <template v-else>
       <div class="flex justify-between mb-4">
         <el-button
-          class="button-secondary"
           :size="isMobile ? 'small' : 'medium'"
           icon="el-icon-plus"
+          type="primary"
           @click="handleAdding"
         >
           <span>{{ $t('Version.AddVersion') }}</span>
         </el-button>
         <el-input
           v-model="keyword"
-          size="small"
-          prefix-icon="el-icon-search"
-          :style="{ width: '130px' }"
           :placeholder="$t('general.SearchName')"
+          :style="{ width: '130px' }"
+          prefix-icon="el-icon-search"
+          size="small"
         />
       </div>
-      <ElTableResponsive
-        :data="pagedData"
-        :columns="tableColumns"
-        fit
-      >
-        <template v-slot:actions="{row}">
-          <el-tooltip
-            placement="bottom"
-            :content="$t('general.Edit')"
-          >
-            <em class="ri-edit-box-line success table-button" @click="handleEdit(row)"></em>
+      <ElTableResponsive :columns="tableColumns" :data="pagedData" fit>
+        <template #actions="{ row }">
+          <el-tooltip :content="$t('general.Edit')" placement="bottom">
+            <em
+              class="ri-edit-box-line success table-button"
+              @click="handleEdit(row)"
+            ></em>
           </el-tooltip>
-          <el-tooltip
-            placement="bottom"
-            :content="$t('general.Delete')"
-          >
-            <em class="ri-delete-bin-2-line danger table-button" @click="handleDelete(row)"></em>
+          <el-tooltip :content="$t('general.Delete')" placement="bottom">
+            <em
+              class="ri-delete-bin-2-line danger table-button"
+              @click="handleDelete(row)"
+            ></em>
           </el-tooltip>
         </template>
       </ElTableResponsive>
       <Pagination
-        :total="filteredData.length"
-        :page="listQuery.page"
-        :limit="listQuery.limit"
-        :page-sizes="[5, 10, 20, 50]"
         :layout="paginationLayout"
+        :limit="listQuery.limit"
+        :page="listQuery.page"
+        :page-sizes="[5, 10, 20, 50]"
         :pager-count="isMobile ? 5 : 7"
         :small="isMobile"
+        :total="filteredData.length"
         @pagination="onPagination"
       />
-      <ModifyVersionDialog
-        ref="modifyVersionDialog"
-        @update="loadData"
-      />
+      <ModifyVersionDialog ref="modifyVersionDialog" @update="loadData" />
     </template>
   </div>
 </template>
 
 <script>
+import { deleteProjectVersion, getProjectVersion } from '@/api_v3/projects'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
 import { mapGetters } from 'vuex'
-import { getProjectVersion, deleteProjectVersion } from '@/api/projects'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
-import { ElTableResponsive } from '@shared/components'
 import ModifyVersionDialog from './ModifyVersionDialog'
 
 export default {
   name: 'ProjectVersions',
   components: {
     ModifyVersionDialog,
-    ElTableResponsive
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
   },
   mixins: [BasicData, Pagination, SearchBar],
   props: {
@@ -103,7 +94,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -117,19 +110,19 @@ export default {
         },
         {
           label: this.$t('general.CreateTime'),
-          prop: 'created_on',
+          prop: 'create_at',
           align: 'center',
           type: 'time'
         },
         {
           label: this.$t('general.DueDate'),
-          prop: 'due_date',
+          prop: 'effective_date',
           align: 'center',
           minWidth: 120
         },
         {
           label: this.$t('general.LastUpdateTime'),
-          prop: 'updated_on',
+          prop: 'update_at',
           align: 'center',
           type: 'time'
         },
@@ -147,34 +140,39 @@ export default {
           label: this.$t('general.Actions'),
           prop: 'actions',
           align: 'center',
-          slot: 'actions'
+          slot: 'actions',
+          width: 120
         }
       ]
     }
   },
   methods: {
     async fetchData() {
-      const res = await getProjectVersion(this.selectedProjectId)
-      return res.data.versions
+      const res = await getProjectVersion(this.selectedProjectId, { all: true })
+      return res.data
     },
     handleAdding() {
       this.$refs.modifyVersionDialog.dialogVisible = true
       this.$refs.modifyVersionDialog.dialogStatus = 1
     },
     handleEdit(row) {
-      const { name, due_date, status, description, id } = row
-      const rowData = { id, name, due_date, status, description }
+      const { name, effective_date, status, description, id } = row
+      const rowData = { id, name, effective_date, status, description }
       this.$refs.modifyVersionDialog.dialogVisible = true
       this.$refs.modifyVersionDialog.dialogStatus = 2
       this.$refs.modifyVersionDialog.form = Object.assign({}, rowData)
     },
     async handleDelete(row) {
-      this.$confirm(this.$t('Version.ConfirmDelete', { version: row.name }), this.$t('general.Delete'), {
-        confirmButtonText: this.$t('general.Delete'),
-        cancelButtonText: this.$t('general.Cancel'),
-        type: 'error'
-      }).then(async () => {
-        await deleteProjectVersion(this.selectedProjectId, row.id)
+      this.$confirm(
+        this.$t('Version.ConfirmDelete', { version: row.name }),
+        this.$t('general.Delete'),
+        {
+          confirmButtonText: this.$t('general.Delete'),
+          cancelButtonText: this.$t('general.Cancel'),
+          type: 'error'
+        }
+      ).then(async () => {
+        await deleteProjectVersion(row.id)
         this.$message({
           title: this.$t('general.Success'),
           message: this.$t('Notify.Deleted'),

@@ -1,7 +1,6 @@
-import Pipelines, { TestReport } from './Pipelines'
+import { TestReport } from './Pipelines'
 
 const Progress = {
-  Pipelines,
   TestReport
 }
 

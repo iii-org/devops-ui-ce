@@ -5,12 +5,12 @@
         ref="quickAddIssueForm"
         :model="formData"
         :rules="formRules"
-        inline
         class="quick-add"
+        inline
         size="small"
       >
         <el-form-item>
-          <span style="padding: 10px 0 10px 5px;" class="font-bold text-sm">
+          <span class="font-bold text-sm" style="padding: 10px 0 10px 5px">
             {{ subIssue ? $t('Issue.AddSubIssue') : $t('Issue.AddIssue') }}:
           </span>
         </el-form-item>
@@ -25,27 +25,24 @@
               :label="$t('Issue.' + option.name)"
               :value="option.id"
             >
-              <Tracker
-                :name="$t(`Issue.${option.name}`)"
-                :type="option.name"
-              />
+              <Tracker :name="$t(`Issue.${option.name}`)" :type="option.name" />
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="name">
+        <el-form-item prop="subject">
           <el-input
-            v-model="formData.name"
+            v-model="formData.subject"
             :placeholder="$t('Issue.name')"
           />
         </el-form-item>
         <el-form-item>
           <el-button
-            :type="isTable ? 'success' : 'primary'"
-            :style="isTable ? 'padding: 8px;' : ''"
             :icon="isTable ? 'el-icon-check' : ''"
             :loading="isLoading"
-            size="small"
+            :style="isTable ? 'padding: 8px;' : ''"
+            :type="isTable ? 'success' : 'primary'"
             class="button-save"
+            size="small"
             @click="onSaveClick"
           >
             <span v-if="!isTable">{{ $t('general.Save') }}</span>
@@ -53,21 +50,20 @@
           <el-button
             v-if="isTable && showClose"
             :disabled="isLoading"
-            style="padding: 8px;"
-            size="small"
             icon="el-icon-close"
+            size="small"
+            style="padding: 8px"
             type="danger"
             @click="$emit('close')"
           />
         </el-form-item>
         <el-form-item>
-          <div style="min-width: 200px;">
-            <span
-              class="expand-button"
-              @click="onAdvancedSettingsClick"
-            >
-              <em class="ri-settings-3-line expand-button-icon" />
-              <span class="expand-button-text">{{ $t('general.AdvancedSettings') }}</span>
+          <div style="min-width: 200px">
+            <span class="expand-button" @click="onAdvancedSettingsClick">
+              <em class="ri-settings-3-line expand-button-icon"></em>
+              <span class="expand-button-text">{{
+                $t('general.AdvancedSettings')
+              }}</span>
             </span>
           </div>
         </el-form-item>
@@ -77,10 +73,10 @@
       v-else
       :title="$t('Issue.AddIssue')"
       :visible.sync="toggleDrawer"
-      direction="btt"
       class="drawer"
-      size="auto"
       destroy-on-close
+      direction="btt"
+      size="auto"
     >
       <el-form
         ref="quickAddIssueForm"
@@ -89,7 +85,7 @@
         class="container"
       >
         <el-card shadow="never">
-          <el-form-item prop="name">
+          <el-form-item prop="subject">
             <div class="title">
               <span>
                 <el-divider direction="vertical" />
@@ -97,7 +93,7 @@
               </span>
             </div>
             <el-input
-              v-model="formData.name"
+              v-model="formData.subject"
               :placeholder="$t('Issue.name')"
               size="small"
             />
@@ -110,7 +106,11 @@
                 <span class="text">{{ $t('general.Type') }}</span>
               </span>
             </div>
-            <el-radio-group v-model="formData.tracker_id" size="small" class="radio-group">
+            <el-radio-group
+              v-model="formData.tracker_id"
+              class="radio-group"
+              size="small"
+            >
               <el-col class="settings">
                 <el-radio
                   v-for="option in trackerList"
@@ -134,8 +134,8 @@
         </el-link>
         <el-button
           :loading="isLoading"
-          type="primary"
           class="save"
+          type="primary"
           @click="onSaveClick"
         >
           {{ $t('general.Save') }}
@@ -143,55 +143,46 @@
       </el-form>
     </el-drawer>
     <el-dialog
-      :visible.sync="showDialog"
       :close-on-click-modal="false"
       :modal-append-to-body="false"
-      :width="device === 'desktop' ? '50%' : '100%'"
       :top="device === 'desktop' ? '5px' : ''"
+      :visible.sync="showDialog"
+      :width="device === 'desktop' ? '50%' : '100%'"
       append-to-body
       destroy-on-close
     >
       <template slot="title">
-        <el-row slot="title" type="flex" align="middle">
-          <el-col :md="24" :lg="8">
+        <el-row slot="title" align="middle" type="flex">
+          <el-col :lg="8" :md="24">
             <span class="text-title">
               {{ $t('Issue.AddIssue') }}
             </span>
           </el-col>
-          <el-col :md="24" :lg="8" class="text-center">
-            {{ $t('general.project_name') }} : {{ selectedProject.display }}
+          <el-col :lg="8" :md="24" class="text-center">
+            {{ $t('general.project_name') }} :
+            {{ selectedProject.display_name }}
           </el-col>
         </el-row>
       </template>
       <AddIssue
         ref="addIssueDialog"
-        :project-id="projectId"
-        :parent-id="parent.id"
-        :parent-name="parent.name"
-        :prefill="formData"
-        :save-data="handleIssueSave"
         :is-create="Object.keys(parent).length === 0"
+        :parent-id="parent.id"
+        :parent-subject="parent.subject"
+        :prefill="formData"
+        :project-id="projectId"
+        :save-data="handleIssueSave"
         :tracker-list="trackerList"
         import-from="list"
+        @import="handleAdvancedImport"
         @loading="loadingUpdate"
         @add-topic-visible="closeDialog"
-        @import="handleAdvancedImport"
       />
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          class="button-secondary-reverse"
-          @click="onDialogCancel"
-        >
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="onDialogCancel">
           {{ $t('general.Cancel') }}
         </el-button>
-        <el-button
-          :loading="isLoading"
-          class="button-primary"
-          @click="onDialogConfirm"
-        >
+        <el-button :loading="isLoading" type="primary" @click="onDialogConfirm">
           {{ $t('general.Confirm') }}
         </el-button>
       </span>
@@ -200,21 +191,23 @@
 </template>
 
 <script>
+import { createProjectIssue } from '@/api_v3/projects'
 import { mapGetters } from 'vuex'
-import { addIssue } from '@/api/issue'
-import { Tracker, AddIssue } from '@/components/Issue'
 
 const getDefaultFormData = () => ({
   tracker_id: null,
-  name: '',
-  assigned_to_id: null,
+  subject: '',
+  assigned_id: null,
   status_id: 1,
-  priority_id: 3
+  priority_id: 2
 })
 
 export default {
   name: 'MyWorkQuickAddIssue',
-  components: { Tracker, AddIssue },
+  components: {
+    AddIssue: () => import('@/components/Issue/AddIssue'),
+    Tracker: () => import('@/components/Issue/Tracker')
+  },
   props: {
     visible: {
       type: Boolean,
@@ -260,7 +253,7 @@ export default {
       isLoading: false,
       showDialog: false,
       formRules: {
-        name: [
+        subject: [
           {
             required: true,
             message: this.$t('Validation.Input', [this.$t('general.Name')]),
@@ -310,7 +303,7 @@ export default {
   },
   mounted() {
     const { tracker } = this.filterConditions
-    if (tracker && this.trackerList.map(a => a.id).includes(tracker)) {
+    if (tracker && this.trackerList.map((a) => a.id).includes(tracker)) {
       this.formData.tracker_id = tracker
     }
     if (this.fromTestPlan) {
@@ -326,9 +319,10 @@ export default {
         const sendData = Object.assign({}, this.formData, {
           project_id: this.projectId
         })
-        if (this.parent.hasOwnProperty('id')) this.$set(sendData, 'parent_id', this.parent.id)
-        const formData = this.getFormData(sendData)
-        this.handleIssueSave(formData)
+        if (this.parent.hasOwnProperty('id')) {
+          this.$set(sendData, 'parent_id', this.parent.id)
+        }
+        this.handleIssueSave(sendData)
       })
     },
     onAdvancedSettingsClick() {
@@ -336,11 +330,13 @@ export default {
       this.showDialog = true
     },
     setFilterToForm() {
-      const { priority, status, tracker, fixed_version } = this.filterConditions
-      if (tracker && !this.formData.tracker_id) this.formData.tracker_id = tracker
+      const { priority, status, tracker, version } = this.filterConditions
+      if (tracker && !this.formData.tracker_id) {
+        this.formData.tracker_id = tracker
+      }
       if (priority) this.formData.priority_id = priority
       if (status) this.formData.status_id = status
-      if (fixed_version) this.formData.fixed_version_id = fixed_version
+      if (version) this.formData.version_id = version
     },
     onDialogCancel() {
       this.$refs.addIssueDialog.handleClose()
@@ -352,11 +348,12 @@ export default {
       this.isLoading = value
     },
     async handleIssueSave(data) {
-      const assignedToId = data instanceof FormData
-        ? Number(data.get('assigned_to_id'))
-        : data.assigned_to_id
+      const assignedToId =
+        data instanceof FormData
+          ? Number(data.get('assigned_id'))
+          : data.assigned_id
       this.isLoading = true
-      await addIssue(data)
+      await createProjectIssue(data.project_id, data)
         .then(() => {
           // this.$message({
           //   title: this.$t('general.Success'),
@@ -382,9 +379,9 @@ export default {
     setFormData(data) {
       const {
         project,
-        assigned_to,
-        fixed_version,
-        name,
+        assigned,
+        version,
+        subject,
         tracker,
         status,
         priority,
@@ -396,10 +393,16 @@ export default {
       } = data
       // this.formData = {}
       this.formData.project_id = project ? project.id : ''
-      this.formData.assigned_to_id = assigned_to ? assigned_to.id : ''
-      this.formData.name = this.formData.name !== '' ? this.formData.name : name + ' (' + this.$t('Issue.Copy') + ')'
-      this.formData.fixed_version_id = fixed_version ? fixed_version.id : ''
-      this.formData.tracker_id = this.formData.tracker_id !== null ? this.formData.tracker_id : tracker.id
+      this.formData.assigned_id = assigned ? assigned.id : ''
+      this.formData.subject =
+        this.formData.subject !== ''
+          ? this.formData.subject
+          : subject + ' (' + this.$t('Issue.Copy') + ')'
+      this.formData.version_id = version ? version.id : ''
+      this.formData.tracker_id =
+        this.formData.tracker_id !== null
+          ? this.formData.tracker_id
+          : tracker.id
       this.formData.status_id = status.id
       this.formData.priority_id = priority.id
       this.formData.estimated_hours = estimated_hours
@@ -421,12 +424,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 @include tablet {
   ::v-deep .el-dialog__wrapper {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
   ::v-deep .el-dialog__wrapper::-webkit-scrollbar {
@@ -462,12 +465,15 @@ export default {
   -webkit-transition: max-width 0.5s;
   transition: max-width 0.5s;
   vertical-align: middle;
+
   &:hover {
     max-width: 300px;
   }
+
   &.cursor-not-allowed {
     background-color: gray;
   }
+
   &-icon {
     font-size: 20px;
     margin-right: 4px;
@@ -475,6 +481,7 @@ export default {
     display: flex;
     align-items: center;
   }
+
   &-text {
     white-space: nowrap;
     padding-right: 16px;
@@ -485,29 +492,38 @@ export default {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
     padding: 10px;
   }
+
   ::v-deep .el-drawer__body::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   ::v-deep .el-drawer__body {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   .container {
     padding: 14px;
     max-width: 768px;
     max-height: 80vh;
+
     ::v-deep .el-divider {
-      background-color: #EBEEF5;
+      background-color: #ebeef5;
     }
-    ::v-deep .el-card__body, .el-main {
+
+    ::v-deep .el-card__body,
+    .el-main {
       padding: 10px;
     }
+
     .title {
       margin-bottom: 10px;
+
       ::v-deep .el-divider--vertical {
         width: 6px;
         margin: 0;
@@ -515,15 +531,19 @@ export default {
         height: 18px;
         background-color: $warning !important;
       }
+
       ::v-deep .el-tag--small {
         height: 25px;
       }
+
       ::v-deep .el-button--small {
         padding: 5px 10px;
       }
+
       ::v-deep .el-checkbox__label {
         font-size: 12px;
       }
+
       .text {
         font-size: 15px;
         font-weight: bold;
@@ -531,40 +551,47 @@ export default {
         vertical-align: middle;
       }
     }
+
     .radio-group {
       display: grid;
+
       .settings::-webkit-scrollbar {
         display: none; /* Chrome, Safari, Opera*/
       }
+
       .settings {
         max-width: 768px;
         margin: 0 auto;
         display: grid;
         gap: 6px;
         overflow-x: auto;
-        -ms-overflow-style: none;  /* IE and Edge */
+        -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
         ::v-deep .el-radio.is-bordered {
           margin-left: 0;
           margin-right: 0;
           // width: 140px;
         }
+
         ::v-deep .el-radio__label {
           padding-left: 2px;
         }
       }
     }
+
     .advance {
       color: $buttonPrimary;
       margin-top: 12px;
       text-decoration-line: underline;
     }
+
     .save {
       margin-top: 12px;
       width: 100%;
     }
   }
 }
+
 .quick-add {
   border-radius: 10px;
   padding: 20px 10px 0 10px;
@@ -573,15 +600,26 @@ export default {
 }
 
 @include mobile {
-  .settings { grid-template-columns: repeat(2, 1fr); }
+  .settings {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
 @include tablet-1 {
-  .settings { grid-template-columns: repeat(3, 1fr); }
+  .settings {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
+
 @include tablet-2 {
-  .settings { grid-template-columns: repeat(4, 1fr); }
+  .settings {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
+
 @include tablet-3 {
-  .settings { grid-template-columns: repeat(5, 1fr); }
+  .settings {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 </style>

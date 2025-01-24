@@ -4,13 +4,13 @@ import getters from './getters'
 
 Vue.use(Vuex)
 
-const modulesFiles = require.context('./modules', true, /\.js$/)
+const moduleFiles = import.meta.glob('./modules/*.js', { eager: true })
 
-const modules = modulesFiles.keys().reduce((module, modulePath) => {
-  const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
-  const value = modulesFiles(modulePath)
-  module[moduleName] = value.default
-  return module
+const modules = Object.keys(moduleFiles).reduce((acc, path) => {
+  const moduleName = path.match(/\.\/modules\/(.*)\.js$/)[1]
+  const moduleConfig = moduleFiles[path].default
+  acc[moduleName] = moduleConfig
+  return acc
 }, {})
 
 export default new Vuex.Store({ modules, getters })

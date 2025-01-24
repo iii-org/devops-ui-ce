@@ -35,6 +35,17 @@ server {
     ssl_session_cache      shared:SSL:10m;
     ssl_session_tickets    off;
 
+    # Enable gzip compression
+    gzip                   on;
+    gzip_disable           "msie6"; # Disable Gzip for IE6
+    gzip_types             text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_proxied           any;
+    gzip_min_length        256;
+    gzip_comp_level        6;
+    gzip_buffers           16 8k;
+    gzip_http_version      1.1;
+    gzip_vary              on;
+
     # Diffie-Hellman parameter for DHE ciphersuites
     ssl_dhparam            /etc/nginx/dhparam.pem; # openssl dhparam -out /etc/nginx/dhparam.pem 4096
 
@@ -76,27 +87,32 @@ server {
         proxy_pass                         ${API_URL}; # http://iiidevops-api-master.ingress-dev2.iiidevops.org/;
         # proxy_set_header Host              $host;
 
-        # proxy_http_version                 1.1;
-        # proxy_cache_bypass                 $http_upgrade;
+        proxy_http_version                 1.1;
+        proxy_cache_bypass                 $http_upgrade;
 
         # Proxy SSL
         proxy_ssl_server_name              on;
         # proxy_ssl_name                     $host;
         # proxy_ssl_verify                   off;
 
+        # Proxy timeouts
+        proxy_connect_timeout              60s;
+        proxy_send_timeout                 60s;
+        proxy_read_timeout                 60s;
+
         # Proxy headers
-        # proxy_set_header Upgrade           $http_upgrade;
-        # proxy_set_header Connection        $connection_upgrade;
-        # proxy_set_header X-Real-IP         $remote_addr;
-        # proxy_set_header Forwarded         $proxy_add_forwarded;
-        # proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        # proxy_set_header X-Forwarded-Proto $scheme;
-        # proxy_set_header X-Forwarded-Host  $host;
-        # proxy_set_header X-Forwarded-Port  $server_port;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        $connection_upgrade;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header Forwarded         $proxy_add_forwarded;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header X-Forwarded-Port  $server_port;
     }
 
     location ^~ /socket.io/ {
-        proxy_pass                         ${API_URL}socket.io/; # http://iiidevops-api-master.ingress-dev2.iiidevops.org/socket.io/;
+        proxy_pass                         ${API_WS_URL}socket.io/; # http://iiidevops-api-master.ingress-dev2.iiidevops.org/socket.io/;
         # proxy_set_header Host              $host;
 
         proxy_http_version                 1.1;
@@ -110,17 +126,17 @@ server {
         # Proxy headers
         proxy_set_header Upgrade           $http_upgrade;
         proxy_set_header Connection        $connection_upgrade;
-        # proxy_set_header X-Real-IP         $remote_addr;
-        # proxy_set_header Forwarded         $proxy_add_forwarded;
-        # proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        # proxy_set_header X-Forwarded-Proto $scheme;
-        # proxy_set_header X-Forwarded-Host  $host;
-        # proxy_set_header X-Forwarded-Port  $server_port;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header Forwarded         $proxy_add_forwarded;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header X-Forwarded-Port  $server_port;
 
         # Proxy timeouts
-        # proxy_connect_timeout              60s;
-        # proxy_send_timeout                 60s;
-        # proxy_read_timeout                 60s;
+        proxy_connect_timeout              60s;
+        proxy_send_timeout                 60s;
+        proxy_read_timeout                 60s;
     }
 
     # for swagger-ui

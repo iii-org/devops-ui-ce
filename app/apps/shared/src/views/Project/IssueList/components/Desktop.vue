@@ -3,12 +3,12 @@
     ref="issueList"
     :data="parent.isSearch ? parent.pagedData : parent.listData"
     :expand-row-keys="parent.expands"
-    :tree-props="{ children: 'child' }"
     :row-class-name="parent.getRowClass"
+    :tree-props="{ children: 'child' }"
     fit
     highlight-current-row
-    size="mini"
     row-key="id"
+    size="mini"
     @cell-click="parent.handleClick"
     @expand-change="parent.getIssueFamilyData"
     @sort-change="parent.handleSortChange"
@@ -17,23 +17,20 @@
   >
     <el-table-column
       v-if="parent.userRole === 'QA'"
-      type="selection"
       reserve-selection
+      type="selection"
       width="55"
     />
-    <el-table-column
-      type="expand"
-      class-name="informationExpand"
-    >
-      <template slot-scope="{row}">
+    <el-table-column class-name="informationExpand" type="expand">
+      <template slot-scope="{ row }">
         <el-row v-if="row.showQuickAddIssue" class="add-issue">
           <QuickAddIssue
-            :project-id="row.project.id"
-            :visible.sync="row.showQuickAddIssue"
             :filter-conditions="parent.filterValue"
-            :parent="row"
             :is-table="true"
+            :parent="row"
+            :project-id="row.project.id"
             :sub-issue="true"
+            :visible.sync="row.showQuickAddIssue"
             @close="parent.closeQuickAddIssue(row)"
             @update="parent.loadDataAfterSetIssue"
           />
@@ -41,34 +38,19 @@
         <IssueExpand
           :issue="row"
           class="mx-3"
-          @on-context-menu="parent.onContextMenu"
           @update="parent.loadDataAfterSetIssue"
+          @on-context-menu="parent.onContextMenu"
         />
-      </template>
-    </el-table-column>
-    <el-table-column
-      v-if="parent.columns.indexOf('project') >= 0"
-      :label="$t('Issue.project')"
-      min-width="130"
-      show-overflow-tooltip
-      prop="project.id"
-      sortable="custom"
-    >
-      <template
-        v-if="scope.row.project"
-        slot-scope="scope"
-      >
-        <span>{{ scope.row.project.display }}</span>
       </template>
     </el-table-column>
     <el-table-column
       v-if="parent.columns.indexOf('tracker') >= 0"
       :label="$t('general.Type')"
-      width="150"
       prop="tracker"
       sortable="custom"
+      width="150"
     >
-      <template slot-scope="{row}">
+      <template slot-scope="{ row }">
         <Tracker
           v-if="row.tracker.name"
           :name="$t(`Issue.${row.tracker.name}`)"
@@ -77,18 +59,18 @@
       </template>
     </el-table-column>
     <el-table-column
-      v-if="parent.columns.indexOf('name') >= 0"
+      v-if="parent.columns.indexOf('subject') >= 0"
       :label="$t('Issue.Id')"
       min-width="280"
-      show-overflow-tooltip
       prop="id"
+      show-overflow-tooltip
       sortable="custom"
     >
       <template slot-scope="scope">
-        <span style="display:flex;">
+        <span style="display: flex">
           <div
             class="text-success mr-2"
-            style="display:flex; align-items:center;"
+            style="display: flex; align-items: center"
           >
             #{{ scope.row.id }}
           </div>
@@ -97,14 +79,14 @@
               <el-tag
                 v-for="item in scope.row.tags"
                 :key="item.id"
-                size="mini"
                 class="mr-1"
+                size="mini"
               >
                 [{{ item.name }}]
               </el-tag>
-              <br>
+              <br />
             </template>
-            {{ scope.row.name }}
+            {{ scope.row.subject }}
           </div>
         </span>
       </template>
@@ -113,11 +95,11 @@
       v-if="parent.columns.indexOf('priority') >= 0"
       :label="$t('Issue.Priority')"
       align="center"
-      width="110"
       prop="priority"
       sortable="custom"
+      width="110"
     >
-      <template slot-scope="{row}">
+      <template slot-scope="{ row }">
         <Priority
           v-if="row.priority.name"
           :name="$t(`Issue.${row.priority.name}`)"
@@ -129,11 +111,11 @@
       v-if="parent.columns.indexOf('status') >= 0"
       :label="$t('general.Status')"
       align="center"
-      width="120"
       prop="status"
       sortable="custom"
+      width="120"
     >
-      <template slot-scope="{row}">
+      <template slot-scope="{ row }">
         <Status
           v-if="row.status.name"
           :name="$t(`Issue.${row.status.name}`)"
@@ -142,41 +124,35 @@
       </template>
     </el-table-column>
     <el-table-column
-      v-if="parent.columns.indexOf('assigned_to') >= 0"
+      v-if="parent.columns.indexOf('assigned') >= 0"
       :label="$t('Issue.Assignee')"
       align="center"
       min-width="180"
-      prop="assigned_to"
-      sortable="custom"
+      prop="assigned"
       show-overflow-tooltip
+      sortable="custom"
     >
-      <template
-        v-if="scope.row.assigned_to"
-        slot-scope="scope"
-      >
+      <template v-if="scope.row.assigned" slot-scope="scope">
         <span>
-          {{ scope.row.assigned_to.name }}
+          {{ scope.row.assigned.full_name }}
         </span>
-        <span v-if="scope.row.assigned_to.login">
-          ({{ scope.row.assigned_to.login }})
+        <span v-if="scope.row.assigned.username">
+          ({{ scope.row.assigned.username }})
         </span>
       </template>
     </el-table-column>
     <el-table-column
-      v-if="parent.columns.indexOf('fixed_version') >= 0"
-      :label="$t('Issue.fixed_version')"
+      v-if="parent.columns.indexOf('version') >= 0"
+      :label="$t('Issue.version')"
       align="center"
       min-width="140"
-      prop="fixed_version"
-      sortable="custom"
+      prop="version"
       show-overflow-tooltip
+      sortable="custom"
     >
-      <template
-        v-if="scope.row.fixed_version"
-        slot-scope="scope"
-      >
+      <template v-if="scope.row.version" slot-scope="scope">
         <span>
-          {{ scope.row.fixed_version.name }}
+          {{ scope.row.version.name }}
         </span>
       </template>
     </el-table-column>
@@ -186,13 +162,10 @@
       align="center"
       min-width="120"
       prop="start_date"
-      sortable="custom"
       show-overflow-tooltip
+      sortable="custom"
     >
-      <template
-        v-if="scope.row.start_date"
-        slot-scope="scope"
-      >
+      <template v-if="scope.row.start_date" slot-scope="scope">
         <span>
           {{ scope.row.start_date }}
         </span>
@@ -204,72 +177,62 @@
       align="center"
       min-width="120"
       prop="due_date"
-      sortable="custom"
       show-overflow-tooltip
+      sortable="custom"
     >
-      <template
-        v-if="scope.row.due_date"
-        slot-scope="scope"
-      >
+      <template v-if="scope.row.due_date" slot-scope="scope">
         <span>
           {{ scope.row.due_date }}
         </span>
       </template>
     </el-table-column>
     <el-table-column
-      v-if="parent.columns.indexOf('DoneRatio') >= 0"
+      v-if="parent.columns.indexOf('done_ratio') >= 0"
       :label="$t('Issue.DoneRatio')"
       align="center"
       min-width="130"
       prop="done_ratio"
-      sortable="custom"
       show-overflow-tooltip
+      sortable="custom"
     >
-      <template
-        v-if="scope.row.done_ratio"
-        slot-scope="scope"
-      >
+      <template v-if="scope.row.done_ratio" slot-scope="scope">
         <span>
           {{ scope.row.done_ratio }}
         </span>
       </template>
     </el-table-column>
-    <el-table-column
-      type="action"
-      width="50px"
-    >
-      <template slot-scope="{row}">
+    <el-table-column type="action" width="50px">
+      <template slot-scope="{ row }">
         <el-button
           class="action"
-          type="text"
           icon="el-icon-more"
+          type="text"
           @click.native.stop="parent.handleContextMenu(row, {}, $event)"
         />
       </template>
     </el-table-column>
-    <template slot="empty">
+    <template
+      v-if="
+        parent.isSearch
+          ? parent.pagedData.length === 0
+          : parent.listData.length === 0
+      "
+      slot="empty"
+    >
       <el-empty :description="$t('general.NoData')" />
     </template>
   </el-table>
 </template>
 
 <script>
-import {
-  Priority,
-  Status,
-  Tracker,
-  IssueExpand
-} from '@/components/Issue'
-import QuickAddIssue from '@shared/views/MyWork/components/QuickAddIssue'
-
 export default {
   name: 'IssueTable',
   components: {
-    Priority,
-    Status,
-    Tracker,
-    IssueExpand,
-    QuickAddIssue
+    Priority: () => import('@/components/Issue/Priority'),
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    IssueExpand: () => import('@/components/Issue/IssueExpand'),
+    QuickAddIssue: () => import('@shared/views/MyWork/components/QuickAddIssue')
   },
   props: {
     data: {

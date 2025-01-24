@@ -1,9 +1,12 @@
 <template>
-  <div style="padding: 0 15px;" @click="toggleClick">
+  <div
+    style="padding: 0 15px;"
+    @click="toggleClick"
+  >
     <em
       :class="{'is-active':isActive}"
       class="ri-indent-increase text-xl hamburger"
-    />
+    ></em>
   </div>
 </template>
 
@@ -25,7 +28,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 .hamburger {
   display: inline-block;
   vertical-align: middle;

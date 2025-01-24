@@ -1,29 +1,31 @@
 <template>
-  <el-form-item
-    :label="$t('Issue.Tag')"
-    prop="tags"
-  >
+  <el-form-item :label="$t('Issue.Tag')" prop="tags">
     <el-tooltip
-      :value="dataLoaded && isFormCollapseOpen"
-      :disabled="form.tags && form.tags.length > 0 "
-      :enterable="false"
       :content="$t('Issue.TypeToAddTag')"
+      :disabled="form.tags && form.tags.length > 0"
+      :enterable="false"
+      :value="dataLoaded && isFormCollapseOpen"
       placement="top"
     >
       <el-select
         ref="tags"
         v-model="form.tags"
-        style="width: 100%"
+        :loading="isLoading"
+        :placeholder="
+          form.tags && form.tags.length > 0
+            ? $t('RuleMsg.PleaseSelect')
+            : $t('Issue.NoTag')
+        "
+        :remote-method="getSearchTags"
+        allow-create
         clearable
         filterable
-        remote
         multiple
+        remote
+        style="width: 100%"
         value-key="tags"
-        :placeholder="form.tags && form.tags.length > 0 ? $t('RuleMsg.PleaseSelect') : $t('Issue.NoTag')"
-        :loading="isLoading"
-        :remote-method="getSearchTags"
-        @focus="getSearchTags()"
         @change="handleUpdateTags"
+        @focus="getSearchTags()"
       >
         <template v-if="tagsList && tagsList.length > 0">
           <el-option-group
@@ -34,8 +36,8 @@
             <el-option
               v-for="item in group.options"
               :key="item.id"
-              :value="item.id"
               :label="item.name"
+              :value="item.id"
             />
           </el-option-group>
         </template>
@@ -53,10 +55,9 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { updateIssue } from '@/api_v3/issues'
+import { createTag, getTagList } from '@/api_v3/projects'
 import { mapGetters } from 'vuex'
-import { addProjectTags, getTagsByName, getTagsByProject } from '@/api/projects'
-import { updateIssue } from '@/api/issue'
 
 export default {
   name: 'Tags',
@@ -88,7 +89,6 @@ export default {
       tag_name: '',
       tagsList: [],
       isDuplicate: false,
-      cancelToken: null,
       isProjectHasTags: false
     }
   },
@@ -106,16 +106,11 @@ export default {
   },
   methods: {
     async checkProjectTags() {
-      const res = await getTagsByProject(this.projectId)
-      this.isProjectHasTags = res.data.tags.length > 0
-    },
-    checkToken() {
-      if (this.cancelToken) this.cancelToken.cancel()
-      const CancelToken = axios.CancelToken.source()
-      this.cancelToken = CancelToken
-      return CancelToken.token
+      const res = await getTagList(this.projectId)
+      this.isProjectHasTags = res.data.length > 0
     },
     async getSearchTags(query) {
+      if (query === '') return
       this.isDuplicate = false
       this.tag_name = query || null
       const tags = await this.fetchTagsData(this.tag_name)
@@ -123,22 +118,20 @@ export default {
     },
     async fetchTagsData(tag_name) {
       if (this.isProjectHasTags) this.isLoading = true
-      const cancelToken = this.checkToken()
-      const params = { project_id: this.projectId, tag_name }
-      const res = tag_name === null
-        ? await getTagsByProject(this.projectId)
-        : await getTagsByName(params, { cancelToken })
-      const tags = res.data.tags
+      const params = { name: tag_name }
+      const res =
+        tag_name === null
+          ? await getTagList(this.projectId)
+          : await getTagList(this.projectId, params)
+      const tags = res.data
       this.isLoading = false
-      this.cancelToken = null
       return tags
     },
     getTagsList(tag_name, tags, query) {
       const tagsList = []
-      const tag_sorts = tag_name === null
-        ? ['LastResult', 'All']
-        : ['AddTag', 'Result']
-      tag_sorts.forEach(sort => {
+      const tag_sorts =
+        tag_name === null ? ['LastResult', 'All'] : ['AddTag', 'Result']
+      tag_sorts.forEach((sort) => {
         const list = this.getTagsLabel(tags, sort, query)
         if (list.options.length > 0) tagsList.push(list)
       })
@@ -150,7 +143,9 @@ export default {
       const addTag = [{ id: `tag__${query}`, name: query }]
       const showTags = this.getShowTags(tag_sort, tags, addTag)
       if (tag_sort === 'Result') {
-        this.isDuplicate = showTags.map((item) => item.name).includes(this.tag_name)
+        this.isDuplicate = showTags
+          .map((item) => item.name)
+          .includes(this.tag_name)
       }
       const name = `Issue.${tag_sort}`
       label.name = this.$t(name)
@@ -174,7 +169,10 @@ export default {
       return showTags
     },
     async handleUpdateTags() {
-      this.$nextTick(() => { this.$refs.tags.blur() })
+      if (this.issueId === 0) return
+      this.$nextTick(() => {
+        this.$refs.tags.blur()
+      })
       const tags = this.form.tags
       const tagsLength = tags.length
       const addTags = []
@@ -194,15 +192,18 @@ export default {
     async handleAddProjectTags(addTags, originTags, tagsLength) {
       addTags.map(async (tag) => {
         const tagValue = tag.split('__')[1]
-        const formData = this.getAddTagsFormData(tagValue)
-        await this.addProjectTags(formData, originTags, tagsLength)
+        const sendData = {
+          name: tagValue
+        }
+        await this.createTag(sendData, originTags, tagsLength)
       })
     },
-    async addProjectTags(formData, originTags, tagsLength) {
-      await addProjectTags(formData).then(async (res) => {
-        const id = res.data.tags.id
+    async createTag(sendData, originTags, tagsLength) {
+      await createTag(this.projectId, sendData).then(async (res) => {
+        const id = res.data.id
         originTags.push(id)
         this.tagsArrayToString(originTags, tagsLength)
+        this.getSearchTags()
       })
     },
     tagsArrayToString(tags, tagsLength) {
@@ -210,17 +211,12 @@ export default {
       this.form.tags = tagsString === '' ? [] : tags
       if (tags.length === tagsLength) this.updateTags(tagsString)
     },
-    getAddTagsFormData(tag) {
-      const formData = new FormData()
-      formData.append('name', tag)
-      formData.append('project_id', this.projectId)
-      return formData
-    },
     async updateTags(tagsString) {
       this.$emit('update:loading', true)
-      const sendForm = new FormData()
-      sendForm.append('tags', tagsString)
-      await updateIssue(this.issueId, sendForm).then(() => {
+      const sendData = {
+        tags_list: tagsString
+      }
+      await updateIssue(this.issueId, sendData).then(() => {
         this.$emit('update')
       })
       this.$emit('update:loading', false)

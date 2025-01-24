@@ -1,25 +1,18 @@
 <template>
   <div style="height: 400px">
     <v-chart
+      v-if="isEchartsReady"
       :option="option"
       class="chart"
-      theme="isLite ? 'macarons' : 'vintage'"
+      :theme="isLite ? 'macarons' : 'vintage'"
       autoresize
     />
   </div>
 </template>
 
 <script>
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
-import { BarChart } from 'echarts/charts'
-import { CanvasRenderer } from 'echarts/renderers'
 import { mapGetters } from 'vuex'
-
-require('echarts/theme/macarons') // echarts theme
-require('echarts/theme/vintage')
-use([TooltipComponent, LegendComponent, GridComponent, BarChart, CanvasRenderer])
+import VChart from 'vue-echarts'
 
 export default {
   name: 'HorizontalBar',
@@ -32,10 +25,15 @@ export default {
       default: () => ({})
     }
   },
+  data() {
+    return {
+      isEchartsReady: false
+    }
+  },
   computed: {
     ...mapGetters(['device']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     isMobile() {
       return this.device === 'mobile'
@@ -73,6 +71,38 @@ export default {
         series: this.chartData.series,
         backgroundColor: '#fff',
         textStyle: { fontFamily: 'Montserrat' }
+      }
+    }
+  },
+  async created() {
+    await this.loadEchartsModules()
+    this.isEchartsReady = true
+  },
+  methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { TooltipComponent, LegendComponent, GridComponent },
+        { BarChart },
+        { CanvasRenderer }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/components'),
+        import('echarts/charts'),
+        import('echarts/renderers')
+      ])
+
+      use([
+        TooltipComponent,
+        LegendComponent,
+        GridComponent,
+        BarChart,
+        CanvasRenderer
+      ])
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
       }
     }
   }

@@ -1,13 +1,9 @@
 <template>
   <div>
     <el-tabs v-model="activeTab">
-      <el-tab-pane
-        v-for="tab in tabs"
-        :key="tab.id"
-        :name="tab.id"
-      >
+      <el-tab-pane v-for="tab in tabs" :key="tab.id" :name="tab.id">
         <span slot="label" class="tab-header">
-          <em :class="tabIcon(tab.id)" class="tab-icon" />
+          <em :class="tabIcon(tab.id)" class="tab-icon"></em>
           <span>{{ $t(`MyWork.${tab.name}`) }}</span>
           <span class="font-bold">
             ({{ tab.count !== '-' ? tab.count : 0 }})
@@ -16,37 +12,38 @@
 
         <IssueTable
           :ref="tab.id"
-          :from="tab.id"
-          :project-id="projectId"
-          :filter-conditions-props="filterConditions"
           :display-closed-props="displayClosedIssue"
+          :filter-conditions-props="filterConditions"
+          :from="tab.id"
           :keyword-props="keyword"
           :list-data-props="listData"
-          @list-data="setListData"
-          @update="updateIssueTables"
+          :project-id="projectId"
           @total="updateTotalCount(tab.id, $event)"
+          @update="updateIssueTables"
+          @list-data="setListData"
         />
       </el-tab-pane>
     </el-tabs>
 
     <CreateProjectDialog
-      v-permission="['Administrator', 'Project Manager']"
       ref="createProjectDialog"
-      @update="$router.push({name: 'ProjectList'})"
+      v-permission="['sysadmin', 'Organization Owner', 'Project Manager']"
+      @update="$router.push({ name: 'ProjectList' })"
     />
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { IssueTable } from '.'
-import { CreateProjectDialog } from '@shared/views/Overview/ProjectList/components'
 
 export default {
   name: 'MyWorkDesktop',
   components: {
-    IssueTable,
-    CreateProjectDialog
+    IssueTable: () => import('./IssueTable'),
+    CreateProjectDialog: () =>
+      import(
+        '@shared/views/Overview/ProjectList/components/CreateProjectDialog'
+      )
   },
   props: {
     listData: {
@@ -55,7 +52,7 @@ export default {
     },
     fromProps: {
       type: String,
-      default: 'assigned_to_id'
+      default: 'assigned'
     },
     projectIdProps: {
       type: [String, Number],
@@ -81,9 +78,9 @@ export default {
   data() {
     return {
       tabs: [
-        { id: 'assigned_to_id', name: 'AssignedToMe', count: '-' },
-        { id: 'author_id', name: 'ReportedIssue', count: '-' },
-        { id: 'watcher_id', name: 'WatcherList', count: '-' }
+        { id: 'assigned', name: 'AssignedToMe', count: '-' },
+        { id: 'author', name: 'ReportedIssue', count: '-' },
+        { id: 'watch', name: 'WatcherList', count: '-' }
       ]
     }
   },
@@ -149,7 +146,9 @@ export default {
       handler(id) {
         this.setStoredData('workProjectId', id)
         if (id) {
-          this.setSelectedProject(this.projectOptions.find((elm) => elm.id === id))
+          this.setSelectedProject(
+            this.projectOptions.find((elm) => elm.id === id)
+          )
           localStorage.setItem('projectId', id)
         } else {
           this.clearFilter()
@@ -157,7 +156,9 @@ export default {
           sessionStorage.removeItem('workProjectId')
           return
         }
-        const projectName = this.projectOptions.find((elm) => elm.id === id).name
+        const projectName = this.projectOptions.find(
+          (elm) => elm.id === id
+        ).name
         this.clearFilter()
         this.$router.push({ name: this.$route.name, params: { projectName }})
       },
@@ -212,7 +213,9 @@ export default {
       this.tabs.find((tab) => tab.id === tabId).count = $event
     },
     updateIssueTables(assignedToId) {
-      if (assignedToId !== undefined && this.userId !== assignedToId) this.activeTab = 'author_id'
+      if (assignedToId !== undefined && this.userId !== assignedToId) {
+        this.activeTab = 'author'
+      }
       this.tabs.forEach((tab) => {
         this.$refs[tab.id][0].fetchData()
       })
@@ -223,11 +226,9 @@ export default {
         this.getKeyword(),
         this.getDisplayClosed()
       ])
-      const [
-        storedFilterValue,
-        storedKeyword,
-        storedDisplayClosed
-      ] = res.map((item) => item.value)
+      const [storedFilterValue, storedKeyword, storedDisplayClosed] = res.map(
+        (item) => item.value
+      )
       return {
         storedFilterValue,
         storedKeyword,
@@ -242,24 +243,25 @@ export default {
     },
     clearKeyword() {
       this.keyword = ''
-      this.setStoredData('keyword', JSON.stringify({ work: '' }))
+      this.setStoredData('keyword', JSON.stringify({ my_work: '' }))
     },
     clearIssueFilter() {
       Object.assign({}, this.filterConditions)
-      this.setStoredData('issueFilter', JSON.stringify({ work: {}}))
+      this.setStoredData('issueFilter', JSON.stringify({ my_work: {}}))
     },
     clearDisplayClosed() {
       this.displayClosedIssue = false
-      this.setStoredData('displayClosed', JSON.stringify({ work: false }))
+      this.setStoredData('displayClosed', JSON.stringify({ my_work: false }))
     },
     clearDisplayClosedVersion() {
       this.displayClosedVersion = false
       this.setStoredData('displayClosedVersion', false)
     },
     async onFilterChanged() {
-      const key = 'work'
+      const key = 'my_work'
       const storedData = await this.fetchStoredData()
-      const { storedFilterValue, storedKeyword, storedDisplayClosed } = storedData
+      const { storedFilterValue, storedKeyword, storedDisplayClosed } =
+        storedData
       storedFilterValue[key] = this.filterConditions
       storedKeyword[key] = this.keyword
       storedDisplayClosed[key] = this.displayClosedIssue
@@ -272,9 +274,9 @@ export default {
     },
     async setListData() {
       const listData = {
-        assigned_to_id: {},
-        author_id: {},
-        watcher_id: {}
+        assigned: {},
+        author: {},
+        watch: {}
       }
 
       this.tabs.forEach(async (tab) => {
@@ -287,39 +289,44 @@ export default {
     },
     tabIcon(id) {
       switch (id) {
-        case 'assigned_to_id':
+        case 'assigned':
           return 'ri-list-check-3'
-        case 'author_id':
+        case 'author':
           return 'ri-draft-line'
-        case 'watcher_id':
+        case 'watch':
           return 'ri-bookmark-3-line'
         default:
           return ''
       }
     }
-
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
+
 ::v-deep {
   .el-tabs {
     background-color: white;
     border-radius: 10px;
+
     .el-tabs__header {
       padding: 10px 14px;
       margin: 0 0 18px;
+
       .tab-icon {
         margin-right: 4px;
       }
     }
+
     .el-tabs__item {
       padding: 0 12px;
+
       .tab-header {
         padding: 8px;
       }
+
       &.is-active {
         .tab-header {
           .tab-icon {
@@ -328,17 +335,20 @@ export default {
             padding: 6px;
             border-radius: 15px;
           }
+
           span {
             font-weight: bold;
           }
         }
       }
     }
+
     .el-tabs__active-bar {
       height: 3px;
       border-radius: 4px;
       margin-top: 1px;
     }
+
     .el-pagination {
       padding: 2px 14px;
     }

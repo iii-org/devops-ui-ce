@@ -1,6 +1,9 @@
 <template>
   <el-row>
-    <el-table v-if="listData.length > 0" :data="pagedData">
+    <el-table
+      v-if="listData.length > 0"
+      :data="pagedData"
+    >
       <el-table-column
         v-for="(column, idx) in Object.keys(pagedData[0])"
         :key="idx"
@@ -21,7 +24,10 @@
 </template>
 
 <script>
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 
 export default {
   name: 'AdminIssueRankDetail',

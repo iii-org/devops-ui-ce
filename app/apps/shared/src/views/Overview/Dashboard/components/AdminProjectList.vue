@@ -9,9 +9,18 @@
           value-key="user_id"
         >
           <el-option :label="$t('Dashboard.ADMIN.ProjectList.all')" value="" />
-          <el-option :label="$t('Dashboard.ADMIN.ProjectList.overdue')" value="overdue" />
-          <el-option :label="$t('Dashboard.ADMIN.ProjectList.in_progress')" value="in_progress" />
-          <el-option :label="$t('Dashboard.ADMIN.ProjectList.not_started')" value="not_started" />
+          <el-option
+            :label="$t('Dashboard.ADMIN.ProjectList.overdue')"
+            value="overdue"
+          />
+          <el-option
+            :label="$t('Dashboard.ADMIN.ProjectList.in_progress')"
+            value="in_progress"
+          />
+          <el-option
+            :label="$t('Dashboard.ADMIN.ProjectList.not_started')"
+            value="not_started"
+          />
         </el-select>
         <el-input
           v-model="keyword"
@@ -36,11 +45,14 @@
         header-cell-class-name="items-center"
         @sort-change="onSortChange"
       >
-        <template v-slot:owner_name="{row}">
+        <template #owner_name="{ row }">
           {{ `${row.owner_name} (${row.owner_login})` }}
         </template>
-        <template v-slot:project_status="{row}">
-          <project-status :name="row.project_status" :size="isMobile ? 'small' : 'medium'" />
+        <template #project_status="{ row }">
+          <project-status
+            :name="row.project_status"
+            :size="isMobile ? 'small' : 'medium'"
+          />
         </template>
       </ElTableResponsive>
       <Pagination
@@ -69,14 +81,19 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 import { getProjectListDetail } from '@/api/dashboard'
 import ProjectStatus from './widget/ProjectStatus'
-import { ElTableResponsive } from '@shared/components'
 
 export default {
   name: 'AdminProjectList',
-  components: { ProjectStatus, ElTableResponsive },
+  components: {
+    ProjectStatus,
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
+  },
   mixins: [BasicData, Pagination, SearchBar, Table],
   props: {
     data: {
@@ -118,7 +135,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -205,7 +224,9 @@ export default {
     },
     filterData(value) {
       if (value) {
-        this.listData = this.detailData.filter(item => item.project_status === value)
+        this.listData = this.detailData.filter(
+          (item) => item.project_status === value
+        )
       } else {
         this.listData = this.detailData
       }
@@ -228,7 +249,7 @@ export default {
       return ''
     },
     async getProjectListDetailData() {
-      return getProjectListDetail().then(res => Promise.resolve(res.data))
+      return getProjectListDetail().then((res) => Promise.resolve(res.data))
     }
   }
 }

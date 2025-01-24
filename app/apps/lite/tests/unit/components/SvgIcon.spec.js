@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import { SvgIcon } from '@shared/components'
+import SvgIcon from '@shared/components/SvgIcon'
 
 describe('SvgIcon.vue', () => {
   it('iconClass', () => {

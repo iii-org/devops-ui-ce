@@ -16,9 +16,9 @@ const postmanFormatter = (testResult) => {
       Software: 'postman',
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('Postman.TestPass'), count: passed },
-        { status: i18n.t('Postman.TestFail'), count: failed },
-        { status: i18n.t('Postman.TestTotal'), count: total }
+        { status: i18n.t('Plugins.postman.TestPass'), count: passed },
+        { status: i18n.t('Plugins.postman.TestFail'), count: failed },
+        { status: i18n.t('Plugins.postman.TestTotal'), count: total }
       ]
     })
   }
@@ -34,15 +34,20 @@ const getCheckmarxStatusText = (status) => {
     // '4': i18n.t('CheckMarx.canceledScan'),
     // '5': i18n.t('CheckMarx.failedScan'),
     // '6': i18n.t('CheckMarx.removedScan')
-    '-1': i18n.t('CheckMarx.failedScan'),
-    '0': i18n.t('general.NoData'),
-    '2': i18n.t('CheckMarx.Scanning')
+    '-1': i18n.t('Plugins.checkmarx.failedScan'),
+    0: i18n.t('general.NoData'),
+    2: i18n.t('Plugins.checkmarx.Scanning'),
+    success: i18n.t('general.Success'),
+    failed: i18n.t('Plugins.checkmarx.failedScan'),
+    error: i18n.t('general.Error'),
+    'not found': i18n.t('general.NoData')
   }
-  return mapText[statusString]
+  return mapText[statusString] || i18n.t('general.NoData')
 }
 
 const checkmarxFormatter = (testResult) => {
-  const { highSeverity, mediumSeverity, lowSeverity, infoSeverity } = testResult.result
+  const { highSeverity, mediumSeverity, lowSeverity, infoSeverity } =
+    testResult.result
   const { report_id } = testResult
   const status = testResult.status
   const ret = {}
@@ -52,10 +57,19 @@ const checkmarxFormatter = (testResult) => {
       report_id: report_id,
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('CheckMarx.HighSeverity'), count: highSeverity },
-        { status: i18n.t('CheckMarx.MediumSeverity'), count: mediumSeverity },
-        { status: i18n.t('CheckMarx.LowSeverity'), count: lowSeverity },
-        { status: i18n.t('CheckMarx.InfoSeverity'), count: infoSeverity }
+        {
+          status: i18n.t('Plugins.checkmarx.High'),
+          count: highSeverity
+        },
+        {
+          status: i18n.t('Plugins.checkmarx.Medium'),
+          count: mediumSeverity
+        },
+        { status: i18n.t('Plugins.checkmarx.Low'), count: lowSeverity },
+        {
+          status: i18n.t('Plugins.checkmarx.Info'),
+          count: infoSeverity
+        }
       ]
     })
   } else {
@@ -72,24 +86,31 @@ const checkmarxFormatter = (testResult) => {
 const webinspectFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
-  if (Object.keys(testResult.result).length === 0) {
+  if (status <= 0) {
     Object.assign(ret, {
       Software: 'webinspect',
       informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
       status: testResult.status
     })
   } else {
-    const { bpCount, criticalCount, highCount, mediumCount, lowCount, infoCount } = testResult.result
+    const {
+      bpCount,
+      criticalCount,
+      highCount,
+      mediumCount,
+      lowCount,
+      infoCount
+    } = testResult.result
     Object.assign(ret, {
       Software: 'webinspect',
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('WebInspect.BpSeverity'), count: bpCount },
-        { status: i18n.t('WebInspect.Critical'), count: criticalCount },
-        { status: i18n.t('WebInspect.HighSeverity'), count: highCount },
-        { status: i18n.t('WebInspect.MediumSeverity'), count: mediumCount },
-        { status: i18n.t('WebInspect.LowSeverity'), count: lowCount },
-        { status: i18n.t('WebInspect.InfoSeverity'), count: infoCount }
+        { status: i18n.t('Plugins.webinspect.BpSeverity'), count: bpCount },
+        { status: i18n.t('Plugins.webinspect.Critical'), count: criticalCount },
+        { status: i18n.t('Plugins.webinspect.High'), count: highCount },
+        { status: i18n.t('Plugins.webinspect.Medium'), count: mediumCount },
+        { status: i18n.t('Plugins.webinspect.Low'), count: lowCount },
+        { status: i18n.t('Plugins.webinspect.Info'), count: infoCount }
       ]
     })
   }
@@ -113,11 +134,11 @@ const sbomFormatter = (testResult, type) => {
       Software: softwareName,
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('Sbom.PackageCount'), count: packageNums },
-        { status: i18n.t('Sbom.CriticalSeverity'), count: Critical },
-        { status: i18n.t('Sbom.HighSeverity'), count: High },
-        { status: i18n.t('Sbom.MediumSeverity'), count: Medium },
-        { status: i18n.t('Sbom.LowSeverity'), count: Low }
+        { status: i18n.t('Plugins.sbom.PackageCount'), count: packageNums },
+        { status: i18n.t('Plugins.sbom.CriticalSeverity'), count: Critical },
+        { status: i18n.t('Plugins.sbom.HighSeverity'), count: High },
+        { status: i18n.t('Plugins.sbom.MediumSeverity'), count: Medium },
+        { status: i18n.t('Plugins.sbom.LowSeverity'), count: Low }
       ]
     })
   }
@@ -137,10 +158,10 @@ const sonarqubeFormatter = (testResult) => {
     Object.assign(ret, {
       Software: 'sonarqube',
       runAt: !!testResult['run_at'] > -1 ? testResult['run_at'] : undefined,
-      informationText: Object.keys(testResult.result).map((key) =>
-        ({ status: i18n.t(`SonarQube.${key}`),
-          count: testResult.result[key]
-        }))
+      informationText: Object.keys(testResult.result).map((key) => ({
+        status: i18n.t(`Plugins.sonarqube.${key}`),
+        count: testResult.result[key]
+      }))
     })
   }
   return ret
@@ -155,15 +176,25 @@ const sideexFormatter = (testResult) => {
       status: testResult.status
     })
   } else {
-    const { suitesPassed, suitesTotal, casesPassed, casesTotal } = testResult.result
+    const { suitesPassed, suitesTotal, casesPassed, casesTotal } =
+      testResult.result
     Object.assign(ret, {
       Software: 'sideex',
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('Sideex.suitesPassedRatio'), count: suitesPassed },
-        { status: i18n.t('Sideex.suitesPassedTotal'), count: suitesTotal },
-        { status: i18n.t('Sideex.casesPassedRatio'), count: casesPassed },
-        { status: i18n.t('Sideex.casesPassedTotal'), count: casesTotal }
+        {
+          status: i18n.t('Plugins.sideex.suitesPassedRatio'),
+          count: suitesPassed
+        },
+        {
+          status: i18n.t('Plugins.sideex.suitesPassedTotal'),
+          count: suitesTotal
+        },
+        {
+          status: i18n.t('Plugins.sideex.casesPassedRatio'),
+          count: casesPassed
+        },
+        { status: i18n.t('Plugins.sideex.casesPassedTotal'), count: casesTotal }
       ]
     })
   }
@@ -173,15 +204,18 @@ const sideexFormatter = (testResult) => {
 const zapFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
-  if (testResult.result !== 'None' && Object.keys(testResult.result).length !== 0) {
+  if (
+    testResult.result !== 'None' &&
+    Object.keys(testResult.result).length !== 0
+  ) {
     const result = testResult.result
     Object.assign(ret, {
       Software: 'zap',
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('Zap.high'), count: result['3'] },
-        { status: i18n.t('Zap.medium'), count: result['2'] },
-        { status: i18n.t('Zap.low'), count: result['1'] },
+        { status: i18n.t('Plugins.zap.high'), count: result['3'] },
+        { status: i18n.t('Plugins.zap.medium'), count: result['2'] },
+        { status: i18n.t('Plugins.zap.low'), count: result['1'] },
         { status: i18n.t('general.Info'), count: result['0'] }
       ]
     })
@@ -198,7 +232,10 @@ const zapFormatter = (testResult) => {
 const cmasFormatter = (testResult) => {
   const ret = {}
   const status = testResult.status
-  if (!testResult.hasOwnProperty('result') || Object.keys(testResult.result).length === 0) {
+  if (
+    !testResult.hasOwnProperty('result') ||
+    Object.keys(testResult.result).length === 0
+  ) {
     Object.assign(ret, {
       Software: 'cmas',
       informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
@@ -234,18 +271,51 @@ const clairFormatter = (testResult) => {
       status
     })
   } else {
-    const { Critical, High, Low, Medium, Negligible, Unknown } = testResult.result
+    const { Critical, High, Low, Medium, Negligible, Unknown } =
+      testResult.result
     Object.assign(ret, {
       Software: 'Docker Image',
       runAt: testResult.run_at,
       informationText: [
-        { status: i18n.t('Docker.Critical'), count: Critical },
-        { status: i18n.t('Docker.High'), count: High },
-        { status: i18n.t('Docker.Low'), count: Low },
-        { status: i18n.t('Docker.Medium'), count: Medium },
-        { status: i18n.t('Docker.Negligible'), count: Negligible },
-        { status: i18n.t('Docker.Unknown'), count: Unknown }
+        { status: i18n.t('Plugins.harbor.Critical'), count: Critical },
+        { status: i18n.t('Plugins.harbor.High'), count: High },
+        { status: i18n.t('Plugins.harbor.Low'), count: Low },
+        { status: i18n.t('Plugins.harbor.Medium'), count: Medium },
+        { status: i18n.t('Plugins.harbor.Negligible'), count: Negligible },
+        { status: i18n.t('Plugins.harbor.Unknown'), count: Unknown }
       ]
+    })
+  }
+  return ret
+}
+
+const testFormatter = (testResult) => {
+  const ret = {}
+  const status = testResult.status
+  if (Object.keys(testResult.result).length === 0) {
+    Object.assign(ret, {
+      Software: testResult.name,
+      informationText: [{ status: getCheckmarxStatusText(status), count: '' }],
+      status: testResult.status
+    })
+  } else {
+    let softwareName = testResult.name
+    if (testResult.name === 'sbom_code') {
+      softwareName = 'SBOM Code'
+    } else if (testResult.name === 'sbom') {
+      softwareName = 'SBOM Image'
+    }
+    Object.assign(ret, {
+      Software: softwareName,
+      runAt: testResult['run_at'],
+      informationText: Object.keys(testResult.result).map((key) => ({
+        status: i18n.t(
+          `Plugins.${
+            testResult.name === 'sbom_code' ? 'sbom' : testResult.name
+          }.${key}`
+        ),
+        count: testResult.result[key]
+      }))
     })
   }
   return ret
@@ -260,5 +330,6 @@ export {
   sideexFormatter,
   zapFormatter,
   cmasFormatter,
-  clairFormatter
+  clairFormatter,
+  testFormatter
 }

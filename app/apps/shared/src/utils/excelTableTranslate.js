@@ -16,7 +16,7 @@ export const excelTranslate = {
     owner_name: '專案經理',
     department: '組織',
     redmine_url: 'Redmine',
-    repository_ids: 'repository_ids',
+    repository_id: 'repository_id',
     harbor_url: 'Harbor',
     updated_time: '最後更新時間',
     closed_count: '已關閉議題數',
@@ -35,7 +35,7 @@ export const excelTranslate = {
     parent_description: '變更內容(議題描述)',
     relations: '原始需求/議題',
     status: '狀態',
-    assigned_to: '受分配者'
+    assigned: '受分配者'
   },
   exceptionManagement: {
     tracker: '種類',
@@ -43,7 +43,7 @@ export const excelTranslate = {
     name: '議題名稱',
     priority: '優先權',
     status: '狀態',
-    assigned_to: '受分配者'
+    assigned: '受分配者'
   },
   projectIssues: {
     tracker: '種類',
@@ -51,6 +51,6 @@ export const excelTranslate = {
     name: '議題名稱',
     priority: '優先權',
     status: '狀態',
-    assigned_to: '受分配者'
+    assigned: '受分配者'
   }
 }

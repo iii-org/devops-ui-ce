@@ -1,37 +1,28 @@
 <template>
-  <div class="app-container" :class="isMobile ? 'mobile' : ''">
+  <div :class="isMobile ? 'mobile' : ''" class="app-container">
     <el-card>
-      <el-row
-        type="flex"
-        align="middle"
-        class="my-3"
-      >
+      <el-row align="middle" class="my-3" type="flex">
         <el-col :span="6">
           <el-button
-            type="text"
-            size="medium"
-            icon="el-icon-arrow-left"
             class="text-title link-text-color"
+            icon="el-icon-arrow-left"
+            size="medium"
+            type="text"
             @click="onBackClick"
           >
             {{ $t('general.Back') }}
           </el-button>
         </el-col>
-        <el-col
-          :span="12"
-          class="text-center"
-        >
-          <span class="text-xl font-medium">{{ $t('Issue.IssueList') }}：{{ userName }} </span>
+        <el-col :span="12" class="text-center">
+          <span class="text-xl font-medium">{{ $t('Issue.IssueList') }}：{{ userName }}
+          </span>
         </el-col>
-        <el-col
-          :span="6"
-          class="text-right"
-        >
+        <el-col :span="6" class="text-right">
           <el-button
             v-show="!isSearchVisible"
-            type="text"
             class="header-text-color"
             icon="el-icon-search"
+            type="text"
             @click="showSearchInput"
           >
             {{ $t('general.Search') + (keyword ? ': ' + keyword : '') }}
@@ -40,12 +31,12 @@
             v-show="isSearchVisible"
             ref="inputKeyword"
             v-model="keyword"
-            size="small"
-            prefix-icon="el-icon-search"
             :placeholder="$t('general.Search') + $t('Issue.name')"
             class="py-1"
-            style="width: 210px"
             clearable
+            prefix-icon="el-icon-search"
+            size="small"
+            style="width: 210px"
             @blur="isSearchVisible = !isSearchVisible"
           />
         </el-col>
@@ -53,27 +44,27 @@
       <div class="flex justify-between items-center mb-2">
         <el-checkbox
           v-model="isCheckedAllIssues"
-          class="ml-3"
           :disabled="listData.length < 1"
+          class="ml-3"
           @change="handleAllIssuesChange"
         >
           <span>{{ $t('general.SelectAll') }}</span>
         </el-checkbox>
-        <div style="text-align: right;">
+        <div style="text-align: right">
           <el-button
-            size="mini"
-            :class="hasCheckedIssues ? 'button-primary-reverse' : ''"
-            plain
             :disabled="!hasCheckedIssues"
+            plain
+            size="mini"
+            type="primary"
             @click="onBatchTransferClick"
           >
             {{ `${$t('Issue.batchTransfer')} (${checkedIssueIds.length})` }}
           </el-button>
           <el-button
-            size="mini"
-            :type="hasCheckedIssues ? 'danger' : ''"
-            plain
             :disabled="!hasCheckedIssues"
+            plain
+            size="mini"
+            type="danger"
             @click="onBatchCloseClick"
           >
             {{ `${$t('Issue.batchClose')} (${checkedIssueIds.length})` }}
@@ -83,20 +74,17 @@
       <el-table
         ref="issueList"
         v-loading="listLoading"
-        :data="filteredData"
+        :data="listData"
+        :expand-row-keys="expands"
+        :row-class-name="getRowClass"
+        :tree-props="{ children: 'child' }"
         fit
         row-key="id"
-        :expand-row-keys="expands"
-        :tree-props="{ children: 'child' }"
-        :row-class-name="getRowClass"
         @row-contextmenu="handleContextMenu"
         @expand-change="getIssueFamilyData"
       >
-        <el-table-column
-          align="center"
-          width="40"
-        >
-          <template slot="header">
+        <el-table-column align="center" width="40">
+          <template slot="header" slot-scope="{ column }">
             <el-checkbox
               v-model="isCheckedAllIssuesByPage"
               :disabled="listData.length < 1"
@@ -105,17 +93,14 @@
           </template>
           <template slot-scope="scope">
             <el-checkbox
-              :value="isCheckedIssue(scope.row)"
               :disabled="!scope.row.is_closable"
+              :value="isCheckedIssue(scope.row)"
               @change="toggleIssue(scope.row)"
             />
           </template>
         </el-table-column>
 
-        <el-table-column
-          type="expand"
-          width="30"
-        >
+        <el-table-column type="expand" width="30">
           <template slot-scope="scope">
             <IssueExpand
               :issue="scope.row"
@@ -126,11 +111,11 @@
         </el-table-column>
         <el-table-column
           v-if="!isMobile"
-          prop="tracker.name"
           :label="$t('general.Type')"
+          prop="tracker.name"
           width="130"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Tracker
               v-if="row.tracker.name"
               :name="$t(`Issue.${row.tracker.name}`)"
@@ -142,29 +127,30 @@
         <el-table-column
           :label="$t('Issue.Id')"
           min-width="175"
-          show-overflow-tooltip
           prop="id"
+          show-overflow-tooltip
         >
           <template slot-scope="scope">
             <span class="text-success mr-2">#{{ scope.row.id }}</span>
             <el-tag
               v-for="item in scope.row.tags"
               :key="item.id"
-              size="mini"
               class="mr-1"
-            >[{{ item.name }}]</el-tag>
-            {{ scope.row.name }}
+              size="mini"
+            >[{{ item.name }}]
+            </el-tag>
+            {{ scope.row.subject }}
           </template>
         </el-table-column>
 
         <el-table-column
           v-if="!isMobile"
-          prop="priority.name"
           :label="$t('Issue.Priority')"
           align="center"
+          prop="priority.name"
           width="150"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Priority
               v-if="row.priority.name"
               :name="$t(`Issue.${row.priority.name}`)"
@@ -174,12 +160,12 @@
         </el-table-column>
         <el-table-column
           v-if="!isMobile"
-          prop="status.name"
           :label="$t('general.Status')"
           align="center"
+          prop="status.name"
           width="150"
         >
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <Status
               v-if="row.status.name"
               :name="$t(`Issue.${row.status.name}`)"
@@ -189,28 +175,22 @@
         </el-table-column>
 
         <el-table-column
-          align="center"
           :label="$t('general.Actions')"
+          align="center"
           width="75"
         >
           <template slot-scope="scope">
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Transfer')"
-            >
+            <el-tooltip :content="$t('general.Transfer')" placement="bottom">
               <em
                 class="ri-file-transfer-line success table-button"
                 @click="onTransferClick(scope.row.id)"
               ></em>
             </el-tooltip>
-            <el-tooltip
-              placement="bottom"
-              :content="$t('general.Close')"
-            >
+            <el-tooltip :content="$t('general.Close')" placement="bottom">
               <span>
                 <em
-                  class="ri-delete-bin-2-line table-button"
                   :class="!scope.row.is_closable ? 'disabled' : 'danger'"
+                  class="ri-delete-bin-2-line table-button"
                   @click="onCloseClick(scope.row)"
                 ></em>
               </span>
@@ -219,44 +199,43 @@
         </el-table-column>
       </el-table>
       <Pagination
-        :total="listQuery.total"
-        :page="listQuery.page"
-        :limit="listQuery.limit"
-        :page-sizes="[listQuery.limit]"
         :layout="paginationLayout"
+        :limit="listQuery.limit"
+        :page="listQuery.page"
+        :page-sizes="[listQuery.limit]"
         :pager-count="isMobile ? 5 : 7"
         :small="isMobile"
+        :total="listQuery.total"
         @pagination="onPagination"
       />
     </el-card>
     <context-menu
       ref="contextmenu"
-      :visible="contextMenu.visible"
-      :row="contextMenu.row"
       :filter-column-options="filterOptions"
+      :row="contextMenu.row"
       :selection-options="contextOptions"
+      :visible="contextMenu.visible"
       @update="loadData"
     />
     <el-dialog
-      :visible.sync="dialogVisible"
       :before-close="handleClose"
       :close-on-click-modal="false"
+      :visible.sync="dialogVisible"
       width="50%"
     >
-      <div
-        slot="title"
-        class="text-title"
-      >
+      <div slot="title" class="text-title">
         {{ $t('Issue.batchTransfer') }}
       </div>
-      <div class="text-base mb-2">{{ $t('Issue.TransferIssueTo', { value: checkedIssueIds.length }) }}</div>
+      <div class="text-base mb-2">
+        {{ $t('Issue.TransferIssueTo', { value: checkedIssueIds.length }) }}
+      </div>
       <el-select
         v-model="assigneeId"
-        style="width: 100%"
-        clearable
         :placeholder="$t('RuleMsg.PleaseSelect')"
+        clearable
         filterable
         required
+        style="width: 100%"
       >
         <el-option
           v-for="assignee in transferable"
@@ -265,14 +244,11 @@
           :value="assignee.value"
         />
       </el-select>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button class="button-secondary-reverse" @click="handleClose">{{ $t('general.Cancel') }}</el-button>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">{{ $t('general.Cancel') }}</el-button>
         <el-button
           :loading="isTransferring"
-          class="button-primary"
+          type="primary"
           @click="onBatchTransferConfirm"
         >
           {{ $t('general.Confirm') }}
@@ -283,31 +259,42 @@
       v-if="isCloseIssueDialog"
       :is-issue-dialog.sync="isCloseIssueDialog"
       :issue="issue"
+      @handleCancel="isCloseIssueDialog = false"
       @handleClose="handleCloseAllIssue"
-      @handleCancel="isCloseIssueDialog"
     />
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getUserIssueList } from '@/api/user'
-import { getProjectAssignable } from '@/api/projects'
 import {
-  updateIssue,
-  getCheckIssueClosable,
-  getIssueFamily
-} from '@/api/issue'
-import { BasicData, Pagination, ContextMenu, SearchBar, IssueExpand } from '@/mixins'
-import { Priority, Status, Tracker } from '@/components/Issue'
+  checkIssueClosable,
+  getIssueFamily,
+  updateIssue
+} from '@/api_v3/issues'
+import { getProjectUserList } from '@/api_v3/projects'
+import { getUserIssueList } from '@/api_v3/user'
+import BasicData from '@/mixins/BasicData'
+import ContextMenu from '@/mixins/ContextMenu'
+import IssueExpand from '@/mixins/IssueExpand'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import { mapGetters } from 'vuex'
+
+const params = () => ({
+  page: 1,
+  limit: 10,
+  from: 'assigned',
+  exclude_closed: true
+})
 
 export default {
   name: 'ProjectIssueTransfer',
   components: {
-    Tracker,
-    Priority,
-    Status,
-    SubIssueDialog: () => import('@shared/views/Project/IssueDetail/components/SubIssueDialog')
+    Tracker: () => import('@/components/Issue/Tracker'),
+    Priority: () => import('@/components/Issue/Priority'),
+    Status: () => import('@/components/Issue/Status'),
+    SubIssueDialog: () =>
+      import('@shared/views/Project/IssueDetail/components/SubIssueDialog')
   },
   mixins: [BasicData, Pagination, ContextMenu, SearchBar, IssueExpand],
   data() {
@@ -323,44 +310,65 @@ export default {
       isTransferring: false,
       expands: [],
       isCloseIssueDialog: false,
-      issue: {}
+      issue: {},
+      searchKeys: ['subject'],
+      timeoutId: -1,
+      params: params()
     }
   },
   computed: {
     ...mapGetters(['selectedProject', 'device']),
     userId() {
-      return Number(this.$route.params.userId)
+      return this.$route.params.userId
     },
     hasCheckedIssues() {
       return this.checkedIssueIds.length > 0
     },
     transferable() {
-      return this.assigneeList.filter((assignee) => assignee.value !== this.userId)
+      return this.assigneeList.filter(
+        (assignee) => assignee.value !== this.userId
+      )
     },
     isMobile() {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     }
+  },
+  watch: {
+    keyword(val) {
+      if (val !== null) {
+        this.params.page = 1
+        this.params.limit = 10
+        this.params.search = this.keyword
+        clearTimeout(this.timeoutId)
+        this.timeoutId = window.setTimeout(() => {
+          this.loadData()
+          this.isCheckedAllIssues = false
+          this.isCheckedAllIssues
+        }, 1000)
+      } else {
+        this.keyword = ''
+      }
+    }
+  },
+  beforeDestroy() {
+    window.clearTimeout(this.timeoutId)
   },
   mounted() {
     this.fetchAssignee()
   },
   methods: {
     async fetchData() {
-      const params = {
-        offset: this.listQuery.offset,
-        limit: this.listQuery.limit,
-        from: 'assigned_to_id',
-        status_id: 'open',
-        project_id: this.selectedProject.id
-      }
-      return getUserIssueList(this.userId, params)
+      this.params.project_id = this.selectedProject.id
+      return getUserIssueList(this.userId, this.params)
         .then((res) => {
-          const { issue_list, page } = res.data
-          this.listQuery = page
-          return this.formatIssue(issue_list)
+          const { items, pagination } = res.data
+          this.listQuery = pagination
+          return this.formatIssue(items)
         })
         .catch((e) => {
           return Promise.reject(e)
@@ -374,18 +382,18 @@ export default {
           is_closable: await this.checkIssueClosable(issue.id),
           family: {},
           isLoadingFamily: false,
-          hasFamily: issue.family || issue.child
+          hasFamily: issue.has_family || issue.children
         })
       }
       await this.setExpandedRow()
       return result
     },
     fetchAssignee() {
-      getProjectAssignable(this.selectedProject.id)
+      getProjectUserList(this.selectedProject.id)
         .then((res) => {
-          this.assigneeList = res.data.user_list.map((user) => {
-            const { name, login, id } = user
-            return { value: id, label: `${name}(${login})` }
+          this.assigneeList = res.data.map((user) => {
+            const { full_name, username, id } = user
+            return { value: id, label: `${full_name}(${username})` }
           })
           this.setUserName()
         })
@@ -398,7 +406,9 @@ export default {
       return this.checkedIssueIds.findIndex((item) => item === id) > -1
     },
     toggleIssue(issue) {
-      this.isCheckedIssue(issue) ? this.removeIssue(issue) : this.addIssue(issue)
+      this.isCheckedIssue(issue)
+        ? this.removeIssue(issue)
+        : this.addIssue(issue)
       this.checkIssueChanged()
     },
     addIssue(issue) {
@@ -416,11 +426,12 @@ export default {
     checkIssueChanged() {
       const checkedCount = this.checkedIssueIds.length
       this.isCheckedAllIssuesByPage = checkedCount === this.listData.length
-      this.isCheckedAllIssues = this.checkedIssueIds.length === this.listQuery.total
+      this.isCheckedAllIssues =
+        this.checkedIssueIds.length === this.listQuery.total
       this.handleSinglePageChecked()
     },
     onBackClick() {
-      this.$router.push({ name: 'ProjectSettings', params: { projectName: this.selectedProject.name }})
+      this.$router.go(-1)
     },
     onTransferClick(issueId) {
       this.$router.push({ name: 'IssueDetail', params: { issueId }})
@@ -437,17 +448,20 @@ export default {
       }
     },
     async handleCloseAllIssue() {
-      const sendData = new FormData()
-      sendData.append('status_id', 6)
-      sendData.append('close_all', true)
-      await updateIssue(this.issue.id, sendData)
-        .then(() => {
-          this.loadData()
-        })
+      const sendData = {
+        status_id: 6,
+        close_all: true
+      }
+      await updateIssue(this.issue.id, sendData).then(() => {
+        this.loadData()
+      })
     },
     async onPagination(listQuery) {
       const { page, limit } = listQuery
-      this.listQuery.offset = page * limit - limit
+      this.listQuery.page = page
+      this.listQuery.limit = limit
+      this.params.page = page
+      this.params.limit = limit
       await this.loadData()
       this.handleSinglePageChecked()
     },
@@ -455,15 +469,14 @@ export default {
       this.listData.forEach((issue) => {
         val ? this.addIssue(issue) : this.removeIssue(issue)
       })
-      this.isCheckedAllIssues = this.checkedIssueIds.length === this.listQuery.total
+      this.isCheckedAllIssues =
+        this.checkedIssueIds.length === this.listQuery.total
     },
     handleAllIssuesChange(val) {
-      const params = {
-        offset: 0,
-        from: 'assigned_to_id',
-        status_id: 'open',
-        project_id: this.selectedProject.id
-      }
+      const params = Object.assign({}, this.params)
+      params.all = true
+      delete params.page
+      delete params.limit
       this.listLoading = true
       getUserIssueList(this.userId, params)
         .then(async (res) => {
@@ -490,7 +503,9 @@ export default {
     },
     onBatchTransferConfirm() {
       if (this.assigneeId === null) {
-        this.$message.warning(this.$t('Validation.Select', [this.$t('Issue.Assignee')]))
+        this.$message.warning(
+          this.$t('Validation.Select', [this.$t('Issue.Assignee')])
+        )
         return
       }
       this.handleBatchTransfer()
@@ -498,8 +513,7 @@ export default {
     handleBatchTransfer() {
       this.isTransferring = true
       this.checkedIssueIds.forEach((issueId) => {
-        const sendData = new FormData()
-        sendData.append('assigned_to_id', this.assigneeId)
+        const sendData = { assigned_id: this.assigneeId }
         updateIssue(issueId, sendData)
           .then(() => {
             this.removeIssue(issueId)
@@ -524,8 +538,7 @@ export default {
     onBatchCloseClick() {
       this.listLoading = true
       this.checkedIssueIds.forEach((issueId) => {
-        const sendData = new FormData()
-        sendData.append('status_id', 6)
+        const sendData = { status_id: 6 }
         updateIssue(issueId, sendData)
           .then(() => {
             this.removeIssue(issueId)
@@ -545,14 +558,16 @@ export default {
       this.checkedIssueIds = []
     },
     async checkIssueClosable(issueId) {
-      return (await getCheckIssueClosable(issueId)).data
+      return (await checkIssueClosable(issueId)).data
     },
     showSearchInput() {
       this.isSearchVisible = !this.isSearchVisible
       this.$nextTick(() => this.$refs.inputKeyword.focus())
     },
     setUserName() {
-      const idx = this.assigneeList.findIndex((assignee) => assignee.value === this.userId)
+      const idx = this.assigneeList.findIndex(
+        (assignee) => assignee.value === this.userId
+      )
       this.userName = this.assigneeList[idx]['label']
     },
     getRowClass(row) {
@@ -572,8 +587,9 @@ export default {
 ::v-deep .el-table .hide-expand-icon .cell .el-table__expand-icon {
   display: none;
 }
+
 .mobile {
-  ::v-deep  .el-card__body {
+  ::v-deep .el-card__body {
     padding: 10px;
   }
 }

@@ -1,11 +1,9 @@
 <template>
   <el-row v-loading="listLoading">
-    <el-row
-      class="circle"
-    >
-      <template v-if="listData.length>0">
+    <el-row class="circle">
+      <template v-if="listData.length > 0">
         <el-col
-          v-for="(item,idx) in listData"
+          v-for="(item, idx) in listData"
           :key="idx"
           :xs="24"
           :sm="8"
@@ -42,15 +40,14 @@
 <script>
 import AdminProjectList from './AdminProjectList'
 import { getProjectListDetail } from '@/api/dashboard'
-import { Doughnut, NoData } from '@shared/components'
-import colorVariables from '@/styles/theme/variables.scss'
+import colorVariables from '@/styles/theme/variables.module.scss'
 
 export default {
   name: 'AdminOverview',
   components: {
-    NoData,
+    NoData: () => import('@shared/components/NoData'),
     AdminProjectList,
-    Doughnut
+    Doughnut: () => import('@shared/components/Chart/Doughnut')
   },
   props: {
     data: {
@@ -127,7 +124,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .circle {
   ::v-deep .circle-primary {

@@ -1,35 +1,20 @@
 <template>
   <div>
-    <el-row
-      slot="title"
-      type="flex"
-      align="middle"
-    >
-      <el-col
-        :xs="24"
-        :md="16"
-      >
+    <el-row slot="title" align="middle" type="flex">
+      <el-col :md="16" :xs="24">
         <el-button
-          type="text"
-          size="medium"
-          icon="el-icon-arrow-left"
           class="previous text-h6 link-text-color"
+          icon="el-icon-arrow-left"
+          size="medium"
+          type="text"
           @click="onBack"
         >
           {{ $t('general.Back') }}
         </el-button>
         <span class="text-h6">{{ issueName }}</span>
       </el-col>
-      <el-col
-        :xs="24"
-        :md="8"
-        class="text-right"
-      >
-        <el-button
-          class="button-secondary-reverse"
-          :loading="btnConfirmLoading"
-          @click="handleAddConfirm"
-        >
+      <el-col :md="8" :xs="24" class="text-right">
+        <el-button :loading="btnConfirmLoading" @click="handleAddConfirm">
           {{ $t('general.Close') }}
         </el-button>
       </el-col>
@@ -45,10 +30,10 @@
           <el-col :span="24">
             <el-input
               v-model="searchValue"
-              size="medium"
-              prefix-icon="el-icon-search"
-              :style="{ width: '300px' }"
               :placeholder="$t('general.SearchName')"
+              :style="{ width: '300px' }"
+              prefix-icon="el-icon-search"
+              size="medium"
             />
           </el-col>
         </el-row>
@@ -56,18 +41,15 @@
       <el-col class="el-card__body">
         <el-table
           ref="collectionTable"
+          :cell-style="{ height: rowHeight + 'px' }"
+          :data="pagedData"
           :element-loading-text="$t('Loading')"
           fit
-          highlight-current-row
-          :data="pagedData"
           height="40vh"
-          :cell-style="{ height: rowHeight + 'px' }"
+          highlight-current-row
           @cell-click="handleClick"
         >
-          <el-table-column
-            width="55"
-            type="first"
-          >
+          <el-table-column type="first" width="55">
             <template slot-scope="scope">
               <el-checkbox
                 :value="isSelectedCollection(scope.row)"
@@ -76,24 +58,13 @@
               />
             </template>
           </el-table-column>
-          <el-table-column
-            label="測試軟體"
-            width="100"
-            prop="software_name"
-          />
-          <el-table-column
-            label="檔案"
-            prop="file_name"
-          />
-          <el-table-column
-            label="測試名稱"
-            prop="name"
-            show-overflow-tooltip
-          />
+          <el-table-column label="測試軟體" prop="software_name" width="100" />
+          <el-table-column label="檔案" prop="file_name" />
+          <el-table-column label="測試名稱" prop="name" show-overflow-tooltip />
           <el-table-column
             label="設計模組"
-            prop="test_plans"
             min-width="150"
+            prop="test_plans"
             show-overflow-tooltip
           >
             <template slot-scope="scope">
@@ -102,31 +73,22 @@
           </el-table-column>
         </el-table>
         <Pagination
-          :total="filteredData.length"
-          :page="listQuery.page"
-          :limit="listQuery.limit"
-          :page-sizes="[listQuery.limit]"
           :layout="'total, prev, pager, next'"
+          :limit="listQuery.limit"
+          :page="listQuery.page"
+          :page-sizes="[listQuery.limit]"
+          :total="filteredData.length"
           @pagination="onPagination"
         />
       </el-col>
-      <el-col
-        v-if="selectedList.length > 0"
-        class="el-card__footer"
-      >
-        <el-col
-          :xs="8"
-          :md="2"
-        >
+      <el-col v-if="selectedList.length > 0" class="el-card__footer">
+        <el-col :md="2" :xs="8">
           <div class="selected_count">
-            {{ $t('User.Selected') }}<span class="value">{{ selectedList.length }}</span>
+            {{ $t('User.Selected')
+            }}<span class="value">{{ selectedList.length }}</span>
           </div>
         </el-col>
-        <el-col
-          :xs="16"
-          :md="22"
-          class="scroll-x"
-        >
+        <el-col :md="22" :xs="16" class="scroll-x">
           <el-tag
             v-for="(item, idx) in selectedList"
             :key="idx"
@@ -143,10 +105,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
-import Fuse from 'fuse.js'
 import { getTestFileList } from '@/api/qa'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
+import Fuse from 'fuse.js'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'RelatedCollectionDialog',
@@ -214,8 +179,12 @@ export default {
       this.fetchData()
     },
     pagedData(value) {
-      const getSelectedListName = this.selectedList.map((item) => item.file_name)
-      const getSelectedRow = value.filter((item) => getSelectedListName.includes(item.file_name))
+      const getSelectedListName = this.selectedList.map(
+        (item) => item.file_name
+      )
+      const getSelectedRow = value.filter((item) =>
+        getSelectedListName.includes(item.file_name)
+      )
       getSelectedRow.forEach((row) => {
         this.$refs['collectionTable'].toggleRowSelection(row)
       })
@@ -264,7 +233,11 @@ export default {
       this.handleAddConfirm()
     },
     isSelectedCollection(row) {
-      return this.selectedList.map((item) => item.file_name).indexOf(row.file_name) >= 0
+      return (
+        this.selectedList
+          .map((item) => item.file_name)
+          .indexOf(row.file_name) >= 0
+      )
     },
     getTestPlan(row) {
       return row.test_plans.map((item) => item.name).join('、')

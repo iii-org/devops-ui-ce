@@ -1,4 +1,5 @@
 // global transition css
+@import './variables.module.scss';
 
 /* slide-up */
 @keyframes slide-up {
@@ -15,21 +16,22 @@
 /* slide down */
 @keyframes slide-down {
   0% {
-		transform: translateY(-100%);
-	}
-	50%{
-		transform: translateY(10%);
-	}
-	100% {
-		transform: translateY(0%);
-	}
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(10%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
 }
 
 .slide-down-enter-active {
-  animation: slide-down .5s ease-out;
+  animation: slide-down 0.5s ease-out;
 }
+
 .slide-down-leave-active {
-  animation: slide-down .5s reverse;
+  animation: slide-down 0.5s reverse;
 }
 
 /* swing */
@@ -46,7 +48,8 @@
   40% {
     transform: rotate(5deg) scale(1.075);
   }
-  50%, 100% {
+  50%,
+  100% {
     transform: rotate(0deg);
   }
 }
@@ -66,7 +69,8 @@
   40% {
     transform: rotate(-5deg);
   }
-  50%, 100% {
+  50%,
+  100% {
     transform: rotate(0deg);
   }
 }
@@ -157,7 +161,7 @@
 /* fade-transform */
 .fade-transform-leave-active,
 .fade-transform-enter-active {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .fade-transform-enter {
@@ -173,7 +177,7 @@
 /* breadcrumb transition */
 .breadcrumb-enter-active,
 .breadcrumb-leave-active {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .breadcrumb-enter,
@@ -183,9 +187,21 @@
 }
 
 .breadcrumb-move {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .breadcrumb-leave-active {
   position: absolute;
+}
+
+@keyframes flash-shadow {
+  0% {
+    box-shadow: 0 0 4px 2px rgba($linkTextColor, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 7px 5px rgba($linkTextColor, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 4px 2px rgba($linkTextColor, 0.7);
+  }
 }

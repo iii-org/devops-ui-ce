@@ -1,12 +1,13 @@
-@import './variables.scss';
+@import './variables.module.scss';
 @import './mixin.scss';
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
 @import './custom.scss';
 @import './table.scss';
-@import '~element-ui/lib/theme-chalk/display.css';
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&family=Noto+Sans+TC&display=swap');
+@import 'element-ui/lib/theme-chalk/display.css';
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@450..500&family=Noto+Sans+TC&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Audiowide&display=swap');
 
 body {
   height: 100%;
@@ -14,8 +15,15 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-body, button, input, optgroup, select, textarea {
-  font-family: 'Montserrat', 'Noto Sans TC', Helvetica Neue, Helvetica, Hiragino Sans GB, ttf, Microsoft YaHei, Arial, sans-serif !important;
+
+body,
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: 'Montserrat', 'Noto Sans TC', Helvetica Neue, Helvetica,
+    Hiragino Sans GB, ttf, Microsoft YaHei, Arial, sans-serif !important;
 }
 
 label {
@@ -64,7 +72,7 @@ div:focus {
 @include tablet {
   .app-container {
     padding: 5px;
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
   .app-container::-webkit-scrollbar {

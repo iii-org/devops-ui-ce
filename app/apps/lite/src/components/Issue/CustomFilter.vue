@@ -23,29 +23,37 @@
                   v-show="filter.isApplying"
                   class="el-icon-check text-success mr-1"
                 ></em>
-                <span :class="filter.isApplying ? 'text-success' : ''">{{ filter.name }}</span>
+                <span :class="filter.isApplying ? 'text-success' : ''">{{
+                  filter.name
+                }}</span>
               </div>
               <div>
-                <em class="ri-edit-box-line success table-button" @click="onEditClick(filter.id)"></em>
+                <em
+                  class="ri-edit-box-line success table-button"
+                  @click="onEditClick(filter.id)"
+                ></em>
                 <el-popconfirm
-                  :confirm-button-text="$t('general.Remove')"
                   :cancel-button-text="$t('general.Cancel')"
+                  :confirm-button-text="$t('general.Remove')"
+                  :title="$t('Issue.RemoveCustomFilter')"
                   icon="el-icon-info"
                   popper-class="danger"
-                  :title="$t('Issue.RemoveCustomFilter')"
                   @confirm="removeFilter(filter.id)"
                 >
-                  <em slot="reference" class="ri-delete-bin-2-line danger table-button"></em>
+                  <em
+                    slot="reference"
+                    class="ri-delete-bin-2-line danger table-button"
+                  ></em>
                 </el-popconfirm>
               </div>
             </div>
             <div class="bg-gray-100 flex justify-center rounded-xl px-2 mt-2">
               <el-form
                 v-if="filter.isShowForm"
-                label-position="top"
-                label-width="80px"
                 :model="formData"
                 class="mb-3"
+                label-position="top"
+                label-width="80px"
               >
                 <el-form-item :label="$t('Issue.CustomFilterName')">
                   <el-input v-model="formData.name" />
@@ -83,8 +91,8 @@
                     v-model="formData.tags"
                     :placeholder="$t('Issue.SelectTag')"
                     clearable
-                    filterable
                     collapse-tags
+                    filterable
                     multiple
                     @clear="onClear('tags')"
                   >
@@ -122,44 +130,42 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item
-                  v-if="checkEditable('assigned_to')"
-                  :label="$t('Issue.assigned_to')"
+                  v-if="checkEditable('assigned')"
+                  :label="$t('Issue.assigned')"
                 >
                   <el-select
-                    v-model="formData.assigned_to_id"
+                    v-model="formData.assigned_id"
                     :placeholder="$t('Issue.SelectMember')"
                     clearable
                     filterable
-                    @clear="onClear('assigned_to_id')"
+                    @clear="onClear('assigned_id')"
                   >
                     <el-option
-                      v-for="item in selectionOptions.assigned_to"
-                      :key="item.login"
-                      :label="item.name"
+                      v-for="item in selectionOptions.assigned"
+                      :key="item.username"
+                      :label="item.full_name"
                       :value="item.id"
                     />
                   </el-select>
                 </el-form-item>
-                <el-form-item v-if="checkEditable('fixed_version')">
+                <el-form-item v-if="checkEditable('version')">
                   <div slot="label">
-                    {{ $t(`Issue.fixed_version`) }}
-                    <el-tag
-                      type="info"
-                      class="flex-1"
-                    >
-                      <el-checkbox v-model="formData.show_closed_versions"> {{ $t('Issue.DisplayClosedVersion') }}
+                    {{ $t(`Issue.version`) }}
+                    <el-tag class="flex-1" plain>
+                      <el-checkbox v-model="formData.show_closed_versions">
+                        {{ $t('Issue.DisplayClosedVersion') }}
                       </el-checkbox>
                     </el-tag>
                   </div>
                   <el-select
-                    v-model="formData.fixed_version_id"
+                    v-model="formData.version_id"
                     :placeholder="$t('Issue.SelectVersion')"
                     clearable
                     filterable
-                    @clear="onClear('fixed_version_id')"
+                    @clear="onClear('version_id')"
                   >
                     <el-option
-                      v-for="item in selectionOptions.fixed_version"
+                      v-for="item in selectionOptions.version"
                       :key="item.id"
                       :label="item.name"
                       :value="item.id"
@@ -201,16 +207,12 @@
                   </div>
                 </el-form-item>
                 <div class="flex justify-between">
-                  <el-button
-                    size="small"
-                    class="button-secondary-reverse"
-                    @click="onCancelClick(filter.id)"
-                  >
+                  <el-button size="small" @click="onCancelClick(filter.id)">
                     {{ $t('general.Cancel') }}
                   </el-button>
                   <el-button
-                    class="button-primary"
                     size="small"
+                    type="primary"
                     @click="editFilter(filter)"
                   >
                     {{ $t('general.Save') }}
@@ -220,11 +222,7 @@
             </div>
           </div>
         </div>
-        <el-button
-          slot="reference"
-          class="header-text-color"
-          type="text"
-        >
+        <el-button slot="reference" class="header-text-color" type="text">
           {{ $t('Issue.CustomFilter') }}
           <em class="el-icon-arrow-down"></em>
         </el-button>
@@ -237,18 +235,23 @@
           <el-divider direction="vertical" />
           <span class="text">{{ $t('Issue.CustomFilter') }}</span>
         </span>
-        <el-button class="button-tertiary" size="small" @click="handleClearFilter">
+        <el-button plain size="small" type="warning" @click="handleClearFilter">
           {{ $t('general.Clear') }}
         </el-button>
       </div>
-      <el-radio-group v-model="selectedCustomFilter" size="small" class="custom-filter">
+      <el-radio-group
+        v-model="selectedCustomFilter"
+        class="custom-filter"
+        size="small"
+        @change="onFilterClick"
+      >
         <el-radio
           v-for="filter in filtersByType"
           :key="filter.id"
           :label="filter.id"
           :value="filter.id"
-          class="radio"
           border
+          class="radio"
         >
           {{ filter.name }}
         </el-radio>
@@ -259,16 +262,20 @@
 </template>
 
 <script>
+import {
+  deleteCustomIssueFilter,
+  getCustomIssueFilter,
+  updateCustomIssueFilter
+} from '@/api_v3/user'
 import { mapGetters } from 'vuex'
-import { getIssueFilter, editIssueFilter, removeIssueFilter } from '@/api/issueFilter'
 
 const defaultFormData = () => ({
   name: '',
   status_id: null,
   tags: null,
   tracker_id: null,
-  assigned_to_id: null,
-  fixed_version_id: null,
+  assigned_id: null,
+  version_id: null,
   priority_id: null,
   show_closed_issues: false,
   show_closed_versions: false,
@@ -277,14 +284,14 @@ const defaultFormData = () => ({
   expired_days: null
 })
 const keysMap = {
-  assigned_to_id: 'assigned_to',
-  fixed_version_id: 'fixed_version',
+  assigned_id: 'assigned',
+  version_id: 'version',
   priority_id: 'priority',
   status_id: 'status',
   tags: 'tags',
   tracker_id: 'tracker',
   show_closed_issues: 'displayClosed',
-  show_closed_versions: 'fixed_version_closed',
+  show_closed_versions: 'version_closed',
   group_by: 'groupBy',
   focus_tab: 'activeTab',
   expired_days: 'expiredDays'
@@ -311,7 +318,7 @@ export default {
     },
     activeTab: {
       type: String,
-      default: 'assigned_to_id'
+      default: 'assigned_id'
     },
     groupBy: {
       type: Object,
@@ -349,19 +356,15 @@ export default {
       return this.filters.filter((item) => item.type === this.type)
     },
     focusProjectId() {
-      if (this.$route.name === 'MyWork') {
-        return this.projectId ? this.projectId : -1 // -1 means all projects (dump project)
-      } else {
-        return this.selectedProjectId
-      }
+      // -1 means all projects (dump project)
+      return this.$route.name === 'MyWork'
+        ? this.projectId ?? -1
+        : this.selectedProjectId
     }
   },
   watch: {
     focusProjectId() {
       this.fetchCustomFilter()
-    },
-    selectedCustomFilter(value) {
-      if (value) this.onFilterClick(value)
     }
   },
   mounted() {
@@ -370,11 +373,11 @@ export default {
   methods: {
     async fetchCustomFilter() {
       this.isLoading = true
-      return getIssueFilter(this.focusProjectId)
+      return getCustomIssueFilter()
         .then((res) => {
           this.filters = res.data.map((item) =>
             Object.assign({}, item, {
-              custom_filter: this.formatCustomFilter(item.custom_filter),
+              custom_filters: this.formatCustomFilter(item.custom_filters),
               isShowForm: false,
               isApplying: this.selectedId ? this.selectedId === item.id : false
             })
@@ -388,34 +391,25 @@ export default {
       const result = Object.assign({}, options)
       Object.keys(options).forEach((key) => {
         if (key === 'tags') {
-          result[key] = options[key] === null ? null : options[key].split(',').map((i) => Number(i))
-        } else if (key === 'show_closed_issues' || key === 'show_closed_versions') {
+          result[key] =
+            options[key] === null
+              ? null
+              : options[key].split(',').map((i) => Number(i))
+        } else if (
+          key === 'show_closed_issues' ||
+          key === 'show_closed_versions'
+        ) {
           result[key] = options[key] === null ? null : Boolean(options[key])
-        } else if (['focus_tab', 'group_by'].includes(key)) {
-          result[key] = options[key]
-        } else if (key === 'assigned_to_id') {
-          result[key] = this.formatAssignedTo(options[key])
-        } else if (key === 'status_id' && options[key] === 'overdued') {
-          result[key] === options[key]
         } else {
-          result[key] = options[key] === null ? null : Number(options[key])
+          result[key] = options[key]
         }
       })
       return result
     },
-    formatAssignedTo(idString) {
-      if (idString === null) {
-        return null
-      } else if (idString === 'null') {
-        return 'null'
-      } else {
-        return Number(idString)
-      }
-    },
     onEditClick(filterId) {
       this.onPopoverHide()
       const idx = this.filters.findIndex((item) => item.id === filterId)
-      this.formData = Object.assign({}, this.filters[idx].custom_filter, {
+      this.formData = Object.assign({}, this.filters[idx].custom_filters, {
         name: this.filters[idx].name
       })
       this.filters[idx].isShowForm = !this.filters[idx].isShowForm
@@ -424,7 +418,7 @@ export default {
       this.onPopoverHide()
     },
     removeFilter(filterId) {
-      removeIssueFilter(this.focusProjectId, filterId).then((res) => {
+      deleteCustomIssueFilter(filterId).then(() => {
         this.fetchCustomFilter()
         this.$message.success(this.$t('Notify.Deleted'))
       })
@@ -436,9 +430,15 @@ export default {
     },
     editFilter(filter) {
       const { id } = filter
-      const sendData = Object.assign({}, this.formData)
-      sendData['type'] = this.type
-      sendData['tags'] = this.formatSendTags(sendData['tags'])
+      const sendData = {
+        name: this.formData.name,
+        type: this.type,
+        custom_filters: {
+          ...Object.assign({}, this.formData),
+          tags: this.formatSendTags(this.formData.tags)
+        }
+      }
+      delete sendData.custom_filters.name
       this.modifyCustomFilter(id, sendData)
     },
     formatSendTags(tags) {
@@ -447,7 +447,7 @@ export default {
       else return tags.join(',')
     },
     modifyCustomFilter(filterId, sendData) {
-      editIssueFilter(this.focusProjectId, filterId, sendData).then(async () => {
+      updateCustomIssueFilter(filterId, sendData).then(async () => {
         await this.fetchCustomFilter()
         this.$message({
           message: this.$t('Notify.Saved'),
@@ -467,7 +467,7 @@ export default {
       const idx = this.filters.findIndex((item) => item.id === filterId)
       this.filters[idx].isApplying = !this.filters[idx].isApplying
       this.selectedCustomFilter = filterId
-      this.emitCustomFilter(this.filters[idx].custom_filter)
+      this.emitCustomFilter(this.filters[idx].custom_filters)
       this.$emit('on-filter-click', filterId)
     },
     emitCustomFilter(filters) {
@@ -476,12 +476,18 @@ export default {
         (acc, key) => ({ ...acc, ...{ [keysMap[key] || key]: options[key] }}),
         {}
       )
-      const { displayClosed, fixed_version_closed, activeTab, groupBy } = result
+      const { displayClosed, version_closed, activeTab, groupBy } = result
       delete result.displayClosed
-      delete result.fixed_version_closed
+      delete result.version_closed
       delete result.activeTab
       delete result.groupBy
-      this.$emit('apply-filter', { result, displayClosed, fixed_version_closed, activeTab, groupBy })
+      this.$emit('apply-filter', {
+        result,
+        displayClosed,
+        version_closed,
+        activeTab,
+        groupBy
+      })
     },
     onClear(itemName) {
       this.formData[itemName] = null
@@ -497,8 +503,8 @@ export default {
       }
     },
     checkIsMyWorkFilterDisplayRule(formItemName) {
-      if (formItemName === 'fixed_version') return this.projectId
-      if (formItemName === 'assigned_to') {
+      if (formItemName === 'version') return this.projectId
+      if (formItemName === 'assigned') {
         const { focus_tab } = this.formData
         return focus_tab === 'author_id'
       }
@@ -513,21 +519,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
+
 .filter-list {
   max-height: 80vh;
   overflow-x: hidden;
   overflow-y: auto;
+
   &-name {
     @apply font-medium text-base truncate w-3/5 cursor-pointer;
   }
 }
+
 .custom-drawer {
   ::v-deep .el-divider {
-    background-color: #EBEEF5;
+    background-color: #ebeef5;
   }
+
   .title {
     margin-bottom: 10px;
+
     ::v-deep .el-divider--vertical {
       width: 6px;
       margin: 0;
@@ -535,15 +546,19 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     ::v-deep .el-tag--small {
       height: 25px;
     }
+
     ::v-deep .el-button--small {
       padding: 5px 10px;
     }
+
     ::v-deep .el-checkbox__label {
       font-size: 12px;
     }
+
     .text {
       font-size: 15px;
       font-weight: bold;
@@ -551,11 +566,13 @@ export default {
       vertical-align: middle;
     }
   }
+
   .custom-filter {
     ::v-deep .el-radio__inner {
       height: 0;
       width: 0;
       border: none;
+
       &:after {
         transform: scale(0);
         height: 0;
@@ -563,39 +580,46 @@ export default {
         color: none;
       }
     }
+
     ::v-deep .el-radio__label {
       padding-left: 2px;
     }
+
     ::v-deep .el-radio--small.is-bordered {
       border-radius: 16px;
     }
+
     ::v-deep .el-radio {
       margin-right: 0;
     }
+
     ::v-deep .el-radio__input.is-checked .el-radio__inner {
       border: none;
       background: none;
+
       &:after {
         transform: scale(0);
       }
     }
+
     --n: 1;
     display: flex;
     align-items: center;
     overflow-y: hidden;
     width: 100%; // fallback
-    width: calc(var(--n)*100%);
-    transform: translate(calc(var(--i)/var(--n) * -100%));
+    width: calc(var(--n) * 100%);
+    transform: translate(calc(var(--i) / var(--n) * -100%));
     padding-bottom: 10px;
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
     .radio {
       width: 100%; // fallback
-      width: calc(100%/var(--n))
+      width: calc(100% / var(--n));
     }
   }
+
   .custom-filter::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+    display: none; /* Safari and Chrome */
   }
 }
 </style>

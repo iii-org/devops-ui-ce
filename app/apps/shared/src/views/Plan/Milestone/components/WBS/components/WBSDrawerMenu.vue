@@ -7,7 +7,10 @@
     size="auto"
     destroy-on-close
   >
-    <div slot="title" class="title">
+    <div
+      slot="title"
+      class="title"
+    >
       <span>
         <el-divider direction="vertical" />
         <span
@@ -19,8 +22,15 @@
       </span>
     </div>
     <div class="container">
-      <el-collapse v-model="activeName" accordion>
-        <el-collapse-item :disabled="disabled" title="Tag" name="1">
+      <el-collapse
+        v-model="activeName"
+        accordion
+      >
+        <el-collapse-item
+          :disabled="disabled"
+          title="Tag"
+          name="1"
+        >
           <el-checkbox-group
             v-model="tagValue"
             size="small"
@@ -40,26 +50,74 @@
             </el-col>
           </el-checkbox-group>
         </el-collapse-item>
-        <div :class="disabled ? 'disabled' : ''" class="navigator" @click="onRelationIssueDialog(issue)">{{ $t('route.IssueDetail') }}</div>
-        <div :class="disabled ? 'disabled' : ''" class="navigator" @click="toggleIssueMatrixDialog(issue)">{{ $t('Issue.TraceabilityMatrix') }}</div>
-        <div :class="disabled ? 'disabled' : ''" class="navigator" @click="appendIssue(issue)">{{ $t('Issue.AddIssue') }}</div>
-        <div :class="disabled ? 'disabled' : ''" class="navigator" @click="toggleRelationDialog('Children')">{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}</div>
-        <div :class="disabled ? 'disabled' : ''" class="navigator" @click="appendIssue(issue, false, issue)">{{ $t('Issue.CopyIssue') }}</div>
-        <el-collapse-item :title="$t('Issue.AddToCalendar')" :disabled="disabled" name="7">
-          <div class="navigator child" @click="addToCalendar('google', issue)">
-            <svg-icon icon-class="google" class="text-md" />
+        <div
+          :class="disabled ? 'disabled' : ''"
+          class="navigator"
+          @click="onRelationIssueDialog(issue)"
+        >{{ $t('route.IssueDetail') }}</div>
+        <div
+          :class="disabled ? 'disabled' : ''"
+          class="navigator"
+          @click="toggleIssueMatrixDialog(issue)"
+        >{{ $t('Issue.TraceabilityMatrix') }}</div>
+        <div
+          :class="disabled ? 'disabled' : ''"
+          class="navigator"
+          @click="appendIssue(issue)"
+        >{{ $t('Issue.AddIssue') }}</div>
+        <div
+          :class="disabled ? 'disabled' : ''"
+          class="navigator"
+          @click="toggleRelationDialog('Children')"
+        >{{ $t('general.Settings', { name: $t('Issue.ChildrenIssue') }) }}</div>
+        <div
+          :class="disabled ? 'disabled' : ''"
+          class="navigator"
+          @click="appendIssue(issue, false, issue)"
+        >{{ $t('Issue.CopyIssue') }}</div>
+        <el-collapse-item
+          :title="$t('Issue.AddToCalendar')"
+          :disabled="disabled"
+          name="7"
+        >
+          <div
+            class="navigator child"
+            @click="addToCalendar('google', issue)"
+          >
+            <svg-icon
+              icon-class="google"
+              class="text-md"
+            />
             <span>Google</span>
           </div>
-          <div class="navigator child" @click="addToCalendar('microsoft', issue)">
-            <svg-icon icon-class="microsoft" class="text-md" />
+          <div
+            class="navigator child"
+            @click="addToCalendar('microsoft', issue)"
+          >
+            <svg-icon
+              icon-class="microsoft"
+              class="text-md"
+            />
             <span>Outlook.com</span>
           </div>
-          <div class="navigator child" @click="addToCalendar('office365', issue)">
-            <svg-icon icon-class="office365" class="text-md" />
+          <div
+            class="navigator child"
+            @click="addToCalendar('office365', issue)"
+          >
+            <svg-icon
+              icon-class="office365"
+              class="text-md"
+            />
             <span>Microsoft 365</span>
           </div>
-          <div class="navigator child" @click="addToCalendar('ics', issue)">
-            <svg-icon icon-class="ical" class="text-md" />
+          <div
+            class="navigator child"
+            @click="addToCalendar('ics', issue)"
+          >
+            <svg-icon
+              icon-class="ical"
+              class="text-md"
+            />
             <span>ICalendar</span>
           </div>
         </el-collapse-item>
@@ -69,7 +127,7 @@
         icon="el-icon-delete"
         type="danger"
         class="w-full mt-2"
-        @click="handleRemoveIssue(issue, 'ConfirmDelete', false)"
+        @click="handleRemoveIssue(issue, false)"
       >
         {{ $t('general.Delete') }}
       </el-button>
@@ -161,7 +219,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .drawer {

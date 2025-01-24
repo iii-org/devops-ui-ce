@@ -8,7 +8,12 @@
           :size="isMobile ? 'small' : 'medium'"
           value-key="user_id"
         >
-          <el-option v-for="item in user" :key="item.user_id" :label="item.user_name" :value="item.user_id" />
+          <el-option
+            v-for="item in user"
+            :key="item.user_id"
+            :label="item.user_name"
+            :value="item.user_id"
+          />
         </el-select>
         <el-input
           v-model="keyword"
@@ -28,13 +33,13 @@
         :data="pagedData"
         :columns="tableColumns"
       >
-        <template v-slot:issue_type="{row}">
+        <template #issue_type="{ row }">
           <Tracker
             :name="$t(`Issue.${row.issue_type}`)"
             :type="row.issue_type"
           />
         </template>
-        <template v-slot:status="{row}">
+        <template #status="{ row }">
           <Status
             :name="$t(`Issue.${row.status}`)"
             :type="row.status"
@@ -58,13 +63,18 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar, Table } from '@/mixins'
-import { Tracker, Status } from '@/components/Issue'
-import { ElTableResponsive } from '@shared/components'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import Table from '@/mixins/Table'
 
 export default {
   name: 'AdminIssueRankDetail',
-  components: { Status, Tracker, ElTableResponsive },
+  components: {
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
+  },
   mixins: [BasicData, Pagination, SearchBar, Table],
   props: {
     detail: {
@@ -92,7 +102,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [

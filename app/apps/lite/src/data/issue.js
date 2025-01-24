@@ -1,4 +1,4 @@
-import { updateIssue } from '@/api/issue'
+import { updateIssue } from '@/api_v3/issues'
 
 const CLOSED_STATUS_ID = 6
 const CLOSED_STATUS_NAME = 'Closed'
@@ -42,12 +42,14 @@ function Issue(issue) {
     })
     return formData
   }
-  this.close = async function() {
-    const formData = this.getFormData({ status_id: CLOSED_STATUS_ID })
-    await updateIssue(this.id, formData)
+  this.close = async function () {
+    const sendData = {
+      status_id: CLOSED_STATUS_ID
+    }
+    await updateIssue(this.id, sendData)
     this.setStatus(CLOSED_STATUS_ID, CLOSED_STATUS_NAME, true)
   }
-  this.setStatus = function(id, name, isClosed) {
+  this.setStatus = function (id, name, isClosed) {
     this.statusId = id
     this.statusName = name
     this.isClosed = isClosed

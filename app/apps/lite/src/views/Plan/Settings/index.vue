@@ -12,14 +12,26 @@
     >
       <el-tab-pane name="generalSettings">
         <span slot="label">
-          <svg-icon v-if="isMobile" icon-class="settings" class="text-2xl" />
+          <svg-icon
+            v-if="isMobile"
+            icon-class="settings"
+            class="text-2xl"
+          />
           <span v-else>{{ $t('ProjectSettings.GeneralSettings') }}</span>
         </span>
         <el-row :gutter="10">
-          <el-col class="mb-4" :sm="24" :md="24" :lg="24">
+          <el-col
+            class="mb-4"
+            :sm="24"
+            :md="24"
+            :lg="24"
+          >
             <el-card shadow="never">
               <el-collapse v-model="activeNames">
-                <el-collapse-item name="ProjectVersions" :title="$t('Version.ProjectManage')">
+                <el-collapse-item
+                  name="ProjectVersions"
+                  :title="$t('Version.ProjectManage')"
+                >
                   <ProjectVersions />
                 </el-collapse-item>
               </el-collapse>
@@ -27,10 +39,16 @@
           </el-col>
         </el-row>
         <el-row :gutter="10">
-          <el-col class="mb-4" :xs="24">
+          <el-col
+            class="mb-4"
+            :xs="24"
+          >
             <el-card shadow="never">
               <el-collapse v-model="activeNames">
-                <el-collapse-item name="ProjectMembers" :title="$t('Member.Manage')">
+                <el-collapse-item
+                  name="ProjectMembers"
+                  :title="$t('Member.Manage')"
+                >
                   <ProjectMembers />
                 </el-collapse-item>
               </el-collapse>
@@ -40,7 +58,11 @@
       </el-tab-pane>
       <el-tab-pane name="tagSettings">
         <span slot="label">
-          <svg-icon v-if="isMobile" icon-class="tag-settings" class="text-2xl" />
+          <svg-icon
+            v-if="isMobile"
+            icon-class="tag-settings"
+            class="text-2xl"
+          />
           <span v-else>{{ $t('ProjectSettings.TagSettings') }}</span>
         </span>
         <el-card>
@@ -53,15 +75,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ProjectListSelector } from '@shared/components'
-import { ProjectVersions, ProjectMembers } from './components'
+import ProjectVersions from './components/ProjectVersions'
+import ProjectMembers from './components/ProjectMembers'
 
 export default {
   name: 'ProjectSettings',
   components: {
-    ProjectListSelector,
     ProjectVersions,
     ProjectMembers,
+    ProjectListSelector: () => import('@shared/components/ProjectListSelector'),
     TagSettings: () => import ('@/views/Plan/Settings/components/TagSettings')
   },
   data() {
@@ -110,7 +132,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 ::v-deep .el-collapse-item__header {
   font-size: 1.125rem;
 }

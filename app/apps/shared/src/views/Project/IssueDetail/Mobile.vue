@@ -1,75 +1,108 @@
 <template>
-  <div style="padding: 0;">
+  <div style="padding: 0">
     <el-row class="my-2 sticky top-0">
-      <el-col :class="form.name ? 'issue-title truncate' : ''">
+      <el-col :class="form.subject ? 'issue-title truncate' : ''">
         <el-button
           v-if="!isInDialog"
-          type="text"
-          size="medium"
-          icon="el-icon-arrow-left"
           class="previous link-text-color px-3"
+          icon="el-icon-arrow-left"
+          size="medium"
+          type="text"
           @click="$parent.handleBackPage"
         />
-        <span :class="form.status_id === 6 ? 'grey-title' : ''" class="align-middle">
-          <Status v-if="form.status_id === 6" :name="$t(`Issue.Closed`)" class="mx-1" type="Closed" />
-          <Tracker v-if="tracker" :name="$t(`Issue.${tracker}`)" :type="tracker" />
+        <span
+          :class="form.status_id === 6 ? 'grey-title' : ''"
+          class="align-middle"
+        >
+          <Status
+            v-if="form.status_id === 6"
+            :name="$t(`Issue.Closed`)"
+            class="mx-1"
+            type="Closed"
+          />
+          <Tracker
+            v-if="tracker"
+            :name="$t(`Issue.${tracker}`)"
+            :type="tracker"
+          />
           <span v-else>{{ $t('Issue.Issue') }}</span>
           <span>#{{ issueId }} - </span>
-          <span v-if="form.name" @click="isEditTitleVisible = !isEditTitleVisible">{{ form.name }}</span>
-          <el-input v-else v-model="form.name" size="small" style="width: 50%;" placeholder="Please input issue name" />
+          <span
+            v-if="form.subject"
+            @click="isEditTitleVisible = !isEditTitleVisible"
+          >
+            {{ form.subject }}
+          </span>
+          <el-input
+            v-else
+            v-model="form.subject"
+            placeholder="Please input issue subject"
+            size="small"
+            style="width: 50%"
+          />
         </span>
       </el-col>
     </el-row>
     <div>
-      <el-tabs v-loading="isLoading" v-model="activeTab" type="border-card" tab-position="bottom" stretch>
+      <el-tabs
+        v-model="activeTab"
+        v-loading="isLoading"
+        stretch
+        tab-position="bottom"
+        type="border-card"
+      >
         <el-tab-pane name="form">
-          <em slot="label" class="ri-survey-line text-xl align-middle" />
+          <em slot="label" class="ri-survey-line text-xl align-middle"></em>
           <div class="card">
             <el-card>
               <IssueDescription
                 ref="IssueDescription"
                 v-model="form.description"
-                :old-value="originForm.description"
-                :issue-id="issueId"
-                :issue-name="issueName"
+                :assigned="assigned"
                 :is-button-disabled="isButtonDisabled"
-                :assigned-to="assignedTo"
                 :is-issue-edited="isIssueEdited"
+                :issue-id="issueId"
+                :issue-subject="issueSubject"
+                :old-value="originForm.description"
                 @filterImage="$parent.filterImage"
                 @update="$parent.getData"
               />
             </el-card>
             <IssueForm
               ref="IssueForm"
+              :activity-list="activityList"
+              :children-issue="children"
+              :form.sync="form"
               :is-button-disabled="isButtonDisabled"
+              :is-from-board="isFromBoard"
+              :is-issue-edited="isIssueEdited"
               :issue="issue"
               :issue-id="issueId"
               :issue-project="issueProject"
-              :is-from-board="isFromBoard"
-              :form.sync="form"
               :parent="parent"
-              :children-issue="children"
-              :is-issue-edited="isIssueEdited"
               class="content"
               @update="$parent.historyUpdate"
+              @update-spent-time="handleSpentTimeUpdate"
             />
           </div>
         </el-tab-pane>
         <el-tab-pane name="relation">
-          <em slot="label" class="ri-stackshare-line text-xl align-middle" />
-          <div class="card notes" style="margin-bottom: 80px;">
+          <em slot="label" class="ri-stackshare-line text-xl align-middle"></em>
+          <div class="card notes" style="margin-bottom: 80px">
             <div class="item">
               <div slot="title" class="text-sm font-bold title">
                 <el-divider direction="vertical" />
-                <span class="text">{{ $t('Issue.RelatedIssue') + ` (${countRelationIssue})` }}</span>
+                <span class="text">
+                  {{ $t('Issue.RelatedIssue') + ` (${countRelationIssue})` }}
+                </span>
               </div>
               <el-divider />
               <IssueExpand
                 v-if="countRelationIssue > 0"
-                :issue="$parent.$data"
                 :family="countRelationIssue > 0"
-                :popup="true"
                 :is-button-disabled="isButtonDisabled"
+                :issue="$parent.$data"
+                :popup="true"
                 :reload="'relatedIssue'"
                 @update="$parent.historyUpdate"
                 @on-context-menu="$parent.onContextMenu"
@@ -80,25 +113,28 @@
           </div>
         </el-tab-pane>
         <el-tab-pane name="files">
-          <em slot="label" class="ri-attachment-line text-xl align-middle" />
+          <em slot="label" class="ri-attachment-line text-xl align-middle"></em>
           <div class="card notes">
             <div class="item">
               <div slot="title" class="text-sm font-bold title">
                 <el-divider direction="vertical" />
-                <span class="text">{{ $t('Issue.Files') + ` (${files.length})` }}</span>
+                <span class="text">
+                  {{ $t('Issue.Files') + ` (${files.length})` }}
+                </span>
               </div>
               <el-divider />
               <IssueFiles
                 v-if="files.length > 0"
                 :is-button-disabled="isButtonDisabled"
                 :issue-file.sync="files"
+                :issue-id="issueId"
               />
               <el-empty v-else :description="$t('general.NoData')" />
             </div>
           </div>
         </el-tab-pane>
         <el-tab-pane name="history">
-          <em slot="label" class="ri-history-line text-xl align-middle" />
+          <em slot="label" class="ri-history-line text-xl align-middle"></em>
           <div v-loading="historyLoading" class="card notes">
             <div class="item">
               <div slot="title" class="text-sm font-bold title">
@@ -118,23 +154,23 @@
     </div>
     <Fab
       :actions="fabActions"
-      position="bottom-right"
       bg-color="#409eff"
       icon-size="small"
-      main-icon="more_vert"
+      main-icon="ri-more-2-fill"
+      position="bottom-right"
       @addComment="handleAddComment"
       @addToCalendar="isCalDrawerVisible = !isCalDrawerVisible"
       @copyIssue="$parent.copyUrl"
-      @watchIssue="setStar(true)"
       @unwatchIssue="setStar(false)"
+      @watchIssue="setStar(true)"
     />
     <el-drawer
       v-loading="isLoading"
       :visible.sync="isCalDrawerVisible"
-      direction="btt"
       class="drawer"
-      size="auto"
       destroy-on-close
+      direction="btt"
+      size="auto"
     >
       <div slot="title" class="title">
         <span>
@@ -144,20 +180,17 @@
       </div>
       <div class="container">
         <el-card shadow="never">
-          <AddToCalendar
-            :issue-id="issueId"
-            :form="form"
-          />
+          <AddToCalendar :form="form" :issue-id="issueId" />
         </el-card>
       </div>
     </el-drawer>
     <el-drawer
       v-loading="isLoading"
       :visible.sync="isAddCommentVisible"
-      direction="btt"
       class="drawer"
-      size="auto"
       destroy-on-close
+      direction="btt"
+      size="auto"
     >
       <div slot="title" class="title">
         <span class="flex justify-between items-center">
@@ -166,7 +199,7 @@
             <span class="text">{{ $t('Issue.Notes') }}</span>
           </span>
           <el-button
-            class="action button-secondary align-middle rounded-md"
+            class="action align-middle rounded-md"
             size="small"
             @click="updateAddComment"
           >
@@ -179,11 +212,11 @@
           <IssueNotesEditor
             ref="IssueNotesEditor"
             v-model="form.notes"
-            :issue-id="issueId"
-            :issue-name="issueName"
+            :assigned="assigned"
             :is-button-disabled="isButtonDisabled"
-            :assigned-to="assignedTo"
             :is-drawer="true"
+            :issue-id="issueId"
+            :issue-subject="issueSubject"
             @filterImage="$parent.filterImage"
             @update="$parent.historyUpdate"
           />
@@ -193,20 +226,22 @@
     <el-drawer
       v-loading="isLoading"
       :visible.sync="isEditTitleVisible"
-      direction="btt"
       class="drawer"
-      size="auto"
       destroy-on-close
+      direction="btt"
+      size="auto"
       @close="handleDicardEditTitle"
     >
       <div slot="title" class="title">
         <span class="flex justify-between items-center">
           <span>
             <el-divider direction="vertical" />
-            <span class="text">{{ $t('Dashboard.ADMIN.IssueRank.issue_name') }}</span>
+            <span class="text">
+              {{ $t('Dashboard.ADMIN.IssueRank.issue_name') }}
+            </span>
           </span>
           <el-button
-            class="action button-secondary align-middle rounded-md"
+            class="action align-middle rounded-md"
             size="small"
             @click="updateIssueTitle"
           >
@@ -217,9 +252,9 @@
       <div class="container">
         <el-card shadow="never">
           <el-input
-            v-model="form.name"
-            style="width: 100%;"
-            placeholder="Please input issue name"
+            v-model="form.subject"
+            placeholder="Please input issue subject"
+            style="width: 100%"
           />
         </el-card>
       </div>
@@ -228,16 +263,28 @@
 </template>
 
 <script>
+import {
+  addIssueWatcher,
+  getIssueDetails,
+  removeIssueWatcher,
+  updateIssue
+} from '@/api_v3/issues'
 import { mapGetters } from 'vuex'
-import { Status, Tracker, IssueExpand } from '@/components/Issue'
-import { IssueDescription, IssueForm, IssueFiles, IssueNotesDialog, IssueNotesEditor, AddToCalendar } from './components'
-import Fab from 'vue-fab'
-import { addWatcher, removeWatcher } from '@/api_v2/issue'
-import { getIssue, updateIssue } from '@/api/issue'
 
 export default {
   name: 'IssueDetailMobile',
-  components: { Status, Tracker, IssueDescription, IssueForm, IssueExpand, IssueFiles, IssueNotesDialog, IssueNotesEditor, Fab, AddToCalendar },
+  components: {
+    Status: () => import('@/components/Issue/Status'),
+    Tracker: () => import('@/components/Issue/Tracker'),
+    IssueDescription: () => import('./components/IssueDescription'),
+    IssueForm: () => import('./components/IssueForm'),
+    IssueExpand: () => import('@/components/Issue/IssueExpand'),
+    IssueFiles: () => import('./components/IssueFiles'),
+    IssueNotesDialog: () => import('./components/IssueNotesDialog'),
+    IssueNotesEditor: () => import('./components/IssueNotesEditor'),
+    AddToCalendar: () => import('./components/AddToCalendar'),
+    Fab: () => import('@shared/components/Fab')
+  },
   props: {
     propsIssueId: {
       type: [String, Number],
@@ -267,7 +314,7 @@ export default {
       type: Number,
       default: null
     },
-    issueName: {
+    issueSubject: {
       type: String,
       default: ''
     },
@@ -279,7 +326,7 @@ export default {
       type: Boolean,
       default: false
     },
-    assignedTo: {
+    assigned: {
       type: Array,
       default: () => []
     },
@@ -322,6 +369,10 @@ export default {
     isIssueEdited: {
       type: Object,
       default: () => ({})
+    },
+    activityList: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -336,37 +387,39 @@ export default {
   computed: {
     ...mapGetters(['device', 'userId', 'userName']),
     isWatched() {
-      return this.issue.watchers?.some((watcher) => watcher.name.includes(this.userName))
+      return this.issue.watchers?.some((watcher) =>
+        watcher.name.includes(this.userName)
+      )
     },
     fabActions() {
       // icon = https://fonts.google.com/icons
       const action = [
         {
           name: 'addComment',
-          icon: 'chat',
+          icon: 'ri-message-2-line',
           color: '#409eff'
         },
         {
           name: 'addToCalendar',
-          icon: 'calendar_month',
+          icon: 'ri-calendar-2-line',
           color: '#F56C6C'
         },
         {
           name: 'copyIssue',
-          icon: 'content_copy',
+          icon: 'ri-file-copy-line',
           color: '#67c23a'
         }
       ]
       if (this.isWatched) {
         action.push({
           name: 'unwatchIssue',
-          icon: 'visibility_off',
+          icon: 'ri-eye-off-line',
           color: '#606260'
         })
       } else {
         action.push({
           name: 'watchIssue',
-          icon: 'visibility',
+          icon: 'ri-eye-line',
           color: '#e6a23c'
         })
       }
@@ -377,11 +430,11 @@ export default {
     async setStar(status) {
       this.$emit('update:isLoading', true)
       if (status) {
-        await addWatcher(this.issue.id, { userId: this.userId })
+        await addIssueWatcher(this.issue.id)
       } else {
-        await removeWatcher(this.issue.id, this.userId)
+        await removeIssueWatcher(this.issue.id)
       }
-      const issue = await getIssue(this.issue.id)
+      const issue = await getIssueDetails(this.issue.id)
       this.$emit('update:issue', issue.data)
       this.$emit('update:isLoading', false)
     },
@@ -389,37 +442,41 @@ export default {
       this.isAddCommentVisible = true
     },
     async updateAddComment() {
-      await this.$refs.IssueNotesEditor.updateNotes()
-        .then(() => {
-          this.isAddCommentVisible = false
-          this.activeTab = 'history'
-        })
+      await this.$refs.IssueNotesEditor.updateNotes().then(() => {
+        this.isAddCommentVisible = false
+        this.activeTab = 'history'
+      })
     },
     async updateIssueTitle() {
       this.$emit('update:isLoading', true)
-      const sendForm = new FormData()
-      sendForm.append('name', this.form.name)
-      await updateIssue(this.issueId, sendForm).then((issue) => {
-        this.$set(this.form, 'name', issue.data.name)
-        this.$set(this.originForm, 'name', issue.data.name)
-        this.isEditTitleVisible = false
-      })
+      await updateIssue(this.issueId, { subject: this.form.subject }).then(
+        (issue) => {
+          this.$set(this.form, 'subject', issue.data.subject)
+          this.$set(this.originForm, 'subject', issue.data.subject)
+          this.isEditTitleVisible = false
+        }
+      )
       this.$emit('update:isLoading', false)
     },
     handleDicardEditTitle() {
-      this.form.name = this.originForm.name
+      this.form.subject = this.originForm.subject
       this.isEditTitleVisible = false
+    },
+    async handleSpentTimeUpdate() {
+      await this.$parent.fetchIssue()
+      this.$parent.issueTabs = 'SpentHours'
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .grey-title {
   color: grey;
+
   ::v-deep .point {
     background-color: grey !important;
   }
@@ -434,19 +491,23 @@ export default {
   min-height: calc(100vh - 50px - 50px - 50px - 10px);
   max-height: calc(100vh - 50px - 50px - 50px - 10px);
   overflow-y: auto;
-  -ms-overflow-style: none;  /* IE and Edge */
+  -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 
-  ::v-deep .el-card__body, .el-main {
+  ::v-deep .el-card__body,
+  .el-main {
     padding: 18px 12px;
   }
+
   ::v-deep .el-card {
     margin: 0;
     color: #606266;
   }
+
   ::v-deep .el-card__body .el-divider--horizontal {
     margin-top: 0;
   }
+
   ::v-deep .el-card.is-always-shadow {
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -455,6 +516,7 @@ export default {
   .title {
     margin-top: 5px;
     margin-bottom: 5px;
+
     ::v-deep .el-divider--vertical {
       width: 6px;
       margin: 0;
@@ -462,6 +524,7 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     .text {
       font-size: 15px;
       font-weight: bold;
@@ -469,12 +532,15 @@ export default {
       vertical-align: middle;
     }
   }
+
   .content {
     margin-bottom: 80px;
   }
 }
+
 .notes {
   padding-bottom: 80px;
+
   .item {
     background-color: white;
     padding: 10px;
@@ -483,32 +549,40 @@ export default {
     min-height: inherit;
   }
 }
+
 .issue-title {
   padding-right: 10px;
 }
+
 .drawer {
   ::v-deep {
     .el-drawer {
       border-radius: 10px 10px 0 0;
     }
+
     .el-divider--horizontal {
       margin: 14px -14px !important;
       background-color: #f1f1f1;
     }
+
     .el-drawer__header {
       margin-bottom: 0 !important;
       padding: 10px;
     }
+
     .el-card {
       border-radius: 0 !important;
     }
+
     .el-card__body {
       padding: 14px !important;
     }
   }
+
   .title {
     margin-top: 5px;
     margin-bottom: 5px;
+
     ::v-deep .el-divider--vertical {
       width: 6px;
       margin: 0;
@@ -516,6 +590,7 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     .text {
       font-size: 15px;
       font-weight: bold;
@@ -531,27 +606,34 @@ export default {
     bottom: 0;
     width: 100%;
   }
-  .el-tabs--border-card>.el-tabs__content {
+
+  .el-tabs--border-card > .el-tabs__content {
     padding: 0;
   }
+
   .el-tabs--border-card {
     @include css-prefix(box-shadow, none);
     background: none;
     border-radius: 0 !important;
   }
+
   .el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom {
     height: 47px;
   }
+
   .fab-main {
     padding: 22px !important;
   }
+
   .fab-wrapper {
-    bottom: 70px !important;
+    bottom: 100px !important;
     right: 10px !important;
   }
+
   .mx-3 {
     margin: 0 !important;
   }
+
   .move-bar {
     display: none !important;
   }

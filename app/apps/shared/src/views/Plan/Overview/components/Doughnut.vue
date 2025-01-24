@@ -1,6 +1,7 @@
 <template>
-  <div style="height: 400px; width: auto;">
+  <div style="height: 400px; width: auto">
     <v-chart
+      v-if="isEchartsReady"
       :option="option"
       :theme="isLite ? 'macarons' : 'vintage'"
       class="chart"
@@ -10,16 +11,8 @@
 </template>
 
 <script>
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { TooltipComponent, LegendComponent } from 'echarts/components'
-import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart } from 'echarts/charts'
 import { mapGetters } from 'vuex'
-
-require('echarts/theme/macarons') // echarts theme
-require('echarts/theme/vintage') // echarts theme
-use([TooltipComponent, LegendComponent, PieChart, CanvasRenderer])
+import VChart from 'vue-echarts'
 
 export default {
   name: 'Doughnut',
@@ -32,10 +25,16 @@ export default {
       default: () => ({})
     }
   },
+  data() {
+    return {
+      isEchartsReady: false
+    }
+  },
+
   computed: {
     ...mapGetters(['device']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     isMobile() {
       return this.device === 'mobile'
@@ -56,7 +55,10 @@ export default {
           {
             name: '',
             type: 'pie',
-            radius: [this.isMobile ? '30%' : '40%', this.isMobile ? '50%' : '70%'],
+            radius: [
+              this.isMobile ? '30%' : '40%',
+              this.isMobile ? '50%' : '70%'
+            ],
             center: [this.isMobile ? '50%' : '60%', '50%'],
             avoidLabelOverlap: false,
             label: {
@@ -98,6 +100,33 @@ export default {
         ],
         backgroundColor: '#fff',
         textStyle: { fontFamily: 'Montserrat' }
+      }
+    }
+  },
+  async created() {
+    await this.loadEchartsModules()
+    this.isEchartsReady = true
+  },
+  methods: {
+    async loadEchartsModules() {
+      const [
+        { use },
+        { TooltipComponent, LegendComponent },
+        { PieChart },
+        { CanvasRenderer }
+      ] = await Promise.all([
+        import('echarts/core'),
+        import('echarts/components'),
+        import('echarts/charts'),
+        import('echarts/renderers')
+      ])
+
+      use([TooltipComponent, LegendComponent, PieChart, CanvasRenderer])
+
+      if (this.isLite) {
+        await import('echarts/theme/macarons')
+      } else {
+        await import('echarts/theme/vintage')
       }
     }
   }

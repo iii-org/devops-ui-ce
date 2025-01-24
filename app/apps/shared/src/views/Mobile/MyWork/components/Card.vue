@@ -4,32 +4,28 @@
       <Kanban
         v-if="listData && listData.length > 0"
         :id="`kanban-work_${from}`"
-        :board-object="{id: 1, is_closed: false, name: 'Active'}"
-        :list="listData"
-        :status="status"
+        :board-object="{ id: 1, is_closed: false, name: 'Active' }"
         :dimension="'version'"
-        :from-wbs="true"
         :disabled="true"
         :from-tab="from"
+        :from-wbs="true"
+        :list="listData"
+        :status="status"
         class="kanban"
+        @contextmenu="handleDrawerMenu"
         @relationIssueId="handleCellClick($event)"
         @update="updateAllIssueTables"
-        @contextmenu="handleDrawerMenu"
       />
-      <el-empty
-        v-else
-        :description="$t('general.NoData')"
-        :image-size="100"
-      />
+      <el-empty v-else :description="$t('general.NoData')" :image-size="100" />
     </div>
     <Pagination
       v-if="listData && listData.length > 0"
       ref="pagination"
-      :total="listQuery.total"
-      :page="listQuery.page"
-      :limit="listQuery.limit"
       :layout="'total, prev, pager, next'"
+      :limit="listQuery.limit"
+      :page="listQuery.page"
       :pager-count="5"
+      :total="listQuery.total"
       class="pagination"
       small
       @pagination="handlePaginationChange"
@@ -38,16 +34,16 @@
       v-loading="listLoading"
       :title="`#${contextMenu.row.id} - ${contextMenu.row.name}`"
       :visible.sync="contextMenu.visible"
-      direction="btt"
       class="drawer"
-      size="60%"
       destroy-on-close
+      direction="btt"
+      size="60%"
     >
       <DrawerMenu
-        ref="contextmenu"
         :key="drawerKey"
-        :row="contextMenu.row"
+        ref="contextmenu"
         :filter-column-options="filterOptions"
+        :row="contextMenu.row"
         @update="updateAllIssueTables"
         @update-row="getContextRow"
       />
@@ -58,14 +54,17 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import Kanban from '@shared/views/Project/IssueBoards/components/Kanban'
-import { getUserIssueList } from '@/api/user'
-import { getUserWatchList } from '@/api_v2/user'
-import { ContextMenu, Pagination, CancelRequest } from '@/mixins'
-import { DrawerMenu } from '@/components/Issue'
+import { getUserIssueList } from '@/api_v3/user'
+import ContextMenu from '@/mixins/ContextMenu'
+import Pagination from '@/mixins/Pagination'
+import CancelRequest from '@/mixins/CancelRequest'
 
 export default {
   name: 'MyWorkMobile',
-  components: { Kanban, DrawerMenu },
+  components: {
+    Kanban,
+    DrawerMenu: () => import('@/components/Issue/DrawerMenu')
+  },
   mixins: [ContextMenu, Pagination, CancelRequest],
   props: {
     from: {
@@ -131,9 +130,18 @@ export default {
     }
   },
   methods: {
-    ...mapActions('projects', ['setFixedVersionShowClosed', 'getListQuery', 'setListQuery', 'getSort', 'setSort']),
+    ...mapActions('projects', [
+      'setFixedVersionShowClosed',
+      'getListQuery',
+      'setListQuery',
+      'getSort',
+      'setSort'
+    ]),
     async getStoredListQuery() {
-      const res = await Promise.allSettled([this.getListQuery(), this.getSort()])
+      const res = await Promise.allSettled([
+        this.getListQuery(),
+        this.getSort()
+      ])
       const [storeListQuery, storeSort] = res.map((item) => item.value)
       const storedTabQuery = storeListQuery[`MyWork_${this.from}`]
       const storedSort = storeSort[`MyWork_${this.from}`]
@@ -147,15 +155,14 @@ export default {
         this.cancelRequest()
       }
       this.listLoading = true
-      const getAPI = this.from === 'watcher_id' ? getUserWatchList : getUserIssueList
-      await getAPI(this.userId, this.getParams())
+      await getUserIssueList(this.userId, this.getParams())
         .then(async (res) => {
-          this.listData = res.data.issue_list
+          this.listData = res.data.items
           this.listData = this.listData.map((element) => ({
             ...element,
             showQuickAddIssue: false
           }))
-          this.setNewListQuery(res.data.page)
+          this.setNewListQuery(res.data.pagination)
           this.listLoading = false
           this.$emit('list-data')
         })
@@ -165,7 +172,7 @@ export default {
     },
     getParams() {
       const result = {
-        offset: this.listQuery.offset,
+        page: this.listQuery.page,
         limit: this.listQuery.limit,
         from: this.from
       }
@@ -176,7 +183,7 @@ export default {
         result['sort'] = this.sort
       }
       if (!this.displayClosedProps) {
-        result['status_id'] = 'open'
+        result['exclude_closed'] = true
       }
       Object.keys(this.filterConditionsProps).forEach((item) => {
         if (this.filterConditionsProps[item]) {
@@ -189,11 +196,11 @@ export default {
       return result
     },
     setNewListQuery(pageInfo) {
-      const { offset, limit, current, total, pages } = pageInfo
-      if (pages !== 0 && current > pages) {
+      const { limit, page, total, pages } = pageInfo
+      if (pages !== 0 && page > pages) {
         this.resetListQuery()
       } else {
-        this.listQuery = { offset, limit, total, page: current }
+        this.listQuery = { limit, total, page }
       }
     },
     async setExpandedRow() {
@@ -220,7 +227,6 @@ export default {
       return orderMap[order] || false
     },
     async handlePaginationChange(val) {
-      this.listQuery.offset = val.limit * val.page - val.limit
       this.listQuery.limit = val.limit
       this.listQuery.page = val.page
       await this.fetchData()
@@ -229,7 +235,6 @@ export default {
       await this.setListQuery(storeListQuery)
     },
     async resetListQuery() {
-      this.listQuery.offset = 0
       this.listQuery.page = 1
       const storeListQuery = await this.getListQuery()
       storeListQuery[`MyWork_${this.from}`] = this.listQuery
@@ -241,11 +246,16 @@ export default {
       if (!this.hasRelationIssue(row)) {
         result.push('hide-expand-icon')
       }
-      this.contextMenu ? result.push('context-menu') : result.push('cursor-pointer')
+      this.contextMenu
+        ? result.push('context-menu')
+        : result.push('cursor-pointer')
       return result.join(' ')
     },
     handleCellClick(issue) {
-      this.$router.push({ name: 'IssueDetail', params: { issueId: issue.id, project: issue.project }})
+      this.$router.push({
+        name: 'IssueDetail',
+        params: { issueId: issue.id, project: issue.project }
+      })
     },
     updateAllIssueTables(assignedToId) {
       this.$emit('update', assignedToId)
@@ -268,26 +278,32 @@ export default {
     margin-top: 5px !important;
   }
 }
+
 .pagination {
   padding: 2px;
   background: transparent;
 }
+
 ::v-deep .board-column {
   background-color: white;
 }
+
 .drawer {
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
     padding: 10px;
   }
+
   ::v-deep .el-drawer__body::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   ::v-deep .el-drawer__body {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
 }

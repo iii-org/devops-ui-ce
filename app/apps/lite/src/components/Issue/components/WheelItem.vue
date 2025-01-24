@@ -16,10 +16,12 @@
       <div
         v-for="(el, index) in renderData"
         :key="index"
-        class="list-block truncate"
+        :class="{ hidden: setHidden(el.index) }"
         :style="setWheelItemDeg(el.index)"
-        :class="{'hidden': setHidden(el.index)}"
-      >{{ el.value }}</div>
+        class="list-block truncate"
+      >
+        {{ el.value }}
+      </div>
     </div>
   </div>
 </template>
@@ -104,7 +106,10 @@ export default {
           }
         }
       } else {
-        if (this.listData.length < Number(this.value) && this.dataType === 'number') {
+        if (
+          this.listData.length < Number(this.value) &&
+          this.dataType === 'number'
+        ) {
           const move = this.listData.length * 34
           this.setStyle(-move)
           this.setListTransform(-move, -move)
@@ -121,8 +126,9 @@ export default {
     },
     setWheelItemDeg(index) {
       return {
-        transform: `rotate3d(1, 0, 0, ${(-index * 20) %
-            360}deg) translate3d(0px, 0px, 100px)`
+        transform: `rotate3d(1, 0, 0, ${
+          (-index * 20) % 360
+        }deg) translate3d(0px, 0px, 100px)`
       }
     },
     setWheelDeg(updateDeg, type, time = 1000) {
@@ -137,14 +143,16 @@ export default {
     setListTransform(translateY = 0, marginTop = 0, type = '', time = 1000) {
       if (type === 'end') {
         this.$refs.list.style.webkitTransition = `transform ${time}ms cubic-bezier(0.19, 1, 0.22, 1)`
-        this.$refs.list.style.webkitTransform = `translateY(${translateY -
-            this.spin.branch * 34}px)`
+        this.$refs.list.style.webkitTransform = `translateY(${
+          translateY - this.spin.branch * 34
+        }px)`
         this.$refs.list.style.marginTop = `${-marginTop}px`
         this.$refs.list.setAttribute('scroll', translateY)
       } else {
         this.$refs.list.style.webkitTransition = ''
-        this.$refs.list.style.webkitTransform = `translateY(${translateY -
-            this.spin.branch * 34}px)`
+        this.$refs.list.style.webkitTransform = `translateY(${
+          translateY - this.spin.branch * 34
+        }px)`
         this.$refs.list.style.marginTop = `${-marginTop}px`
         this.$refs.list.setAttribute('scroll', translateY)
       }
@@ -172,8 +180,8 @@ export default {
       let move = this.finger.lastY - this.finger.startY
       /* 计算速度 */
       /* 速度计算说明
-         * 当时间小于300毫秒 最后的移动距离等于 move + 减速运动距离
-         * */
+       * 当时间小于300毫秒 最后的移动距离等于 move + 减速运动距离
+       * */
       let time = this.finger.lastTime - this.finger.startTime
       const v = move / time
       /* 减速加速度a */
@@ -241,7 +249,6 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/mixin.scss';
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
 
 .wheel-item-container {
   position: relative;
@@ -251,8 +258,8 @@ export default {
   text-align: center;
   background: #fff;
   width: 100%;
-  /*-webkit-transform: translate3d(0,0,0);*/
 }
+
 .wheel-item-container > .wheel-item-line,
 .wheel-item-container > .wheel-item-list,
 .wheel-item-container > .wheel-item {
@@ -264,49 +271,55 @@ export default {
   height: 34px;
   z-index: 1;
 }
+
 .wheel-item-container > .wheel-item-line:before,
 .wheel-item-container > .wheel-item-line:after {
   @include css-prefix(transform, scaleY(0.5));
   @include css-prefix(transform-origin, 0 0);
   position: absolute;
   top: 0;
-  content: "";
+  content: '';
   display: table;
   background: #2c97f1;
   height: 2px;
 }
+
 .wheel-item-container > .wheel-item-line:before {
   bottom: -1px;
   top: auto;
 }
+
 .wheel-item-container > .wheel-item-line {
   z-index: 3;
 }
+
 .wheel-item-container > .wheel-item-list {
   z-index: 2;
   background: #fff;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
 }
+
 .wheel-item-container > .wheel-item-line,
 .wheel-item-container > .wheel-item-list {
   height: 34px;
   transform: translate3d(0px, 0px, 110px);
   overflow: hidden;
 }
+
 .wheel-item-container > .wheel-item-list .list-block,
 .wheel-item-container > .wheel-item > .list-block {
   line-height: 34px;
   font-size: 20px;
-  color: #505050;
-  font-weight: bold;
-  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
+
 .wheel-item-container > .wheel-item-list > .list-block.hidden,
 .wheel-item-container > .wheel-item > .list-block.hidden {
   visibility: hidden;
   opacity: 0;
 }
+
 .wheel-item-container > .wheel-item > .list-block {
   backface-visibility: hidden;
   position: absolute;

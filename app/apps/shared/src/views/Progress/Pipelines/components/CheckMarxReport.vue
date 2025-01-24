@@ -3,11 +3,17 @@
     <table class="test-report">
       <caption>
         <div class="caption">
-          <div />
-          <div style="font-size: 14px;">
+          <div></div>
+          <div style="font-size: 14px">
             <span>
               * {{ $t('TestReport.WarningPartOne') }}
-              <el-link :underline="false" type="primary" target="_blank" style="line-height: 1px;" @click="openDevCheckMarx">
+              <el-link
+                :underline="false"
+                type="primary"
+                target="_blank"
+                style="line-height: 1px"
+                @click="openDevCheckMarx"
+              >
                 {{ $t('TestReport.CheckMarxReport') }}
               </el-link>
               {{ $t('TestReport.WarningPartTwo') }}
@@ -16,7 +22,7 @@
               slot="link"
               :disabled="disabled"
               type="text"
-              icon="el-icon-download"
+              icon="ri-download-2-line"
               class="ml-1"
               @click="openCheckMarx"
             >
@@ -28,7 +34,7 @@
       <tbody>
         <tr>
           <th id="">{{ $t('DevSecOps.Tools') }}</th>
-          <th id="">{{ $t("Version.Version") }}</th>
+          <th id="">{{ $t('Version.Version') }}</th>
           <th id="">{{ $t('CheckMarx.HighSeverity') }}</th>
           <th id="">{{ $t('CheckMarx.MediumSeverity') }}</th>
           <th id="">{{ $t('CheckMarx.LowSeverity') }}</th>
@@ -36,7 +42,9 @@
         </tr>
         <tr>
           <td :data-label="$t('DevSecOps.Tools')">CheckMarx</td>
-          <td :data-label="$t('Version.Version')">{{ checkmarx[0]?.version_info ? checkmarx[0]?.version_info : '-' }}</td>
+          <td :data-label="$t('Version.Version')">
+            {{ checkmarx[0]?.version_info ? checkmarx[0]?.version_info : '-' }}
+          </td>
           <template v-if="hasCheckMarxData">
             <td :data-label="$t('CheckMarx.HighSeverity')">
               <span v-if="hasEachItemData('highSeverity')">
@@ -92,27 +100,31 @@ export default {
       return this.checkmarx[0] ? !this.checkmarx[0].report_ready : true
     },
     hasCheckMarxData() {
-      return !!(this.checkmarx && this.checkmarx[0] && this.checkmarx[0].hasOwnProperty('stats'))
+      return !!(
+        this.checkmarx &&
+        this.checkmarx[0] &&
+        this.checkmarx[0].hasOwnProperty('stats')
+      )
     },
     hasEachItemData() {
       const stats = this.checkmarx[0].stats
-      return (key) => stats ? stats.hasOwnProperty(key) : false
+      return (key) => (stats ? stats.hasOwnProperty(key) : false)
     }
   },
   methods: {
     async openCheckMarx() {
       const { report_id, scan_id } = this.checkmarx[0]
       await getCheckMarxReport(report_id)
-        .then(res => {
+        .then((res) => {
           const url = window.URL.createObjectURL(new Blob([res]))
           const link = document.createElement('a')
           link.href = url
-          link.setAttribute('download', 'checkmarx_Report.pdf')
+          link.setAttribute('download', 'Checkmarx_Report.pdf')
           document.body.appendChild(link)
           link.click()
           link.remove()
         })
-        .catch(_ => {
+        .catch((_) => {
           this.confirmRegistryReport(scan_id)
         })
     },
@@ -121,12 +133,18 @@ export default {
       this.$msgbox({
         title: this.$t('general.caution'),
         type: 'warning',
-        message: h('p', null,
-          [
-            h('div', { style: 'font-size: large' }, this.$t('CheckMarx.registryReport')),
-            h('div', { class: 'text-danger' }, this.$t('CheckMarx.registryReportTip'))
-          ]
-        ),
+        message: h('p', null, [
+          h(
+            'div',
+            { style: 'font-size: large' },
+            this.$t('CheckMarx.registryReport')
+          ),
+          h(
+            'div',
+            { class: 'text-danger' },
+            this.$t('CheckMarx.registryReportTip')
+          )
+        ]),
         showCancelButton: true,
         confirmButtonText: this.$t('general.Confirm'),
         cancelButtonText: this.$t('general.Cancel')
@@ -136,9 +154,9 @@ export default {
     },
     async registerReport(scanId) {
       this.listLoading = true
-      await registerCheckMarxReport(scanId).then(res => {
+      await registerCheckMarxReport(scanId).then((res) => {
         const { reportId } = res.data
-        const idx = this.listData.findIndex(item => item.scan_id === scanId)
+        const idx = this.listData.findIndex((item) => item.scan_id === scanId)
         this.listData[idx].report_id = reportId
         if (reportId > 0) this.fetchReportStatus(reportId)
       })

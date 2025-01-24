@@ -1,9 +1,9 @@
 <template>
   <el-dialog
-    :title="row.name + ' - ' + $t('Excalidraw.HistoricalRecord')"
-    :visible.sync="dialogVisible"
-    :close-on-click-modal="false"
     :before-close="onDialogClosed"
+    :close-on-click-modal="false"
+    :title="row.name + ' - ' + $t('Plugins.excalidraw.HistoricalRecord')"
+    :visible.sync="dialogVisible"
     :width="isMobile ? '95%' : '50%'"
   >
     <el-table
@@ -13,38 +13,36 @@
       fit
     >
       <el-table-column
-        type="index"
-        align="center"
         :label="$t('general.Index')"
+        align="center"
+        type="index"
         width="100"
       />
       <el-table-column
-        align="center"
         :label="$t('general.Updater')"
+        align="center"
         prop="user_name"
       />
       <ElTableColumnTime
-        :label="$t('Excalidraw.AutoSavedTime')"
+        :label="$t('Plugins.excalidraw.AutoSavedTime')"
         prop="updated_at"
       />
       <el-table-column
+        :label="$t('Plugins.excalidraw.Size')"
         align="center"
-        :label="$t('Excalidraw.Size')"
         prop="size"
       >
         <template slot-scope="scope">
           {{ scope.row.size + 'k' }}
         </template>
       </el-table-column>
-      <el-table-column
-        align="center"
-        :label="$t('general.Actions')"
-      >
+      <el-table-column :label="$t('general.Actions')" align="center">
         <template slot-scope="scope">
           <el-button
-            size="mini"
-            class="button-secondary-reverse"
             icon="el-icon-refresh-left"
+            plain
+            size="mini"
+            type="success"
             @click="handleRestore(scope.row)"
           >
             {{ $t('general.Restore') }}
@@ -59,14 +57,18 @@
 </template>
 
 <script>
+import {
+  getExcalidrawHistory,
+  restoreExcalidrawHistory
+} from '@/api_v2/excalidraw'
+import BasicData from '@/mixins/BasicData'
 import { mapGetters } from 'vuex'
-import { getExcalidrawHistory, restoreExcalidrawHistory } from '@/api_v2/excalidraw'
-import { BasicData } from '@/mixins'
-import { ElTableColumnTime } from '@shared/components'
 
 export default {
   name: 'RestoreBoardDialog',
-  components: { ElTableColumnTime },
+  components: {
+    ElTableColumnTime: () => import('@shared/components/ElTableColumnTime')
+  },
   mixins: [BasicData],
   props: {
     dialogVisible: {
@@ -96,7 +98,7 @@ export default {
         showCancelButton: true,
         confirmButtonText: this.$t('general.Confirm'),
         cancelButtonText: this.$t('general.Cancel')
-      }).then(async() => {
+      }).then(async () => {
         this.listLoading = true
         try {
           await restoreExcalidrawHistory(row.id)

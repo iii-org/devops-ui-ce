@@ -7,13 +7,15 @@
       stripe
       @row-click="showUnclosedIssuesDetail"
     >
-      <template v-slot:user_name="{row}">
+      <template #user_name="{ row }">
         {{ row.user_name }} <span class="badge">{{ row.user_login }}</span>
       </template>
     </ElTableResponsive>
     <el-dialog
       :visible.sync="unclosedIssuesDialog"
-      :title="$t('Dashboard.ADMIN.IssueRank.DETAIL', [issueRankDetail['user_name']])"
+      :title="
+        $t('Dashboard.ADMIN.IssueRank.DETAIL', [issueRankDetail['user_name']])
+      "
       destroy-on-close
       top="3vh"
       width="90vw"
@@ -30,16 +32,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ElTableResponsive } from '@shared/components'
 import { getUnclosedIssues } from '@/api/dashboard'
-import { BasicData } from '@/mixins'
+import BasicData from '@/mixins/BasicData'
 import AdminIssueRankUnclosedIssues from './widget/AdminIssueRankUnclosedIssues'
 
 export default {
   name: 'AdminIssueRank',
   components: {
     AdminIssueRankUnclosedIssues,
-    ElTableResponsive
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
   },
   mixins: [BasicData],
   props: {
@@ -62,7 +63,9 @@ export default {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
       return [
@@ -101,11 +104,19 @@ export default {
     async showUnclosedIssuesDetail(row) {
       this.unclosedIssuesDialog = true
       this.issueRankDetail = row
-      this.$set(this.issueRankDetail, 'unclosedIssues', this.getUnclosedIssuesData)
+      this.$set(
+        this.issueRankDetail,
+        'unclosedIssues',
+        this.getUnclosedIssuesData
+      )
     },
     updateUnclosedIssuesDetail(id) {
-      this.issueRankDetail = this.listData.find(item => item.user_id === id)
-      this.$set(this.issueRankDetail, 'unclosedIssues', this.getUnclosedIssuesData)
+      this.issueRankDetail = this.listData.find((item) => item.user_id === id)
+      this.$set(
+        this.issueRankDetail,
+        'unclosedIssues',
+        this.getUnclosedIssuesData
+      )
     },
     closeHandler() {
       this.keyword = ''
@@ -129,10 +140,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .badge {
-  font-size: .8rem;
+  font-size: 0.8rem;
   margin-left: 0.2rem;
   display: inline-flex;
   align-items: center;

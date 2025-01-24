@@ -1,29 +1,24 @@
 <template>
-  <div
-    v-loading="isLoading"
-    ref="wrapper"
-    class="wrapper"
-  >
+  <div ref="wrapper" v-loading="isLoading" class="wrapper">
     <el-alert
       v-if="getPercentProgress < 100"
       :closable="false"
-      type="warning"
       class="mb-4 loading"
+      type="warning"
     >
-      <h2 slot="title"><em class="el-icon-loading" /> {{ $t('Loading') }}</h2>
+      <h2 slot="title">
+        <em class="el-icon-loading"></em> {{ $t('Loading') }}
+      </h2>
       <el-progress :percentage="getPercentProgress" />
     </el-alert>
     <div class="text-right mb-2">
-      <el-popover
-        placement="bottom"
-        trigger="click"
-      >
+      <el-popover placement="bottom" trigger="click">
         <el-form
           ref="form"
-          :model="form"
           :disabled="chartLoading"
-          label-width="150px"
+          :model="form"
           label-position="left"
+          label-width="150px"
         >
           <el-form-item :label="$t('general.group')">
             <el-switch
@@ -42,16 +37,16 @@
           <el-form-item :label="$t('IssueMatrix.Relations')">
             <el-switch
               v-model="form.allRelation"
-              :disabled="!hasParent"
               :active-text="$t('general.All')"
+              :disabled="!hasParent"
               :inactive-text="$t('IssueMatrix.OnlyDown')"
             />
           </el-form-item>
           <el-form-item :label="$t('IssueMatrix.RelatedIssue')">
             <el-switch
               v-model="form.hasRelation"
-              :disabled="!hasRelations"
               :active-text="$t('general.on')"
+              :disabled="!hasRelations"
               :inactive-text="$t('general.off')"
             />
           </el-form-item>
@@ -63,8 +58,8 @@
             <el-select
               v-model="form.displayConditions"
               :placeholder="$t('IssueMatrix.SelectDisplayItem')"
-              multiple
               collapse-tags
+              multiple
             >
               <el-option
                 v-for="condition in displayConditionsList"
@@ -75,93 +70,92 @@
             </el-select>
           </el-form-item>
         </el-form>
-        <el-button
-          slot="reference"
-          type="text"
-          icon="el-icon-s-tools"
-        >
+        <el-button slot="reference" icon="el-icon-s-tools" type="text">
           {{ $t('IssueMatrix.ConditionSettings') }}
         </el-button>
       </el-popover>
       <el-button
         :disabled="selectedProjectId === -1 || chartLoading"
         icon="el-icon-download"
-        class="button-primary-reverse"
+        plain
+        type="primary"
         @click="downloadSVG"
-      >{{ $t('Track.DownloadSVG') }}</el-button>
+      >{{ $t('Track.DownloadSVG') }}
+      </el-button>
     </div>
     <div
-      v-dragscroll
       v-show="data.length > 0"
       ref="matrix"
-      :style="{ height:`${tableHeight}px` }"
+      v-dragscroll
+      :style="{ height: `${tableHeight}px` }"
       class="mermaid-wrapper"
     >
       <VueMermaid
         v-if="data.length > 0"
         ref="mermaid"
-        :nodes="data"
         :class="`w-${zoom}`"
-        :config="{ securityLevel: 'loose', flowChart:{ htmlLabels: true }, logLevel: 5 }"
+        :config="{
+          securityLevel: 'loose',
+          flowChart: { htmlLabels: true },
+          logLevel: 5
+        }"
+        :nodes="data"
         type="flowchart LR"
         @nodeClick="editNode"
       />
       <div class="toolbar">
-        <el-slider
-          v-model="zoom"
-          :min="25"
-          :max="500"
-          :step="25"
-        />
+        <el-slider v-model="zoom" :max="500" :min="25" :step="25" />
       </div>
     </div>
-    <el-empty
-      v-if="data.length <= 0"
-      :description="$t('general.NoData')"
-    />
+    <el-empty v-if="data.length <= 0" :description="$t('general.NoData')" />
     <el-dialog
-      :visible.sync="relationIssue.visible"
       :before-close="handleRelationIssueDialogBeforeClose"
-      width="90%"
-      top="3vh"
+      :visible.sync="relationIssue.visible"
       append-to-body
       destroy-on-close
+      top="3vh"
+      width="90%"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"
         ref="children"
+        :is-in-dialog="true"
         :is-open-matrix="true"
         :props-issue-id="relationIssue.id"
-        :is-in-dialog="true"
-        @update="handleRelationUpdate"
         @delete="handleRelationUpdate"
+        @update="handleRelationUpdate"
       />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getIssueFamily } from '@/api/issue'
+import { getIssueFamily } from '@/api_v3/issues'
 import { mapGetters } from 'vuex'
 import { camelCase } from 'lodash'
 import { dragscroll } from 'vue-dragscroll'
 import { getTestFileByTestPlan } from '@/api/qa'
 import { getLocalTime } from '@shared/utils/handleTime'
-import theme from '@/theme.js'
+import resolveConfig from 'tailwindcss/resolveConfig'
+import myConfig from '@tailwind'
 
-const Form = () => ({
-  group: false,
-  isTracker: false, // status or tracker
-  allRelation: false,
-  // level: '',
-  hasRelation: false,
-  displayConditions: ['id', 'name', 'status', 'tracker', 'version']
-})
+const tailwindConfig = resolveConfig(myConfig)
+
+function Form() {
+  return {
+    group: false,
+    isTracker: false, // status or tracker
+    allRelation: false,
+    // level: '',
+    hasRelation: false,
+    displayConditions: ['id', 'subject', 'status', 'tracker', 'version']
+  }
+}
 
 export default {
   name: 'IssueMatrix',
   components: {
-    VueMermaid: () => import('./components/vue-mermaid'),
+    VueMermaid: () => import('./components/VueMermaid'),
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail')
   },
   directives: {
@@ -176,7 +170,7 @@ export default {
   data() {
     this.displayConditionsList = [
       { value: 'id', label: this.$t('IssueMatrix.Id') },
-      { value: 'name', label: this.$t('IssueMatrix.Name') },
+      { value: 'subject', label: this.$t('IssueMatrix.Name') },
       { value: 'status', label: this.$t('IssueMatrix.Status') },
       { value: 'tracker', label: this.$t('IssueMatrix.Tracker') },
       { value: 'assignee', label: this.$t('IssueMatrix.Assignee') },
@@ -197,7 +191,7 @@ export default {
         visible: false,
         id: null
       },
-      trackerColor: Object.freeze(theme.backgroundColor),
+      trackerColor: Object.freeze(tailwindConfig.theme.backgroundColor),
       form: new Form(),
       isLoading: false
     }
@@ -205,26 +199,37 @@ export default {
   computed: {
     ...mapGetters(['selectedProjectId', 'tracker', 'status']),
     getPercentProgress() {
-      return Math.round((this.chartIssueList.length / this.accessedIssueId.length) * 100)
+      return Math.round(
+        (this.chartIssueList.length / this.accessedIssueId.length) * 100
+      )
     },
     chartLoading() {
       return this.accessedIssueId.length !== this.chartIssueList.length
     },
     data() {
-      const chartData = this.chartIssueList.map((issue) => this.formatChartData(issue))
+      const chartData = this.chartIssueList.map((issue) =>
+        this.formatChartData(issue)
+      )
       let testFileList = this.chartIssueList
         .map((issue) => (issue.test_files ? issue.test_files : null))
         .filter((issue) => issue)
-      testFileList = testFileList.flat().map((test_file) => this.formatTestFile(test_file)).flat()
+      testFileList = testFileList
+        .flat()
+        .map((test_file) => this.formatTestFile(test_file))
+        .flat()
       return chartData.concat(testFileList)
     },
     hasParent() {
-      const rowIssue = this.chartIssueList.find((item) => item.id === this.row.id)
+      const rowIssue = this.chartIssueList.find(
+        (item) => item.id === this.row.id
+      )
       if (!rowIssue || !rowIssue.id) return false
       return !!(rowIssue.parent && rowIssue.parent.id)
     },
     hasRelations() {
-      const rowIssue = this.chartIssueList.find((item) => item.id === this.row.id)
+      const rowIssue = this.chartIssueList.find(
+        (item) => item.id === this.row.id
+      )
       if (!rowIssue || !rowIssue.id) return false
       if (rowIssue.relations && rowIssue.relations.length === 0) return false
       return !!(rowIssue.relations && rowIssue.relations[0].id)
@@ -243,8 +248,12 @@ export default {
       deep: true
     },
     'form.isTracker'(val) {
-      if (val && !this.form.displayConditions.includes('status')) this.form.displayConditions.push('status')
-      else if (!val && !this.form.displayConditions.includes('tracker')) this.form.displayConditions.push('tracker')
+      if (val && !this.form.displayConditions.includes('status')) {
+        this.form.displayConditions.push('status')
+      } else if (!val && !this.form.displayConditions.includes('tracker')) {
+        this.form.displayConditions.push('tracker')
+      }
+      this.zoom = 100
     },
     'form.allRelation'(val) {
       this.initChart()
@@ -257,7 +266,11 @@ export default {
         if (this.form.group && this.form.isTracker && !val.includes('status')) {
           this.showWarning(this.$t('IssueMatrix.CancelStatusWarning'))
           this.form.displayConditions.push('status')
-        } else if (this.form.group && !this.form.isTracker && !val.includes('tracker')) {
+        } else if (
+          this.form.group &&
+          !this.form.isTracker &&
+          !val.includes('tracker')
+        ) {
           this.showWarning(this.$t('IssueMatrix.CancelTrackerWarning'))
           this.form.displayConditions.push('tracker')
         } else if (val.length === 0 || !valid) {
@@ -294,7 +307,11 @@ export default {
       if (!this.issueQuery) return value
       const reg = new RegExp(this.issueQuery, 'gi')
       return value.replace(reg, function (str) {
-        return "<span class='bg-yellow-200 text-danger p-1'><strong>" + str + '</strong></span>'
+        return (
+          "<span class='bg-yellow-200 text-danger p-1'><strong>" +
+          str +
+          '</strong></span>'
+        )
       })
     },
     checkUniqueRelationLine(subIssue_id, issue_id) {
@@ -309,30 +326,39 @@ export default {
       let relations = []
       if (issue['children']) {
         children = issue['children'].map((item) => item.id)
-        children.forEach(() => { link.push('-->') })
+        children.forEach(() => {
+          link.push('-->')
+        })
       }
       if (issue['relations']) {
         relations = issue['relations']
-          .map((item) => (this.checkUniqueRelationLine(item.id, issue.id) ? item.id : null))
+          .map((item) =>
+            this.checkUniqueRelationLine(item.id, issue.id) ? item.id : null
+          )
           .filter((item) => item !== null)
-        relations.forEach(() => { link.push('-.' + this.$t('Issue.RelatedIssue') + '.-') })
+        relations.forEach(() => {
+          link.push('-.' + this.$t('Issue.RelatedIssue') + '.-')
+        })
         this.relationLine[issue.id] = relations
       }
       children = children.concat(relations)
       if (issue['test_files']) {
         const test_files = issue['test_files'].map((item) => `file_${item.id}`)
-        test_files.forEach(() => { link.push('-->') })
+        test_files.forEach(() => {
+          link.push('-.->')
+        })
         children = children.concat(test_files)
       }
       return this.getChartLayout(issue, link, children)
     },
     getChartLayout(issue, link, children) {
-      const checkIssueName = issue.name.replace(/"/g, '&quot;')
+      const checkIssueName = issue.subject.replace(/"/g, '&quot;')
       const point = {
         id: issue.id,
         link,
         next: children,
-        editable: true
+        editable: true,
+        edgeType: 'round'
       }
       if (issue.id === this.row.id) {
         point['edgeType'] = 'stadium'
@@ -340,35 +366,57 @@ export default {
 
       point['text'] = `"`
       if (this.isConditionSelected('id')) point['text'] += `#${issue.id}`
-      if (this.isConditionSelected('name')) point['text'] += ` - ${checkIssueName}`
+      if (this.isConditionSelected('subject')) {
+        point['text'] += ` - ${checkIssueName}`
+      }
       if (point['text'] !== `"`) point['text'] += `<br/>`
-      if (this.isConditionSelected('version') && issue.fixed_version && issue.fixed_version.name) {
+      if (
+        this.isConditionSelected('version') &&
+        issue.version &&
+        issue.version.name
+      ) {
         point[
           'text'
-        ] += `<span style=\'border-radius: 0.25rem; background: white; font-size: 0.75em; padding: 3px 5px; margin: 3px 5px;\'>${issue.fixed_version.name}</span>`
+        ] += `<span style=\'border-radius: 0.25rem; background: white; font-size: 0.75em; padding: 3px 5px; margin: 3px 5px;\'>${issue.version.name}</span>`
       }
 
       if (this.form.group) {
         if (this.form.isTracker) {
-          if (this.isConditionSelected('status')) point['text'] += `(${this.$t('Issue.' + issue.status.name)})`
+          if (this.isConditionSelected('status')) {
+            point['text'] += `(${this.$t('Issue.' + issue.status.name)})`
+          }
           point['group'] = `${this.$t('Issue.' + issue.tracker.name)}`
-          point['style'] = `fill:${this.trackerColor[camelCase(issue.status.name)]},fill-opacity:0.5`
         } else {
-          if (this.isConditionSelected('tracker')) point['text'] += `(${this.$t('Issue.' + issue.tracker.name)})`
+          if (this.isConditionSelected('tracker')) {
+            point['text'] += `(${this.$t('Issue.' + issue.tracker.name)})`
+          }
           point['group'] = `${this.$t('Issue.' + issue.status.name)}`
-          point['style'] = `fill:${this.trackerColor[camelCase(issue.tracker.name)]},fill-opacity:0.5`
         }
       } else {
-        if (this.isConditionSelected('tracker')) point['text'] += `${this.$t('Issue.' + issue.status.name)}`
-        if (this.isConditionSelected('status')) point['text'] += ` - (${this.$t('Issue.' + issue.tracker.name)})`
-        if (this.form.isTracker) {
-          point['style'] = `fill:${this.trackerColor[camelCase(issue.tracker.name)]},fill-opacity:0.5`
-        } else {
-          point['style'] = `fill:${this.trackerColor[camelCase(issue.status.name)]},fill-opacity:0.5`
+        if (this.isConditionSelected('tracker')) {
+          point['text'] += `${this.$t('Issue.' + issue.status.name)}`
+        }
+        if (this.isConditionSelected('status')) {
+          point['text'] += ` - (${this.$t('Issue.' + issue.tracker.name)})`
         }
       }
+      if (this.form.isTracker) {
+        point['style'] = `fill:${
+          this.trackerColor[camelCase(issue.tracker.name)]
+        }, stroke: transparent`
+      } else {
+        point['style'] = `fill:${
+          this.trackerColor[camelCase(issue.status.name)]
+        }, stroke: transparent`
+      }
       if (point['text'] !== `"`) point['text'] += `<br/>`
-      if (this.isConditionSelected('assignee') && issue.assigned_to && issue.assigned_to.name) point['text'] += `${issue.assigned_to.name}`
+      if (
+        this.isConditionSelected('assignee') &&
+        issue.assigned &&
+        issue.assigned.full_name
+      ) {
+        point['text'] += `${issue.assigned.full_name}`
+      }
       point['text'] += `"`
       return point
     },
@@ -380,7 +428,7 @@ export default {
       const file = {
         id: `file_${test_file.id}`,
         name: test_file.file_name,
-        link: ['-->'],
+        link: ['-.->'],
         next: [`file_result_${test_file.id}`],
         editable: false
       }
@@ -388,30 +436,44 @@ export default {
         file['group'] = `${this.$t('Issue.TestFile')}`
         file['text'] = `"${test_file.file_name}"`
       } else {
-        file['text'] = `"${this.$t('Issue.TestFile')}<br/>${test_file.file_name}"`
+        file['text'] = `"${this.$t('Issue.TestFile')}<br/>${
+          test_file.file_name
+        }"`
         // file['style'] = `fill:${fullConfig.theme.colors[issue.tracker.name.toLowerCase()]}`
       }
       result.push(file)
       let last_result = null
       if (test_file.software_name === 'Postman') {
-        const success = test_file.the_last_test_result && test_file.the_last_test_result.success >= 0
-          ? test_file.the_last_test_result.success : '-'
-        const failure = test_file.the_last_test_result && test_file.the_last_test_result.failure >= 0
-          ? test_file.the_last_test_result.failure : '-'
-        const total = test_file.the_last_test_result && test_file.the_last_test_result.success >= 0 && test_file.the_last_test_result.failure >= 0
-          ? success + failure : '-'
+        const success =
+          test_file.the_last_test_result &&
+          test_file.the_last_test_result.success >= 0
+            ? test_file.the_last_test_result.success
+            : '-'
+        const failure =
+          test_file.the_last_test_result &&
+          test_file.the_last_test_result.failure >= 0
+            ? test_file.the_last_test_result.failure
+            : '-'
+        const total =
+          test_file.the_last_test_result &&
+          test_file.the_last_test_result.success >= 0 &&
+          test_file.the_last_test_result.failure >= 0
+            ? success + failure
+            : '-'
         last_result = this.getTestLayout(success, total, test_file)
       } else if (test_file.software_name === 'SideeX') {
         const success = test_file?.the_last_test_result?.result
-          ? test_file.the_last_test_result.result.casesPassed : '-'
+          ? test_file.the_last_test_result.result.casesPassed
+          : '-'
         const total = test_file?.the_last_test_result?.result
-          ? test_file.the_last_test_result.result.casesTotal : '-'
+          ? test_file.the_last_test_result.result.casesTotal
+          : '-'
         last_result = this.getTestLayout(success, total, test_file)
       }
       const file_result = {
         id: `file_result_${test_file.id}`,
         name: `${test_file.software_name}.${test_file.file_name}_result`,
-        link: ['-->'],
+        link: ['-.->'],
         text: `"${last_result}"`,
         editable: true
       }
@@ -419,14 +481,19 @@ export default {
         file_result['group'] = `${this.$t('TestCase.TestResult')}`
         file_result['text'] = `"${last_result}"`
       } else {
-        file_result['text'] = `"${this.$t('TestCase.TestResult')}<br/>${last_result}"`
+        file_result['text'] = `"${this.$t(
+          'TestCase.TestResult'
+        )}<br/>${last_result}"`
         // file_result['style'] = `fill:${fullConfig.theme.colors[issue.tracker.name.toLowerCase()]}`
       }
       result.push(file_result)
       return result
     },
     getTestLayout(success, total, test_file) {
-      const color = { pass: 'rgba(103,194,80,100)', failure: 'rgba(245,108,108,100)' }
+      const color = {
+        pass: this.trackerColor['success'],
+        failure: this.trackerColor['danger']
+      }
       const commit_icon = 'Commit: '
       let status_light = ''
       let count_result = ''
@@ -478,8 +545,11 @@ export default {
       }
     },
     async getTestPlan(issueId) {
-      if (process.env.VUE_APP_PROJECT === 'LITE') return
-      const testFiles = await getTestFileByTestPlan(this.selectedProjectId, issueId)
+      if (import.meta.env.VITE_APP_PROJECT === 'LITE') return
+      const testFiles = await getTestFileByTestPlan(
+        this.selectedProjectId,
+        issueId
+      )
       return testFiles.data
     },
     async getIssueFamilyData(chartIssueList) {
@@ -497,25 +567,41 @@ export default {
       Object.keys(family).forEach((relationType) => {
         if (!this.form.hasRelation && relationType === 'relations') return
         if (!this.form.allRelation && relationType === 'parent') return
-        if (!Array.isArray(family[relationType])) {
+        if (!family[relationType]) return
+        if (family[relationType] && !Array.isArray(family[relationType])) {
           family[relationType] = [family[relationType]]
         }
         family[relationType] = family[relationType].filter(
           (item) => !(item.status_id === close && item.tracker_id === bug)
         )
-        family[relationType] = this.formatFamilyList(issue, family[relationType], relationType)
+        family[relationType] = this.formatFamilyList(
+          issue,
+          family[relationType],
+          relationType
+        )
         if (family.hasOwnProperty(relationType)) {
           familyList = familyList.concat(family[relationType])
         }
       })
-      familyList = familyList.filter((item) => !this.accessedIssueId.includes(item.id))
+      familyList = familyList.filter(
+        (item) => !this.accessedIssueId.includes(item.id)
+      )
       return Promise.resolve(familyList)
     },
     formatFamilyList(issue, family, relationTarget) {
-      return family.map((item) => ({ ...item, relation_type: relationTarget, relation_id: issue.id }))
+      return family.map((item) => ({
+        ...item,
+        relation_type: relationTarget,
+        relation_id: issue.id
+      }))
     },
     editNode(nodeId) {
-      if (this.$route.name === 'IssueDetail' && parseInt(nodeId) === this.accessedIssueId[0]) return
+      if (
+        this.$route.name === 'IssueDetail' &&
+        parseInt(nodeId) === this.accessedIssueId[0]
+      ) {
+        return
+      }
       this.onRelationIssueDialog(nodeId)
     },
     handleRelationUpdate(nodeId) {
@@ -538,21 +624,26 @@ export default {
     },
     handleRelationIssueDialogBeforeClose(done) {
       if (this.$refs.children.hasUnsavedChanges()) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        ).then(() => {
+          done()
         })
-          .then(() => {
-            done()
-          })
       } else {
         done()
       }
     },
     downloadSVG() {
       try {
-        const svg = document.getElementById('mermaid').getElementsByTagName('svg')[0]
+        const svg = document
+          .getElementById('mermaid')
+          .getElementsByTagName('svg')[0]
         const htmls = svg.getElementsByClassName('nodeLabel')
         for (const html of htmls) {
           html.style = 'font-size:0.8em'
@@ -560,7 +651,8 @@ export default {
         const serializer = new XMLSerializer()
         let source = serializer.serializeToString(svg)
         source = '<?xml version="1.0" standalone="no"?>\r\n' + source
-        const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source)
+        const url =
+          'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source)
         const downloadLink = document.createElement('a')
         downloadLink.href = url
         downloadLink.download = `TraceabilityMatrix_${getLocalTime(Date.now())}`

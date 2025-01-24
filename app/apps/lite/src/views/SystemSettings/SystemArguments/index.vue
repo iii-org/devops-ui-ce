@@ -12,7 +12,7 @@
           <em v-if="isMobile" class="ri-tools-line text-xl align-middle"></em>
           <span v-else>{{ $t('System.SystemConfigs') }}</span>
         </span>
-        <SystemConfigs ref="configs" />
+        <SystemConfigs ref="configs" v-if="activeName === 'configs'" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -20,12 +20,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import SystemConfigs from './components/SystemConfigs'
 
 export default {
   name: 'SystemArguments',
   components: {
-    SystemConfigs
+    SystemConfigs: () => import('./components/SystemConfigs')
   },
   data() {
     return {
@@ -42,7 +41,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 /* To make el-tab content fill space, or table will not expand */
@@ -60,8 +59,14 @@ export default {
   &:hover {
     color: $linkTextColor;
   }
-  &.is-active{
-    color: $linkTextColor !important;
+  &.is-active {
+    background-color: $linkTextColor;
+    color: #fff !important;
+    border-radius: 4px;
+  }
+  &.is-left {
+    margin-right: 10px;
+    text-align: left;
   }
 }
 
@@ -81,7 +86,7 @@ export default {
   @include background-border-color($linkTextColor, $linkTextColor);
 }
 
-::v-deep .el-radio__input.is-checked+.el-radio__label {
+::v-deep .el-radio__input.is-checked + .el-radio__label {
   color: $linkTextColor;
 }
 
@@ -104,7 +109,7 @@ export default {
     width: 100%;
     padding: 0;
   }
-  ::v-deep .el-tabs__item{
+  ::v-deep .el-tabs__item {
     padding: 0 12px !important;
     height: 50px;
   }

@@ -3,7 +3,7 @@
     <div class="container">
       <el-card shadow="never">
         <template v-for="condition in filterColumnOptions">
-          <div v-if="!isForceParent" :key="condition.id">
+          <div :key="condition.id">
             <div class="title">
               <span>
                 <el-divider direction="vertical" />
@@ -12,16 +12,24 @@
             </div>
             <el-radio-group
               v-model="conditionOption[condition.value]"
-              size="small"
               class="radio-group"
-              @change="onUpdate(condition.value + '_id', conditionOption[condition.value])"
+              size="small"
+              @change="
+                onUpdate(
+                  condition.value + '_id',
+                  conditionOption[condition.value]
+                )
+              "
             >
               <el-col class="settings">
                 <el-radio
                   v-for="option in getOptionsData(condition.value)"
                   :key="option.id"
                   v-permission="permission"
-                  :disabled="option.disabled || getContextMenuCurrentValue(condition, option)"
+                  :disabled="
+                    option.disabled ||
+                      getContextMenuCurrentValue(condition, option)
+                  "
                   :label="option.id"
                   :value="option.id"
                   border
@@ -33,7 +41,7 @@
             <el-divider />
           </div>
         </template>
-        <div v-if="!(row.has_children || isForceParent)">
+        <div v-if="!row.has_children">
           <div class="title">
             <span>
               <el-divider direction="vertical" />
@@ -42,13 +50,15 @@
           </div>
           <el-slider
             v-model="conditionOption['done_ratio']"
-            @change="onUpdate('done_ratio', {id: conditionOption['done_ratio']})"
+            @change="
+              onUpdate('done_ratio', { id: conditionOption['done_ratio'] })
+            "
           />
         </div>
       </el-card>
       <el-button
-        class="button-primary"
-        style="width:100%; margin-top: 10px;"
+        style="width: 100%; margin-top: 10px"
+        type="primary"
         @click="advancedAddIssue(true)"
       >
         {{ $t('Issue.CopyIssue') }}
@@ -56,34 +66,31 @@
     </div>
     <el-dialog
       v-if="row.project"
-      :visible.sync="addTopicDialogVisible"
-      :show-close="false"
       :close-on-click-modal="false"
       :modal-append-to-body="false"
-      :width="device === 'desktop' ? '50%' : '100%'"
+      :show-close="false"
       :top="device === 'desktop' ? '5px' : '0px'"
-      destroy-on-close
+      :visible.sync="addTopicDialogVisible"
+      :width="device === 'desktop' ? '50%' : '100%'"
       append-to-body
+      destroy-on-close
     >
       <template slot="title">
-        <el-row slot="title" type="flex" align="middle">
-          <el-col :xs="24" :md="16">
+        <el-row slot="title" align="middle" type="flex">
+          <el-col :md="16" :xs="24">
             <span class="text-title">
               {{ $t('Issue.AddIssue') }}
             </span>
           </el-col>
-          <el-col :xs="24" :md="8" class="text-right">
+          <el-col :md="8" :xs="24" class="text-right">
             <el-button
-              v-if="parentId!==0"
-              class="button-primary"
+              v-if="parentId !== 0"
+              type="primary"
               @click="handleAdvancedImport"
             >
               {{ $t('Issue.ImportParentIssueData') }}
             </el-button>
-            <el-button
-              class="button-secondary-reverse"
-              @click="handleCloseDialog()"
-            >
+            <el-button @click="handleCloseDialog()">
               {{ $t('general.Close') }}
             </el-button>
           </el-col>
@@ -92,18 +99,25 @@
       <AddIssue
         v-if="addTopicDialogVisible"
         ref="AddIssue"
-        :project-id="row.project.id"
         :parent-id="parentId"
-        :parent-name="parentName"
+        :parent-subject="parentSubject"
         :prefill="form"
+        :project-id="row.project.id"
         :save-data="saveIssue"
-        @has-children="hasChildren"
         @loading="loadingUpdate"
+        @has-children="hasChildren"
         @add-topic-visible="handleCloseDialog"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button id="dialog-btn-cancel" class="button-secondary-reverse" @click="handleAdvancedClose">{{ $t('general.Cancel') }}</el-button>
-        <el-button id="dialog-btn-confirm" :loading="loadingConfirm" class="button-primary" @click="handleAdvancedSave">
+        <el-button id="dialog-btn-cancel" @click="handleAdvancedClose">{{
+          $t('general.Cancel')
+        }}</el-button>
+        <el-button
+          id="dialog-btn-confirm"
+          :loading="loadingConfirm"
+          type="primary"
+          @click="handleAdvancedSave"
+        >
           {{ $t('general.Confirm') }}
         </el-button>
       </span>
@@ -112,16 +126,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { getProjectUserList } from '@/api/projects'
-import { addIssue, getCheckIssueClosable, updateIssue } from '@/api/issue'
-import { getIssueForceTracker } from '@/api_v2/issue'
+import { checkIssueClosable, updateIssue } from '@/api_v3/issues'
+import { createProjectIssue, getProjectUserList } from '@/api_v3/projects'
 import { cloneDeep } from 'lodash'
-import { AddIssue } from './'
+import { mapGetters } from 'vuex'
 
 const getAPI = {
-  assigned_to: [getProjectUserList, 'user_list'],
-  forceTracker: [getIssueForceTracker, 'need_fatherissue_trackers']
+  assigned: [getProjectUserList]
 }
 
 const rowFormData = () => ({})
@@ -129,12 +140,15 @@ const rowFormData = () => ({})
 export default {
   name: 'DrawerMenu',
   components: {
-    AddIssue
+    AddIssue: () => import('./AddIssue')
   },
   props: {
     row: {
       type: Object,
-      default: () => ({ fixed_version: { id: 'null' }, assigned_to: { id: 'null' }})
+      default: () => ({
+        version: { id: 'null' },
+        assigned: { id: 'null' }
+      })
     },
     visible: {
       type: Boolean,
@@ -147,25 +161,34 @@ export default {
       content: this.$t('Kanban.assignedErrorContent')
     }
     this.filterColumnOptions = Object.freeze([
-      { id: 1, label: this.$t('Issue.FilterDimensions.status'), value: 'status', placeholder: 'Status', tag: true },
-      { id: 2, label: this.$t('Issue.FilterDimensions.assigned_to'), value: 'assigned_to', placeholder: 'Member' }
+      {
+        id: 1,
+        label: this.$t('Issue.FilterDimensions.status'),
+        value: 'status',
+        placeholder: 'Status',
+        tag: true
+      },
+      {
+        id: 2,
+        label: this.$t('Issue.FilterDimensions.assigned'),
+        value: 'assigned',
+        placeholder: 'Member'
+      }
     ])
     return {
       checkClosable: false,
-      assigned_to: [],
+      assigned: [],
       addTopicDialogVisible: false,
       loadingConfirm: false,
       parentId: 0,
-      parentName: null,
+      parentSubject: null,
       form: {},
       originForm: {},
       showAlert: false,
       errorMsg: [],
-      forceTracker: [],
-      enableForceTracker: false,
       conditionOption: {
         status: null,
-        assigned_to: null,
+        assigned: null,
         done_ratio: null
       }
     }
@@ -179,7 +202,7 @@ export default {
     ]),
     conditionOptions() {
       const result = {}
-      const getOptions = ['assigned_to']
+      const getOptions = ['assigned']
       getOptions.forEach((item) => {
         result[item] = this[item]
       })
@@ -194,25 +217,24 @@ export default {
     },
     checkIssueAssignedToStatus() {
       return (
-        !this.row.assigned_to ||
-        !this.row.assigned_to.id ||
-        this.row.assigned_to.id === '' ||
-        this.row.assigned_to.id === 'null'
+        !this.row.assigned ||
+        !this.row.assigned.id ||
+        this.row.assigned.id === '' ||
+        this.row.assigned.id === 'null'
       )
     },
     permission() {
-      return ['Administrator', 'Project Manager', 'Engineer']
-    },
-    isForceParent() {
-      if (!this.enableForceTracker || !this.row.id) return false
-      return this.forceTracker.findIndex((tracker) => tracker.id === this.row.tracker.id) !== -1 && !this.row.has_father
+      return ['sysadmin', 'Organization Owner', 'Project Manager', 'Engineer']
     }
   },
   watch: {
     row: {
       deep: true,
       async handler() {
-        if (Object.keys(this.row).length > 2 && this.conditionOptions['assigned_to']) {
+        if (
+          Object.keys(this.row).length > 2 &&
+          this.conditionOptions['assigned']
+        ) {
           await this.initOptions()
           await this.loadProjectSelectionList(this.fixedVersionShowClosed)
         } else {
@@ -225,7 +247,10 @@ export default {
     }
   },
   async mounted() {
-    if (Object.keys(this.row).length > 2 && Object.keys(this.conditionOptions).length > 0) {
+    if (
+      Object.keys(this.row).length > 2 &&
+      Object.keys(this.conditionOptions).length > 0
+    ) {
       await this.initOptions()
       await this.loadProjectSelectionList(this.fixedVersionShowClosed)
     } else {
@@ -235,7 +260,7 @@ export default {
       if (item === 'done_ratio') {
         this.conditionOption[item] = this.row[item] || 0
       } else {
-        this.conditionOption[item] = this.row[item].id
+        this.conditionOption[item] = this.row[item]?.id
       }
     })
   },
@@ -253,32 +278,41 @@ export default {
     async loadSelectionList() {
       await this.loadProjectSelectionList(this.fixedVersionShowClosed, true)
     },
-    async loadProjectSelectionList(fixed_version, assigned_to) {
-      let params = { status: 'open,locked' }
-      if (fixed_version) {
-        params = { status: 'open,locked,closed' }
-      }
+    async loadProjectSelectionList(version) {
       Object.keys(getAPI).forEach((key) => {
+        let params = {}
+        if (key === 'version') {
+          params = version
+            ? { status: 'open,locked,closed' }
+            : { status: 'open,locked' }
+        }
         this.loadSelection(key, params, [key])
       })
     },
     async loadSelection(column, params, lazyLoad) {
       if (lazyLoad) {
-        const projectId =
-          Object.prototype.hasOwnProperty.call(this.row, 'project')
-            ? this.row.project.id : this.selectedProjectId
-        if (projectId >= 0) {
+        const projectId = Object.prototype.hasOwnProperty.call(
+          this.row,
+          'project'
+        )
+          ? this.row.project.id
+          : this.selectedProjectId
+        if (projectId) {
           const res = await getAPI[column][0](projectId, params)
           switch (column) {
-            case 'assigned_to':
+            case 'assigned':
               this[column] = [
-                { name: this.$t('Issue.Unassigned'), id: 'null', login: 'null' },
-                ...res.data[getAPI[column][1]]
+                {
+                  name: this.$t('Issue.Unassigned'),
+                  id: 'null',
+                  username: 'null'
+                },
+                ...res.data.map((item) => ({
+                  name: item.full_name,
+                  id: item.id,
+                  username: item.username
+                }))
               ]
-              break
-            case 'forceTracker':
-              this[column] = [...res.data[getAPI[column][1]]]
-              this.enableForceTracker = res.data.enable
               break
             default:
               this[column] = res.data[getAPI[column][1]]
@@ -287,11 +321,11 @@ export default {
       }
     },
     async getClosable() {
-      const closable = await getCheckIssueClosable(this.row.id)
+      const closable = await checkIssueClosable(this.row.id)
       this.$set(this, 'checkClosable', closable.data)
     },
     getId(option, item) {
-      if (option === 'assigned_to') return item.login
+      if (option === 'assigned') return item.username
       return item.id
     },
     getDynamicStatusList() {
@@ -308,41 +342,40 @@ export default {
         item.disabled = true
         item.message = '(' + this.$t('Issue.ChildrenNotClosed') + ')'
       }
-      if (this.checkIssueAssignedToStatus && item.id > 1) {
+      if (this.checkIssueAssignedToStatus && item.id !== 1 && item.id !== 6) {
         item.disabled = true
         item.message = '(' + this.$t('Issue.NoAssignee') + ')'
       }
-      if (this.row.assigned_to.id && item.id === 1) {
+      if (this.row.assigned?.id && item.id === 1) {
         item.disabled = true
         item.message = '(' + this.$t('Issue.HasAssignee') + ')'
       }
       return item
     },
-    getFormData(data) {
-      const formData = new FormData()
-      Object.keys(data).forEach((item) => {
-        formData.append(item, data[item])
-      })
-      return formData
-    },
     async onUpdate(column, item) {
       if (column !== 'done_ratio') {
-        item = this[column.replace('_id', '')].find((option) => option.id === item)
+        item = this[column.replace('_id', '')].find(
+          (option) => option.id === item
+        )
       }
-      if (this.row.assigned_to && this.row.assigned_to.name && item.name === 'Active') {
+      if (
+        this.row.assigned &&
+        this.row.assigned.name &&
+        item.name === 'Active'
+      ) {
         const error = 'assignedError'
         this.handleErrorAlert(error)
         this.showErrorAlert(this.errorMsg)
         return
       }
       try {
-        let data = { [column]: item.id }
-        if (column === 'assigned_to_id') {
-          data = this.setStatusId(column, item.id, data)
+        let sendData = { [column]: item.id }
+        if (column === 'assigned_id') {
+          sendData = this.setStatusId(column, item.id, sendData)
         }
-        const formData = this.getFormData(data)
-        const res = await updateIssue(this.row.id, formData)
-        this.row[column.replace('_id', '')] = res.data[column.replace('_id', '')]
+        const res = await updateIssue(this.row.id, sendData)
+        this.row[column.replace('_id', '')] =
+          res.data[column.replace('_id', '')]
         this.$emit('update')
         this.$emit('update-card', this.row.id)
       } catch (e) {
@@ -364,14 +397,18 @@ export default {
       const h = this.$createElement
       if (!this.showAlert) {
         this.showAlert = true
-        this.$msgbox({ message: h('ul', errorMsg), title: this.$t('Kanban.ChangeIssueError') }).then(() => {
+        this.$msgbox({
+          message: h('ul', errorMsg),
+          title: this.$t('Kanban.ChangeIssueError')
+        }).then(() => {
           this.showAlert = false
         })
       }
       this.errorMsg = []
     },
     setStatusId(column, id, data) {
-      if (this.row.status.id === 1 && id) { // change status to assigned if user add assignee
+      if (this.row.status.id === 1 && id) {
+        // change status to assigned if user add assignee
         data = {
           [column]: id,
           status_id: 2
@@ -381,9 +418,18 @@ export default {
     },
     getSelectionLabel(item) {
       const visibleStatus = ['closed', 'locked']
-      let result = this.$te('Issue.' + item.name) ? this.$t('Issue.' + item.name) : item.name
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
-        result += ` (${this.$te('Issue.' + item.status) ? this.$t('Issue.' + item.status) : item.status})`
+      let result = this.$te('Issue.' + item.name)
+        ? this.$t('Issue.' + item.name)
+        : item.name
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
+        result += ` (${
+          this.$te('Issue.' + item.status)
+            ? this.$t('Issue.' + item.status)
+            : item.status
+        })`
       }
       return result
     },
@@ -393,9 +439,13 @@ export default {
       }
       if (!this.row[column.value]) return item.id === 'null'
       if (Array.isArray(this.row[column.value])) {
-        return this.row[column.value].map((subItem) => subItem.id).includes(item.id)
+        return this.row[column.value]
+          .map((subItem) => subItem.id)
+          .includes(item.id)
       }
-      if (!this.row[column.value].id) return item.id ? item.id === 'null' : false
+      if (!this.row[column.value].id) {
+        return item.id ? item.id === 'null' : false
+      }
       return this.row[column.value].id === item.id
     },
     handleAdvancedImport() {
@@ -415,9 +465,9 @@ export default {
     setFormData(data, copy) {
       const {
         project,
-        assigned_to,
-        fixed_version,
-        name,
+        assigned,
+        version,
+        subject,
         tracker,
         status,
         priority,
@@ -429,9 +479,12 @@ export default {
       } = data
       this.form = {}
       this.form.project_id = project ? project.id : ''
-      this.form.assigned_to_id = assigned_to ? assigned_to.id : ''
-      this.form.name = (copy && this.parentId === 0) ? name + ' (' + this.$t('Issue.Copy') + ')' : name
-      this.form.fixed_version_id = fixed_version ? fixed_version.id : ''
+      this.form.assigned_id = assigned ? assigned.id : ''
+      this.form.subject =
+        copy && this.parentId === 0
+          ? subject + ' (' + this.$t('Issue.Copy') + ')'
+          : subject
+      this.form.version_id = version ? version.id : ''
       this.form.tracker_id = tracker.id
       this.form.status_id = status.id
       this.form.priority_id = priority.id
@@ -445,12 +498,12 @@ export default {
     advancedAddIssue(copy) {
       if (copy) {
         this.parentId = 0
-        this.parentName = null
+        this.parentSubject = null
         this.setFormData(this.row, copy)
       } else {
         this.form = Object.assign({}, rowFormData())
         this.parentId = this.row.id
-        this.parentName = this.row.name
+        this.parentSubject = this.row.subject
       }
       this.addTopicDialogVisible = true
       this.$emit('close')
@@ -460,37 +513,37 @@ export default {
     },
     async saveIssue(data) {
       this.loadingConfirm = true
-      const res = await addIssue(data)
+      const res = await createProjectIssue(data.project_id, data)
       this.$emit('backToFirstPage')
-      this.$emit('update', Number(data.get('assigned_to_id')))
+      this.$emit('update', Number(data.get('assigned_id')))
       this.addTopicDialogVisible = false
       this.loadingConfirm = false
       return res
     }
-    // isHiddenFormItem(condition) {
-    //   const isHideDoneRatio = condition.value === 'done_ratio' && (this.row.has_children || this.isForceParent)
-    //   const isHideAssignedToSelect = condition.value === 'assigned_to' && this.activeTab === 'assigned_to_id'
-    //   return isHideDoneRatio || isHideAssignedToSelect
-    // }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .container {
   padding: 20px;
   max-width: 768px;
+
   ::v-deep .el-divider {
-    background-color: #EBEEF5;
+    background-color: #ebeef5;
   }
-  ::v-deep .el-card__body, .el-main {
+
+  ::v-deep .el-card__body,
+  .el-main {
     padding: 10px;
   }
+
   .title {
     margin-bottom: 10px;
+
     ::v-deep .el-divider--vertical {
       width: 6px;
       margin: 0;
@@ -498,15 +551,19 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     ::v-deep .el-tag--small {
       height: 25px;
     }
+
     ::v-deep .el-button--small {
       padding: 5px 10px;
     }
+
     ::v-deep .el-checkbox__label {
       font-size: 12px;
     }
+
     .text {
       font-size: 15px;
       font-weight: bold;
@@ -514,44 +571,60 @@ export default {
       vertical-align: middle;
     }
   }
+
   .radio-group {
     display: grid;
+
     .settings::-webkit-scrollbar {
       display: none; /* Chrome, Safari, Opera*/
     }
+
     .settings {
       max-width: 768px;
       margin: 0 auto;
       display: grid;
       gap: 6px;
       overflow-x: auto;
-      -ms-overflow-style: none;  /* IE and Edge */
+      -ms-overflow-style: none; /* IE and Edge */
       scrollbar-width: none; /* Firefox */
       ::v-deep .el-radio.is-bordered {
         margin-left: 0;
         margin-right: 0;
         // width: 140px;
       }
+
       ::v-deep .el-radio__label {
         padding-left: 2px;
       }
     }
   }
+
   .save {
     margin-top: 12px;
   }
 }
 
 @include mobile {
-  .settings { grid-template-columns: repeat(2, 1fr); }
+  .settings {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
 @include tablet-1 {
-  .settings { grid-template-columns: repeat(3, 1fr); }
+  .settings {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
+
 @include tablet-2 {
-  .settings { grid-template-columns: repeat(4, 1fr); }
+  .settings {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
+
 @include tablet-3 {
-  .settings { grid-template-columns: repeat(5, 1fr); }
+  .settings {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 </style>

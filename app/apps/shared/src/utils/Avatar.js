@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import md5 from 'crypto-js/md5'
 const backgroundColors = [
   '#479edc', '#2fc7c9', '#5AB1EF', '#a57548', '#2EC7C9',
   '#C6B38E', '#B6A2DE', '#8D98B3', '#5f6769', '#005f73',
@@ -42,9 +42,6 @@ export function generateAvatarUrl (username, emailAddress, size = 80) {
   const defaultImage = encodeURIComponent(
     `https://ui-avatars.com/api/${processedName}/${size}/${backgroundColor(username).replace('#', '')}/${fontColor(username).replace('#', '')}`
   )
-  const emailHash = crypto
-    .createHash('md5')
-    .update(emailAddress)
-    .digest('hex')
+  const emailHash = md5(emailAddress.trim().toLowerCase()).toString()
   return `https://www.gravatar.com/avatar/${emailHash}?d=${defaultImage}&s=${size}`
 }

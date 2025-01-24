@@ -1,10 +1,7 @@
-// https://github.com/michael-ciniawsky/postcss-load-config
-const autoprefixer = require('autoprefixer')
-const tailwindcss = require('tailwindcss')
-
 module.exports = {
-  plugins: [
-    tailwindcss,
-    autoprefixer
-  ]
+  plugins: {
+    'postcss-import': {},
+    tailwindcss: {},
+    autoprefixer: {}
+  }
 }

@@ -1,24 +1,29 @@
 <template>
   <el-dialog
+    :close-on-click-modal="false"
     :title="$t(`Version.${dialogStatusText}Version`)"
     :visible.sync="dialogVisible"
-    :close-on-click-modal="false"
     :width="isMobile ? '95%' : '50%'"
-    top="3vh"
     append-to-body
+    top="3vh"
     @closed="onDialogClosed"
   >
-    <el-form ref="versionForm" :model="form" :rules="formRules" label-position="top">
+    <el-form
+      ref="versionForm"
+      :model="form"
+      :rules="formRules"
+      label-position="top"
+    >
       <el-form-item :label="$t('general.Name')" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
-      <el-form-item :label="$t('general.DueDate')" prop="due_date">
+      <el-form-item :label="$t('general.DueDate')" prop="effective_date">
         <el-date-picker
-          v-model="form.due_date"
-          type="date"
+          v-model="form.effective_date"
           :placeholder="$t('Version.EndDate')"
-          value-format="yyyy-MM-dd"
           style="width: 100%"
+          type="date"
+          value-format="yyyy-MM-dd"
         />
       </el-form-item>
       <el-form-item :label="$t('general.Status')" prop="status">
@@ -33,10 +38,14 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button class="button-secondary-reverse" @click="dialogVisible = false">
+      <el-button @click="dialogVisible = false">
         {{ $t('general.Cancel') }}
       </el-button>
-      <el-button class="button-primary" :loading="btnConfirmLoading" @click="handleConfirm">
+      <el-button
+        :loading="btnConfirmLoading"
+        type="primary"
+        @click="handleConfirm"
+      >
         {{ $t('general.Confirm') }}
       </el-button>
     </span>
@@ -44,12 +53,12 @@
 </template>
 
 <script>
-import { addProjectVersion, editProjectVersion } from '@/api/projects'
+import { createProjectVersion, updateProjectVersion } from '@/api_v3/projects'
 import { mapGetters } from 'vuex'
 
 const formTemplate = () => ({
   name: '',
-  due_date: '',
+  effective_date: '',
   status: 'open',
   description: ''
 })
@@ -62,9 +71,27 @@ export default {
       dialogStatus: 1,
       form: formTemplate(),
       formRules: {
-        name: [{ required: true, message: 'Please input name', trigger: 'blur' }],
-        due_date: [{ required: true, message: 'Please input due_date', trigger: 'blur' }],
-        status: [{ required: true, message: 'Please select status', trigger: 'blur' }]
+        name: [
+          {
+            required: true,
+            message: 'Please input name',
+            trigger: 'blur'
+          }
+        ],
+        effective_date: [
+          {
+            required: true,
+            message: 'Please input effective date',
+            trigger: 'blur'
+          }
+        ],
+        status: [
+          {
+            required: true,
+            message: 'Please select status',
+            trigger: 'blur'
+          }
+        ]
       },
       btnConfirmLoading: false
     }
@@ -93,19 +120,19 @@ export default {
       })
     },
     async handleConfirm() {
-      this.$refs['versionForm'].validate(async valid => {
+      this.$refs['versionForm'].validate(async (valid) => {
         if (valid) {
           const data = this.form
           this.btnConfirmLoading = true
           if (this.dialogStatus === 1) {
-            await addProjectVersion(this.selectedProject.id, { version: data })
+            await createProjectVersion(this.selectedProject.id, data)
             this.$message({
               title: this.$t('general.Success'),
               message: this.$t('Notify.Added'),
               type: 'success'
             })
           } else {
-            await editProjectVersion(this.selectedProject.id, this.form.id, { version: data })
+            await updateProjectVersion(this.form.id, data)
             this.$message({
               title: this.$t('general.Success'),
               message: this.$t('Notify.Updated'),

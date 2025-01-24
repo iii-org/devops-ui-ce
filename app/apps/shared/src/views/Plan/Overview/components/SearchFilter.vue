@@ -1,9 +1,6 @@
 <template>
   <div>
-    <el-popover
-      placement="bottom"
-      trigger="click"
-    >
+    <el-popover placement="bottom" trigger="click">
       <el-form>
         <el-form-item :label="$t('Version.Version')">
           <el-select
@@ -27,7 +24,9 @@
           <el-select
             v-model="selectedExpiredStatus"
             :disabled="isLoading"
-            :placeholder="$t('RuleMsg.PleaseSelect') + $t('general.ExpiredStatus')"
+            :placeholder="
+              $t('RuleMsg.PleaseSelect') + $t('general.ExpiredStatus')
+            "
             clearable
             filterable
             @change="onBlurSelect"
@@ -43,20 +42,21 @@
       </el-form>
       <el-button
         slot="reference"
-        icon="el-icon-s-operation"
         class="header-text-color"
+        icon="el-icon-s-operation"
         type="text"
       >
         {{ displayFilterValue }}
-        <em class="el-icon-arrow-down el-icon--right" />
+        <em class="el-icon-arrow-down el-icon--right"></em>
       </el-button>
     </el-popover>
     <template v-if="isFilterChanged">
       <el-divider direction="vertical" />
       <el-button
-        class="button-secondary-reverse"
-        size="small"
         icon="el-icon-close"
+        plain
+        size="small"
+        type="warning"
         @click="clearSelect"
       >
         {{ $t('Issue.CleanFilter') }}
@@ -107,16 +107,21 @@ export default {
     displayFilterValue() {
       const filterWord = []
       if (this.selectedVersion) {
-        filterWord.push(this.getSelectionLabel(
-          this.versionList.find((item) => (item.id === this.selectedVersion))
-        ))
+        filterWord.push(
+          this.getSelectionLabel(
+            this.versionList.find((item) => item.id === this.selectedVersion)
+          )
+        )
       }
       if (this.selectedExpiredStatus) {
         filterWord.push(
-          this.expiredStatusList.find((item) => (item.value === this.selectedExpiredStatus)).label
+          this.expiredStatusList.find(
+            (item) => item.value === this.selectedExpiredStatus
+          ).label
         )
       }
-      return filterWord.length === 0 ? this.$t('general.Filter')
+      return filterWord.length === 0
+        ? this.$t('general.Filter')
         : this.$t('general.Filter') + `: ${filterWord.concat()}`
     },
     isFilterChanged() {
@@ -131,9 +136,19 @@ export default {
   methods: {
     getSelectionLabel(item) {
       const visibleStatus = ['closed', 'locked']
-      let result = this.$te('Issue.' + item.name) ? this.$t('Issue.' + item.name) : item.name
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
-        result += ' (' + (this.$te('Issue.' + item.status) ? this.$t('Issue.' + item.status) : item.status) + ')'
+      let result = this.$te('Issue.' + item.name)
+        ? this.$t('Issue.' + item.name)
+        : item.name
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
+        result +=
+          ' (' +
+          (this.$te('Issue.' + item.status)
+            ? this.$t('Issue.' + item.status)
+            : item.status) +
+          ')'
       }
       return result
     },

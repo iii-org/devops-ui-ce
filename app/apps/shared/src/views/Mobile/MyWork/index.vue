@@ -1,11 +1,7 @@
 <template>
   <div>
     <el-tabs v-model="activeTab">
-      <el-tab-pane
-        v-for="tab in tabs"
-        :key="tab.id"
-        :name="tab.id"
-      >
+      <el-tab-pane v-for="tab in tabs" :key="tab.id" :name="tab.id">
         <span slot="label">
           <span>{{ $t(`MyWork.${tab.name}`) }}</span>
           <span class="font-bold">
@@ -15,27 +11,29 @@
         <div class="filter-selected">
           <span>{{ filterSelected }}</span>
           <span v-if="filterSelected !== '' && keyword !== ''">; </span>
-          <span>{{ keyword !== '' ? $t('general.Search') + ': ' + keyword : '' }}</span>
+          <span>{{
+            keyword !== '' ? $t('general.Search') + ': ' + keyword : ''
+          }}</span>
           <el-button
             v-if="filterSelected !== '' || keyword !== ''"
-            size="small"
             icon="el-icon-close"
+            size="small"
             type="text"
             @click="clearFilter"
           />
         </div>
         <Card
           :ref="tab.id"
-          :from="tab.id"
-          :project-id="projectId"
-          :filter-conditions-props.sync="filterConditions"
           :display-closed-props="displayClosedIssue"
+          :filter-conditions-props.sync="filterConditions"
+          :from="tab.id"
           :keyword-props="keyword"
-          :show-quick-add-issue="showQuickAddIssue"
           :list-data-props="listData"
-          @list-data="setListData"
-          @update="updateIssueTables"
+          :project-id="projectId"
+          :show-quick-add-issue="showQuickAddIssue"
           @total="updateTotalCount(tab.id, $event)"
+          @update="updateIssueTables"
+          @list-data="setListData"
         />
       </el-tab-pane>
     </el-tabs>
@@ -44,11 +42,10 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { Card } from './components'
 
 export default {
   name: 'MyWorkMobile',
-  components: { Card },
+  components: { Card: () => import('./components/Card') },
   props: {
     listData: {
       type: Object,
@@ -56,7 +53,7 @@ export default {
     },
     fromProps: {
       type: String,
-      default: 'assigned_to_id'
+      default: 'assigned'
     },
     projectIdProps: {
       type: [String, Number],
@@ -86,9 +83,9 @@ export default {
   data() {
     return {
       tabs: [
-        { id: 'assigned_to_id', name: 'AssignedToMe', count: '-' },
-        { id: 'author_id', name: 'ReportedIssue', count: '-' },
-        { id: 'watcher_id', name: 'WatcherList', count: '-' }
+        { id: 'assigned', name: 'AssignedToMe', count: '-' },
+        { id: 'author', name: 'ReportedIssue', count: '-' },
+        { id: 'watch', name: 'WatcherList', count: '-' }
       ],
       showQuickAddIssue: false
     }
@@ -156,7 +153,9 @@ export default {
       handler(id) {
         this.setStoredData('workProjectId', id)
         if (id) {
-          this.setSelectedProject(this.projectOptions.find((elm) => elm.id === id))
+          this.setSelectedProject(
+            this.projectOptions.find((elm) => elm.id === id)
+          )
           localStorage.setItem('projectId', id)
         } else {
           this.clearFilter()
@@ -164,7 +163,9 @@ export default {
           sessionStorage.removeItem('workProjectId')
           return
         }
-        const projectName = this.projectOptions.find((elm) => elm.id === id).name
+        const projectName = this.projectOptions.find(
+          (elm) => elm.id === id
+        ).name
         this.clearFilter()
         this.$router.push({ name: this.$route.name, params: { projectName }})
       },
@@ -215,7 +216,9 @@ export default {
       this.tabs.find((tab) => tab.id === tabId).count = $event
     },
     updateIssueTables(assignedToId) {
-      if (assignedToId !== undefined && this.userId !== assignedToId) this.activeTab = 'author_id'
+      if (assignedToId !== undefined && this.userId !== assignedToId) {
+        this.activeTab = 'author'
+      }
       this.tabs.forEach((tab) => {
         this.$refs[tab.id][0].fetchData()
       })
@@ -226,11 +229,9 @@ export default {
         this.getKeyword(),
         this.getDisplayClosed()
       ])
-      const [
-        storedFilterValue,
-        storedKeyword,
-        storedDisplayClosed
-      ] = res.map((item) => item.value)
+      const [storedFilterValue, storedKeyword, storedDisplayClosed] = res.map(
+        (item) => item.value
+      )
       return {
         storedFilterValue,
         storedKeyword,
@@ -245,24 +246,25 @@ export default {
     },
     clearKeyword() {
       this.keyword = ''
-      this.setStoredData('keyword', JSON.stringify({ work: '' }))
+      this.setStoredData('keyword', JSON.stringify({ my_work: '' }))
     },
     clearIssueFilter() {
       this.filterConditions = {}
-      this.setStoredData('issueFilter', JSON.stringify({ work: {}}))
+      this.setStoredData('issueFilter', JSON.stringify({ my_work: {}}))
     },
     clearDisplayClosed() {
       this.displayClosedIssue = false
-      this.setStoredData('displayClosed', JSON.stringify({ work: false }))
+      this.setStoredData('displayClosed', JSON.stringify({ my_work: false }))
     },
     clearDisplayClosedVersion() {
       this.displayClosedVersion = false
       this.setStoredData('displayClosedVersion', false)
     },
     async onFilterChanged() {
-      const key = 'work'
+      const key = 'my_work'
       const storedData = await this.fetchStoredData()
-      const { storedFilterValue, storedKeyword, storedDisplayClosed } = storedData
+      const { storedFilterValue, storedKeyword, storedDisplayClosed } =
+        storedData
       storedFilterValue[key] = this.filterConditions
       storedKeyword[key] = this.keyword
       storedDisplayClosed[key] = this.displayClosedIssue
@@ -275,9 +277,9 @@ export default {
     },
     setListData() {
       const listData = {
-        assigned_to_id: {},
-        author_id: {},
-        watcher_id: {}
+        assigned: {},
+        author: {},
+        watch: {}
       }
       this.tabs.forEach((tab) => {
         listData[tab.id].data = this.$refs[tab.id][0].listData
@@ -286,7 +288,10 @@ export default {
       this.$emit('list-data', listData)
     },
     handleCellClick(issue) {
-      this.$router.push({ name: 'IssueDetail', params: { issueId: issue.id, project: issue.project }})
+      this.$router.push({
+        name: 'IssueDetail',
+        params: { issueId: issue.id, project: issue.project }
+      })
     },
     scrollToView(value) {
       this.$nextTick(() => {
@@ -301,16 +306,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
+
 ::v-deep .el-tabs__nav-scroll {
   padding: 0 10px !important;
 }
+
 ::v-deep .el-tabs__nav::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera*/
 }
+
 ::v-deep .el-tabs__content {
   color: #303133;
 }
+
 ::v-deep .el-tabs__header {
   position: sticky;
   position: -webkit-sticky;
@@ -327,20 +336,21 @@ export default {
   align-items: center;
   overflow-y: hidden;
   width: 100%; // fallback
-  width: calc(var(--n)*100%);
-  transform: translate(calc(var(--i)/var(--n) * -100%));
+  width: calc(var(--n) * 100%);
+  transform: translate(calc(var(--i) / var(--n) * -100%));
   padding-bottom: 5px;
-  -ms-overflow-style: none;  /* IE and Edge */
+  -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 
   ::v-deep .el-tabs__item {
     width: 100%; // fallback
-    width: calc(100%/var(--n));
+    width: calc(100% / var(--n));
   }
 }
+
 .filter-selected {
   margin: 0 5px;
-  color: #409EFF;
+  color: #409eff;
   font-weight: bold;
   font-size: 12px;
 }

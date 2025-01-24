@@ -1,18 +1,12 @@
 <template>
   <div>
-    <el-row
-      :gutter="10"
-      class="content"
-    >
+    <el-row :gutter="10" class="content">
       <el-col
         v-loading="listLoading || isExportGantt"
         :element-loading-text="$t('Loading')"
         :span="24"
       >
-        <div
-          v-if="listData.length > 0"
-          class="gantt-chart"
-        >
+        <div v-if="listData.length > 0" class="gantt-chart">
           <el-button
             :disabled="isExportGantt"
             :icon="isExportGantt ? 'el-icon-loading' : 'el-icon-full-screen'"
@@ -23,91 +17,83 @@
           </el-button>
           <gantt-elastic
             ref="gantt"
-            :tasks="listData"
             :options="options"
+            :tasks="listData"
             @chart-task-click="onTaskClick"
             @options-changed="styleUpdate"
           >
-            <gantt-header
-              ref="header"
-              slot="header"
-              :options="headerOptions"
-            />
+            <template #header>
+              <gantt-header ref="header" :options="headerOptions" />
+            </template>
           </gantt-elastic>
         </div>
-        <div
-          v-else
-          class="align-middle"
-        >
+        <div v-else class="align-middle">
           <el-alert type="warning">
             <h1>
-              <em class="el-icon-warning" /> {{ $t('general.NoData') }}
+              <em class="el-icon-warning"></em> {{ $t('general.NoData') }}
             </h1>
           </el-alert>
         </div>
       </el-col>
     </el-row>
+    <!--    <el-dialog-->
+    <!--      :close-on-click-modal="false"-->
+    <!--      :title="$t('Issue.AddIssue')"-->
+    <!--      :visible.sync="addTopicDialog.visible"-->
+    <!--      append-to-body-->
+    <!--      destroy-on-close-->
+    <!--      top="5px"-->
+    <!--      width="50%"-->
+    <!--      @close="handleClose"-->
+    <!--    >-->
+    <!--      <AddIssue-->
+    <!--        ref="AddIssue"-->
+    <!--        :parent-id="addTopicDialog.parentId"-->
+    <!--        :parent-subject="addTopicDialog.parentSubject"-->
+    <!--        :project-id="selectedProjectId"-->
+    <!--        :save-data="saveIssue"-->
+    <!--        import-from="list"-->
+    <!--        @loading="loadingUpdate"-->
+    <!--        @add-topic-visible="handleCloseDialog"-->
+    <!--      />-->
+    <!--      <span slot="footer" class="dialog-footer">-->
+    <!--        <el-button-->
+    <!--          id="dialog-btn-cancel"-->
+    <!--          class="button-secondary-reverse"-->
+    <!--          @click="handleAdvancedClose"-->
+    <!--        >{{ $t('general.Cancel') }}</el-button>-->
+    <!--        <el-button-->
+    <!--          id="dialog-btn-confirm"-->
+    <!--          :loading="addTopicDialog.LoadingConfirm"-->
+    <!--          type="primary"-->
+    <!--          @click="handleAdvancedSave"-->
+    <!--        >-->
+    <!--          {{ $t('general.Confirm') }}-->
+    <!--        </el-button>-->
+    <!--      </span>-->
+    <!--    </el-dialog>-->
     <el-dialog
-      :title="$t('Issue.AddIssue')"
-      :visible.sync="addTopicDialog.visible"
-      :close-on-click-modal="false"
-      width="50%"
-      top="5px"
-      destroy-on-close
-      append-to-body
-      @close="handleClose"
-    >
-      <AddIssue
-        ref="AddIssue"
-        :project-id="selectedProjectId"
-        :parent-id="addTopicDialog.parentId"
-        :parent-name="addTopicDialog.parentName"
-        :save-data="saveIssue"
-        import-from="list"
-        @loading="loadingUpdate"
-        @add-topic-visible="handleCloseDialog"
-      />
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          id="dialog-btn-cancel"
-          class="button-secondary-reverse"
-          @click="handleAdvancedClose"
-        >{{ $t('general.Cancel') }}</el-button>
-        <el-button
-          id="dialog-btn-confirm"
-          :loading="addTopicDialog.LoadingConfirm"
-          class="button-primary"
-          @click="handleAdvancedSave"
-        >
-          {{ $t('general.Confirm') }}
-        </el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      :visible.sync="relationIssue.visible"
       :before-close="handleRelationIssueDialogBeforeClose"
-      width="90%"
-      top="3vh"
+      :visible.sync="relationIssue.visible"
       append-to-body
       destroy-on-close
+      top="3vh"
+      width="90%"
     >
       <ProjectIssueDetail
         v-if="relationIssue.visible"
         ref="children"
-        :props-issue-id="relationIssue.id"
         :is-in-dialog="true"
-        @update="handleRelationUpdate"
+        :props-issue-id="relationIssue.id"
         @delete="handleRelationUpdate"
+        @update="handleRelationUpdate"
       />
     </el-dialog>
     <el-dialog
-      :visible.sync="isDownload"
       :append-to-body="false"
-      width="95%"
+      :visible.sync="isDownload"
       top="3vh"
+      width="95%"
       @closed="isDownload = false"
     >
       <template slot="title">
@@ -121,33 +107,35 @@
         </el-button>
       </template>
       <gantt-elastic
-        v-loading="listLoading || isExportGantt"
         ref="ganttDownload"
-        :tasks="listData"
+        v-loading="listLoading || isExportGantt"
         :options="optionsDownload"
+        :tasks="listData"
       />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { camelCase } from 'lodash'
-import { isTimeValid, getLocalTime } from '@shared/utils/handleTime'
-import { getProjectIssueList } from '@/api_v2/projects'
-import { addIssue, getIssueFamily } from '@/api/issue'
-import { CancelRequest } from '@/mixins'
-import { AddIssue } from '@/components/Issue'
-import theme from '@/theme.js'
+import { getIssueFamily } from '@/api_v3/issues'
+import { getProjectIssueList } from '@/api_v3/projects'
+import CancelRequest from '@/mixins/CancelRequest'
+import { getLocalTime, isTimeValid } from '@shared/utils/handleTime'
+import myConfig from '@tailwind'
 import html2canvas from 'html2canvas'
+import { camelCase } from 'lodash'
+import resolveConfig from 'tailwindcss/resolveConfig'
+import { mapGetters } from 'vuex'
+
+const tailwindConfig = resolveConfig(myConfig)
 
 export default {
   name: 'Gantt',
   components: {
-    AddIssue,
+    // AddIssue: () => import('@/components/Issue/AddIssue'),
     ProjectIssueDetail: () => import('@/views/Project/IssueDetail'),
     GanttElastic: () => import('gantt-elastic'),
-    GanttHeader: () => import('gantt-elastic-header')
+    GanttHeader: () => import('./GanttHeader')
   },
   mixins: [CancelRequest],
   props: {
@@ -177,23 +165,83 @@ export default {
     }
   },
   data() {
-    this.bg = Object.freeze(theme.backgroundColor)
+    this.bg = Object.freeze(tailwindConfig.theme.backgroundColor)
     this.calLocale = {
       'zh-TW': {
         name: 'zh-tw',
         weekdays: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
         weekdaysShort: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
         weekdaysMin: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
-        months: ['一月', '二月', '三月', '四月', '五月', '六月', ' 七月', '八月', '九月', '十月', '十一月', '十二月'],
-        monthsShort: ['一月', '二月', '三月', '四月', '五月', '六月', ' 七月', '八月', '九月', '十月', '十一月', '十二月']
+        months: [
+          '一月',
+          '二月',
+          '三月',
+          '四月',
+          '五月',
+          '六月',
+          ' 七月',
+          '八月',
+          '九月',
+          '十月',
+          '十一月',
+          '十二月'
+        ],
+        monthsShort: [
+          '一月',
+          '二月',
+          '三月',
+          '四月',
+          '五月',
+          '六月',
+          ' 七月',
+          '八月',
+          '九月',
+          '十月',
+          '十一月',
+          '十二月'
+        ]
       },
       en: {
         name: 'en',
-        weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        weekdays: [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday'
+        ],
         weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         weekdaysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        months: [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ],
+        monthsShort: [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
+        ]
       }
     }
     return {
@@ -204,12 +252,12 @@ export default {
       status: [],
       priority: [],
       listData: [],
-      addTopicDialog: {
-        visible: false,
-        parentId: 0,
-        parentName: null,
-        LoadingConfirm: false
-      },
+      // addTopicDialog: {
+      //   visible: false,
+      //   parentId: 0,
+      //   parentSubject: null,
+      //   LoadingConfirm: false
+      // },
       relationIssue: {
         visible: false,
         id: null
@@ -275,15 +323,27 @@ export default {
             {
               id: 2,
               label: this.$t('Issue.name'),
-              value: (issue) => `${issue.has_children && issue.children.length === 0
-                ? `<span id="task-icon-${issue.id}" style="font-size: 7px;" class="mr-1">▶</span>` : ''}
+              value: (issue) => `<div class="flex items-center">${
+                issue.has_children && issue.children.length === 0
+                  ? `
+                    <svg id="task-icon-${issue.id}" width="16" height="16" class="mr-3"
+                        style="display: inline-flex; cursor: pointer; margin: auto 0px; box-sizing: border-box; user-select: none;">
+                      <rect x="0.5" y="0.5" width="15" height="15" rx="2" ry="2" class="gantt-elastic__task-list-expander-border"
+                        style="fill: rgba(255, 255, 255, 0.627); stroke: rgba(0, 0, 0, 0.627); stroke-width: 0.5;"></rect>
+                      <line x1="5" y1="8" x2="11" y2="8" class="gantt-elastic__task-list-expander-line"
+                        style="fill: transparent; stroke: rgb(0, 0, 0); stroke-width: 1; stroke-linecap: round;"></line>
+                      <line x1="8" y1="5" x2="8" y2="11" class="gantt-elastic__task-list-expander-line"
+                        style="fill: transparent; stroke: rgb(0, 0, 0); stroke-width: 1; stroke-linecap: round;"></line>
+                    </svg>
+                    `
+                  : ''
+              }
                 <span
                   id="task-name-${issue.id}"
-                  style="${issue.has_children && issue.children.length === 0 ? 'color: #3498db;' : ''};
-                  vertical-align: middle;"
+                  style="vertical-align: middle;"
                 >
-                  ${issue.name}
-                </span>`,
+                  ${issue.subject}
+                </span></div>`,
               width: 200,
               expander: true,
               html: true,
@@ -296,7 +356,10 @@ export default {
             {
               id: 3,
               label: this.$t('Issue.StartDate'),
-              value: (task) => isTimeValid(task.start) ? getLocalTime(task.start, 'YYYY-MM-DD') : null,
+              value: (task) =>
+                isTimeValid(task.start)
+                  ? getLocalTime(task.start, 'YYYY-MM-DD')
+                  : null,
               width: 78,
               style: {
                 'task-list-header-label': {
@@ -310,7 +373,10 @@ export default {
             {
               id: 4,
               label: this.$t('Issue.EndDate'),
-              value: (task) => isTimeValid(task.end) ? getLocalTime(task.end, 'YYYY-MM-DD') : null,
+              value: (task) =>
+                isTimeValid(task.end)
+                  ? getLocalTime(task.end, 'YYYY-MM-DD')
+                  : null,
               width: 78,
               style: {
                 'task-list-header-label': {
@@ -327,7 +393,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userId', 'selectedProject', 'tracker', 'fixedVersionShowClosed', 'device']),
+    ...mapGetters([
+      'userId',
+      'selectedProject',
+      'tracker',
+      'fixedVersionShowClosed',
+      'device'
+    ]),
     selectedProjectId() {
       return this.selectedProject.id
     },
@@ -335,13 +407,19 @@ export default {
       const result = []
       Object.keys(this.filterValue).forEach((item) => {
         if (this.filterValue[item]) {
-          const value = this[item].find((search) => search.id === this.filterValue[item])
+          const value = this[item].find(
+            (search) => search.id === this.filterValue[item]
+          )
           if (value) {
             result.push(this.getSelectionLabel(value))
           }
         }
       })
-      return this.$t('general.Filter') + (result.length > 0 ? ': ' : '') + result.join(', ')
+      return (
+        this.$t('general.Filter') +
+        (result.length > 0 ? ': ' : '') +
+        result.join(', ')
+      )
     },
     isFilterChanged() {
       for (const item of Object.keys(this.originFilterValue)) {
@@ -388,7 +466,12 @@ export default {
     this.loadData()
   },
   beforeDestroy() {
-    if (Object.keys(this.options).length !== 0 && this.options.hasOwnProperty('times')) localStorage.setItem('gantt', JSON.stringify(this.options))
+    if (
+      Object.keys(this.options).length !== 0 &&
+      this.options.hasOwnProperty('times')
+    ) {
+      localStorage.setItem('gantt', JSON.stringify(this.options))
+    }
   },
   methods: {
     async loadData() {
@@ -417,11 +500,11 @@ export default {
     getParams() {
       const result = {
         parent_id: 'null',
-        with_point: true,
-        sort: 'subject:dec'
+        sort: 'subject:asc',
+        all: true
       }
       if (!this.displayClosed) {
-        result['status_id'] = 'open'
+        result['exclude_closed'] = true
       }
       Object.keys(this.filterValue).forEach((item) => {
         if (this.filterValue[item]) {
@@ -448,7 +531,7 @@ export default {
       const name = this.$t(`Issue.${issue.status.name}`)
       issue.label = `${name}${
         issue.done_ratio > 0 ? `(${issue.done_ratio}%)` : ''
-      } - ${issue.name}`
+      } - ${issue.subject}`
       issue.start = issue.start_date || new Date()
       issue.end = issue.due_date || new Date()
       issue.progress = issue.done_ratio || 0
@@ -469,29 +552,44 @@ export default {
       return issue
     },
     async fetchData() {
+      if (this.selectedProjectId === -1) return
       let resProjectIssue = {}
       if (this.listLoading) {
         this.cancelRequest()
       }
       this.listLoading = true
       try {
-        resProjectIssue = await getProjectIssueList(this.filterValue.project || this.selectedProjectId, this.getParams(), {
-          cancelToken: this.cancelToken
-        })
+        resProjectIssue = await getProjectIssueList(
+          this.filterValue.project || this.selectedProjectId,
+          this.getParams(),
+          { cancelToken: this.cancelToken }
+        )
       } catch (error) {
         console.error(error)
       } finally {
         if (resProjectIssue?.data) {
-          this.listData = resProjectIssue.data.map((issue) => this.formatIssue(issue))
+          this.listData = resProjectIssue.data.map((issue) =>
+            this.formatIssue(issue)
+          )
         }
         this.listLoading = false
       }
     },
     getSelectionLabel(item) {
       const visibleStatus = ['closed', 'locked']
-      let result = this.$te('Issue.' + item.name) ? this.$t('Issue.' + item.name) : item.name
-      if (item.hasOwnProperty('status') && visibleStatus.includes(item.status)) {
-        result += ' (' + (this.$te('Issue.' + item.status) ? this.$t('Issue.' + item.status) : item.status) + ')'
+      let result = this.$te('Issue.' + item.name)
+        ? this.$t('Issue.' + item.name)
+        : item.name
+      if (
+        item.hasOwnProperty('status') &&
+        visibleStatus.includes(item.status)
+      ) {
+        result +=
+          ' (' +
+          (this.$te('Issue.' + item.status)
+            ? this.$t('Issue.' + item.status)
+            : item.status) +
+          ')'
       }
       if (item.hasOwnProperty('login')) {
         result += ' (' + item.login + ')'
@@ -507,7 +605,9 @@ export default {
           if (data.hasOwnProperty('children')) {
             data.children.forEach((issue) => {
               issue = this.formatIssue(issue, row.id)
-              const oldIssueIndex = this.listData.findIndex((subIssue) => subIssue.id === issue.id)
+              const oldIssueIndex = this.listData.findIndex(
+                (subIssue) => subIssue.id === issue.id
+              )
               if (oldIssueIndex > 0) {
                 this.$set(this.listData, oldIssueIndex, issue)
               } else {
@@ -536,71 +636,78 @@ export default {
       this.displayClosed = false
       this.onChangeFilter()
     },
-    handleSave() {
-      this.$refs['issueForm'].validate(async (valid) => {
-        if (valid) {
-          // deep copy & remove field with empty value
-          const data = JSON.parse(JSON.stringify(this.form))
-          Object.keys(data).forEach((item) => {
-            if (data[item] === '' || data[item] === 'null' || !data[item]) delete data[item]
-          })
-
-          // because have file need upload so use formData object
-          const form = new FormData()
-          form.append('project_id', this.projectId)
-          Object.keys(data).forEach((objKey) => {
-            form.append(objKey, data[objKey])
-          })
-          this.LoadingConfirm = true
-          await this.saveIssue(form)
-          this.LoadingConfirm = false
-          this.form.tracker_id = data.tracker_id
-          return true
-        } else {
-          return false
-        }
-      })
-    },
-    async saveIssue(data) {
-      await addIssue(data)
-        .then((res) => {
-          // noinspection JSCheckFunctionSignatures
-          this.$message({
-            title: this.$t('general.Success'),
-            message: this.$t('Notify.Added'),
-            type: 'success'
-          })
-          this.loadData()
-          this.addTopicDialogVisible = false
-          return res
-        })
-        .catch((error) => {
-          return error
-        })
-    },
-    handleClose() {
-      this.$emit('close-dialog', false)
-    },
-    handleCloseDialog() {
-      this.addTopicDialog.visible = false
-    },
-    handleAdvancedClose() {
-      this.$refs['AddIssue'].handleClose()
-    },
-    handleAdvancedSave() {
-      this.$refs['AddIssue'].handleSave()
-    },
-    addIssue(row) {
-      this.addTopicDialog.visible = true
-      this.addTopicDialog.parentId = row.id
-      this.addTopicDialog.parentName = row.label
-    },
+    // handleSave() {
+    //   this.$refs['issueForm'].validate(async (valid) => {
+    //     if (valid) {
+    //       // deep copy & remove field with empty value
+    //       const data = JSON.parse(JSON.stringify(this.form))
+    //       Object.keys(data).forEach((item) => {
+    //         if (data[item] === '' || data[item] === 'null' || !data[item]) {
+    //           delete data[item]
+    //         }
+    //       })
+    //
+    //       // because have file need upload so use formData object
+    //       const form = new FormData()
+    //       form.append('project_id', this.projectId)
+    //       Object.keys(data).forEach((objKey) => {
+    //         form.append(objKey, data[objKey])
+    //       })
+    //       this.LoadingConfirm = true
+    //       await this.saveIssue(form)
+    //       this.LoadingConfirm = false
+    //       this.form.tracker_id = data.tracker_id
+    //       return true
+    //     } else {
+    //       return false
+    //     }
+    //   })
+    // },
+    // async saveIssue(data) {
+    //   await addIssue(data)
+    //     .then((res) => {
+    //       // noinspection JSCheckFunctionSignatures
+    //       this.$message({
+    //         title: this.$t('general.Success'),
+    //         message: this.$t('Notify.Added'),
+    //         type: 'success'
+    //       })
+    //       this.loadData()
+    //       this.addTopicDialogVisible = false
+    //       return res
+    //     })
+    //     .catch((error) => {
+    //       return error
+    //     })
+    // },
+    // handleClose() {
+    //   this.$emit('close-dialog', false)
+    // },
+    // handleCloseDialog() {
+    //   this.addTopicDialog.visible = false
+    // },
+    // handleAdvancedClose() {
+    //   this.$refs['AddIssue'].handleClose()
+    // },
+    // handleAdvancedSave() {
+    //   this.$refs['AddIssue'].handleSave()
+    // },
+    // addIssue(row) {
+    //   this.addTopicDialog.visible = true
+    //   this.addTopicDialog.parentId = row.id
+    //   this.addTopicDialog.parentSubject = row.label
+    // },
     loadingUpdate(value) {
       this.LoadingConfirm = value
     },
     onTaskClick({ data }) {
       if (!this.isMobile) this.onRelationIssueDialog(data.id)
-      else this.$router.push({ name: 'IssueDetail', params: { issueId: data.id }})
+      else {
+        this.$router.push({
+          name: 'IssueDetail',
+          params: { issueId: data.id }
+        })
+      }
     },
     handleRelationUpdate() {
       this.onCloseRelationIssueDialog()
@@ -617,14 +724,17 @@ export default {
     },
     handleRelationIssueDialogBeforeClose(done) {
       if (this.$refs.children.hasUnsavedChanges()) {
-        this.$confirm(this.$t('Notify.UnSavedChanges'), this.$t('general.Warning'), {
-          confirmButtonText: this.$t('general.Confirm'),
-          cancelButtonText: this.$t('general.Cancel'),
-          type: 'warning'
+        this.$confirm(
+          this.$t('Notify.UnSavedChanges'),
+          this.$t('general.Warning'),
+          {
+            confirmButtonText: this.$t('general.Confirm'),
+            cancelButtonText: this.$t('general.Cancel'),
+            type: 'warning'
+          }
+        ).then(() => {
+          done()
         })
-          .then(() => {
-            done()
-          })
       } else {
         done()
       }
@@ -645,10 +755,12 @@ export default {
       }
     },
     styleUpdate(events) {
-      if (events.hasOwnProperty('times') &&
+      if (
+        events.hasOwnProperty('times') &&
         events.hasOwnProperty('scope') &&
         events.hasOwnProperty('taskList') &&
-        events.hasOwnProperty('row')) {
+        events.hasOwnProperty('row')
+      ) {
         this.options.times = events.times
         this.options.scope = events.scope
         this.options.taskList = events.taskList
@@ -667,8 +779,8 @@ export default {
     async exportPdf() {
       this.isExportGantt = true
       const container = this.$refs.ganttDownload.$el
-      const time = (new Date()).toLocaleString()
-      const fileName = `${this.selectedProject.name} (${time}).png`
+      const time = new Date().toLocaleString()
+      const fileName = `${this.selectedProject.display_name} (${time}).png`
       await html2canvas(container).then(function (canvas) {
         const link = document.createElement('a')
         link.download = fileName
@@ -702,7 +814,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 .app-container {
   @apply h-screen overflow-hidden;
@@ -715,6 +827,12 @@ $max_height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 40px);
   //navbar, padding, project selector,divider
   .el-col {
     max-height: inherit;
+  }
+}
+
+::v-deep {
+  .gantt-elastic__task-list-expander-content {
+    margin: auto 6px !important;
   }
 }
 </style>

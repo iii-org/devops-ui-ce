@@ -1,9 +1,6 @@
 <template>
   <div v-loading="listLoading">
-    <div
-      v-if="isShowTitle"
-      class="text-lg mb-2"
-    >
+    <div v-if="isShowTitle" class="text-lg mb-2">
       {{ $t('Member.Manage') }}
     </div>
     <el-empty
@@ -14,9 +11,15 @@
     <template v-else>
       <div class="flex justify-between mb-4">
         <el-button
-          class="button-secondary"
+          v-permission="[
+            'sysadmin',
+            'Organization Owner',
+            'Project Manager',
+            'QA'
+          ]"
           :size="isMobile ? 'small' : 'medium'"
           icon="el-icon-plus"
+          type="success"
           @click="showDialog"
         >
           <span v-if="!isMobile">{{ $t('Member.AddMember') }}</span>
@@ -26,80 +29,124 @@
             {{ $t('Project.Owner') }}
           </span>
           <el-select
-            v-model="selectedProject.owner_id"
+            v-model="owner"
+            :disabled="disabledEditOwner"
             :size="isMobile ? 'small' : 'medium'"
             :style="{ width: isMobile ? '100px' : 'auto' }"
-            :disabled="disabledEditOwner"
+            value-key="id"
             @change="confirmSetProjectOwner"
           >
             <el-option
               v-for="user in assignedList"
               :key="user.id"
-              :value="user.id"
-              :label="user.label"
-            >
-              {{ user.label }}
-            </el-option>
+              :disabled="user.disabled"
+              :label="user.full_name"
+              :value="user"
+            />
           </el-select>
         </div>
         <el-input
           v-model="keyword"
-          :size="isMobile ? 'small' : 'medium'"
-          prefix-icon="el-icon-search"
-          :style="{ width: isMobile ? 'auto' : '140px' }"
           :placeholder="$t('general.SearchName')"
+          :size="isMobile ? 'small' : 'medium'"
+          :style="{ width: isMobile ? 'auto' : '140px' }"
+          prefix-icon="el-icon-search"
         />
       </div>
-      <ElTableResponsive
-        :data="pagedData"
-        :columns="tableColumns"
-        fit
-      >
-        <template v-slot:role="{row}">
+      <ElTableResponsive :columns="tableColumns" :data="pagedData" fit>
+        <template #role="{ row }">
           {{ getRoleName(row.id) }}
         </template>
-        <template v-slot:actions="{row}">
-          <el-tooltip
-            placement="bottom"
-            :content="$t('general.Participate')"
-          >
-            <em
-              v-permission="['Administrator','QA']"
-              class="ri-survey-line primary table-button"
-              @click="handleParticipateDialog(row.id)"
-            ></em>
-          </el-tooltip>
-          <el-tooltip
-            placement="bottom"
-            :content="$t('Issue.Issue')"
-          >
-            <em
-              v-permission="['Administrator','Project Manager', 'QA']"
-              class="ri-file-copy-2-line success table-button"
-              @click="handleIssueClick(row)"
-            ></em>
-          </el-tooltip>
-          <el-tooltip
-            placement="bottom"
-            :content="$t('general.Remove')"
-          >
-            <span>
-              <em
-                class="ri-delete-bin-2-line table-button"
-                :class="row.id === userId ? 'disabled' : 'danger'"
-                @click="handleDeleteClick(row)"
-              ></em>
-            </span>
-          </el-tooltip>
+        <template #actions="{ row }">
+          <el-dropdown placement="bottom" trigger="click">
+            <el-button type="text">
+              {{ $t('general.Edit') }}
+              <em class="el-icon-arrow-down el-icon--right"></em>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                v-permission="['sysadmin', 'Organization Owner', 'QA']"
+              >
+                <el-button
+                  class="text-primary"
+                  icon="ri-survey-line"
+                  type="text"
+                  @click="handleParticipateDialog(row.id)"
+                >
+                  {{ $t('general.Participate') }}
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-permission="[
+                  'sysadmin',
+                  'Organization Owner',
+                  'Project Manager',
+                  'QA'
+                ]"
+              >
+                <el-button
+                  class="text-success"
+                  icon="ri-file-copy-2-line"
+                  type="text"
+                  @click="handleIssueClick(row)"
+                >
+                  {{ $t('Issue.Issue') }}
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-if="!row.can_modify"
+                v-permission="[
+                  'sysadmin',
+                  'Organization Owner',
+                  'Project Manager',
+                  'QA'
+                ]"
+              >
+                <el-button
+                  class="text-info"
+                  icon="ri-loop-left-line"
+                  type="text"
+                  @click="handleUserSync(row)"
+                >
+                  {{ $t('general.Sync') }}
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item
+                v-permission="[
+                  'sysadmin',
+                  'Organization Owner',
+                  'Project Manager',
+                  'QA'
+                ]"
+                divided
+              >
+                <el-button
+                  :class="
+                    !(
+                      row.id === userId || row.id === selectedProject.owner.id
+                    ) && 'text-danger'
+                  "
+                  :disabled="
+                    row.id === userId || row.id === selectedProject.owner.id
+                  "
+                  icon="ri-delete-bin-2-line"
+                  type="text"
+                  @click="handleDeleteClick(row)"
+                >
+                  {{ $t('general.Remove') }}
+                </el-button>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </ElTableResponsive>
       <Pagination
-        :total="filteredData.length"
-        :page="listQuery.page"
-        :limit="listQuery.limit"
         :layout="paginationLayout"
+        :limit="listQuery.limit"
+        :page="listQuery.page"
         :pager-count="isMobile ? 5 : 7"
         :small="isMobile"
+        :total="filteredData.length"
         @pagination="onPagination"
       />
       <AddMemberDialog ref="addMemberDialog" @update="loadData" />
@@ -108,16 +155,25 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { BasicData, Pagination, SearchBar } from '@/mixins'
-import { getUserIssueList } from '@/api/user'
-import { getProjectUserList, deleteProjectMember, updateProjectInfos } from '@/api/projects'
+import { syncUserData } from '@/api_v2/projects'
+import {
+  getProjectUserList,
+  removeProjectMember,
+  updateProject
+} from '@/api_v3/projects'
+import { getUserIssueList } from '@/api_v3/user'
+import BasicData from '@/mixins/BasicData'
+import Pagination from '@/mixins/Pagination'
+import SearchBar from '@/mixins/SearchBar'
+import { mapActions, mapGetters } from 'vuex'
 import AddMemberDialog from './AddMemberDialog'
-import { ElTableResponsive } from '@shared/components'
 
 export default {
   name: 'ProjectMembers',
-  components: { AddMemberDialog, ElTableResponsive },
+  components: {
+    AddMemberDialog,
+    ElTableResponsive: () => import('@shared/components/ElTableResponsive')
+  },
   mixins: [BasicData, Pagination, SearchBar],
   props: {
     isShowTitle: {
@@ -127,36 +183,62 @@ export default {
   },
   data() {
     return {
-      searchKeys: ['name', 'login', 'department'],
+      searchKeys: ['full_name', 'username', 'department'],
       unClosedIssueCount: 0,
-      ownerId: 0
+      owner: {}
     }
   },
   computed: {
     ...mapGetters(['userRole', 'userId', 'device']),
     disabledEditOwner() {
-      if (this.userRole === 'Administrator') return false
-      return this.userId !== this.selectedProject.owner_id
+      if (
+        this.userRole === 'sysadmin' ||
+        this.userRole === 'Organization Owner'
+      ) {
+        return false
+      }
+      return this.userId !== this.selectedProject.owner.id
+    },
+    isEngineer() {
+      return this.userRole === 'Engineer'
     },
     assignedList() {
-      return this.listData.filter(item => item.role_id !== 1).map(item => ({ id: item.id, label: item.name }))
+      const list = this.listData
+        .filter((item) => item.role.name === 'Project Manager')
+        .map(({ id, full_name, department }) => ({
+          id,
+          full_name,
+          department
+        }))
+
+      if (!list.some((item) => item.id === this.owner.id)) {
+        list.push({ ...this.owner, disabled: true })
+      }
+      return list
     },
     isMobile() {
       return this.device === 'mobile'
     },
     paginationLayout() {
-      return this.isMobile ? 'total, prev, pager, next' : 'total, sizes, prev, pager, next'
+      return this.isMobile
+        ? 'total, prev, pager, next'
+        : 'total, sizes, prev, pager, next'
     },
     tableColumns() {
-      return [
+      const columns = [
         {
           label: this.$t('Member.Account'),
-          prop: 'login',
+          prop: 'username',
           align: 'center'
         },
         {
-          label: this.$t('general.Name'),
-          prop: 'name',
+          label: 'First Name',
+          prop: 'first_name',
+          align: 'center'
+        },
+        {
+          label: 'Last Name',
+          prop: 'last_name',
           align: 'center'
         },
         {
@@ -183,15 +265,19 @@ export default {
           slot: 'actions'
         }
       ]
+      return this.isEngineer
+        ? columns.filter((column) => column.prop !== 'actions')
+        : columns
     }
   },
   mounted() {
     this.setOwner()
   },
   methods: {
+    ...mapActions('projects', ['setSelectedProject']),
     async fetchData() {
       const res = await getProjectUserList(this.selectedProjectId)
-      return res.data.user_list
+      return res.data
     },
     confirmSetProjectOwner() {
       const h = this.$createElement
@@ -203,24 +289,29 @@ export default {
         showCancelButton: true,
         confirmButtonText: this.$t('general.ok'),
         cancelButtonText: this.$t('general.Cancel'),
-        beforeClose: (action, instance, done) => {
+        beforeClose: (action, _instance, done) => {
           if (action === 'confirm') this.setProjectOwner()
-          else this.selectedProject.owner_id = this.ownerId
+          else this.owner = this.selectedProject.owner
           done()
         }
       })
     },
-    setProjectOwner () {
+    async setProjectOwner() {
       this.listLoading = true
-      this.setOwner()
-      updateProjectInfos(this.selectedProjectId, { owner_id: this.selectedProject.owner_id })
+      await updateProject(this.selectedProjectId, {
+        owner_id: this.owner.id
+      })
         .then(() => {
           this.$message({
             message: `${this.$t('Notify.Updated')} ${this.$t('Project.Owner')}`,
             type: 'success'
           })
+          this.setSelectedProject({
+            ...this.selectedProject,
+            owner: this.owner
+          })
         })
-        .catch(err => {
+        .catch((err) => {
           this.$message({
             message: err,
             type: 'error'
@@ -231,7 +322,7 @@ export default {
         })
     },
     setOwner() {
-      this.ownerId = this.selectedProject.owner_id
+      this.owner = this.selectedProject.owner
     },
     showDialog() {
       this.$refs.addMemberDialog.dialogVisible = true
@@ -239,12 +330,13 @@ export default {
     async handleDelete(userId) {
       this.listLoading = true
       try {
-        await deleteProjectMember(this.selectedProjectId, userId)
+        await removeProjectMember(this.selectedProjectId, userId)
         this.$message({
           title: this.$t('general.Success'),
           message: this.$t('Notify.Deleted'),
           type: 'success'
         })
+        this.$refs.addMemberDialog.loadData()
         await this.loadData()
       } catch (error) {
         console.error(error)
@@ -252,26 +344,33 @@ export default {
       }
     },
     getRoleName(id) {
-      const isProjectOwner = id === this.selectedProject.owner_id
-      return isProjectOwner ? this.$t('Member.ProjectOwner') : this.$t('Member.ProjectMember')
+      const isProjectOwner = id === this.selectedProject.owner.id
+      return isProjectOwner
+        ? this.$t('Member.ProjectOwner')
+        : this.$t('Member.ProjectMember')
     },
     async handleDeleteClick(row) {
       this.listLoading = true
       await this.fetchIssueByUser(row)
       this.listLoading = false
       const hasUnclosedIssue = this.unClosedIssueCount > 0
-      hasUnclosedIssue ? this.showConfirmTransferDialog(row) : this.showConfirmRemoveMemberDialog(row)
+      hasUnclosedIssue
+        ? this.showConfirmTransferDialog(row)
+        : this.showConfirmRemoveMemberDialog(row)
     },
     handleIssueClick(row) {
-      const { id, name } = row
-      this.$router.push({ name: 'IssueTransfer', params: { userId: id, userName: name }})
+      const { id, full_name } = row
+      this.$router.push({
+        name: 'IssueTransfer',
+        params: { userId: id, userName: full_name }
+      })
     },
     showConfirmTransferDialog(row) {
-      const { id, name } = row
+      const { id, full_name } = row
       this.$confirm(
         this.$t('Member.ConfirmTransfer', {
           userRole: this.getRoleName(id),
-          userName: name,
+          userName: full_name,
           unClosedIssueCount: this.unClosedIssueCount
         }),
         this.$t('general.caution'),
@@ -287,9 +386,12 @@ export default {
         .catch(() => ({}))
     },
     showConfirmRemoveMemberDialog(row) {
-      const { id, name } = row
+      const { id, full_name } = row
       this.$confirm(
-        this.$t('Member.ConfirmRemoveMember', { userRole: this.getRoleName(id), userName: name }),
+        this.$t('Member.ConfirmRemoveMember', {
+          userRole: this.getRoleName(id),
+          userName: full_name
+        }),
         this.$t('general.caution'),
         {
           confirmButtonText: this.$t('general.Remove'),
@@ -306,17 +408,29 @@ export default {
     async fetchIssueByUser(row) {
       const { id } = row
       const params = {
-        offset: 0,
-        from: 'assigned_to_id',
-        status_id: 'open',
-        project_id: this.selectedProjectId
+        from: 'assigned',
+        exclude_closed: true,
+        project_id: this.selectedProjectId,
+        all: true
       }
-      await getUserIssueList(id, params).then(res => {
+      await getUserIssueList(id, params).then((res) => {
         this.unClosedIssueCount = res.data.length
       })
     },
     handleParticipateDialog(user_id) {
-      this.$router.push({ name: 'ParticipateProject', params: { userId: user_id }})
+      this.$router.push({
+        name: 'ParticipateProject',
+        params: { userId: user_id }
+      })
+    },
+    async handleUserSync(row) {
+      await syncUserData(row.id).then(() => {
+        this.loadData()
+        this.$message({
+          message: this.$t('Notify.Synced'),
+          type: 'success'
+        })
+      })
     }
   }
 }

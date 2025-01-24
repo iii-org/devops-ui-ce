@@ -3,10 +3,10 @@
     <el-card :class="isMobile ? 'mobile' : ''">
       <el-tabs
         v-model="tabActive"
-        :tab-position="isMobile ? 'bottom' : 'left'"
         :class="isMobile ? '' : 'h-full'"
-        :type="isMobile ? 'border-card' : ''"
         :stretch="isMobile"
+        :tab-position="isMobile ? 'bottom' : 'left'"
+        :type="isMobile ? 'border-card' : ''"
       >
         <el-tab-pane name="basic">
           <span slot="label">
@@ -14,21 +14,25 @@
             <span v-else>{{ $t('Profile.Basic') }}</span>
           </span>
           <Basic
+            :disable-edit="disableEdit"
             :from-ad="fromAd"
             :label-position="labelPosition"
-            :disable-edit="disableEdit"
             :user-profile-form="userProfileForm"
           />
         </el-tab-pane>
         <el-tab-pane name="security">
           <span slot="label">
-            <em v-if="isMobile" class="ri-shield-user-line text-xl align-middle"></em>
+            <em
+              v-if="isMobile"
+              class="ri-shield-user-line text-xl align-middle"
+            ></em>
             <span v-else>{{ $t('Profile.Security') }}</span>
           </span>
           <Security
-            :user-pwd-form="userPwdForm"
-            :label-position="labelPosition"
             :disable-edit="disableEdit"
+            :label-position="labelPosition"
+            :user-data="userData"
+            :user-pwd-form="userPwdForm"
           />
         </el-tab-pane>
       </el-tabs>
@@ -37,12 +41,9 @@
 </template>
 
 <script>
+import { getServerPasswordInfo, getUserMessageInfo } from '@/api_v2/user'
+import { getCurrentUser } from '@/api_v3/user'
 import { mapGetters } from 'vuex'
-import { getUserInfo } from '@/api/user'
-import {
-  getUserMessageInfo,
-  getServerPasswordInfo
-} from '@/api_v2/user'
 
 export default {
   name: 'Profile',
@@ -55,8 +56,10 @@ export default {
       labelPosition: 'top',
       tabActive: 'basic',
       fromAd: false,
+      userData: {},
       userProfileForm: {
-        userName: '',
+        firstName: '',
+        lastName: '',
         title: '',
         department: '',
         userEmail: '',
@@ -90,10 +93,12 @@ export default {
   },
   methods: {
     async fetchUserInfo() {
-      await getUserInfo(this.userId)
+      await getCurrentUser(this.userId)
         .then((userProfile) => {
-          this.fromAd = userProfile.from_ad
-          this.userProfileForm.userName = userProfile.name
+          this.userData = userProfile
+          this.fromAd = !userProfile.can_modify
+          this.userProfileForm.firstName = userProfile.first_name
+          this.userProfileForm.lastName = userProfile.last_name
           this.userProfileForm.userEmail = userProfile.email
           this.userProfileForm.userPhone = userProfile.phone
           this.userProfileForm.department = userProfile.department
@@ -124,14 +129,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 ::v-deep {
   .el-card {
     height: 100%;
+
     .el-card__body {
-    height: 100%;
+      height: 100%;
     }
   }
 }
@@ -139,20 +145,27 @@ export default {
 /* To make el-tab content fill space, or table will not expand */
 ::v-deep .el-tabs__content {
   height: 100%;
+  overflow-y: auto;
 }
 
-::v-deep .el-tab-pane {
-  height: 100%;
-}
 ::v-deep .el-tabs__nav-wrap::after {
   background-color: none;
 }
+
 ::v-deep .el-tabs__item {
   &:hover {
     color: $linkTextColor;
   }
+
   &.is-active {
-    color: $linkTextColor !important;
+    background-color: $linkTextColor;
+    color: #fff !important;
+    border-radius: 4px;
+  }
+
+  &.is-left {
+    margin-right: 10px;
+    text-align: left;
   }
 }
 
@@ -179,24 +192,31 @@ export default {
 ::v-deep .el-radio__inner:hover {
   border-color: $linkTextColor;
 }
+
 .mobile {
   height: auto;
+
   ::v-deep .el-card__body {
     padding: 0;
   }
+
   ::v-deep .tab-inner {
     padding: 0;
   }
+
   ::v-deep .form-input {
     width: -webkit-fill-available;
   }
+
   ::v-deep .el-tabs__content {
     height: auto;
     padding-bottom: 60px;
   }
+
   ::v-deep .el-tab-pane {
     height: auto;
   }
+
   ::v-deep .el-tabs__header {
     position: fixed;
     bottom: 0px;
@@ -205,6 +225,7 @@ export default {
     width: 100%;
     padding: 0;
   }
+
   ::v-deep .el-tabs__item {
     padding: 0 12px !important;
     height: 50px;

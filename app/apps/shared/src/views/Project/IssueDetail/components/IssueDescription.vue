@@ -2,31 +2,25 @@
   <el-row>
     <el-row v-loading="isLoading">
       <el-row
-        :class="device === 'mobile' ? 'pb-1' : 'py-3'"
-        :type="device === 'mobile' ? 'flex' : ''"
-        :justify="device === 'mobile' ? 'space-between' : 'start'"
+        :class="isMobile ? 'pb-1' : 'py-3'"
+        :justify="isMobile ? 'space-between' : 'start'"
+        :type="isMobile ? 'flex' : ''"
         class="flex justify-between"
       >
         <span
           :style="{ 'flex-basis': isShowZoom ? '75%' : '100%' }"
           class="flex items-center"
         >
-          <span
-            :class="device === 'mobile' ? 'flex' : ''"
-            class="text-sm font-bold"
-          >
-            <em
-              v-if="device === 'mobile'"
-              class="ri-file-info-fill mr-1"
-            />
+          <span :class="isMobile ? 'flex' : ''" class="text-sm font-bold">
+            <em v-if="isMobile" class="ri-file-info-fill mr-1"></em>
             {{ $t('Issue.Description') }}
           </span>
           <span class="ml-1">
             <el-tooltip
-              v-if="!edit && value !== ''"
-              :value="dataLoaded && value === ''"
-              :enterable="false"
+              v-if="(!edit && value !== '') || isMobile"
               :content="$t('Issue.ClickToEdit')"
+              :enterable="false"
+              :value="dataLoaded && value === ''"
               placement="right"
             >
               <el-button
@@ -35,28 +29,25 @@
                 @click="checkEnableEditor"
               />
             </el-tooltip>
-            <span v-else-if="edit && device === 'desktop'">
+            <span v-else-if="edit && !isMobile">
               <el-button
                 class="action"
-                type="success"
-                size="mini"
                 icon="el-icon-check"
+                size="mini"
+                type="success"
                 @click="updateDescription"
               />
               <el-button
                 class="action"
-                type="danger"
-                size="mini"
                 icon="el-icon-close"
+                size="mini"
+                type="danger"
                 @click="checkCancelInput"
               />
             </span>
           </span>
         </span>
-        <span
-          v-if="isShowZoom"
-          class="flex w-1/4"
-        >
+        <span v-if="isShowZoom" class="flex w-1/4">
           <el-link
             :underline="false"
             icon="el-icon-zoom-out"
@@ -74,16 +65,16 @@
           />
         </span>
       </el-row>
-      <el-divider v-if="device === 'mobile'" />
-      <el-col v-if="edit && device === 'desktop'">
+      <el-divider v-if="isMobile" />
+      <el-col v-if="edit && !isMobile">
         <Editor
           id="descriptionEditor"
           ref="mdEditor"
           :height="viewerHeight"
           :initial-value="editorValue"
           :options="editorOptions"
-          preview-style="tab"
           initial-edit-type="wysiwyg"
+          preview-style="tab"
           @change="onChange"
           @keyup.native="onKeyEvent"
           @keydown.native="onKeyEvent"
@@ -91,37 +82,43 @@
         <hr
           class="move-bar flex justify-center rounded-b-md w-1/4 mt-0"
           @mousedown="isMoving = true"
-        >
+        />
       </el-col>
-      <el-col v-else-if="!edit && value === '' && device !== 'mobile'">
+      <el-col v-else-if="!edit && value === '' && !isMobile">
         <el-tooltip
-          :enterable="false"
           :content="$t('Issue.ClickToEdit')"
+          :enterable="false"
           placement="top"
         >
           <el-input
-            :class="isButtonDisabled ? 'cursor-not-allowed' : 'cursor-text description'"
-            :placeholder="$t('general.Input', { item: $t('Issue.Description') })"
+            :class="
+              isButtonDisabled
+                ? 'cursor-not-allowed'
+                : 'cursor-text description'
+            "
+            :placeholder="
+              $t('general.Input', { item: $t('Issue.Description') })
+            "
             class="p-3 mr-1"
             @click.native="checkEnableEditor"
           />
         </el-tooltip>
       </el-col>
       <el-drawer
+        v-else-if="edit && isMobile"
         v-loading="isLoading"
-        v-else-if="edit && device === 'mobile'"
-        :visible.sync="toggleDrawer"
         :show-close="false"
-        direction="btt"
+        :visible.sync="toggleDrawer"
         class="drawer"
-        size="99%"
         destroy-on-close
+        direction="btt"
+        size="99%"
       >
         <div slot="title" class="title">
           <el-row
             class="font-bold items-center"
-            type="flex"
             justify="space-between"
+            type="flex"
           >
             <span>
               <el-divider direction="vertical" />
@@ -129,16 +126,17 @@
             </span>
             <span>
               <el-button
-                class="action button-secondary align-middle rounded-md"
+                class="action align-middle rounded-md"
                 size="small"
+                type="success"
                 @click="updateDescription"
               >
                 {{ $t('general.Save') }}
               </el-button>
               <el-button
                 class="el-drawer__close-btn"
-                size="mini"
                 icon="el-icon-close"
+                size="mini"
                 @click="cancelInput"
               />
             </span>
@@ -150,8 +148,8 @@
           :initial-value="editorValue"
           :options="editorOptions"
           height="auto"
-          preview-style="tab"
           initial-edit-type="wysiwyg"
+          preview-style="tab"
           @change="onChange"
           @keyup.native="onKeyEvent"
           @keydown.native="onKeyEvent"
@@ -159,32 +157,40 @@
       </el-drawer>
       <el-col
         v-else-if="value !== ''"
-        :class="device === 'mobile' ?
-          'border-solid border-2 border-grey-500 rounded' :
-        !edit ? 'description' : ''"
+        :class="
+          isMobile
+            ? 'border-solid border-2 border-grey-500 rounded'
+            : !edit
+              ? 'description'
+              : ''
+        "
         :style="{ cursor: isButtonDisabled ? 'not-allowed' : 'text' }"
         @dblclick.native.capture="checkEnableEditor"
       >
         <el-tooltip
-          :enterable="false"
           :content="$t('Issue.DoubleClickToEdit')"
+          :enterable="false"
           :offset="100"
           placement="top"
         >
           <Viewer
             id="descriptionViewer"
-            ref="mdViewer"
             :key="componentKey"
-            :initial-value="editorValue"
+            ref="mdViewer"
             :class="ellipsisStatus ? 'ellipsis truncate' : null"
+            :initial-value="editorValue"
             class="px-1"
-            @load="addLinkTarget(); isFolded()"
+            @load="
+              addLinkTarget()
+              isFolded()
+              addImageClickListener()
+            "
           />
         </el-tooltip>
       </el-col>
       <div
-        v-if="device === 'mobile' && value === ''"
-        class="text-sm font-medium text-gray-400 "
+        v-if="isMobile && value === ''"
+        class="text-sm font-medium text-gray-400"
       >
         {{ $t('general.NoData') }}
       </div>
@@ -198,25 +204,34 @@
         type="info"
         @click="ellipsisStatus = !ellipsisStatus"
       >
-        {{ device === 'desktop' ? ellipsisStatus ? $t('general.Expand') : $t('general.Fold') : '' }}
+        {{
+          !isMobile
+            ? ellipsisStatus
+              ? $t('general.Expand')
+              : $t('general.Fold')
+            : ''
+        }}
       </el-link>
     </el-row>
   </el-row>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { updateIssue } from '@/api/issue'
 import { createMessage } from '@/api_v2/monitoring'
-import '@toast-ui/editor/dist/toastui-editor.css'
-import '@toast-ui/editor/dist/toastui-editor-viewer.css'
+import { createPlainAttachment } from '@/api_v3/attachments'
+import { updateIssue } from '@/api_v3/issues'
+import colorVariables from '@/styles/theme/variables.module.scss'
 import '@toast-ui/editor/dist/i18n/zh-tw'
-import { Editor, Viewer } from '@toast-ui/vue-editor'
-import colorVariables from '@/styles/theme/variables.scss'
+import '@toast-ui/editor/dist/toastui-editor-viewer.css'
+import '@toast-ui/editor/dist/toastui-editor.css'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'IssueDescription',
-  components: { Editor, Viewer },
+  components: {
+    Editor: () => import('@toast-ui/vue-editor').then(({ Editor }) => Editor),
+    Viewer: () => import('@toast-ui/vue-editor').then(({ Viewer }) => Viewer)
+  },
   props: {
     value: {
       type: String,
@@ -230,7 +245,7 @@ export default {
       type: [String, Number],
       default: null
     },
-    issueName: {
+    issueSubject: {
       type: String,
       default: ''
     },
@@ -238,7 +253,7 @@ export default {
       type: Boolean,
       default: false
     },
-    assignedTo: {
+    assigned: {
       type: Array,
       default: () => []
     },
@@ -275,10 +290,13 @@ export default {
   computed: {
     ...mapGetters(['language', 'device']),
     isLite() {
-      return process.env.VUE_APP_PROJECT === 'LITE'
+      return import.meta.env.VITE_APP_PROJECT === 'LITE'
     },
     isShowZoom() {
-      return this.device === 'desktop' && !this.edit && this.value !== ''
+      return !this.isMobile && !this.edit && this.value !== ''
+    },
+    isMobile() {
+      return this.device === 'mobile'
     },
     editorValue() {
       return this.value.replaceAll(/\$\$/g, '').replaceAll(/widget\d+\s/g, '')
@@ -288,6 +306,7 @@ export default {
     },
     editorOptions() {
       const options = {
+        usageStatistics: false,
         minHeight: '100px',
         language: this.language,
         toolbarItems: [
@@ -297,7 +316,19 @@ export default {
           ['table', 'image', 'link'],
           ['code', 'codeblock'],
           ['scrollSync']
-        ]
+        ],
+        hooks: {
+          addImageBlobHook: async (blob, callback) => {
+            const formData = new FormData()
+            formData.append('file', blob)
+            const response = await createPlainAttachment(formData)
+            if (response.data && response.data.content_url) {
+              const link = response.data.content_url
+              callback(link, 'image in description')
+            }
+            return false
+          }
+        }
       }
       if (!this.isLite) {
         options.widgetRules = [
@@ -322,14 +353,13 @@ export default {
     toggleDrawer(val) {
       if (!val) this.cancelInput()
     }
-    // oldValue() {
-    //   this.edit = !this.issueId
-    // }
   },
   methods: {
     initZoom() {
       this.zoomSize = 0
-      this.$nextTick(() => { this.zoom() })
+      this.$nextTick(() => {
+        this.zoom()
+      })
     },
     zoomIn() {
       this.zoomSize += 10
@@ -343,13 +373,21 @@ export default {
       if (this.zoomSize > 100) this.zoomSize = 100
       else if (this.zoomSize < 0) this.zoomSize = 0
       const descriptionViewerObj = document.getElementById('descriptionViewer')
-      const descriptionEditorObj = document.getElementsByClassName('ProseMirror toastui-editor-contents')[0]
-      if (descriptionViewerObj) descriptionViewerObj.style.zoom = 100 + this.zoomSize + '%'
-      if (descriptionEditorObj) descriptionEditorObj.style.zoom = 100 + this.zoomSize + '%'
+      const descriptionEditorObj = document.getElementsByClassName(
+        'ProseMirror toastui-editor-contents'
+      )[0]
+      if (descriptionViewerObj) {
+        descriptionViewerObj.style.zoom = 100 + this.zoomSize + '%'
+      }
+      if (descriptionEditorObj) {
+        descriptionEditorObj.style.zoom = 100 + this.zoomSize + '%'
+      }
     },
     addLinkTarget() {
       const links = document.querySelectorAll('.toastui-editor-contents a')
-      for (let i = 0; i < links.length; i++) { links[i].target = '_blank' }
+      for (let i = 0; i < links.length; i++) {
+        links[i].target = '_blank'
+      }
     },
     isFolded() {
       const el = this.$refs.mdViewer.$el
@@ -364,12 +402,15 @@ export default {
     checkEnableEditor(event) {
       if (event.target.href) return
       if (this.isIssueEdited.notes) {
-        this.$confirm(this.$t('Notify.UnSavedNotes'),
-          this.$t('general.Warning'), {
+        this.$confirm(
+          this.$t('Notify.UnSavedNotes'),
+          this.$t('general.Warning'),
+          {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
             type: 'warning'
-          })
+          }
+        )
           .then(() => {
             this.isIssueEdited.notes = false
             this.enableEditor()
@@ -383,9 +424,9 @@ export default {
       if (!this.$refs.mdViewer) return '200px'
       const clientHeight = this.$refs.mdViewer.$el.clientHeight + 125
       switch (true) {
-        case (clientHeight < 200):
+        case clientHeight < 200:
           return '200px'
-        case (clientHeight > 600):
+        case clientHeight > 600:
           return '600px'
         default:
           return clientHeight + 'px'
@@ -395,15 +436,17 @@ export default {
       this.viewerHeight = this.calcViewerHeight()
       this.isIssueEdited.description = !this.isButtonDisabled
       this.initZoom()
-      if (this.device === 'mobile') {
+      if (this.isMobile) {
         this.toggleDrawer = true
       }
     },
-    onChange(editorType) {
+    async onChange(editorType) {
       this.editorType = editorType
       this.isChanged = true
       const description = this.$refs.mdEditor.invoke('getMarkdown')
-      this.tagList = this.tagList.filter((tag) => description.includes(tag.name))
+      this.tagList = this.tagList.filter((tag) =>
+        description.includes(tag.name)
+      )
       this.mentionList = this.tagList.map((tag) => tag.id)
       this.$emit('input', description)
     },
@@ -418,7 +461,9 @@ export default {
           const ul = document.createElement('ul')
           ul.addEventListener('mousedown', this.addTag)
           ul.setAttribute('class', 'cursor-pointer')
-          ul.setAttribute('style', `
+          ul.setAttribute(
+            'style',
+            `
             z-index: 20;
             list-style: none;
             max-height: 5rem;
@@ -429,11 +474,12 @@ export default {
             border-radius: 4px;
             background-color: #ffffff;
             box-shadow: 0 2px 12px 0 rgba(0,0,0,.3);
-          `)
-          this.assignedTo.forEach((user, index) => {
+          `
+          )
+          this.assigned.forEach((user, index) => {
             const li = document.createElement('li')
             if (index !== 0) li.setAttribute('class', 'mt-2')
-            li.innerHTML = `${user.name}(#${user.login})`
+            li.innerHTML = `${user.full_name}(#${user.username})`
             ul.appendChild(li)
           })
           this.$refs.mdEditor.editor.addWidget(ul, 'top')
@@ -445,15 +491,14 @@ export default {
       const text = event.target.textContent
       const [start, end] = editor.getSelection()
       if (!this.tagList.includes(text)) {
-        const user = this.assignedTo.find((user) =>
-          text === `${user.name}(#${user.login})`
+        const user = this.assigned.find(
+          (user) => text === `${user.full_name}(#${user.username})`
         )
         this.tagList.push({ id: user.id, name: text })
       }
-      editor.replaceSelection(`@${text}`,
-        this.editorType === 'wysiwyg'
-          ? start - 1
-          : [start[0], start[1] - 1],
+      editor.replaceSelection(
+        `@${text}`,
+        this.editorType === 'wysiwyg' ? start - 1 : [start[0], start[1] - 1],
         end
       )
     },
@@ -464,11 +509,10 @@ export default {
     async updateDescription() {
       if (this.isChanged) {
         this.isLoading = true
-        const sendForm = new FormData()
         const description = this.editorValue
-        this.$emit('filterImage', [description, sendForm, true])
-        sendForm.append('description', description)
-        await updateIssue(this.issueId, sendForm).then(() => {
+        // this.$emit('filterImage', { value: description, sendForm })
+        const sendData = { description }
+        await updateIssue(this.issueId, sendData).then(() => {
           this.$emit('update')
           this.isIssueEdited.description = false
           this.toggleDrawer = false
@@ -485,12 +529,15 @@ export default {
     },
     checkCancelInput() {
       if (this.isChanged) {
-        this.$confirm(this.$t('Notify.UnSavedDescription'),
-          this.$t('general.Warning'), {
+        this.$confirm(
+          this.$t('Notify.UnSavedDescription'),
+          this.$t('general.Warning'),
+          {
             confirmButtonText: this.$t('general.Confirm'),
             cancelButtonText: this.$t('general.Cancel'),
             type: 'warning'
-          })
+          }
+        )
           .then(() => {
             this.cancelInput()
           })
@@ -515,7 +562,7 @@ export default {
       const data = {
         title: this.$t('Inbox.MentionMessage', {
           name: this.userName,
-          issue: `#${this.issueId} - ${this.issueName}`
+          issue: `#${this.issueId} - ${this.issueSubject}`
         }),
         message: link,
         type_parameters: JSON.stringify({ user_ids: mentionList }),
@@ -523,13 +570,24 @@ export default {
         alert_level: '1'
       }
       await createMessage(data)
+    },
+    addImageClickListener() {
+      const el = document.getElementById('descriptionViewer')
+      if (!el) return
+      const images = el.querySelectorAll('.toastui-editor-contents img')
+      images.forEach((image) => {
+        image.className = 'cursor-pointer'
+        image.addEventListener('click', () => {
+          window.open(image.src, '_blank')
+        })
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/styles/theme/variables.scss';
+@import 'src/styles/theme/variables.module.scss';
 @import 'src/styles/theme/mixin.scss';
 
 .description:hover {
@@ -551,11 +609,12 @@ export default {
   background-color: transparent;
 }
 
-.el-button--success{
-  @include css-prefix(transition, all .6s ease);
+.el-button--success {
+  @include css-prefix(transition, all 0.6s ease);
   color: $success;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $success;
@@ -563,11 +622,12 @@ export default {
   }
 }
 
-.el-button--danger{
-  @include css-prefix(transition, all .6s ease);
+.el-button--danger {
+  @include css-prefix(transition, all 0.6s ease);
   color: $danger;
   border: 1px solid #989898;
   background: none;
+
   &:hover {
     color: #fff;
     border: 1px solid $danger;
@@ -577,28 +637,35 @@ export default {
 
 .action {
   margin: 0;
+
   &.el-button--mini {
     padding: 5px;
   }
 }
+
 .drawer {
   ::v-deep .el-drawer__header {
     margin-bottom: 0 !important;
     padding: 10px;
   }
+
   ::v-deep .toastui-editor-defaultUI {
     border: none;
   }
+
   ::v-deep .el-drawer {
     border-radius: 10px 10px 0 0;
   }
+
   ::v-deep .el-drawer__body::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
+
   ::v-deep .el-drawer__body {
-    -ms-overflow-style: none;  /* IE and Edge */
+    -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   .title {
     ::v-deep .el-divider--vertical {
       width: 6px;
@@ -607,14 +674,17 @@ export default {
       height: 18px;
       background-color: $warning !important;
     }
+
     .el-button--text {
       padding: 0;
       color: $linkTextColor;
+
       &:hover {
         color: $linkTextColor;
       }
     }
   }
+
   // ::v-deep .toastui-editor-toolbar {
   //   position: sticky;
   //   top: -1px;
@@ -625,6 +695,7 @@ export default {
     padding: 0 6px;
   }
 }
+
 @include tablet {
   ::v-deep .toastui-editor-popup {
     max-width: 250px;
@@ -641,6 +712,7 @@ export default {
     margin: 7px -3px;
   }
 }
+
 .ellipsis {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -650,7 +722,10 @@ export default {
   height: auto;
   line-break: auto;
 }
+
 @supports (-webkit-touch-callout: none) or (background: -webkit-named-image(i)) {
-  .ellipsis { height: 6rem; }
+  .ellipsis {
+    height: 6rem;
+  }
 }
 </style>

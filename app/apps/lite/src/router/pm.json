@@ -138,6 +138,56 @@
         ]
       },
       {
+        "path": "files",
+        "name": "FileList",
+        "component": "views/Project/Files",
+        "meta": {
+          "title": "FileList",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "release-version",
+        "name": "ReleaseVersionParent",
+        "redirect": {
+          "name": "ReleaseVersion"
+        },
+        "component": "layout/components/parentBlank",
+        "meta": {
+          "title": "ReleaseVersion",
+          "roles": [
+            "Project Manager"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "ReleaseVersion",
+            "component": "views/Project/ReleaseVersion",
+            "hidden": true,
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          },
+          {
+            "path": ":issueTag",
+            "name": "ClosedIssueList",
+            "hidden": true,
+            "component": "views/Project/ReleaseVersion/ClosedIssueList",
+            "meta": {
+              "title": "IssueDetail",
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
+      },
+      {
         "path": "projectSettings/:projectName?",
         "name": "ProjectSettings",
         "component": "layout/components/parentBlank",
@@ -256,9 +306,6 @@
     "path": "/scan/:projectName?",
     "component": "layout",
     "name": "Scan",
-    "redirect": {
-      "name": "Sonarqube"
-    },
     "meta": {
       "title": "AutoTesting",
       "icon": "ri-shield-check-fill",
@@ -266,7 +313,22 @@
         "Project Manager"
       ]
     },
+    "redirect": {
+      "name": "Semgrep"
+    },
     "children": [
+      {
+        "path": "semgrep",
+        "name": "Semgrep",
+        "component": "views/Scan/Semgrep",
+        "meta": {
+          "title": "Semgrep",
+          "roles": [
+            "Project Manager"
+          ]
+        },
+        "hidden": false
+      },
       {
         "path": "sonarqube",
         "name": "Sonarqube",
@@ -276,7 +338,8 @@
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "hidden": false
       }
     ]
   },
@@ -383,6 +446,33 @@
         "name": "TestReport",
         "meta": {
           "title": "TestReport",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/semgrep-report",
+    "name": "SemgrepReportParent",
+    "component": "layout",
+    "redirect": {
+      "name": "SemgrepReport"
+    },
+    "hidden": true,
+    "meta": {
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": ":jobId/:branch/:commit",
+        "component": "views/Scan/Semgrep/components/SemgrepReport",
+        "name": "SemgrepReport",
+        "meta": {
+          "title": "SemgrepReport",
           "roles": [
             "Project Manager"
           ]

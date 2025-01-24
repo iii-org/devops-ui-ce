@@ -3,26 +3,40 @@
     <el-row :gutter="12">
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span>
               {{ $t('Dashboard.UnfinishedIssues') }}
             </span>
-            <br>
+            <br />
             <span>&nbsp;</span>
           </div>
-          <div class="text item" style="font-size: 40px; text-align: center; height: 86px">
+          <div
+            class="text item"
+            style="font-size: 40px; text-align: center; height: 86px"
+          >
             {{ issueNotFinishStatistics }}
           </div>
         </el-card>
       </el-col>
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span> {{ $t('Dashboard.IssuesShouldBeClosedWithinThisWeek') }} </span>
-            <br>
+            <br />
             <span>{{ $t('Dashboard.Finished') }} / {{ $t('Dashboard.Total') }}</span>
           </div>
-          <div class="text item" style="font-size: 40px; text-align: center">
+          <div
+            class="text item"
+            style="font-size: 40px; text-align: center"
+          >
             {{ issueWeekStatistics.closed }}/{{ issueWeekStatistics.closed + issueWeekStatistics.open }}
             <el-progress :percentage="returnPercentage(issueWeekStatistics)" />
           </div>
@@ -30,24 +44,38 @@
       </el-col>
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span>
               {{ $t('Dashboard.IssuesShouldBeClosedWithinThisMonth') }}
             </span>
-            <br>
+            <br />
             <span>{{ $t('Dashboard.Finished') }} / {{ $t('Dashboard.Total') }}</span>
           </div>
-          <div class="text item" style="font-size: 40px; text-align: center">
+          <div
+            class="text item"
+            style="font-size: 40px; text-align: center"
+          >
             {{ issueMonthStatistics.closed }}/{{ issueMonthStatistics.closed + issueMonthStatistics.open }}
             <el-progress :percentage="returnPercentage(issueMonthStatistics)" />
           </div>
         </el-card>
       </el-col>
     </el-row>
-    <el-row :gutter="12" class="mt-2">
+    <el-row
+      :gutter="12"
+      class="mt-2"
+    >
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span>{{ $t('Dashboard.AssignIssuesPriority') }}</span>
           </div>
           <priorityPie />
@@ -55,7 +83,11 @@
       </el-col>
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span>{{ $t('Dashboard.AssignIssuesProject') }}</span>
           </div>
           <projectPie />
@@ -63,7 +95,11 @@
       </el-col>
       <el-col :span="8">
         <el-card shadow="hover">
-          <div slot="header" class="clearfix" style="text-align: center">
+          <div
+            slot="header"
+            class="clearfix"
+            style="text-align: center"
+          >
             <span>{{ $t('Dashboard.AssignIssuesType') }}</span>
           </div>
           <typePie />

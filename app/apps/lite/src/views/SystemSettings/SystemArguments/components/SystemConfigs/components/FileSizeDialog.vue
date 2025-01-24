@@ -1,43 +1,32 @@
 <template>
   <el-dialog
-    :visible.sync="dialogVisible"
-    :title="$t('general.Edit') + $t('SystemConfigs.FileSize')"
-    :width="isMobile ? '95%' : '60%'"
-    destroy-on-close
-    append-to-body
-    :close-on-click-modal="false"
     :before-close="handleClose"
+    :close-on-click-modal="false"
+    :title="$t('general.Edit') + $t('SystemConfigs.FileSize')"
+    :visible.sync="dialogVisible"
+    :width="isMobile ? '95%' : '60%'"
+    append-to-body
+    destroy-on-close
   >
-    <el-form
-      ref="form"
-      v-loading="isLoading"
-      :model="form"
-      :rules="rules"
-    >
+    <el-form ref="form" v-loading="isLoading" :model="form" :rules="rules">
       <el-form-item prop="fileSize">
         <el-input
           v-model.number="form.fileSize"
-          :placeholder="$t('Validation.Input',[$t('SystemConfigs.FileSize')])"
+          :placeholder="$t('Validation.Input', [$t('SystemConfigs.FileSize')])"
         >
           <template slot="prepend">
             {{ $t('SystemConfigs.FileSize') }}
           </template>
-          <template slot="append">
-            MB
-          </template>
+          <template slot="append"> MB</template>
         </el-input>
       </el-form-item>
       <el-form-item class="text-right">
-        <el-button
-          class="button-secondary-reverse"
-          :loading="isLoading"
-          @click="handleClose"
-        >
+        <el-button :loading="isLoading" @click="handleClose">
           {{ $t('general.Close') }}
         </el-button>
         <el-button
-          type="primary"
           :loading="isLoading"
+          type="primary"
           @click="handleUpdateFileSize"
         >
           {{ $t('general.Confirm') }}
@@ -48,7 +37,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'FileSizeDialog',
@@ -69,7 +58,9 @@ export default {
           {
             type: 'number',
             required: true,
-            message: this.$t('Validation.Input', [this.$t('Validation.Number')]),
+            message: this.$t('Validation.Input', [
+              this.$t('Validation.Number')
+            ]),
             trigger: 'blur'
           },
           {
@@ -100,7 +91,7 @@ export default {
       this.isLoading = false
     },
     handleUpdateFileSize() {
-      this.$refs['form'].validate(async(valid) => {
+      this.$refs['form'].validate(async (valid) => {
         if (!valid) return
         this.isLoading = true
         try {
