@@ -19,10 +19,10 @@ Copy Code From EE:
   before_script:
   - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
   - git config --global user.name "GitLab CI"
+  - export $PATH="$PNPM_HOME:$PATH"
   - corepack enable
   - pnpm add -g lerna@7.4.2
   script:
-  - export $PATH="$PNPM_HOME:$PATH"
   - git clone -b v3 https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git Mono
   - 'cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
 
