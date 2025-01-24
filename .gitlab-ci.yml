@@ -13,13 +13,13 @@ Copy Code From EE:
   stage: initial
   variables:
     iiidevops: copy-code
+    PNPM_HOME: "/pnpm"
+    PATH: "$PNPM_HOME:$PATH"
   image:
     name: node:18
   before_script:
   - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
   - git config --global user.name "GitLab CI"
-  - PNPM_HOME="/pnpm"
-  - PATH="$PNPM_HOME:$PATH"
   - corepack enable
   - pnpm add -g lerna@7.4.2
   script:
