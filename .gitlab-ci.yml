@@ -41,12 +41,12 @@ Copy Code From EE:
     cp -r Mono/iiidevops ./
 
     '
-  - pwd
-  - ls -la
-  - cd app && pnpm install
-  - pwd
-  - ls -la
-  - cd -
+  # - pwd
+  # - ls -la
+  # - cd app && pnpm install
+  # - pwd
+  # - ls -la
+  # - cd -
   - rm -rf Mono
   - "if [ -f common.yaml ]; then\n  rm common.yaml\nfi\n"
   - git add -A
