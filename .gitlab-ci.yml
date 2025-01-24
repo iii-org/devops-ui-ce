@@ -19,8 +19,7 @@ Copy Code From EE:
   - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
   - git config --global user.name "GitLab CI"
   script:
-  - git clone https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git
-    Mono
+  - git clone -b v3 https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.dev7.iiidevops.org/iiidevops/devopsui-mono.git Mono
   - 'cp Mono/dockerfiles/LITE.Dockerfile ./Dockerfile
 
     cp Mono/app/lerna.json ./app/lerna.json
