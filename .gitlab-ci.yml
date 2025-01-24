@@ -19,7 +19,7 @@ Copy Code From EE:
   before_script:
   - git config --global user.email "gitlab-ci@dev7.iiidevops.org"
   - git config --global user.name "GitLab CI"
-  - export $PATH="$PNPM_HOME:$PATH"
+  - export PATH="$PNPM_HOME:$PATH"
   - corepack enable
   - pnpm add -g lerna@7.4.2
   script:
