@@ -11,10 +11,6 @@
   font-weight: 400 !important;
 }
 
-.el-button--text {
-  color: $linkTextColor !important;
-}
-
 // modify border radius
 .el-card,
 .el-table,
@@ -27,7 +23,7 @@
 .el-card.is-always-shadow,
 .el-card.is-hover-shadow:focus,
 .el-card.is-hover-shadow:hover {
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px !important;
 }
 
 .el-card__body {
@@ -51,45 +47,6 @@
   }
 }
 
-.el-checkbox__input.is-checked .el-checkbox__inner,
-.el-checkbox__input.is-indeterminate .el-checkbox__inner {
-  @include background-border-color($linkTextColor, $linkTextColor);
-}
-
-.el-checkbox__inner:hover {
-  border-color: $linkTextColor !important;
-}
-
-.el-checkbox__input.is-focus .el-checkbox__inner {
-  border-color: $linkTextColor !important;
-}
-
-.el-checkbox__input.is-checked + .el-checkbox__label {
-  color: $linkTextColor !important;
-}
-
-.el-date-table td.today span {
-  color: $linkTextColor !important;
-}
-
-.el-date-table td.current:not(.disabled) span {
-  background-color: $linkTextColor !important;
-}
-
-.el-date-table td.available:hover {
-  color: $linkTextColor !important;
-}
-
-.el-date-picker__header-label.active,
-.el-date-picker__header-label:hover {
-  color: $linkTextColor !important;
-}
-
-.el-date-table td.end-date span,
-.el-date-table td.start-date span {
-  background-color: $linkTextColor !important;
-}
-
 .el-dialog__header {
   > .container-name {
     text-align: left;
@@ -105,11 +62,6 @@
   border-radius: 8px !important;
 }
 
-.el-dialog__headerbtn:focus .el-dialog__close,
-.el-dialog__headerbtn:hover .el-dialog__close {
-  color: $linkTextColor !important;
-}
-
 .el-divider--horizontal {
   margin: 10px 0px !important;
 }
@@ -119,12 +71,6 @@
   a {
     display: block;
   }
-}
-
-.el-dropdown-menu__item:focus,
-.el-dropdown-menu__item:not(.is-disabled):hover {
-  background-color: $linkTextBackground !important;
-  color: $linkTextColor !important;
 }
 
 // el-form
@@ -155,77 +101,8 @@
   line-height: 37px !important;
 }
 
-.el-input.is-active .el-input__inner,
-.el-input__inner:focus {
-  border-color: $linkTextColor !important;
-  outline: 0;
-}
-
-.el-input-number__decrease:hover,
-.el-input-number__increase:hover {
-  color: $linkTextColor !important;
-}
-
-.el-input-number__decrease:hover:not(.is-disabled)
-  ~ .el-input
-  .el-input__inner:not(.is-disabled),
-.el-input-number__increase:hover:not(.is-disabled)
-  ~ .el-input
-  .el-input__inner:not(.is-disabled) {
-  border-color: $linkTextColor !important;
-}
-
-.el-link.el-link--primary {
-  color: $linkTextColor !important;
-
-  &:hover {
-    color: $linkTextColor !important;
-  }
-}
-
-.el-link.el-link--primary.is-underline:hover:after {
-  border-color: $linkTextColor !important;
-}
-
-.el-loading-spinner {
-  .path {
-    stroke: $linkTextColor !important;
-  }
-
-  .el-loading-text {
-    color: $linkTextColor !important;
-  }
-}
-
 .el-message-box {
   max-width: 90vw !important;
-}
-
-.el-month-table td.current:not(.disabled) .cell {
-  color: $linkTextColor !important;
-}
-
-.el-month-table td .cell:hover {
-  color: $linkTextColor !important;
-}
-
-.el-pagination.is-background .el-pager li:not(.disabled) {
-  &.active {
-    background-color: $linkTextColor !important;
-    color: #fff;
-
-    &:hover {
-      color: #fff;
-    }
-  }
-
-  &:hover {
-    color: $linkTextColor !important;
-  }
-}
-
-.el-picker-panel__icon-btn:hover {
-  color: $linkTextColor !important;
 }
 
 .el-popover.danger .el-popconfirm .el-popconfirm__main .el-popconfirm__icon {
@@ -246,64 +123,12 @@
   overflow-y: scroll;
 }
 
-// .el-progress-bar__inner {
-//   background-color: $linkTextColor !important;
-// }
-
-.el-radio-button__inner:hover {
-  color: $linkTextColor !important;
-}
-
-.el-radio-button__orig-radio:checked + .el-radio-button__inner {
-  @include background-border-color($linkTextColor, $linkTextColor);
-  color: #fff;
-  box-shadow: -1px 0 0 0 $linkTextColor !important;
-}
-
-.el-range-editor.is-active,
-.el-range-editor.is-active:hover {
-  border-color: $linkTextColor !important;
-}
-
-// to fix el-date-picker css style
-.el-range-separator {
-  box-sizing: content-box;
-}
-
-.el-select .el-input.is-focus .el-input__inner {
-  border-color: $linkTextColor !important;
-}
-
 .el-select-dropdown__wrap {
   max-width: 99vw;
 }
 
-.el-select-dropdown__item.selected {
-  color: $linkTextColor !important;
-}
-
-.el-select .el-input__inner:focus {
-  border-color: $linkTextColor !important;
-}
-
-.el-slider__bar {
-  background-color: $linkTextColor !important;
-}
-
-.el-slider__button {
-  border: 2px solid $linkTextColor !important;
-}
-
-.el-switch__label.is-active {
-  color: $linkTextColor !important;
-}
-
 .el-switch .el-switch__core {
   @include background-border-color(gray, gray);
-}
-
-.el-switch.is-checked .el-switch__core {
-  @include background-border-color($linkTextColor, $linkTextColor);
 }
 
 // el-table
@@ -350,13 +175,6 @@
 }
 
 .el-table__body {
-  tr.current-row {
-    > .el-table__cell {
-      background-color: #d1dfe8 !important;
-      color: $linkTextColor !important;
-    }
-  }
-
   .el-table__row.imageList {
     cursor: pointer !important;
   }
@@ -364,30 +182,6 @@
 
 .el-tabs__header {
   border-radius: 8px 8px 0 0;
-}
-
-.el-tabs--border-card > .el-tabs__header .el-tabs__item {
-  &:hover {
-    color: $linkTextColor !important;
-  }
-
-  &.is-active {
-    color: $linkTextColor !important;
-  }
-}
-
-.el-tabs__item {
-  &:hover {
-    color: $linkTextColor !important;
-  }
-
-  &.is-active {
-    color: $linkTextColor !important;
-  }
-}
-
-.el-tabs__active-bar {
-  background-color: $linkTextColor !important;
 }
 
 $tag-circle-options: (
@@ -431,11 +225,6 @@ $tag-circle-options: (
   }
 }
 
-.el-textarea__inner:focus {
-  outline: 0;
-  border-color: $linkTextColor !important;
-}
-
 .el-upload {
   input[type='file'] {
     display: none !important;
@@ -444,10 +233,6 @@ $tag-circle-options: (
 
 .el-upload__input {
   display: none;
-}
-
-.el-upload-dragger:hover {
-  border-color: $linkTextColor !important;
 }
 
 .el-upload,
@@ -470,15 +255,6 @@ $tag-circle-options: (
   top: 15px;
   right: 7px;
   display: block;
-}
-
-.el-year-table td.today .cell {
-  color: $linkTextColor !important;
-}
-
-.el-year-table td .cell:hover,
-.el-year-table td.current:not(.disabled) .cell {
-  color: $linkTextColor !important;
 }
 
 .el-loading-mask {

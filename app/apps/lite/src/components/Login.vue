@@ -12,7 +12,9 @@
         >
           <div class="login-form-title">
             <img :src="logo" alt="" class="sidebar-logo" />
-            <span :class="isLite ? 'lite' : ''" class="align-middle">{{ defaultSettings.title }}</span>
+            <span :class="isLite ? 'lite' : ''" class="align-middle">{{
+              defaultSettings.title
+            }}</span>
           </div>
           <el-form-item prop="username">
             <el-input
@@ -37,7 +39,12 @@
               @keyup.enter.native="handleLogin"
             />
           </el-form-item>
-          <el-button :loading="loading" class="w-full login-btn my-3" @click.native.prevent="handleLogin">
+          <el-button
+            :loading="loading"
+            class="w-full my-3"
+            type="primary"
+            @click.native.prevent="handleLogin"
+          >
             {{ $t('general.Login') }}
           </el-button>
         </el-form>
@@ -71,7 +78,8 @@ export default {
           {
             required: true,
             trigger: 'blur',
-            message: this.$t('general.PleaseInput') + ' ' + this.$t('general.Account')
+            message:
+              this.$t('general.PleaseInput') + ' ' + this.$t('general.Account')
           }
         ],
         password: [
@@ -93,7 +101,9 @@ export default {
     },
     logo() {
       const externalLogo = import.meta.env.VITE_APP_LOGO_DARK
-      return externalLogo && String(externalLogo) !== '' ? externalLogo : logoDark
+      return externalLogo && String(externalLogo) !== ''
+        ? externalLogo
+        : logoDark
     }
   },
   watch: {
@@ -107,7 +117,9 @@ export default {
   mounted() {
     const bgImage = import.meta.env.VITE_APP_LOGIN_BG
     if (bgImage && String(bgImage) !== '') {
-      document.querySelector('.login-more').style.backgroundImage = `url(${bgImage})`
+      document.querySelector(
+        '.login-more'
+      ).style.backgroundImage = `url(${bgImage})`
     }
   },
   methods: {
@@ -183,24 +195,16 @@ $light_gray: #eee;
           vertical-align: middle;
         }
       }
-
-      .login-btn {
-        background-color: $menuBg !important;
-        color: white !important;
-
-        &:hover,
-        &:active,
-        &:focus {
-          @include background-border-color($menuBg, $menuBg);
-          color: white !important;
-        }
-      }
     }
 
     .login-more {
       @include cover-background;
       width: calc(100% - 520px);
-      background: linear-gradient(rgba(150, 150, 150, 0.4), rgba(150, 150, 150, 0.4)), url('../assets/bg-image.jpg');
+      background: linear-gradient(
+          rgba(150, 150, 150, 0.4),
+          rgba(150, 150, 150, 0.4)
+        ),
+        url('../assets/bg-image.jpg');
       position: relative;
       z-index: 1;
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -257,7 +261,6 @@ $light_gray: #eee;
 .lite {
   font-family: 'Poiret One', cursive !important;
   font-weight: bold;
-  color: $primary;
 }
 
 ::v-deep {

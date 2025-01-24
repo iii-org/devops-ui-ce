@@ -1,60 +1,60 @@
 <template>
   <div :class="{ 'has-logo': showLogo }">
-    <Logo
-      v-if="showLogo"
-      :collapse="isCollapse"
-    />
+    <Logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <template v-if="pinnedRoutes?.length > 0">
         <el-menu
           ref="pinned-menu"
-          :default-active="activeMenu"
-          :collapse="isCollapse"
-          :default-openeds="['pinned']"
-          :background-color="variables.menuBg"
-          :text-color="variables.menuText"
           :active-text-color="variables.menuActiveText"
+          :background-color="variables.menuBg"
+          :class="!isCollapse && 'pb-6'"
+          :collapse="isCollapse"
+          :default-active="activeMenu"
+          :default-openeds="['pinned']"
+          :text-color="variables.menuText"
           mode="vertical"
         >
-          <el-submenu
-            index="pinned"
-            popper-append-to-body
-          >
+          <el-submenu index="pinned" popper-append-to-body>
             <template slot="title">
               <em
-                class="ri-pushpin-fill sub-el-icon text-xl"
+                v-if="isCollapse"
+                class="ri-pushpin-line sub-el-icon text-xl"
                 style="margin-right: 12px"
               ></em>
-              <span>Pinned</span>
+              <span class="text-xs text-primary font-bold">
+                {{ $t('general.PinnedMenu') }}
+              </span>
             </template>
             <SidebarItem
               v-for="route in pinnedRoutes"
               :key="route.path"
-              :item="route"
               :base-path="route.path"
+              :item="route"
               class="pinned-menu"
             />
           </el-submenu>
         </el-menu>
-        <el-divider />
       </template>
+      <div v-if="!isCollapse" class="text-xs text-primary font-bold px-5 pb-2">
+        {{ $t('general.MainMenu') }}
+      </div>
       <el-menu
         ref="menu"
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :background-color="variables.menuBg"
-        :text-color="variables.menuText"
         :active-text-color="variables.menuActiveText"
+        :background-color="variables.menuBg"
+        :collapse="isCollapse"
         :collapse-transition="false"
-        unique-opened
+        :default-active="activeMenu"
+        :text-color="variables.menuText"
         mode="vertical"
+        unique-opened
       >
         <SidebarItem
           v-for="route in permission_routes"
           :key="route.path"
-          :item="route"
           :base-path="route.path"
           :is-collapse="isCollapse"
+          :item="route"
           :parent-menu="parentMenu"
         />
         <li class="block-menu cursor-default"></li>
@@ -109,7 +109,9 @@ export default {
           }
         })
         this.$refs.menu.activeIndex = to.path
-        if (!this.isCollapse && page === 'plan') this.$refs.menu.openedMenus = include
+        if (!this.isCollapse && page === 'plan') {
+          this.$refs.menu.openedMenus = include
+        }
       }, 100)
     }
   }
@@ -122,6 +124,7 @@ export default {
   width: 1em !important;
   height: 1em !important;
 }
+
 .pinned-menu {
   ::v-deep li {
     div:before {
@@ -132,6 +135,7 @@ export default {
     }
   }
 }
+
 .block-menu {
   height: 56px;
   line-height: 56px;

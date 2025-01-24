@@ -489,7 +489,7 @@ export default {
   methods: {
     resizeTable() {
       this.$nextTick(() => {
-        this.tableHeight = this.$refs.wrapper?.clientHeight
+        this.tableHeight = this.$refs.wrapper?.clientHeight - 70
       })
     },
     handleUpdateLoading(value) {
@@ -692,7 +692,7 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper {
-  height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 50px);
+  height: calc(100vh - 50px - 20px - 50px - 50px - 50px);
   transition: width 0.3s;
   width: 100%;
 

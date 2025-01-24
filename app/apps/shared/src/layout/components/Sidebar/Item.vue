@@ -1,19 +1,16 @@
 <template>
-  <div
-    @mouseenter="handleMouseenter"
-    @mouseleave="handleMouseleave"
-  >
+  <div @mouseenter="handleMouseenter" @mouseleave="handleMouseleave">
     <el-tooltip
-      :disabled="icon === '' || disableTooltip || !isCollapse"
       :content="title"
-      placement="right"
+      :disabled="icon === '' || disableTooltip || !isCollapse"
       effect="dark"
+      placement="right"
     >
       <em
         v-if="icon !== ''"
         :class="isLogoActive ? `is-logo-active ${icon}` : `${icon}`"
-        class="sub-el-icon text-xl mr-2"
         :style="isCollapse && { 'margin-left': '16px' }"
+        class="sub-el-icon text-xl mr-2"
       ></em>
     </el-tooltip>
     <span :class="!hasChildren && isMouseenter && !isCollapse && 'hover-color'">
@@ -76,7 +73,9 @@ export default {
   computed: {
     ...mapGetters(['pinnedRoutes', 'sidebar']),
     isPin() {
-      return this.pinnedRoutes.findIndex((route) => route.name === this.name) >= 0
+      return (
+        this.pinnedRoutes.findIndex((route) => route.name === this.name) >= 0
+      )
     },
     isCollapse() {
       return !this.sidebar.opened
@@ -115,13 +114,16 @@ export default {
   width: 1em !important;
   height: 1em !important;
 }
+
 .hover-color {
   color: $warning !important;
 }
+
 .icon {
   color: $warning !important;
   font-size: 16px;
 }
+
 .is-logo-active {
   color: $menuActiveText !important;
   font-weight: bold;

@@ -1151,7 +1151,7 @@ export default {
 }
 
 .board {
-  height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 40px);
+  height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 80px);
   overflow-x: auto;
   transition: width 1s;
 

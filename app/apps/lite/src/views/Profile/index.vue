@@ -88,8 +88,8 @@ export default {
   },
   mounted() {
     this.fetchUserInfo()
-    this.fetchUserMessageInfo()
-    this.fetchServerPasswordInfo()
+    // this.fetchUserMessageInfo()
+    // this.fetchServerPasswordInfo()
   },
   methods: {
     async fetchUserInfo() {

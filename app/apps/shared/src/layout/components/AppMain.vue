@@ -1,9 +1,6 @@
 <template>
   <section class="app-main">
-    <transition
-      name="fade-transform"
-      mode="out-in"
-    >
+    <transition mode="out-in" name="fade-transform">
       <router-view :key="key" />
     </transition>
   </section>
@@ -22,12 +19,13 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.module.scss';
+
 .app-main {
-  height: calc(100% - 50px); /* 50px is the nav bar */
+  //height: 100%; /* 50px is the nav bar */
   width: 100%;
   position: relative;
   overflow: hidden;
-  background-color: $appMainBg; /* theme_discussion main background*/
+  //background-color: $appMainBg; /* theme_discussion main background*/
 }
 
 .fixed-header + .app-main {

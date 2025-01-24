@@ -3,7 +3,7 @@
     "path": "/",
     "name": "LandingPage",
     "redirect": {
-      "name": "Dashboard"
+      "name": "ProjectList"
     },
     "meta": {
       "roles": [
@@ -17,7 +17,7 @@
     "component": "layout",
     "name": "Overviews",
     "redirect": {
-      "name": "Dashboard"
+      "name": "ProjectList"
     },
     "meta": {
       "icon": "ri-dashboard-2-fill",
@@ -27,17 +27,6 @@
       ]
     },
     "children": [
-      {
-        "path": "dashboard",
-        "name": "Dashboard",
-        "component": "views/Overview/Dashboard/roles/admin",
-        "meta": {
-          "title": "Dashboard",
-          "roles": [
-            "sysadmin"
-          ]
-        }
-      },
       {
         "path": "projectList",
         "name": "ProjectList",

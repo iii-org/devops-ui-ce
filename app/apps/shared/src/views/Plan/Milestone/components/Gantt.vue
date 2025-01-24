@@ -820,7 +820,7 @@ export default {
   @apply h-screen overflow-hidden;
 }
 
-$max_height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 40px);
+$max_height: calc(100vh - 50px - 20px - 50px - 50px - 50px - 80px);
 
 .content {
   max-height: $max_height !important;

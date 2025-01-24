@@ -346,7 +346,9 @@ export default {
     ExpiredDays: 'Expired Days',
     ProjectSettings: 'Project Settings',
     Notifications: 'Notifications',
-    PlatformLanguage: 'Platform Language'
+    PlatformLanguage: 'Platform Language',
+    MainMenu: 'MAIN MENU',
+    PinnedMenu: 'PINNED MENU'
   },
   Notify: {
     Updated: 'update successful',

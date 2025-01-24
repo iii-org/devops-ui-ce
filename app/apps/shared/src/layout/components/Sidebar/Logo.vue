@@ -12,8 +12,6 @@
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <div>
           <img :src="logo" alt="" class="sidebar-logo" />
-        </div>
-        <div>
           <h1 :class="isLite ? 'lite' : ''" class="sidebar-title">
             {{ defaultSettings.title }}
           </h1>
@@ -25,7 +23,7 @@
 
 <script>
 import defaultSettings from '@/settings'
-import logoLight from '../../../assets/logo_2.png'
+import logoLight from '../../../assets/logo.png'
 
 export default {
   name: 'SidebarLogo',
@@ -38,7 +36,6 @@ export default {
   data() {
     return {
       defaultSettings
-      // logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
     }
   },
   computed: {
@@ -72,34 +69,35 @@ export default {
   width: 100%;
   height: 90px;
   // line-height: 40px;
-  background: $sideBarTitleBg;
-  text-align: center;
+  //background: $sideBarTitleBg;
+  //text-align: center;
   padding: 14px 12px;
   overflow: hidden;
   //margin-bottom: 10px;
   border-radius: 0 0 15px 15px;
-  box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
+  //box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
   z-index: 1;
   transition: height 0.3s;
 
   & .sidebar-logo-link {
     height: 100%;
     width: 100%;
+    margin-top: 8px;
 
     & .sidebar-logo {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       vertical-align: middle;
-      // margin-right: 12px;
+      margin-right: 12px;
     }
 
     & .sidebar-title {
       display: inline-block;
       margin: 0;
-      color: #e9e9e9;
+      color: $menuText;
       font-weight: 100;
       line-height: 34px;
-      font-size: 16px;
+      font-size: 22px;
       vertical-align: middle;
       font-family: 'Audiowide', cursive;
     }
@@ -110,7 +108,9 @@ export default {
     visibility: visible !important;
 
     .sidebar-logo {
-      margin-right: 0px;
+      margin: 0px;
+      width: 30px;
+      height: 30px;
     }
   }
 }
@@ -118,5 +118,6 @@ export default {
 .lite {
   font-family: 'Poiret One', cursive !important;
   font-weight: 600 !important;
+  font-size: 18px !important;
 }
 </style>

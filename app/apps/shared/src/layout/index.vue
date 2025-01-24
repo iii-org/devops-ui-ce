@@ -7,9 +7,7 @@
     ></div>
     <Sidebar class="sidebar-container" />
     <div class="main-container">
-      <div :class="{ 'fixed-header': fixedHeader }">
-        <Navbar />
-      </div>
+      <Navbar class="fixed-header" />
       <AppMain />
       <Popup />
     </div>
@@ -63,11 +61,14 @@ export default {
   position: relative;
   height: 100%;
   width: 100%;
+  //background: #efefef;
+
   &.mobile.openSidebar {
     position: fixed;
     top: 0;
   }
 }
+
 .drawer-bg {
   background: #000;
   opacity: 0.3;
@@ -79,16 +80,16 @@ export default {
 }
 
 .fixed-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - #{$sideBarWidth});
+  width: calc(100vw - #{$sideBarWidth});
   transition: width 0.28s;
 }
 
 .hideSidebar .fixed-header {
-  width: calc(100% - 54px);
+  width: calc(100vw - 52px);
 }
 
 .mobile .fixed-header {

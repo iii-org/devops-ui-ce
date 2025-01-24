@@ -1,5 +1,5 @@
 <template>
-  <div :class="isMobile ? 'mobile' : ''" class="navbar">
+  <div :class="{ mobile: isMobile, 'box-shadow': navFill }" class="navbar">
     <hamburger
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -16,7 +16,7 @@
         trigger="click"
       >
         <div>
-          <el-avatar :src="userAvatar" :size="32" class="align-middle" />
+          <el-avatar :size="32" :src="userAvatar" class="align-middle" />
         </div>
         <el-dropdown-menu
           slot="dropdown"
@@ -67,11 +67,25 @@ export default {
     Notification,
     GoogleTranslate: () => import('@shared/components/GoogleTranslate')
   },
+  data() {
+    return {
+      navFill: false
+    }
+  },
   computed: {
     ...mapGetters(['sidebar', 'userName', 'userAvatar', 'device']),
     isMobile() {
       return this.device === 'mobile'
     }
+  },
+  mounted() {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        this.navFill = true
+      } else {
+        this.navFill = false
+      }
+    })
   },
   methods: {
     toggleSideBar() {
@@ -87,14 +101,21 @@ export default {
 
 <style lang="scss" scoped>
 @import 'src/styles/theme/variables.module.scss';
+
+.box-shadow {
+  box-shadow: rgba(0, 0, 0, 0.01) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  transition: all 0.3s ease;
+  background: transparent !important;
+}
+
 .navbar {
   height: 50px;
   overflow: hidden;
-  position: relative;
-  background: $navbarBg; /* theme_discussion navbar background*/
-  box-shadow: rgba(0, 0, 0, 0.01) 0px 4px 6px -1px,
-    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
-  z-index: 1;
+  position: fixed;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  background: white;
 
   .hamburger-container {
     line-height: 46px;
@@ -130,9 +151,11 @@ export default {
       // margin-right: 10px;
       color: $navbarRightText; /* theme_discussion right font color */
       cursor: pointer;
+
       &.hover-effect {
         transition: background 0.3s;
       }
+
       &:hover {
         background: $navbarHover;
         border-radius: 6px;
@@ -140,6 +163,7 @@ export default {
     }
   }
 }
+
 .mobile {
   .navbar {
     display: flex;
@@ -151,6 +175,7 @@ export default {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
   .breadcrumb-container::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
   }
@@ -159,6 +184,7 @@ export default {
     white-space: nowrap;
     display: flex;
   }
+
   .right-menu {
     margin-left: auto;
   }
