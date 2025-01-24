@@ -39,7 +39,7 @@ Copy Code From EE:
     '
   - pwd
   - ls -la
-  - cd app && yarn
+  - cd app && pnpm install
   - pwd
   - ls -la
   - cd -
