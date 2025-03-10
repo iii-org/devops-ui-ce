@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getOrganizationList = () => request.get(`/v3/organizations`)
 export const createOrganization = (data) =>

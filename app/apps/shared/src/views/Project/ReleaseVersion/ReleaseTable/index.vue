@@ -275,7 +275,10 @@ export default {
     showClosedIssue(tag_name) {
       this.$router.push({
         name: 'ClosedIssueList',
-        params: { issueTag: tag_name, projectName: this.selectedProject.name }
+        params: {
+          issueTag: tag_name,
+          projectName: this.selectedProject.identifier
+        }
       })
     },
     getLocalTime(time) {

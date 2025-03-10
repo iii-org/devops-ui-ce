@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card :class="isMobile ? 'mobile' : ''">
+    <el-card :class="isMobile ? 'mobile' : ''" class="border-none">
       <el-tabs
         v-model="tabActive"
         :class="isMobile ? '' : 'h-full'"
@@ -35,6 +35,16 @@
             :user-pwd-form="userPwdForm"
           />
         </el-tab-pane>
+        <el-tab-pane v-if="isAiEnabled" name="aiSettings">
+          <span slot="label">
+            <em
+              v-if="isMobile"
+              class="ri-ai-generate-2 text-xl align-middle"
+            ></em>
+            <span v-else>{{ $t('AISettings.AITokenSettings') }}</span>
+          </span>
+          <AITokenSettings :back-to-overview="backToOverview" />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -49,7 +59,9 @@ export default {
   name: 'Profile',
   components: {
     Basic: () => import('./components/Basic'),
-    Security: () => import('./components/Security')
+    Security: () => import('./components/Security'),
+    AITokenSettings: () =>
+      import('@shared/views/Profile/components/AITokenSettings')
   },
   data() {
     return {
@@ -74,16 +86,26 @@ export default {
         notification: false,
         mail: false
       },
-      serverPasswordForm: []
+      serverPasswordForm: [],
+      backToOverview: false
     }
   },
   computed: {
-    ...mapGetters(['userId', 'device']),
+    ...mapGetters(['userId', 'device', 'services']),
     disableEdit() {
       return this.fromAd
     },
     isMobile() {
       return this.device === 'mobile'
+    },
+    isAiEnabled() {
+      return this.services['ai-dockerfile']
+    }
+  },
+  beforeMount() {
+    if (this.$route.params.tab) {
+      this.tabActive = this.$route.params.tab
+      this.backToOverview = true
     }
   },
   mounted() {
@@ -229,6 +251,10 @@ export default {
   ::v-deep .el-tabs__item {
     padding: 0 12px !important;
     height: 50px;
+  }
+
+  ::v-deep .el-tabs--border-card {
+    border: none;
   }
 }
 </style>

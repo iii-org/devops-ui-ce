@@ -1,9 +1,9 @@
 <template>
   <div class="error-container">
-    <h2>喔哦！找不到網頁</h2>
-    <h4>Oops！Page not found.</h4>
-    <img src="../assets/404_images/NotFound.svg" alt="404 error image" />
-    <el-button type="primary" round @click="onClick">
+    <h1 class="text-primary mb-1">喔哦！找不到網頁</h1>
+    <h4 class="text-gray-500 mt-1">Oops! Page not found.</h4>
+    <img alt="404 error image" src="../assets/404_images/NotFound.svg" />
+    <el-button round type="primary" @click="onClick">
       {{ $t('general.BackToHome') }}
     </el-button>
   </div>

@@ -1,20 +1,9 @@
 <template>
-  <el-tag
-    v-if="!icon"
-    :type="getPriorityTagType(type)"
-    :size="size"
-  >
+  <el-tag v-if="!icon" :size="size" :type="getPriorityTagType(type)">
     {{ name }}
   </el-tag>
-  <el-tooltip
-    v-else
-    :content="name"
-    placement="bottom"
-  >
-    <em
-      :class="getPriorityIconType(type)"
-      class="icon"
-    ></em>
+  <el-tooltip v-else :content="name" placement="bottom">
+    <em :class="getPriorityIconType(type)" class="icon"></em>
   </el-tooltip>
 </template>
 
@@ -47,7 +36,7 @@ export default {
         case 'High':
           return 'warning'
         case 'Normal':
-          return ''
+          return 'success'
         case 'Low':
           return 'info'
       }
@@ -69,7 +58,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .icon {
   @apply rounded text-white text-xs;
   padding: 3px;

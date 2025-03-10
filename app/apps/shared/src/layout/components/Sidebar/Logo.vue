@@ -68,14 +68,9 @@ export default {
   position: relative;
   width: 100%;
   height: 90px;
-  // line-height: 40px;
-  //background: $sideBarTitleBg;
-  //text-align: center;
   padding: 14px 12px;
   overflow: hidden;
-  //margin-bottom: 10px;
   border-radius: 0 0 15px 15px;
-  //box-shadow: rgba(0, 0, 0, 0.5) 0px 3px 8px;
   z-index: 1;
   transition: height 0.3s;
 

@@ -2,7 +2,7 @@
   <section>
     <el-tooltip
       :content="
-        socket.connected
+        socket?.connected
           ? $t('general.SocketConnected')
           : $t('general.ReconnectByReload')
       "
@@ -19,7 +19,7 @@
         >
           <el-button
             slot="button"
-            :type="socket.connected ? 'success' : 'danger'"
+            :type="socket?.connected ? 'success' : 'danger'"
             circle
             class="socket-button"
             icon="el-icon-connection"
@@ -29,7 +29,7 @@
       </transition>
     </el-tooltip>
     <el-tooltip
-      v-if="socket.disconnected"
+      v-if="socket?.disconnected"
       :content="$t('general.Reload')"
       :open-delay="100"
       placement="left"
@@ -269,8 +269,8 @@ import { getIssueFamily, updateIssue } from '@/api_v3/issues'
 import { getProjectIssueList } from '@/api_v3/projects'
 import CancelRequest from '@/mixins/CancelRequest'
 import { getLocalTime, isTimeValid } from '@shared/utils/handleTime'
-import { io } from 'socket.io-client'
 import { mapGetters } from 'vuex'
+import { initSocket } from '@/utils/request'
 
 const contextMenu = {
   row: {
@@ -388,11 +388,7 @@ export default {
           tag: true
         }
       ],
-      socket: io(`/issues`, {
-        // production socket
-        reconnectionAttempts: 5,
-        forceNew: true
-      })
+      socket: null
     }
   },
   computed: {
@@ -456,6 +452,7 @@ export default {
     }
   },
   mounted() {
+    this.socket = initSocket(`/issues`)
     this.loadData()
     this.connectSocket()
     // this.intervalTimer = window.setInterval(() => this.connectSocket(), 30000)

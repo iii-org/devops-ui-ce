@@ -5,10 +5,10 @@
         <el-date-picker
           v-model="row[prop]"
           :picker-options="pickerOptions(row)"
-          type="date"
-          value-format="yyyy-MM-dd"
           clearable
           style="width: 100%"
+          type="date"
+          value-format="yyyy-MM-dd"
           @keyup.enter.native="handlerCreate(row, $index)"
           @keyup.esc.native="handlerResetCreate(row, $index)"
         />
@@ -19,12 +19,14 @@
         "
       >
         <el-date-picker
+          :ref="`${prop}_${row.id}`"
           v-model="row[prop]"
           :picker-options="pickerOptions(row)"
-          type="date"
-          value-format="yyyy-MM-dd"
           clearable
           style="width: 100%"
+          type="date"
+          value-format="yyyy-MM-dd"
+          @blur="handlerReset(row, $index)"
           @change="handlerEdit(row, $index)"
           @keyup.enter.native="handlerEdit(row, $index)"
           @keyup.esc.native="handlerReset(row, $index)"
@@ -34,12 +36,14 @@
         <div
           v-if="row[prop]"
           :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+          class="w-full"
         >
-          {{ getLocalTime(row[prop], "YYYY-MM-DD") }}
+          {{ getLocalTime(row[prop], 'YYYY-MM-DD') }}
         </div>
         <div
           v-else
           :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+          class="w-full"
         >
           -
         </div>

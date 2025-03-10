@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 // Issue Manager
 export const getIssueStatus = () => request.get(`/v3/issue-manager/status`)

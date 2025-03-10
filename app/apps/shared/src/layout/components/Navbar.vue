@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import Notification from '@/components/Notification'
+import { mapGetters } from 'vuex'
 
 export default {
   components: {
@@ -148,7 +148,6 @@ export default {
       padding: 0 7px;
       height: 100%;
       font-size: 18px;
-      // margin-right: 10px;
       color: $navbarRightText; /* theme_discussion right font color */
       cursor: pointer;
 

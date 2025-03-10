@@ -9,11 +9,13 @@
       <em
         v-if="icon !== ''"
         :class="isLogoActive ? `is-logo-active ${icon}` : `${icon}`"
-        :style="isCollapse && { 'margin-left': '16px' }"
+        :style="isCollapse && { 'margin-left': '11px' }"
         class="sub-el-icon text-xl mr-2"
       ></em>
     </el-tooltip>
-    <span :class="!hasChildren && isMouseenter && !isCollapse && 'hover-color'">
+    <span
+      :class="{ 'hover-color': !hasChildren && isMouseenter && !isCollapse }"
+    >
       {{ title }}
     </span>
     <transition name="fade">
@@ -89,7 +91,7 @@ export default {
       if (this.isCollapse) return
       this.timer = window.setTimeout(() => {
         this.isMouseenter = true
-      }, 500)
+      }, 200)
     },
     handleMouseleave() {
       if (this.isCollapse) return
@@ -115,12 +117,8 @@ export default {
   height: 1em !important;
 }
 
-.hover-color {
-  color: $warning !important;
-}
-
 .icon {
-  color: $warning !important;
+  color: $primary !important;
   font-size: 16px;
 }
 

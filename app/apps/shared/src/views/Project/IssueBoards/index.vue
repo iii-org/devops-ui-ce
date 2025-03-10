@@ -413,10 +413,10 @@ import {
 import SaveFilterButton from '@/components/Issue/components/SaveFilterButton'
 import axios from 'axios'
 import Fuse from 'fuse.js'
-import { io } from 'socket.io-client'
 import { mapActions, mapGetters } from 'vuex'
 import Boards from './components/Boards'
 import CustomItem from './components/CustomItem'
+import { initSocket } from '@/utils/request'
 
 export default {
   name: 'IssueBoards',
@@ -496,11 +496,7 @@ export default {
           tag: true
         }
       ],
-      socket: io(`/issues`, {
-        // production socket
-        reconnectionAttempts: 5,
-        forceNew: true
-      }),
+      socket: null,
       // socket: io(`${import.meta.env.VITE_APP_BASE_API}/issues/websocket`, { // development socket
       //   reconnectionAttempts: 5
       // })
@@ -746,8 +742,10 @@ export default {
   watch: {
     selectedProjectId: {
       async handler(newId, oldId) {
-        this.socket.emit('leave', { project_id: oldId })
-        this.socket.emit('join', { project_id: newId })
+        if (this.socket) {
+          this.socket.emit('leave', { project_id: oldId })
+          this.socket.emit('join', { project_id: newId })
+        }
         await this.onCleanKeyWord()
         this.projectId = this.selectedProjectId
         this.filterValue = {}
@@ -766,6 +764,7 @@ export default {
     }
   },
   async created() {
+    this.socket = initSocket('/issues')
     this.isFirstLoad = true
     this.projectId = this.selectedProjectId
     await this.connectSocket()

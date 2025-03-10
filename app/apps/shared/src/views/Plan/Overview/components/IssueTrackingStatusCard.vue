@@ -1,19 +1,16 @@
 <template>
-  <el-card class="mb-3">
+  <el-card class="mb-3 border-none">
     <div class="flex items-center font-semibold h-8">
       <em class="el-icon-pie-chart mx-1"></em>
       {{ $t('Dashboard.IssueTrackingStatus') }}
     </div>
     <el-empty
       v-if="Object.keys(dataCollection).length === 0"
-      :image-size="200"
       :description="$t('general.NoData')"
+      :image-size="200"
       style="height: 400px"
     />
-    <Doughnut
-      v-else
-      :chart-data="dataCollection"
-    />
+    <Doughnut v-else :chart-data="dataCollection" />
   </el-card>
 </template>
 
@@ -71,16 +68,40 @@ export default {
     },
     fillData(chartData) {
       const issueStatusList = [
-        { label: this.$t('Issue.Active'), color: this.getColors('active'), key: 'Active' },
-        { label: this.$t('Issue.Assigned'), color: this.getColors('assigned'), key: 'Assigned' },
-        { label: this.$t('Issue.InProgress'), color: this.getColors('inProgress'), key: 'InProgress' },
-        { label: this.$t('Issue.Solved'), color: this.getColors('solved'), key: 'Solved' },
-        { label: this.$t('Issue.Verified'), color: this.getColors('verified'), key: 'Verified' },
-        { label: this.$t('Issue.Closed'), color: this.getColors('closed'), key: 'Closed' }
+        {
+          label: this.$t('Issue.Active'),
+          color: this.getColors('active'),
+          key: 'Active'
+        },
+        {
+          label: this.$t('Issue.Assigned'),
+          color: this.getColors('assigned'),
+          key: 'Assigned'
+        },
+        {
+          label: this.$t('Issue.InProgress'),
+          color: this.getColors('inProgress'),
+          key: 'InProgress'
+        },
+        {
+          label: this.$t('Issue.Solved'),
+          color: this.getColors('solved'),
+          key: 'Solved'
+        },
+        {
+          label: this.$t('Issue.Verified'),
+          color: this.getColors('verified'),
+          key: 'Verified'
+        },
+        {
+          label: this.$t('Issue.Closed'),
+          color: this.getColors('closed'),
+          key: 'Closed'
+        }
       ]
       this.dataCollection = {
-        color: issueStatusList.map(item => item.color),
-        data: issueStatusList.map(status => ({
+        color: issueStatusList.map((item) => item.color),
+        data: issueStatusList.map((status) => ({
           value: chartData[status.key],
           name: status.label
         }))

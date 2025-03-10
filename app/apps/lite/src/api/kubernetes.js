@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 // pod
 export const getPodLog = (project_id, pod_name, params, config) =>

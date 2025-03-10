@@ -21,7 +21,6 @@ export default {
 @import 'src/styles/theme/variables.module.scss';
 
 .app-main {
-  //height: 100%; /* 50px is the nav bar */
   width: 100%;
   position: relative;
   overflow: hidden;

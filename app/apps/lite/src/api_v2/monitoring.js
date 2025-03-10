@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getServerStatus = (server) =>
   request.get(`/v2/monitoring/${server}/alive`)

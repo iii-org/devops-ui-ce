@@ -19,7 +19,7 @@
   left: 0;
   z-index: 2001;
   overflow: hidden;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 6px, rgba(0, 0, 0, 0.1) 0px 3px 6px;
+  box-shadow: rgba(0, 0, 0, 0.01) 0px 3px 3px, rgba(0, 0, 0, 0.06) 0px 3px 3px;
 
   // reset element-ui css
   .horizontal-collapse-transition {
@@ -41,7 +41,9 @@
 
   &.has-logo {
     .el-scrollbar {
-      height: calc(100% - 90px); // 90px is the height of the logo
+      height: calc(
+        100% - 90px - 50px
+      ); // 90px is the height of the logo, 50px is the height of the footer
     }
   }
 
@@ -76,7 +78,7 @@
     &.is-active {
       color: $menuActiveText !important;
       background-color: $menuHover !important;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     &:hover {
@@ -86,23 +88,32 @@
 
   .is-active > .el-submenu__title {
     color: $subMenuActiveText !important;
-    font-weight: bold;
+    font-weight: 600;
   }
 
   & .nest-menu .el-submenu > .el-submenu__title,
   & .el-submenu .el-menu-item {
-    min-width: $sideBarWidth !important;
+    //min-width: $sideBarWidth !important;
     background-color: $subMenuBg !important;
 
     &.is-active {
       color: $menuActiveText !important;
       background-color: $subMenuHover !important;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     &:hover {
       background-color: $subMenuHover !important;
     }
+  }
+
+  .el-submenu__title,
+  .el-menu-item,
+  .el-submenu .el-menu-item {
+    height: 45px;
+    line-height: 45px;
+    margin: 2px 6px;
+    border-radius: 6px;
   }
 }
 
@@ -110,7 +121,7 @@
   > .el-menu-item {
     color: $menuActiveText !important;
     background-color: $menuHover !important;
-    font-weight: bold;
+    font-weight: 600;
   }
 }
 
@@ -135,7 +146,7 @@
       }
 
       .sub-el-icon {
-        margin-left: 19px;
+        margin-left: 11px;
       }
 
       span {
@@ -155,7 +166,7 @@
       }
 
       .sub-el-icon {
-        margin-left: 19px;
+        margin-left: 11px;
       }
 
       .el-submenu__icon-arrow {
@@ -186,9 +197,9 @@
   }
 }
 
-.el-menu--collapse .el-menu .el-submenu {
-  min-width: $sideBarWidth !important;
-}
+//.el-menu--collapse .el-menu .el-submenu {
+//  min-width: $sideBarWidth !important;
+//}
 
 // mobile responsive
 .mobile {
@@ -226,7 +237,7 @@
 .el-menu--vertical {
   & > .el-menu {
     .svg-icon {
-      margin-right: 16px;
+      margin-right: 12px;
     }
 
     .sub-el-icon {

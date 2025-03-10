@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getRepositoryBranches = (repo_id) =>
   request.get(`/v3/gitlab/${repo_id}/branches`)

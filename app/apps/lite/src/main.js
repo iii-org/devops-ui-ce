@@ -9,6 +9,7 @@ import VueGtag from 'vue-gtag'
 import '@/styles/theme/index.scss'
 import permission from '@/directive/permission/index.js'
 import 'virtual:svg-icons-register'
+import { loader } from '@guolao/vue-monaco-editor'
 
 import App from './App'
 import store from './store'
@@ -36,6 +37,12 @@ dayjs.extend(duration)
 dayjs.locale(getLanguage().toLowerCase())
 document.documentElement.setAttribute('lang', getLanguage())
 Vue.prototype.$dayjs = dayjs
+
+loader.config({
+  paths: {
+    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs'
+  }
+})
 
 Vue.use(CSV)
 Vue.use(EXCEL)

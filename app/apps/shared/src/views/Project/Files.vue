@@ -44,7 +44,7 @@
             :xs="24"
             class="mb-3"
           >
-            <el-card>
+            <el-card class="border-none">
               <div
                 class="file-icon mb-2 flex justify-between md:text-[48px] text-3xl"
               >

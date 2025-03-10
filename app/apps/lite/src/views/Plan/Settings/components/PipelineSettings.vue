@@ -149,7 +149,7 @@ export default {
     handleClick() {
       this.$router.push({
         name: 'AdvanceBranchSettings',
-        params: { projectName: this.selectedProject.name }
+        params: { projectName: this.selectedProject.identifier }
       })
     },
     handleStageChange(stage) {

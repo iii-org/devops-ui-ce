@@ -7,7 +7,7 @@
           ref="pinned-menu"
           :active-text-color="variables.menuActiveText"
           :background-color="variables.menuBg"
-          :class="!isCollapse && 'pb-6'"
+          :class="!isCollapse && 'pb-8'"
           :collapse="isCollapse"
           :default-active="activeMenu"
           :default-openeds="['pinned']"
@@ -35,7 +35,10 @@
           </el-submenu>
         </el-menu>
       </template>
-      <div v-if="!isCollapse" class="text-xs text-primary font-bold px-5 pb-2">
+      <div
+        v-if="!isCollapse"
+        class="text-xs text-primary font-bold px-6 pb-2 sticky top-0 z-[1] bg-white"
+      >
         {{ $t('general.MainMenu') }}
       </div>
       <el-menu
@@ -60,14 +63,22 @@
         <li class="block-menu cursor-default"></li>
       </el-menu>
     </el-scrollbar>
+    <div class="block-menu">
+      <span v-if="version">
+        {{ $t('Version.Version') }}
+        <el-tag class="font-semibold rounded-xl" size="small">
+          {{ version }}
+        </el-tag>
+      </span>
+    </div>
   </div>
 </template>
 
 <script>
+import variables from '@/styles/theme/variables.module.scss'
 import { mapGetters } from 'vuex'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
-import variables from '@/styles/theme/variables.module.scss'
 
 export default {
   components: { SidebarItem, Logo },
@@ -96,10 +107,13 @@ export default {
     },
     isCollapse() {
       return !this.sidebar.opened
+    },
+    version() {
+      return import.meta.env.VITE_APP_TAG
     }
   },
   watch: {
-    $route(to, from) {
+    $route(to) {
       setTimeout(() => {
         let page = ''
         const include = Object.keys(this.$refs.menu.submenus).filter((item) => {
@@ -137,8 +151,10 @@ export default {
 }
 
 .block-menu {
-  height: 56px;
-  line-height: 56px;
+  height: 50px;
+  line-height: 50px;
   list-style: none;
+  font-size: 14px;
+  text-align: center;
 }
 </style>

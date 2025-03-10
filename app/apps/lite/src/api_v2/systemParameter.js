@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getUploadFileSize = () =>
   request.get(`/v2/system_parameter/upload_file_size`)

@@ -18,7 +18,8 @@ const defaultServices = {
 }
 const defaultTestingTools = {
   semgrep: false,
-  sonarqube: false
+  sonarqube: false,
+  'ai-dockerfile': false
 }
 
 const state = {

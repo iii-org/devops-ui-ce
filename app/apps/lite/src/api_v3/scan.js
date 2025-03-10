@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 // Semgrep
 export const getSemgrepResult = (params) =>

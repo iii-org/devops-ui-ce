@@ -12,7 +12,7 @@ WORKDIR /app
 # Install lerna globally using npm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm
 RUN pnpm add -g lerna@7.4.2
 
 # Copy package settings to 'cache' by docker

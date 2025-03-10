@@ -203,7 +203,7 @@ export default {
   computed: {
     ...mapGetters(['selectedProject', 'selectedProjectId', 'device']),
     getPipelineName() {
-      return `${this.selectedProject.name}-${this.selectedBranch}-serv-dpy`
+      return `${this.selectedProject.identifier}-${this.selectedBranch}-serv-dpy`
     },
     exceedPipelineNameLengthWarning() {
       if (this.getPipelineName.length > 53) {

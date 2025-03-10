@@ -154,7 +154,7 @@ export default {
     imageProject() {
       return !this.mainVersion
         ? `{{ project }}`
-        : `${this.selectedProject.name}`
+        : `${this.selectedProject.identifier}`
     },
     main() {
       if (!this.mainVersion) return null

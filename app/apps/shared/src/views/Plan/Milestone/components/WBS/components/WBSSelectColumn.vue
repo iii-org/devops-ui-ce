@@ -39,7 +39,10 @@
         "
       >
         <el-select
+          :ref="`${propKey}_${row.id}`"
           v-model="row[propKey]['id']"
+          automatic-dropdown
+          @blur="handleBlur(row, $index)"
           @change="handleEdit(row, $index)"
           @keyup.enter.native="handleEdit(row, $index)"
           @keyup.esc.native="handleReset(row, $index)"
@@ -86,12 +89,14 @@
           <div
             v-if="row[propKey]?.name || row[propKey]?.full_name"
             :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+            class="w-full"
           >
             {{ row[propKey]?.name || row[propKey]?.full_name }}
           </div>
           <div
             v-else
             :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+            class="w-full"
           >
             -
           </div>
@@ -343,6 +348,15 @@ export default {
     },
     handlerResetCreate(row, index, treeNode) {
       this.$emit('reset-create', { value: this.propKey, row, index, treeNode })
+    },
+    handleBlur(row, index) {
+      const checkUpdate =
+        JSON.stringify(row[this.propKey]) !== JSON.stringify(row.originColumn)
+      if (checkUpdate) {
+        this.handleEdit(row, index)
+      } else if (row.originColumn) {
+        this.handleReset(row, index)
+      }
     },
     async getClosable(id) {
       let result = true

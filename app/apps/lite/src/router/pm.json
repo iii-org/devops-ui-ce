@@ -3,7 +3,7 @@
     "path": "/",
     "name": "LandingPage",
     "redirect": {
-      "name": "MyWork"
+      "name": "MyWorkParent"
     },
     "meta": {
       "roles": [
@@ -20,7 +20,7 @@
       "name": "ProjectList"
     },
     "meta": {
-      "icon": "ri-server-fill",
+      "icon": "ri-server-line",
       "roles": [
         "Project Manager"
       ]
@@ -44,62 +44,126 @@
     "component": "layout",
     "name": "Works",
     "redirect": {
-      "name": "Overview"
+      "name": "MyWorkParent"
     },
     "meta": {
       "title": "Works",
-      "icon": "ri-briefcase-3-fill",
+      "icon": "ri-briefcase-3-line",
       "roles": [
         "Project Manager"
       ]
     },
     "children": [
       {
-        "path": "overview/:projectName?",
-        "name": "Overview",
-        "component": "views/Plan/Overview",
+        "path": ":projectName?/overview",
+        "name": "OverviewParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Overview"
+        },
         "meta": {
           "title": "ProjectOverview",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Overview",
+            "hidden": true,
+            "component": "views/Plan/Overview",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "my-work",
-        "name": "MyWork",
-        "component": "views/MyWork",
+        "name": "MyWorkParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "MyWork"
+        },
         "meta": {
           "title": "MyWork",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "MyWork",
+            "hidden": true,
+            "component": "views/MyWork",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "milestone/:projectName?",
-        "name": "Milestone",
-        "component": "views/Plan/Milestone",
+        "path": ":projectName?/milestone",
+        "name": "MilestoneParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Milestone"
+        },
         "meta": {
           "title": "Milestone",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Milestone",
+            "hidden": true,
+            "component": "views/Plan/Milestone",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "issue-boards/:projectName?",
-        "name": "IssueBoards",
-        "component": "views/Project/IssueBoards",
+        "path": ":projectName?/issue-boards",
+        "name": "IssueBoardsParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "IssueBoards"
+        },
         "meta": {
           "title": "Kanban",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "IssueBoards",
+            "hidden": true,
+            "component": "views/Project/IssueBoards",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "issues",
+        "path": ":projectName?/issue-list",
         "name": "IssueLists",
         "component": "layout/components/parentBlank",
         "redirect": {
@@ -138,18 +202,34 @@
         ]
       },
       {
-        "path": "files",
-        "name": "FileList",
-        "component": "views/Project/Files",
+        "path": ":projectName?/files",
+        "name": "FileListParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "FileList"
+        },
         "meta": {
           "title": "FileList",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "FileList",
+            "hidden": true,
+            "component": "views/Project/Files",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "release-version",
+        "path": ":projectName?/release-version",
         "name": "ReleaseVersionParent",
         "redirect": {
           "name": "ReleaseVersion"
@@ -188,7 +268,7 @@
         ]
       },
       {
-        "path": "projectSettings/:projectName?",
+        "path": ":projectName?/project-settings",
         "name": "ProjectSettings",
         "component": "layout/components/parentBlank",
         "redirect": {
@@ -213,7 +293,7 @@
             }
           },
           {
-            "path": "participateProject/:userId",
+            "path": "participate-project/:userId",
             "name": "ParticipateProject",
             "hidden": true,
             "component": "views/SystemSettings/AccountManage/components/ParticipateProject",
@@ -225,7 +305,7 @@
             }
           },
           {
-            "path": "advanceBranchSettings",
+            "path": "advance-branch-settings",
             "name": "AdvanceBranchSettings",
             "hidden": true,
             "component": "views/Plan/Settings/components/AdvanceBranchSettings",
@@ -257,11 +337,11 @@
     "component": "layout",
     "name": "Progress",
     "redirect": {
-      "name": "DevBranch"
+      "name": "DevBranchParent"
     },
     "meta": {
       "title": "DevProgress",
-      "icon": "ri-refresh-fill",
+      "icon": "ri-refresh-line",
       "roles": [
         "Project Manager"
       ]
@@ -269,36 +349,111 @@
     "children": [
       {
         "path": "git-graph",
-        "name": "GitGraph",
-        "component": "views/Progress/GitGraph",
+        "name": "GitGraphParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "GitGraph"
+        },
         "meta": {
           "title": "GitGraph",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "GitGraph",
+            "hidden": true,
+            "component": "views/Progress/GitGraph",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "dev-branch",
-        "name": "DevBranch",
-        "component": "views/Progress/DevBranch",
+        "name": "DevBranchParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "DevBranch"
+        },
         "meta": {
           "title": "DevBranch",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "DevBranch",
+            "hidden": true,
+            "component": "views/Progress/DevBranch",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "pipeline",
-        "name": "Pipeline",
-        "component": "views/Progress/Pipelines",
+        "name": "PipelineParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Pipeline"
+        },
         "meta": {
           "title": "Pipelines",
           "roles": [
             "Project Manager"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Pipeline",
+            "hidden": true,
+            "component": "views/Progress/Pipelines",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "dockerfile",
+        "name": "GenerateDockerfileParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "GenerateDockerfile"
+        },
+        "meta": {
+          "title": "GenerateDockerfile",
+          "roles": [
+            "Project Manager"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "GenerateDockerfile",
+            "hidden": true,
+            "component": "views/Progress/GenerateDockerfile",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -308,38 +463,68 @@
     "name": "Scan",
     "meta": {
       "title": "AutoTesting",
-      "icon": "ri-shield-check-fill",
+      "icon": "ri-shield-check-line",
       "roles": [
         "Project Manager"
       ]
     },
     "redirect": {
-      "name": "Semgrep"
+      "name": "SemgrepParent"
     },
     "children": [
       {
         "path": "semgrep",
-        "name": "Semgrep",
-        "component": "views/Scan/Semgrep",
+        "name": "SemgrepParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Semgrep"
+        },
         "meta": {
           "title": "Semgrep",
           "roles": [
             "Project Manager"
           ]
         },
-        "hidden": false
+        "children": [
+          {
+            "path": "",
+            "name": "Semgrep",
+            "hidden": true,
+            "component": "views/Scan/Semgrep",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "sonarqube",
-        "name": "Sonarqube",
-        "component": "views/Scan/SonarQube",
+        "name": "SonarqubeParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Sonarqube"
+        },
         "meta": {
           "title": "SonarQube",
           "roles": [
             "Project Manager"
           ]
         },
-        "hidden": false
+        "children": [
+          {
+            "path": "",
+            "name": "Sonarqube",
+            "hidden": true,
+            "component": "views/Scan/SonarQube",
+            "meta": {
+              "roles": [
+                "Project Manager"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -351,7 +536,7 @@
       "name": "ProjectActivities"
     },
     "meta": {
-      "icon": "ri-survey-fill",
+      "icon": "ri-survey-line",
       "roles": [
         "Project Manager"
       ]
@@ -390,7 +575,7 @@
         "name": "Profile",
         "meta": {
           "title": "Profile",
-          "icon": "ri-user-fill",
+          "icon": "ri-user-line",
           "roles": [
             "Project Manager"
           ]
@@ -418,7 +603,7 @@
         "name": "SystemVersion",
         "meta": {
           "title": "SystemVersion",
-          "icon": "ri-user-fill",
+          "icon": "ri-user-line",
           "roles": [
             "Project Manager"
           ]

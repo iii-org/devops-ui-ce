@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getIssueFilter = (project_id) => request.get(`/project/${project_id}/issue_filter`)
 export const addIssueFilter = (project_id, data) => request.post(`/project/${project_id}/issue_filter`, data)

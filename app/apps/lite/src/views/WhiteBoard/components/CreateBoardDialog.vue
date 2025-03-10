@@ -76,7 +76,7 @@ export default {
             this.$router.push({
               name: 'Excalidraw',
               params: {
-                projectName: this.selectedProject.name,
+                projectName: this.selectedProject.identifier,
                 excalidrawId: row.id
               }
             })

@@ -12,9 +12,9 @@
         >
           <div class="login-form-title">
             <img :src="logo" alt="" class="sidebar-logo" />
-            <span :class="isLite ? 'lite' : ''" class="align-middle">{{
-              defaultSettings.title
-            }}</span>
+            <span :class="isLite ? 'lite' : ''" class="align-middle">
+              {{ defaultSettings.title }}
+            </span>
           </div>
           <el-form-item prop="username">
             <el-input
@@ -176,7 +176,6 @@ $light_gray: #eee;
       width: 520px;
       min-height: 100vh;
       display: block;
-      background-color: #f7f7f7;
       padding: 200px 80px;
       transition: padding 0.2s ease-in-out;
 
@@ -200,11 +199,8 @@ $light_gray: #eee;
     .login-more {
       @include cover-background;
       width: calc(100% - 520px);
-      background: linear-gradient(
-          rgba(150, 150, 150, 0.4),
-          rgba(150, 150, 150, 0.4)
-        ),
-        url('../assets/bg-image.jpg');
+      background: url('../assets/bg_image.jpg');
+      background-position-x: center;
       position: relative;
       z-index: 1;
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -221,12 +217,7 @@ $light_gray: #eee;
     .el-button {
       border-radius: 6px;
       height: 54px;
-      font-size: 16px;
-    }
-
-    .el-input__inner {
-      box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset;
-      border: 1px solid #eaeaea;
+      font-size: 16px !important;
     }
 
     .el-form-item {
@@ -270,8 +261,6 @@ $light_gray: #eee;
     &:-webkit-autofill {
       transition: background-color 5000s ease-in-out 0s;
       -webkit-text-fill-color: $primary;
-      -webkit-font-feature-settings: 16px;
-      font-size: 16px !important;
     }
   }
 }

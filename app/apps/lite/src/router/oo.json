@@ -3,7 +3,7 @@
     "path": "/",
     "name": "LandingPage",
     "redirect": {
-      "name": "Dashboard"
+      "name": "ProjectList"
     },
     "meta": {
       "roles": [
@@ -17,27 +17,16 @@
     "component": "layout",
     "name": "Overviews",
     "redirect": {
-      "name": "Dashboard"
+      "name": "ProjectList"
     },
     "meta": {
-      "icon": "ri-dashboard-2-fill",
+      "icon": "ri-server-line",
       "title": "Overview",
       "roles": [
         "Organization Owner"
       ]
     },
     "children": [
-      {
-        "path": "dashboard",
-        "name": "Dashboard",
-        "component": "views/Overview/Dashboard/roles/admin",
-        "meta": {
-          "title": "Dashboard",
-          "roles": [
-            "Organization Owner"
-          ]
-        }
-      },
       {
         "path": "projectList",
         "name": "ProjectList",
@@ -56,11 +45,11 @@
     "component": "layout",
     "name": "Works",
     "redirect": {
-      "name": "Overview"
+      "name": "OverviewParent"
     },
     "meta": {
       "title": "Works",
-      "icon": "ri-briefcase-3-fill",
+      "icon": "ri-briefcase-3-line",
       "roles": [
         "Organization Owner"
       ]
@@ -68,39 +57,87 @@
     "children": [
       {
         "path": "overview",
-        "name": "Overview",
-        "component": "views/Plan/Overview",
+        "name": "OverviewParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Overview"
+        },
         "meta": {
           "title": "ProjectOverview",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Overview",
+            "hidden": true,
+            "component": "views/Plan/Overview",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "milestone",
-        "name": "Milestone",
-        "component": "views/Plan/Milestone",
+        "name": "MilestoneParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Milestone"
+        },
         "meta": {
           "title": "Milestone",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Milestone",
+            "hidden": true,
+            "component": "views/Plan/Milestone",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "issue-boards/:projectName?",
-        "name": "IssueBoards",
-        "component": "views/Project/IssueBoards",
+        "path": "issue-boards",
+        "name": "IssueBoardsParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "IssueBoards"
+        },
         "meta": {
           "title": "Kanban",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "IssueBoards",
+            "hidden": true,
+            "component": "views/Project/IssueBoards",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
-        "path": "issues",
+        "path": "issue-list",
         "name": "IssueLists",
         "component": "layout/components/parentBlank",
         "redirect": {
@@ -140,14 +177,30 @@
       },
       {
         "path": "files",
-        "name": "FileList",
-        "component": "views/Project/Files",
+        "name": "FileListParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "FileList"
+        },
         "meta": {
           "title": "FileList",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "FileList",
+            "hidden": true,
+            "component": "views/Project/Files",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "release-version",
@@ -189,7 +242,7 @@
         ]
       },
       {
-        "path": "projectSettings",
+        "path": "project-settings/:projectName?",
         "name": "ProjectSettings",
         "component": "layout/components/parentBlank",
         "redirect": {
@@ -214,7 +267,7 @@
             }
           },
           {
-            "path": "participateProject/:userId",
+            "path": "participate-project/:userId",
             "name": "ParticipateProject",
             "hidden": true,
             "component": "views/SystemSettings/AccountManage/components/ParticipateProject",
@@ -226,7 +279,7 @@
             }
           },
           {
-            "path": "advanceBranchSettings",
+            "path": "advance-branch-settings",
             "name": "AdvanceBranchSettings",
             "hidden": true,
             "component": "views/Plan/Settings/components/AdvanceBranchSettings",
@@ -258,11 +311,11 @@
     "component": "layout",
     "name": "Progress",
     "redirect": {
-      "name": "DevBranch"
+      "name": "DevBranchParent"
     },
     "meta": {
       "title": "DevProgress",
-      "icon": "ri-refresh-fill",
+      "icon": "ri-refresh-line",
       "roles": [
         "Organization Owner"
       ]
@@ -270,36 +323,111 @@
     "children": [
       {
         "path": "git-graph",
-        "name": "GitGraph",
-        "component": "views/Progress/GitGraph",
+        "name": "GitGraphParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "GitGraph"
+        },
         "meta": {
           "title": "GitGraph",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "GitGraph",
+            "hidden": true,
+            "component": "views/Progress/GitGraph",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "dev-branch",
-        "name": "DevBranch",
-        "component": "views/Progress/DevBranch",
+        "name": "DevBranchParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "DevBranch"
+        },
         "meta": {
           "title": "DevBranch",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "DevBranch",
+            "hidden": true,
+            "component": "views/Progress/DevBranch",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "pipeline",
-        "name": "Pipeline",
-        "component": "views/Progress/Pipelines",
+        "name": "PipelineParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Pipeline"
+        },
         "meta": {
           "title": "Pipelines",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "Pipeline",
+            "hidden": true,
+            "component": "views/Progress/Pipelines",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "path": "dockerfile",
+        "name": "GenerateDockerfileParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "GenerateDockerfile"
+        },
+        "meta": {
+          "title": "GenerateDockerfile",
+          "roles": [
+            "Organization Owner"
+          ]
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "GenerateDockerfile",
+            "hidden": true,
+            "component": "views/Progress/GenerateDockerfile",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -309,38 +437,68 @@
     "name": "Scan",
     "meta": {
       "title": "AutoTesting",
-      "icon": "ri-shield-check-fill",
+      "icon": "ri-shield-check-line",
       "roles": [
         "Organization Owner"
       ]
     },
     "redirect": {
-      "name": "Semgrep"
+      "name": "SemgrepParent"
     },
     "children": [
       {
         "path": "semgrep",
-        "name": "Semgrep",
-        "component": "views/Scan/Semgrep",
+        "name": "SemgrepParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Semgrep"
+        },
         "meta": {
           "title": "Semgrep",
           "roles": [
             "Organization Owner"
           ]
         },
-        "hidden": false
+        "children": [
+          {
+            "path": "",
+            "name": "Semgrep",
+            "hidden": true,
+            "component": "views/Scan/Semgrep",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "sonarqube",
-        "name": "Sonarqube",
-        "component": "views/Scan/SonarQube",
+        "name": "SonarqubeParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "Sonarqube"
+        },
         "meta": {
           "title": "SonarQube",
           "roles": [
             "Organization Owner"
           ]
         },
-        "hidden": false
+        "children": [
+          {
+            "path": "",
+            "name": "Sonarqube",
+            "hidden": true,
+            "component": "views/Scan/SonarQube",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -352,7 +510,7 @@
       "name": "ProjectActivities"
     },
     "meta": {
-      "icon": "ri-survey-fill",
+      "icon": "ri-survey-line",
       "roles": [
         "Organization Owner"
       ]
@@ -380,7 +538,7 @@
     },
     "meta": {
       "title": "Admin",
-      "icon": "ri-settings-5-fill",
+      "icon": "ri-settings-5-line",
       "roles": [
         "Organization Owner"
       ]
@@ -388,25 +546,57 @@
     "children": [
       {
         "path": "account-manage",
-        "component": "views/SystemSettings/AccountManage",
-        "name": "AccountManage",
+        "name": "AccountManageParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "AccountManage"
+        },
         "meta": {
           "title": "AccountManage",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "AccountManage",
+            "hidden": true,
+            "component": "views/SystemSettings/AccountManage",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       },
       {
         "path": "system-activities",
-        "name": "SystemActivities",
-        "component": "views/SystemSettings/SystemActivities",
+        "name": "SystemActivitiesParent",
+        "component": "layout/components/parentBlank",
+        "redirect": {
+          "name": "SystemActivities"
+        },
         "meta": {
-          "title": "OrganizationActivities",
+          "title": "SystemActivities",
           "roles": [
             "Organization Owner"
           ]
-        }
+        },
+        "children": [
+          {
+            "path": "",
+            "name": "SystemActivities",
+            "hidden": true,
+            "component": "views/SystemSettings/SystemActivities",
+            "meta": {
+              "roles": [
+                "Organization Owner"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -430,7 +620,7 @@
         "name": "Profile",
         "meta": {
           "title": "Profile",
-          "icon": "ri-user-fill",
+          "icon": "ri-user-line",
           "roles": [
             "Organization Owner"
           ]
@@ -458,7 +648,7 @@
         "name": "SystemVersion",
         "meta": {
           "title": "SystemVersion",
-          "icon": "ri-user-fill",
+          "icon": "ri-user-line",
           "roles": [
             "Organization Owner"
           ]
@@ -514,7 +704,7 @@
         "meta": {
           "title": "SemgrepReport",
           "roles": [
-            "sysadmin"
+            "Organization Owner"
           ]
         }
       }

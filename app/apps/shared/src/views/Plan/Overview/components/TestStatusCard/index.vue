@@ -2,7 +2,7 @@
   <el-card
     v-loading="isLoading"
     :element-loading-text="$t('Loading')"
-    class="mb-3"
+    class="mb-3 border-none"
   >
     <div class="flex justify-between h-8">
       <span class="flex items-center font-semibold">

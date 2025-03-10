@@ -55,6 +55,7 @@
         </el-table-column>
         <WBSSelectColumn
           v-if="columns.indexOf('tracker') >= 0"
+          ref="tracker"
           :components="Tracker"
           :edit-row-id="editRowId"
           :has-child-edit="true"
@@ -73,6 +74,7 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('status') >= 0"
+          ref="status"
           :assigned-to="assignedTo"
           :components="Status"
           :edit-row-id="editRowId"
@@ -89,6 +91,7 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('version') >= 0"
+          ref="version"
           :edit-row-id="editRowId"
           :edit-row-versions="editRowVersions"
           :has-child-edit="true"
@@ -97,7 +100,6 @@
           min-width="110px"
           prop="version.id"
           prop-key="version"
-          show-overflow-tooltip
           sortable
           @create="handleCreateIssue"
           @edit="handleUpdateIssue"
@@ -106,12 +108,12 @@
         />
         <WBSDateColumn
           v-if="columns.indexOf('StartDate') >= 0"
+          ref="start_date"
           :edit-row-id="editRowId"
           :label="$t('Issue.StartDate')"
           before-date-column="due_date"
           min-width="125px"
           prop="start_date"
-          show-overflow-tooltip
           sortable
           @create="handleCreateIssue"
           @edit="handleUpdateIssue"
@@ -120,12 +122,12 @@
         />
         <WBSDateColumn
           v-if="columns.indexOf('EndDate') >= 0"
+          ref="due_date"
           :edit-row-id="editRowId"
           :label="$t('Issue.EndDate')"
           after-date-column="start_date"
           min-width="125px"
           prop="due_date"
-          show-overflow-tooltip
           sortable
           @create="handleCreateIssue"
           @edit="handleUpdateIssue"
@@ -134,6 +136,7 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('priority') >= 0"
+          ref="priority"
           :components="Priority"
           :edit-row-id="editRowId"
           :label="$t('Issue.priority')"
@@ -141,7 +144,6 @@
           min-width="110px"
           prop="priority.id"
           prop-key="priority"
-          show-overflow-tooltip
           sortable
           @create="handleCreateIssue"
           @edit="handleUpdateIssue"
@@ -150,6 +152,7 @@
         />
         <WBSSelectColumn
           v-if="columns.indexOf('assigned') >= 0"
+          ref="assigned"
           :edit-row-assigned-to="editRowAssignedTo"
           :edit-row-id="editRowId"
           :has-child-edit="true"
@@ -158,7 +161,6 @@
           min-width="125px"
           prop="assigned.id"
           prop-key="assigned"
-          show-overflow-tooltip
           sortable
           @create="handleCreateIssue"
           @edit="handleUpdateIssue"
@@ -489,8 +491,10 @@ export default {
       this.listData = await this.fetchData()
       this.$nextTick(() => {
         // this.$set(this.$refs['WBS'].resizeState, 'height', 0)
-        this.$set(this.$refs['WBS'], 'isGroup', true)
-        this.$set(this.$refs['WBS'], 'isGroup', false)
+        if (this.$refs['WBS']) {
+          this.$set(this.$refs['WBS'], 'isGroup', true)
+          this.$set(this.$refs['WBS'], 'isGroup', false)
+        }
       })
 
       if (this.issueMatrixDialog.row.id) {
@@ -805,6 +809,10 @@ export default {
         )
         this.$set(row, 'originColumn', cloneDeep(row[columnName]))
         this.$set(row, 'editColumn', columnName)
+        this.$nextTick(() => {
+          // autofocus on the selector
+          this.$refs[columnName].$refs[`${columnName}_${row.id}`]?.focus()
+        })
       }
     },
     handleResetEdit({ value, row }) {
@@ -1211,58 +1219,31 @@ export default {
 <style lang="scss" scoped>
 @import 'src/styles/theme/mixin.scss';
 @import 'src/styles/theme/transition.scss';
+@import 'src/styles/theme/variables.module.scss';
 
 $light-gray: #9ca3af;
 $deep-gray: #333333;
 
 $tag-options: (
-  active: #00008b,
-  assigned: #8b0000,
-  closed: #808080,
-  inProgress: #006400,
-  solved: #ff8c00,
-  verified: #8b008b
+  active: darken($active, 10%),
+  assigned: darken($assigned, 10%),
+  closed: darken($closed, 10%),
+  inProgress: darken($inProgress, 10%),
+  solved: darken($solved, 10%),
+  verified: darken($verified, 10%)
 );
 
 @each $key, $value in $tag-options {
   ::v-deep .el-tag--#{$key}.cursor-pointer:hover {
     @include background-border-color($value, $value);
-    color: #ffffff;
+    transition: all 0.1s ease;
   }
 }
 
-$html-elements: (
-  span: #00aaff,
-  div: #00aaff
-);
-
-@each $key, $value in $html-elements {
-  ::v-deep .cell {
-    #{$key}.cursor-pointer:hover {
-      @apply font-black;
-      color: $value;
-    }
-  }
-}
-
-$cursor-pointer-colors: (
-  cursor-pointer: (
-    background-border-color: #dbe6f0,
-    color: #3d83c0
-  ),
-  cursor-not-allowed: (
-    background-border-color: #b0c4de,
-    color: #7d94a8
-  )
-);
-
-@each $key, $value in $cursor-pointer-colors {
-  ::v-deep .el-tag--light.#{$key}:hover {
-    @include background-border-color(
-      map-get($value, background-border-color),
-      map-get($value, background-border-color)
-    );
-    color: map-get($value, color);
+::v-deep .cell {
+  .cursor-pointer:hover {
+    font-weight: bold;
+    transition: all 0.1s ease;
   }
 }
 

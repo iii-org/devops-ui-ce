@@ -3,107 +3,166 @@ import Layout from '@shared/layout'
 import ParentBlank from '@shared/layout/components/parentBlank'
 import store from '@/store'
 
+/**
+ * Check if user has permission to access the route
+ * @param {Array} roles - User roles
+ * @param {Object} route - Route object
+ * @returns {boolean} - Whether user has permission
+ */
 function hasPermission(roles, route) {
   if (route?.meta?.roles) {
     return roles.some((role) => route.meta.roles.includes(role))
-  } else {
-    return true
   }
+  return true
 }
 
+/**
+ * Resolve component based on component path
+ * @param {string} componentPath - Path to component
+ * @param {Object} componentImports - Glob of component imports
+ * @returns {Promise<Object>} - Resolved component
+ * @throws {Error} - If component not found
+ */
+async function resolveComponent(componentPath, componentImports) {
+  if (componentPath === 'layout') {
+    return Layout
+  }
+
+  if (componentPath === 'layout/components/parentBlank') {
+    return ParentBlank
+  }
+
+  const fullPath = `/src/${componentPath}`
+  const possiblePaths = [
+    fullPath.includes('.vue') ? fullPath : `${fullPath}.vue`,
+    `${fullPath}/index.js`,
+    `${fullPath}/index.vue`
+  ]
+
+  for (const path of possiblePaths) {
+    const matchedPath = Object.keys(componentImports).find((key) =>
+      key.includes(path)
+    )
+    if (matchedPath) {
+      return (await componentImports[matchedPath]()).default
+    }
+  }
+
+  throw new Error(`Component not found: ${componentPath}`)
+}
+
+/**
+ * Process routes and resolve components
+ * @param {Array} routes - Routes to process
+ * @returns {Promise<Array>} - Processed routes with resolved components
+ */
 export async function getAsyncRoutes(routes) {
   const res = []
-  const keys = ['path', 'name', 'children', 'redirect', 'meta', 'hidden']
+  const allowedKeys = ['path', 'name', 'children', 'redirect', 'meta', 'hidden']
   const componentImports = import.meta.glob('@/views/**/*.{vue,js}')
 
   for (const item of routes) {
     const newItem = {}
+
+    // Handle component resolution
     if (item.component) {
-      if (item.component === 'layout') {
-        newItem.component = Layout
-      } else if (item.component === 'layout/components/parentBlank') {
-        newItem.component = ParentBlank
-      } else {
-        const componentPath = `/src/${item.component}`
-        let componentPath2 = componentPath.includes('.vue')
-          ? componentPath
-          : componentPath + '.vue'
-        componentPath2 = Object.keys(componentImports).filter((key) =>
-          key.includes(componentPath2)
-        )[0]
-        if (!componentPath2) {
-          componentPath2 = componentPath + '/index.js'
-          componentPath2 = Object.keys(componentImports).filter((key) =>
-            key.includes(componentPath2)
-          )[0]
-          if (!componentPath2) {
-            componentPath2 = componentPath + '/index.vue'
-            componentPath2 = Object.keys(componentImports).filter((key) =>
-              key.includes(componentPath2)
-            )[0]
-          }
-        }
-        if (componentPath2) {
-          newItem.component = (await componentImports[componentPath2]()).default
-        } else {
-          throw new Error('Component not found: ' + componentPath)
-        }
+      try {
+        newItem.component = await resolveComponent(
+          item.component,
+          componentImports
+        )
+      } catch (error) {
+        console.error(error)
+        continue // Skip this route if component can't be resolved
       }
     }
+
+    // Copy allowed properties
     for (const key in item) {
-      if (keys.includes(key)) {
+      if (allowedKeys.includes(key)) {
         newItem[key] = item[key]
       }
     }
+
+    // Process children recursively
     if (newItem?.children?.length) {
       newItem.children = await getAsyncRoutes(item.children)
     }
+
     res.push(newItem)
   }
+
   return res
 }
 
+/**
+ * Filter routes based on user roles
+ * @param {Array} routes - Routes to filter
+ * @param {Array} roles - User roles
+ * @returns {Array} - Filtered routes
+ */
 export function filterAsyncRoutes(routes, roles) {
-  const res = []
-  routes.forEach((route) => {
-    const tmp = { ...route }
-    if (hasPermission(roles, tmp)) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles)
+  return routes.reduce((acc, route) => {
+    const routeCopy = { ...route }
+
+    if (hasPermission(roles, routeCopy)) {
+      if (routeCopy.children) {
+        routeCopy.children = filterAsyncRoutes(routeCopy.children, roles)
       }
-      res.push(tmp)
+      acc.push(routeCopy)
     }
-  })
-  return res
+
+    return acc
+  }, [])
 }
 
+/**
+ * Filter routes based on available services
+ * @param {Array} routes - Routes to filter
+ * @returns {Array} - Filtered routes
+ */
 export function filterAsyncPluginRoutes(routes) {
   const services = store.getters.services
 
-  function shouldIncludeRoute(item) {
-    if (Object.keys(services).includes(item.name.toLowerCase())) {
-      return services[item.name.toLowerCase()]
-    } else if (item.name === 'PostmanParent') return services.postman
-    else if (
-      item.name === 'Scan' ||
-      item.name === 'GitGraph' ||
-      item.name === 'DevBranch' ||
-      item.name === 'Pipeline'
-    ) {
+  /**
+   * Determine if a route should be included based on service availability
+   * @param {Object} route - Route object
+   * @returns {boolean} - Whether route should be included
+   */
+  function shouldIncludeRoute(route) {
+    const routeName = route.name.toLowerCase()
+
+    if (Object.keys(services).includes(routeName)) {
+      return services[routeName]
+    }
+
+    // Special case routes
+    if (route.name === 'PostmanParent') return services.postman
+    if (route.name === 'GenerateDockerfileParent') {
+      return services['ai-dockerfile']
+    }
+
+    // Gitlab dependent routes
+    const gitlabDependentRoutes = ['Scan', 'GitGraph', 'DevBranch', 'Pipeline']
+    if (gitlabDependentRoutes.includes(route.name)) {
       return services.gitlab
     }
+
     return true
   }
 
-  function filterRoutesRecursively(routes) {
-    return routes.filter((route) => {
-      const include = shouldIncludeRoute(route)
-
-      if (!include) {
+  /**
+   * Filter routes recursively
+   * @param {Array} routesToFilter - Routes to filter
+   * @returns {Array} - Filtered routes
+   */
+  function filterRoutesRecursively(routesToFilter) {
+    return routesToFilter.filter((route) => {
+      if (!shouldIncludeRoute(route)) {
         return false
       }
 
-      if (route.children && route.children.length > 0) {
+      if (route.children?.length) {
         route.children = filterRoutesRecursively(route.children)
       }
 
@@ -121,33 +180,27 @@ const state = {
 }
 
 const mutations = {
-  SET_ROUTES: (states, routes) => {
-    states.addRoutes = routes
-    states.routes = constantRoutes.concat(routes)
+  SET_ROUTES: (state, routes) => {
+    state.addRoutes = routes
+    state.routes = constantRoutes.concat(routes)
   }
 }
 
 const actions = {
+  /**
+   * Generate routes based on user roles
+   * @param {Object} context - Vuex context
+   * @param {string} roles - User role
+   * @returns {Promise<Array>} - Generated routes
+   */
   async generateRoutes({ commit }, roles) {
-    // commit('SET_EXCALIDRAW_STATUS', false)
-    // const disabledPluginRoutes = (await getRoutes()).data.map((route) => {
-    //   if (route.name === 'excalidraw') commit('SET_EXCALIDRAW_STATUS', !route.disabled)
-    //   if (route.disabled) return route.name
-    // })
-    // views Plugin
-    const result = asyncRoutes(roles) // Constant Router
-    // const result = (await getRouter()).data // Dynamic Router
+    const result = asyncRoutes(roles)
     const routes = await getAsyncRoutes(result)
-    let accessedRoutes
+
     return new Promise(async (resolve) => {
-      // if (roles.includes('admin')) {
-      //   accessedRoutes = routes || []
-      // } else {
-      //   accessedRoutes = filterAsyncRoutes(routes, [roles])
-      //   accessedRoutes = filterAsyncPluginRoutes(accessedRoutes)
-      // }
-      accessedRoutes = filterAsyncRoutes(routes, [roles])
+      let accessedRoutes = filterAsyncRoutes(routes, [roles])
       accessedRoutes = filterAsyncPluginRoutes(accessedRoutes)
+
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

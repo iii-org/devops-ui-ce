@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getCheckMarxScans = (project_id) =>
   request.get(`/checkmarx/scans/${project_id}`)

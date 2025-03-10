@@ -7,11 +7,12 @@
             item.redirect === 'noRedirect' || index === levelList.length - 1
           "
           class="no-redirect"
-          >{{ generateTitle(item.meta.title) }}</span
         >
-        <a v-else @click.prevent="handleLink(item)">{{
-          generateTitle(item.meta.title)
-        }}</a>
+          {{ generateTitle(item.meta.title) }}
+        </span>
+        <a v-else @click.prevent="handleLink(item)">
+          {{ generateTitle(item.meta.title) }}
+        </a>
       </el-breadcrumb-item>
     </TransitionGroup>
   </el-breadcrumb>
@@ -90,7 +91,7 @@ export default {
 
   .no-redirect {
     color: $primary;
-    cursor: text;
+    font-weight: 600;
   }
 }
 </style>

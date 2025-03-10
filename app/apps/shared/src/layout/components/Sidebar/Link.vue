@@ -19,6 +19,10 @@ export default {
     name: {
       type: String,
       default: ''
+    },
+    params: {
+      type: Object,
+      default: () => ({})
     }
   },
   computed: {
@@ -43,7 +47,8 @@ export default {
       }
       return {
         to: {
-          name: this.name
+          name: this.name,
+          params: this.params
         }
       }
     }

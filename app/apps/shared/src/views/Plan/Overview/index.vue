@@ -11,9 +11,9 @@
       <el-row slot="button">
         <el-col>
           <el-button
-            type="primary"
             icon="el-icon-s-tools"
             size="medium"
+            type="primary"
             @click.native="
               isShowProjectSettingDialog = !isShowProjectSettingDialog
             "
@@ -76,6 +76,7 @@
     >
       <WorkloadCard
         :save-selected-item="saveSelectedItem"
+        :shadow="'never'"
         :statistics-obj="statisticsObj"
       />
     </el-dialog>
@@ -152,6 +153,30 @@ export default {
     },
     searchData() {
       this.fetchAllData(true)
+    }
+  },
+  beforeRouteEnter(to, from, next) {
+    if (
+      from.name === 'Profile' &&
+      from.params.tab === 'aiSettings' &&
+      to.params.tab !== 'aiTokenSettings'
+    ) {
+      const newTo = {
+        ...to,
+        params: {
+          ...to.params,
+          settings: true,
+          tab: 'aiTokenSettings'
+        }
+      }
+      next(newTo)
+      return
+    }
+    next()
+  },
+  beforeMount() {
+    if (this.$route.params.settings) {
+      this.isShowProjectSettingDialog = true
     }
   },
   mounted() {

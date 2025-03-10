@@ -18,7 +18,7 @@ export async function triggerReport(selectedProject, commitId) {
 }
 
 async function triggerSonarQube(selectedProject) {
-  await getSonarQubeData(selectedProject.name)
+  await getSonarQubeData(selectedProject.identifier)
 }
 
 async function triggerCheckMarx(selectedProject, commitId) {

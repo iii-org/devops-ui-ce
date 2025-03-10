@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 // Board
 export const getAllBoard = (project_id) =>

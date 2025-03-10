@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getFileConfig = () => request.get(`/v3/system/configs/file_limit`)
 export const getDBPolicyList = () => {}

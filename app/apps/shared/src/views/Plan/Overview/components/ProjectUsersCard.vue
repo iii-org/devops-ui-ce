@@ -1,5 +1,5 @@
 <template>
-  <el-card class="mb-3">
+  <el-card class="mb-3 border-none">
     <div class="flex justify-between items-center w-full">
       <div class="flex items-center font-semibold h-8">
         <em class="el-icon-user mx-1"></em>

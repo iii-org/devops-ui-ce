@@ -33,8 +33,8 @@ export default {
     ReleaseVersions: '釋出版本',
     ReleaseVersion: '釋出版本',
     AutoTesting: '測試紀錄',
-    Semgrep: '白箱測試(Semgrep)',
-    SonarQube: '白箱測試(SonarQube)',
+    Semgrep: '白箱測試 (Semgrep)',
+    SonarQube: '白箱測試 (SonarQube)',
     ProjectActivities: '操作紀錄',
     ProjectActivity: '操作紀錄',
     ParticipateProject: '參與專案',
@@ -46,7 +46,8 @@ export default {
     SystemArguments: '參數設定',
     SystemVersion: '@:navbar.versions',
     TestReport: '測試彙整',
-    Organization: '組織'
+    Organization: '組織',
+    GenerateDockerfile: '產生 Dockerfile'
   },
   navbar: {
     logOut: '登出',
@@ -738,6 +739,8 @@ export default {
     Account: '@:general.Account',
     Department: '@:general.Department',
     Title: '@:general.UserTitle',
+    FirstName: '名字',
+    LastName: '姓氏',
     Phone: '電話',
     Password: '密碼',
     RepeatPassword: '重新輸入密碼',
@@ -756,6 +759,8 @@ export default {
     Selected: '已選',
     AccountRule: '帳號需要2-60個字並只接受._-特殊字元在中間',
     PasswordRule: '密碼需要8-20個字同時需要至少1個大寫1個小寫和1個數字',
+    PasswordNotTheSameRule: '密碼不相同',
+    EmailRule: '電子信箱格式不符',
     LastLogin: '上次登入',
     GravatarLink: '虛擬形象透過以下網站管理',
     GravatarNotification:
@@ -1330,6 +1335,41 @@ export default {
     PleaseInputOrganizationName: '請輸入組織名稱',
     IdentifierRule:
       'ID 必須是 2 到 30 個字元長，只能包含字母、數字和連字符，且不能以連字符開頭或結尾。'
+  },
+  GenerateDockerfile: {
+    AdditionalPrompt: '附加提示',
+    Generate: '生成',
+    Regenerate: '重新生成',
+    GeneratedDockerfile: '生成的 Dockerfile',
+    CreateMR: '創建 MR',
+    PushToCurrentBranch: '推送到當前分支',
+    ChatHistory: '聊天記錄',
+    ApplyToEditor: '應用到編輯器',
+    ClickToView: '點擊查看',
+    You: '您',
+    AIAssistant: 'AI助手',
+    PreviousVersion: '上一版本',
+    LatestVersion: '最新版本',
+    EnableAITokenWarning: '請先啟用此專案的 AI 功能'
+  },
+  AISettings: {
+    AITokenSettings: 'AI Token 設定',
+    NewAIToken: '新增 AI Token',
+    TokenIdentifier: 'Token ID',
+    AIProvider: 'AI 供應商',
+    Token: 'Token',
+    Required: '必填',
+    EnableAI: '啟用 AI 功能',
+    AIModel: 'AI 模型',
+    Unbind: '解除綁定',
+    CreateAIToken: '新增 AI Token',
+    AIDisabled: 'AI 功能已停用',
+    NotOwnerWarning: '專案擁有者才能設定 AI 功能',
+    NoTokenFoundWarning:
+      '尚未設定 AI Token，請新增 AI Token. 點擊下方按鈕新增 AI Token.',
+    NoProviderTokenWarning: '尚未設定 {provider} 的 AI Token',
+    TokenIdentifierExistsWarning: 'Token ID 已存在',
+    BackToProjectSettings: '返回專案設定'
   },
   Plugins: { NoArguments: '無可設定之參數。', ...(await asyncLangs()) }
 }

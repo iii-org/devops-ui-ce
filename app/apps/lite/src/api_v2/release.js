@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 const formDataHeaders = {
   headers: { 'Content-Type': 'multipart/form-data' }

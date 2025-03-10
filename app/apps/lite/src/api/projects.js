@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 import Project from '@/data/project'
 
 export const postStarProject = (project_id) =>

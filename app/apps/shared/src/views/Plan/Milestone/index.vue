@@ -208,7 +208,7 @@
       }"
       class="wrapper"
     >
-      <el-tabs v-model="activeTab" type="border-card">
+      <el-tabs v-model="activeTab" class="border-none" type="border-card">
         <el-tab-pane label="WBS" lazy name="WBS">
           <WBS
             v-if="activeTab === 'WBS'"
@@ -265,8 +265,7 @@
       <transition name="slide-fade">
         <div v-if="issueDetail.visible" class="rightPanel">
           <div
-            :style="{ 'background-color': '#85c1e9' }"
-            class="handle-button"
+            class="handle-button bg-warning"
             @click="handleRightPanelVisible"
           >
             <em class="el-icon-d-arrow-right"></em>
@@ -731,28 +730,23 @@ export default {
 .slide-fade-leave-to
 
   /* .slide-fade-leave-active below version 2.1.8 */ {
-  transform: translateX(800px);
+  transform: translateX(780px);
 }
 
 .handle-button {
-  width: 35px;
-  height: 50px;
+  width: 30px;
+  height: 40px;
   position: absolute;
-  left: -35px;
+  left: -30px;
   top: 0;
   text-align: center;
-  font-size: 24px;
+  font-size: 20px;
   border-radius: 6px 0 0 6px !important;
   z-index: 0;
   pointer-events: auto;
   cursor: pointer;
   color: #fff;
-  line-height: 50px;
-
-  i {
-    font-size: 24px;
-    line-height: 50px;
-  }
+  line-height: 40px;
 }
 
 .detail-drawer {

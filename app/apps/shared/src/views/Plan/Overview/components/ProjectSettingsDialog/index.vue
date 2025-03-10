@@ -53,6 +53,15 @@
     <!--        @handleCancel="handleCloseDialog"-->
     <!--      />-->
     <!--    </el-tab-pane>-->
+    <el-tab-pane
+      :label="$t('AISettings.AITokenSettings')"
+      name="aiTokenSettings"
+    >
+      <LLMKeySettings
+        v-if="activeTab === 'aiTokenSettings'"
+        @handleCancel="handleCloseDialog"
+      />
+    </el-tab-pane>
   </el-tabs>
 </template>
 
@@ -69,10 +78,11 @@ export default {
       import('@/views/Plan/Settings/components/ProjectVersions'),
     AdvanceBranchSettings: () =>
       import('@/views/Plan/Settings/components/AdvanceBranchSettings'),
-    AlertSettings: () =>
-      import('@/views/Plan/Settings/components/AlertSettings'),
+    // AlertSettings: () =>
+    //   import('@/views/Plan/Settings/components/AlertSettings'),
     TagSettings: () => import('@/views/Plan/Settings/components/TagSettings'),
-    SlackNotification: () => import('./components/SlackNotification')
+    // SlackNotification: () => import('./components/SlackNotification')
+    LLMKeySettings: () => import('./components/LLMKeySettings')
   },
   data() {
     return {
@@ -83,6 +93,11 @@ export default {
     ...mapGetters(['userRole']),
     isSSO() {
       return import.meta.env.VITE_APP_PROJECT === 'SSO'
+    }
+  },
+  beforeMount() {
+    if (this.$route.params.tab) {
+      this.activeTab = this.$route.params.tab
     }
   },
   methods: {

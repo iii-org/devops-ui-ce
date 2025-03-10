@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getProjectUserList = (project_id) =>
   request.get(`/v2/project/${project_id}/user/list`)

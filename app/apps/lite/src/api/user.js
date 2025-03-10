@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 import User from '@/data/user'
 
 export const login = (data) => request.post('/user/login', data)

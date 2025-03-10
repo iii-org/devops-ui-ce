@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getTestFileList = (projectId) =>
   request.get('/quality/' + projectId + '/testfile_list')

@@ -16,5 +16,5 @@ for file in $(find $ROOT_DIR/static/ -name '*.js') $ROOT_DIR/index.html; do
   sed -i 's|CE_LOGO_LIGHT_PLACEHOLDER|'"${CE_LOGO_LIGHT_EXTERNAL}"'|g' $file
   sed -i 's|CE_LOGO_DARK_PLACEHOLDER|'"${CE_LOGO_DARK_EXTERNAL}"'|g' $file
   sed -i 's|CE_FAVICON_PLACEHOLDER|'"${CE_FAVICON_EXTERNAL}"'|g' $file
-  sed -i 's|CE_LOGIN_BG_PLACEHOLDER|'"${CE_LOGIN_BG_EXTERNAL}"'|g' $file
+  sed -i 's|CE_LOGIN_BG_PLACEHOLDER|'"${CE_APP_LOGIN_BG}"'|g' $file
 done

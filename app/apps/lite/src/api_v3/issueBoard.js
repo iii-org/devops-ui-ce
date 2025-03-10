@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getBoardList = (project_id) =>
   request.get(`/v3/projects/${project_id}/boards`)

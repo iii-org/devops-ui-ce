@@ -43,17 +43,17 @@
           </el-form-item>
         </el-col>
         <el-col :md="12" :span="24">
-          <el-form-item label="First Name" prop="first_name">
+          <el-form-item :label="$t('User.FirstName')" prop="first_name">
             <el-input v-model="userForm.first_name" :disabled="disableEdit" />
           </el-form-item>
         </el-col>
         <el-col :md="12" :span="24">
-          <el-form-item label="Last Name" prop="last_name">
+          <el-form-item :label="$t('User.LastName')" prop="last_name">
             <el-input v-model="userForm.last_name" :disabled="disableEdit" />
           </el-form-item>
         </el-col>
         <el-col :md="12" :span="24">
-          <el-form-item label="Email" prop="email">
+          <el-form-item label="E-mail" prop="email">
             <el-input v-model="userForm.email" :disabled="disableEdit" />
           </el-form-item>
         </el-col>
@@ -281,7 +281,7 @@ export default {
           },
           {
             type: 'email',
-            message: 'Invalid email',
+            message: this.$t('User.EmailRule'),
             trigger: ['blur', 'change']
           },
           {
@@ -413,7 +413,7 @@ export default {
         this.userForm.password !== '' &&
         this.userForm.repeatPassword !== ''
       ) {
-        callback(new Error('password not the same'))
+        callback(new Error(this.$t('User.PasswordNotTheSameRule')))
       } else {
         callback()
       }

@@ -36,42 +36,6 @@
         </div>
       </el-col>
     </el-row>
-    <!--    <el-dialog-->
-    <!--      :close-on-click-modal="false"-->
-    <!--      :title="$t('Issue.AddIssue')"-->
-    <!--      :visible.sync="addTopicDialog.visible"-->
-    <!--      append-to-body-->
-    <!--      destroy-on-close-->
-    <!--      top="5px"-->
-    <!--      width="50%"-->
-    <!--      @close="handleClose"-->
-    <!--    >-->
-    <!--      <AddIssue-->
-    <!--        ref="AddIssue"-->
-    <!--        :parent-id="addTopicDialog.parentId"-->
-    <!--        :parent-subject="addTopicDialog.parentSubject"-->
-    <!--        :project-id="selectedProjectId"-->
-    <!--        :save-data="saveIssue"-->
-    <!--        import-from="list"-->
-    <!--        @loading="loadingUpdate"-->
-    <!--        @add-topic-visible="handleCloseDialog"-->
-    <!--      />-->
-    <!--      <span slot="footer" class="dialog-footer">-->
-    <!--        <el-button-->
-    <!--          id="dialog-btn-cancel"-->
-    <!--          class="button-secondary-reverse"-->
-    <!--          @click="handleAdvancedClose"-->
-    <!--        >{{ $t('general.Cancel') }}</el-button>-->
-    <!--        <el-button-->
-    <!--          id="dialog-btn-confirm"-->
-    <!--          :loading="addTopicDialog.LoadingConfirm"-->
-    <!--          type="primary"-->
-    <!--          @click="handleAdvancedSave"-->
-    <!--        >-->
-    <!--          {{ $t('general.Confirm') }}-->
-    <!--        </el-button>-->
-    <!--      </span>-->
-    <!--    </el-dialog>-->
     <el-dialog
       :before-close="handleRelationIssueDialogBeforeClose"
       :visible.sync="relationIssue.visible"

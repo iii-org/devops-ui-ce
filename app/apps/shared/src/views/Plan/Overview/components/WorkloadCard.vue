@@ -1,5 +1,9 @@
 <template>
-  <el-card :shadow="shadow" class="mb-3">
+  <el-card
+    :class="{ 'border-none': shadow === 'always' }"
+    :shadow="shadow"
+    class="mb-3"
+  >
     <div class="flex justify-between items-center font-semibold">
       <div>
         <em class="el-icon-data-analysis mx-1"></em>

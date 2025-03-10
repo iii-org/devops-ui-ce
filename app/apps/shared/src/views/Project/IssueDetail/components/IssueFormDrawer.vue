@@ -27,7 +27,7 @@
             v-for="option in options[formType].value"
             :key="option.name"
             :disabled="
-              formType === 'fixed_version_id'
+              formType === 'version_id'
                 ? option.status !== 'open'
                 : option.disabled
             "
@@ -92,6 +92,8 @@ export default {
   },
   methods: {
     getSelectionLabel(item) {
+      if (item.hasOwnProperty('full_name')) return item.full_name
+
       const visibleStatus = ['closed', 'locked']
       let result = this.$te('Issue.' + item.name)
         ? this.$t('Issue.' + item.name)

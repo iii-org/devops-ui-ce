@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getIssue = (issue_id) => request.get(`/v2/issues/${issue_id}`)
 export const getIssueStrictTracker = (params) => request.get(`/v2/issues_tracker`, { params })

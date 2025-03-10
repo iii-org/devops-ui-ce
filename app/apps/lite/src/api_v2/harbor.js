@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getHarborRepoList = (project_id) =>
   request.get(`/v2/harbor/projects/${project_id}`)

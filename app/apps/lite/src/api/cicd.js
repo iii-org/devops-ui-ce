@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getPipelines = (repository_id, params, config) =>
   request.get(`/pipelines/${repository_id}/pipelines_exec`, {

@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getIssue = (issue_id) => request.get(`/issues/${issue_id}`)
 export const getIssueStatus = () => request.get(`/issues_status`)

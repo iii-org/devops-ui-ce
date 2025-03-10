@@ -19,6 +19,34 @@
   border-radius: 8px !important;
 }
 
+.el-tabs__header {
+  border-radius: 8px 8px 0 0;
+}
+
+.el-tabs--border-card > .el-tabs__header .el-tabs__item {
+  &:hover {
+    color: $linkTextColor !important;
+  }
+
+  &.is-active {
+    color: $linkTextColor !important;
+  }
+}
+
+.el-tabs__item {
+  &:hover {
+    color: $linkTextColor !important;
+  }
+
+  &.is-active {
+    color: $linkTextColor !important;
+  }
+}
+
+.el-tabs__active-bar {
+  background-color: $linkTextColor !important;
+}
+
 // card
 .el-card.is-always-shadow,
 .el-card.is-hover-shadow:focus,
@@ -263,6 +291,18 @@ $tag-circle-options: (
 
 .el-message {
   z-index: 2050 !important;
+}
+
+.el-switch__label.is-active {
+  color: $linkTextColor !important;
+}
+
+.el-switch .el-switch__core {
+  @include background-border-color(gray, gray);
+}
+
+.el-switch.is-checked .el-switch__core {
+  @include background-border-color($linkTextColor, $linkTextColor);
 }
 
 /* theme color */

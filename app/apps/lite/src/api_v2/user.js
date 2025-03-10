@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getUserWatchList = (userId, params, config) =>
   request.get(`/v2/user/${userId}/issues/watch/list`, { params, ...config })

@@ -349,7 +349,7 @@ export default {
     handleBackPage() {
       this.$router.push({
         name: 'ReleaseVersion',
-        params: { projectName: this.selectedProject.name }
+        params: { projectName: this.selectedProject.identifier }
       })
     },
     getFixedVersionClosed() {

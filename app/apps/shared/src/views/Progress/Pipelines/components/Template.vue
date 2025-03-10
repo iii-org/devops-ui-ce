@@ -6,10 +6,9 @@
           <div></div>
           <el-button
             slot="link"
-            :disabled="!pluginData.link"
             icon="ri-external-link-line"
             type="text"
-            @click="openSonarQube"
+            @click="goToDetailPage"
           >
             {{ $t('TestReport.DetailReport') }}
           </el-button>
@@ -95,8 +94,27 @@ export default {
     }
   },
   methods: {
-    openSonarQube() {
-      window.open(this.pluginData.link)
+    goToDetailPage() {
+      switch (this.pluginData.key) {
+        case 'semgrep':
+          this.$router.push({
+            name: 'Semgrep',
+            params: {
+              commitId: this.commitId
+            }
+          })
+          break
+        case 'sonarqube':
+          this.$router.push({
+            name: 'Sonarqube',
+            params: {
+              commitId: this.commitId
+            }
+          })
+          break
+        default:
+          break
+      }
     }
   }
 }

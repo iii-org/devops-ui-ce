@@ -126,6 +126,7 @@
         <div
           v-else
           :class="editable(row) ? 'cursor-pointer' : 'cursor-not-allowed'"
+          class="w-full"
         >
           -
         </div>

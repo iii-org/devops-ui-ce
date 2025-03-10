@@ -1,4 +1,4 @@
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 export const getExcalidraw = (params) => request.get(`/v2/excalidraw`, { params })
 export const getExcalidrawDataById = (excalidraw_id) => request.get(`/v2/excalidraw/data/${excalidraw_id}`)

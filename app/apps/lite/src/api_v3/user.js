@@ -1,5 +1,5 @@
 import User from '@/data/user'
-import request from '@shared/utils/request'
+import request from '@/utils/request'
 
 // Current User
 export const getCurrentUser = async () => {

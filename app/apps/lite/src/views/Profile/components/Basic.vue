@@ -27,7 +27,7 @@
           </el-form-item>
         </el-col>
         <el-col :md="8" :sm="12" :xs="24">
-          <el-form-item label="First Name" prop="firstName">
+          <el-form-item :label="$t('User.FirstName')" prop="firstName">
             <el-input
               v-model="userProfileForm.firstName"
               :disabled="disableEdit"
@@ -36,7 +36,7 @@
           </el-form-item>
         </el-col>
         <el-col :md="8" :sm="12" :xs="24">
-          <el-form-item label="Last Name" prop="lastName">
+          <el-form-item :label="$t('User.LastName')" prop="lastName">
             <el-input
               v-model="userProfileForm.lastName"
               :disabled="disableEdit"
@@ -63,7 +63,7 @@
           </el-form-item>
         </el-col>
         <el-col :md="8" :sm="12" :xs="24">
-          <el-form-item label="Email" prop="userEmail">
+          <el-form-item label="E-mail" prop="userEmail">
             <el-input
               v-model="userProfileForm.userEmail"
               :disabled="disableEdit"
@@ -88,7 +88,7 @@
           v-if="!disableEdit"
           type="primary"
           @click="submitUpdateUserProfile('userProfileForm')"
-          >{{ $t('Profile.Save') }}
+        >{{ $t('Profile.Save') }}
         </el-button>
       </el-col>
     </el-row>

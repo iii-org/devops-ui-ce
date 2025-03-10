@@ -92,7 +92,7 @@ export default {
     ...mapGetters(['userName', 'selectedProject', 'selectedProjectId']),
     url() {
       const { protocol, host } = location
-      return `${protocol}//${host}/#/project/${this.selectedProject.name}/whiteboard/${this.row.id}`
+      return `${protocol}//${host}/#/project/${this.selectedProject.identifier}/whiteboard/${this.row.id}`
     }
   },
   watch: {

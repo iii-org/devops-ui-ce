@@ -133,8 +133,8 @@
 <script>
 import { getPipelinesJobsStatus } from '@/api_v3/gitlab'
 import AnsiUp from 'ansi_up'
-import { io } from 'socket.io-client'
 import { mapGetters } from 'vuex'
+import { initSocket } from '@/utils/request'
 
 const ansiUp = new AnsiUp()
 const NOLOGS = ansiUp.ansi_to_html(`\u001b[1mNo logs available\u001b[0m`)
@@ -158,11 +158,7 @@ export default {
       //   reconnectionAttempts: 5,
       //   transports: ['websocket']
       // }),
-      socket: io(`/job_log`, {
-        // production socket
-        reconnectionAttempts: 5,
-        forceNew: true
-      }),
+      socket: null,
       lockReconnect: false,
       reconnectTimeoutObj: null,
       isScrollBottom: true,
@@ -192,6 +188,7 @@ export default {
   },
   mounted() {
     if (this.selectedProject.id === -1) return
+    this.socket = initSocket('/job_log')
     this.setLogMessageListener()
   },
   beforeDestroy() {

@@ -236,7 +236,7 @@ export default {
     handleBack() {
       this.$router.push({
         name: 'ProjectSettings',
-        params: { projectName: this.selectedProject.name }
+        params: { projectName: this.selectedProject.identifier }
       })
     }
   }
