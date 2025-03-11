@@ -510,7 +510,8 @@ export default {
 
   ::v-deep .el-card.is-always-shadow {
     box-shadow: none !important;
-    border-radius: 0 !important;
+    margin: 10px;
+    border-radius: 4px;
   }
 
   .title {
@@ -605,6 +606,7 @@ export default {
     position: fixed;
     bottom: 0;
     width: 100%;
+    margin: 0;
   }
 
   .el-tabs--border-card > .el-tabs__content {
@@ -615,6 +617,7 @@ export default {
     @include css-prefix(box-shadow, none);
     background: none;
     border-radius: 0 !important;
+    border: none !important;
   }
 
   .el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom {

@@ -31,7 +31,7 @@
         "
         :key="col.prop"
         :align="col.align || 'left'"
-        :fixed="col.fixed"
+        :fixed="isMobile ? false : col.fixed || false"
         :header-align="col.headerAlign || col.align || 'left'"
         :label="col.label"
         :min-width="col.minWidth || 'auto'"

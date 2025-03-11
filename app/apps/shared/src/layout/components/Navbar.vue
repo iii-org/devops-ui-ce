@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import Notification from '@/components/Notification'
+import Notification from '@shared/components/Notification'
 import { mapGetters } from 'vuex'
 
 export default {

@@ -41,6 +41,46 @@
     ]
   },
   {
+    "path": "/inbox",
+    "component": "layout",
+    "name": "InboxParent",
+    "redirect": {
+      "name": "Inbox"
+    },
+    "meta": {
+      "title": "Inbox",
+      "icon": "ri-notification-4-line",
+      "roles": [
+        "sysadmin"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/Inbox",
+        "name": "Inbox",
+        "meta": {
+          "title": "Inbox",
+          "roles": [
+            "sysadmin"
+          ]
+        }
+      },
+      {
+        "path": "message-console",
+        "name": "MessageConsole",
+        "hidden": true,
+        "component": "views/Inbox/MessageConsole",
+        "meta": {
+          "title": "MessageConsole",
+          "roles": [
+            "sysadmin"
+          ]
+        }
+      }
+    ]
+  },
+  {
     "path": "/project/:projectName?",
     "component": "layout",
     "name": "Works",

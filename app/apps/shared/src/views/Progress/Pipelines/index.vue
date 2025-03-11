@@ -263,7 +263,7 @@ export default {
           align: 'center',
           width: '130',
           slot: 'actions',
-          fixed: this.isMobile ? false : 'right'
+          fixed: 'right'
         }
       ]
     },

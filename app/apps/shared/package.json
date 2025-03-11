@@ -44,6 +44,7 @@
     "vue-echarts": "^6.0.0-rc.4",
     "vue-google-translate": "0.0.11",
     "vue-input-autowidth": "^1.0.11",
+    "vue-native-notification": "^1.1.1",
     "vue-ripple-directive": "^2.0.1",
     "vuedraggable": "git+https://github.com/SortableJS/Vue.Draggable.git",
     "vuex": "3.1.0",

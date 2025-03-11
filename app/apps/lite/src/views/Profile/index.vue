@@ -171,7 +171,7 @@ export default {
 }
 
 ::v-deep .el-tabs__nav-wrap::after {
-  background-color: none;
+  background-color: transparent;
 }
 
 ::v-deep .el-tabs__item {

@@ -234,7 +234,7 @@ export default {
           minWidth: 120,
           slot: 'actions',
           align: 'center',
-          fixed: this.isMobile ? false : 'right'
+          fixed: 'right'
         }
       ]
       if (this.userRole === 'sysadmin') {

@@ -33,3 +33,11 @@ export const getPinnedRoutes = (userId) =>
   request.get(`/user/user_route?user_id=${userId}`)
 export const updatePinnedRoutes = (data) =>
   request.post(`/user/user_route`, data)
+export const getAllUser = async () => {
+  const res = await request.post(`/user/list`)
+  const userList = []
+  for (const user of res.data.user_list) {
+    userList.push({ id: user.id, name: user.name, login: user.login })
+  }
+  return userList
+}

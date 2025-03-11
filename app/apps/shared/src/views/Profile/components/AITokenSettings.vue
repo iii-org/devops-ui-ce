@@ -49,7 +49,7 @@
             :rules="[
               {
                 required: true,
-                message: $t('AISettings.Required'),
+                message: $t('general.Required'),
                 trigger: 'blur'
               },
               { validator: validateIdentifier, trigger: 'blur' }
@@ -69,7 +69,7 @@
             :rules="[
               {
                 required: !item.id,
-                message: $t('AISettings.Required'),
+                message: $t('general.Required'),
                 trigger: 'blur'
               }
             ]"
@@ -104,7 +104,7 @@
             :rules="[
               {
                 required: !item.id,
-                message: $t('AISettings.Required'),
+                message: $t('general.Required'),
                 trigger: 'blur'
               }
             ]"

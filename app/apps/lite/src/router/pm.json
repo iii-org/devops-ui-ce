@@ -44,7 +44,7 @@
     "component": "layout",
     "name": "Works",
     "redirect": {
-      "name": "MyWorkParent"
+      "name": "OverviewParent"
     },
     "meta": {
       "title": "Works",
@@ -73,33 +73,6 @@
             "name": "Overview",
             "hidden": true,
             "component": "views/Plan/Overview",
-            "meta": {
-              "roles": [
-                "Project Manager"
-              ]
-            }
-          }
-        ]
-      },
-      {
-        "path": "my-work",
-        "name": "MyWorkParent",
-        "component": "layout/components/parentBlank",
-        "redirect": {
-          "name": "MyWork"
-        },
-        "meta": {
-          "title": "MyWork",
-          "roles": [
-            "Project Manager"
-          ]
-        },
-        "children": [
-          {
-            "path": "",
-            "name": "MyWork",
-            "hidden": true,
-            "component": "views/MyWork",
             "meta": {
               "roles": [
                 "Project Manager"
@@ -664,6 +637,75 @@
         }
       }
     ]
+  },
+  {
+    "path": "/my-work/:projectName?",
+    "name": "MyWorkParent",
+    "component": "layout",
+    "redirect": {
+      "name": "MyWork"
+    },
+    "meta": {
+      "icon": "ri-home-office-line",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "hidden": true,
+    "children": [
+      {
+        "path": "",
+        "name": "MyWork",
+        "component": "views/MyWork",
+        "meta": {
+          "title": "MyWork",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "path": "/inbox",
+    "component": "layout",
+    "name": "InboxParent",
+    "redirect": {
+      "name": "Inbox"
+    },
+    "meta": {
+      "title": "Inbox",
+      "icon": "ri-notification-4-line",
+      "roles": [
+        "Project Manager"
+      ]
+    },
+    "children": [
+      {
+        "path": "",
+        "component": "views/Inbox",
+        "name": "Inbox",
+        "meta": {
+          "title": "Inbox",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      },
+      {
+        "path": "message-console",
+        "name": "MessageConsole",
+        "hidden": true,
+        "component": "views/Inbox/MessageConsole",
+        "meta": {
+          "title": "MessageConsole",
+          "roles": [
+            "Project Manager"
+          ]
+        }
+      }
+    ],
+    "hidden": true
   },
   {
     "path": "*",
