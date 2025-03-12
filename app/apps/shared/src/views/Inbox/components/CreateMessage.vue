@@ -342,15 +342,14 @@ export default {
       }
     },
     onDialogClosed() {
-      this.showDialog = false
       this.messageType = 'Public'
       this.form = formTemplate()
 
       this.$nextTick(() => {
-        this.$refs.createMessage.resetFields()
         this.$refs.createMessage.clearValidate()
         this.$refs.mdEditor.invoke('reset')
         this.$emit('edit')
+        this.showDialog = false
       })
     },
     async onSend() {

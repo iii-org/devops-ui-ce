@@ -109,6 +109,20 @@ export default {
         }
       })
 
+      this.socket.on('read', (data) => {
+        const { notification, unread } = data
+        const { key, index } = this.findIndexData(notification.notification_id)
+        if (index !== -1) {
+          this.$set(
+            this.notifications[key].notifications[index],
+            'is_read',
+            notification.is_read
+          )
+        }
+        this.notifications.info.unread = unread.info
+        this.notifications.others.unread = unread.other
+      })
+
       this.socket.on('deleted', (data) => {
         const { id, unread } = data
         const { key, index } = this.findIndexData(id)
@@ -134,6 +148,7 @@ export default {
       // Find the index of the notification in the notifications object
       const keys = ['new_version', 'info', 'others']
       for (const key of keys) {
+        if (!this.notifications[key]) continue
         const index = this.notifications[key].notifications.findIndex(
           (msg) => msg.notification_id === id
         )
@@ -147,7 +162,7 @@ export default {
       // Platform notification
       const h = this.$createElement
       const level =
-        notification.level === 'urgent' ? 'error' : notification.level
+        notification.level === 'urgent' ? 'danger' : notification.level
 
       this.$notify({
         title: notification.title,

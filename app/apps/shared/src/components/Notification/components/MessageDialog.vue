@@ -1,24 +1,21 @@
 <template>
   <component
-    :is="device === 'mobile' ? 'el-drawer' : 'el-dialog'"
+    :is="isMobile ? 'el-drawer' : 'el-dialog'"
     :close-on-click-modal="false"
-    :show-close="device === 'mobile'"
+    :show-close="isMobile"
     :visible.sync="dialogVisible"
     append-to-body
     class="drawer"
     direction="btt"
     size="99%"
     top="5%"
-    width="70%"
+    width="50%"
   >
     <template slot="title">
-      <component
-        :is="device === 'mobile' ? 'h4' : 'h3'"
-        style="margin-bottom: 6px"
-      >
+      <component :is="isMobile ? 'h4' : 'h3'" style="margin-bottom: 6px">
         {{ message?.title || 'No Title' }}
       </component>
-      <div v-if="device === 'desktop'" class="text-sm">
+      <div v-if="!isMobile" class="text-sm">
         <em class="el-icon-time mr-1"></em>{{ getLocalTime(message.created_at) }}
       </div>
     </template>
@@ -45,6 +42,7 @@
 
 <script>
 import { getLocalTime } from '@shared/utils/handleTime'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'MessageDialog',
@@ -64,8 +62,9 @@ export default {
     }
   },
   computed: {
-    device() {
-      return this.$store.getters.device
+    ...mapGetters(['device']),
+    isMobile() {
+      return this.device === 'mobile'
     }
   },
   watch: {

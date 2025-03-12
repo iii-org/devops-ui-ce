@@ -1,10 +1,12 @@
 import vue from '@vitejs/plugin-vue2'
-import 'stream-browserify'
-import 'timers-browserify'
 import { fileURLToPath, URL } from 'url'
-import 'util'
 import { defineConfig, loadEnv } from 'vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import viteCompression from 'vite-plugin-compression'
+import { visualizer } from 'rollup-plugin-visualizer'
+import 'stream-browserify'
+import 'timers-browserify'
+import 'util'
 
 function resolveURL(dir, subpath = '') {
   subpath = subpath.replace(/^('|\s+|'|-e)$/gm, '') // Remove single quote, space, -e
@@ -28,8 +30,20 @@ export default defineConfig(({ mode }) => {
       createSvgIconsPlugin({
         iconDirs: [resolveURL('src/icons')],
         symbolId: 'icon-[dir]-[name]'
+      }),
+      viteCompression({
+        algorithm: 'gzip',
+        ext: '.gz'
+      }),
+      visualizer({
+        open: false,
+        filename: 'dist/stats.html',
+        gzipSize: true
       })
     ],
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'vuex', 'axios', 'element-ui']
+    },
     server: {
       port: port,
       open: true,
@@ -46,8 +60,17 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/prod-api/, '')
         }
       },
+      hmr: {
+        overlay: true,
+        port: 24678
+      },
       warmup: {
-        clientFiles: ['./index.html', './src/{views, components}/*']
+        clientFiles: [
+          './index.html',
+          './src/{views,components}/**/*.vue',
+          './src/router/**/*.js',
+          './src/store/**/*.js'
+        ]
       }
     },
     resolve: {
@@ -71,7 +94,9 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       assetsDir: 'static',
       assetsInlineLimit: 4096,
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 1000,
+      cssCodeSplit: true,
+      cache: true,
       sourcemap: 'hidden',
       minify: 'terser',
       terserOptions: {
@@ -89,9 +114,6 @@ export default defineConfig(({ mode }) => {
         }
       },
       rollupOptions: {
-        onwarn: () => {
-
-        },
         output: {
           assetFileNames: ({ name }) => {
             if (/\.(gif|jpe?g|png|svg)$/.test(name ?? '')) {

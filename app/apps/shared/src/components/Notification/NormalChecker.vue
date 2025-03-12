@@ -29,8 +29,14 @@
               >
                 {{ msg.title ? msg.title : 'No Title' }}
               </div>
-              <div class="text-[11px] text-gray-400">
-                {{ getRelativeTime(msg.created_at) }}
+              <div class="text-[11px] text-gray-400 flex items-center">
+                <span class="mr-2 max-w-[100px] text-success truncate">
+                  {{ msg.sender?.full_name || 'System' }}
+                </span>
+                <span>
+                  <em class="el-icon-time mr-1"></em>
+                  {{ getRelativeTime(msg.created_at) }}
+                </span>
               </div>
             </span>
           </div>
